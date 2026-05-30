@@ -11,14 +11,11 @@
  */
 
 const MESSAGES = [
-  "380 años de tradición zapatera en León",
-  "Hecho en México, hecho con orgullo",
-  "Cuero auténtico, curado par por par",
-  "Envío a México y Estados Unidos",
+  "380 años de experiencia",
+  "León, capital mundial del cuero",
+  "Envío MX y USA",
+  "Cambio de talla",
   "3, 6 y 9 meses sin intereses",
-  "Cambio de talla sin costo",
-  "Cada marca pasa nuestro filtro",
-  "Pago seguro con tarjeta, OXXO o transferencia",
 ]
 
 export function MarqueeBar() {
