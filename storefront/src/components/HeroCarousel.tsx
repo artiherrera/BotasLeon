@@ -65,27 +65,26 @@ const AUTO_ROTATE_MS = 8000
 export function HeroCarousel({ slides }: Props) {
   const data = slides && slides.length > 0 ? slides : PLACEHOLDER_SLIDES
   const [active, setActive] = useState(0)
-  const [paused, setPaused] = useState(false)
 
   const goTo = useCallback((idx: number) => {
     setActive(idx)
   }, [])
 
+  // Rota cada 8s. Sin pause-on-hover porque el hero ocupa 70vh y casi
+  // siempre el mouse del usuario está sobre él (al cargar la página, al
+  // scrollear), congelando la rotación. UX preferida: rotación constante;
+  // el usuario puede saltar manualmente via los dots.
   useEffect(() => {
-    if (paused || data.length <= 1) return
+    if (data.length <= 1) return
     const interval = setInterval(() => {
       setActive((prev) => (prev + 1) % data.length)
     }, AUTO_ROTATE_MS)
     return () => clearInterval(interval)
-  }, [paused, data.length])
+  }, [data.length])
 
   return (
     <section
       className="relative w-full h-[70vh] min-h-[480px] max-h-[680px] overflow-hidden bg-leather"
-      onMouseEnter={() => setPaused(true)}
-      onMouseLeave={() => setPaused(false)}
-      onFocusCapture={() => setPaused(true)}
-      onBlurCapture={() => setPaused(false)}
       aria-roledescription="carousel"
       aria-label="Banners destacados"
     >

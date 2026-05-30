@@ -45,14 +45,21 @@ export function Header() {
         {/* Spacer */}
         <div className="flex-1" />
 
-        {/* Search + Cart */}
-        <div className="flex items-center gap-3">
+        {/* Search + Cuenta + Cart */}
+        <div className="flex items-center gap-2">
           <Link
             href="/search"
             aria-label="Buscar"
             className="p-2 hover:bg-bg-alt rounded transition-colors"
           >
             <SearchIcon />
+          </Link>
+          <Link
+            href="/cuenta"
+            aria-label="Mi cuenta"
+            className="p-2 hover:bg-bg-alt rounded transition-colors"
+          >
+            <UserIcon />
           </Link>
           <Link
             href="/cart"
@@ -72,6 +79,15 @@ function SearchIcon() {
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
       <circle cx="11" cy="11" r="8" />
       <path d="m21 21-4.3-4.3" />
+    </svg>
+  )
+}
+
+function UserIcon() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+      <circle cx="12" cy="7" r="4" />
     </svg>
   )
 }
