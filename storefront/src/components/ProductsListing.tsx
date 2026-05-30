@@ -6,16 +6,21 @@ import { EmptyProductsState } from "./EmptyState"
 import type { Product } from "@/lib/shopify/types"
 
 /**
- * ProductsListing — grid de productos con filtro client-side por talla.
+ * ProductsListing — grid con sidebar de filtros (estilo Amazon).
  *
- * Server pasa todos los productos como prop. Client extrae el set único
- * de tallas presentes (de las variantes) y permite al usuario filtrar.
- * Cuando llegue Sprint C agregamos más filtros (precio, material, marca)
- * con el mismo patrón.
+ * Filtros disponibles ahora (todos client-side a partir del fragment
+ * PRODUCT_CARD_FRAGMENT que ya tenemos):
+ *  - Marca (vendor)
+ *  - Talla (de Product.options "Talla del calzado")
+ *  - Estilo (Product.productType: Vaqueras, Botines, etc.)
+ *  - Disponibilidad (en stock vs. todos)
  *
- * Decisión: client filter en lugar de URL params + dynamic route, porque
- * Amplify Hosting no maneja bien rutas Next 16 dinámicas. El trade-off
- * es que la URL no preserva el filtro (no compartible). Aceptable para MVP.
+ * Filtros que faltan y vienen en próximas iteraciones cuando agreguemos
+ * los metafields al fragment:
+ *  - Color, Material (cuero / avestruz / cocodrilo / etc.)
+ *  - Sexo objetivo (mejor manejado vía Collections automatizadas)
+ *
+ * Mobile: el sidebar se vuelve un botón "Filtros" que abre un drawer.
  */
 
 type Props = {
@@ -24,129 +29,316 @@ type Props = {
 
 const SIZE_OPTION_NAMES = ["Talla", "Talla del calzado", "Size"]
 
-export function ProductsListing({ products }: Props) {
-  const [selectedSizes, setSelectedSizes] = useState<Set<string>>(new Set())
+type FilterState = {
+  vendors: Set<string>
+  sizes: Set<string>
+  types: Set<string>
+  onlyAvailable: boolean
+}
 
-  // Set único de tallas a partir de las options del producto.
-  // `options` viene del fragment PRODUCT_CARD_FRAGMENT y es ligero
-  // (no requiere fetch de variantes individuales). Filtramos por
-  // presencia de la talla, no por stock — un producto agotado en una
-  // talla aún se considera "ofrece esa talla".
-  const availableSizes = useMemo(() => {
+const EMPTY_FILTERS: FilterState = {
+  vendors: new Set(),
+  sizes: new Set(),
+  types: new Set(),
+  onlyAvailable: false,
+}
+
+export function ProductsListing({ products }: Props) {
+  const [filters, setFilters] = useState<FilterState>(EMPTY_FILTERS)
+  const [mobileOpen, setMobileOpen] = useState(false)
+
+  // === Facetas — qué opciones mostrar en sidebar ===
+
+  const facets = useMemo(() => {
+    const vendors = new Set<string>()
     const sizes = new Set<string>()
+    const types = new Set<string>()
     for (const p of products) {
+      if (p.vendor) vendors.add(p.vendor)
+      if (p.productType) types.add(p.productType)
       const sizeOpt = (p.options ?? []).find((o) =>
         SIZE_OPTION_NAMES.includes(o.name)
       )
-      if (!sizeOpt) continue
-      for (const v of sizeOpt.values) sizes.add(v)
+      if (sizeOpt) for (const v of sizeOpt.values) sizes.add(v)
     }
-    // Ordenamiento numérico (24, 25, 26... no alfabético).
-    return Array.from(sizes).sort((a, b) => {
+    const sortNumeric = (a: string, b: string) => {
       const na = parseFloat(a)
       const nb = parseFloat(b)
       if (isNaN(na) || isNaN(nb)) return a.localeCompare(b)
       return na - nb
-    })
+    }
+    return {
+      vendors: Array.from(vendors).sort(),
+      sizes: Array.from(sizes).sort(sortNumeric),
+      types: Array.from(types).sort(),
+    }
   }, [products])
 
-  const filtered = useMemo(() => {
-    if (selectedSizes.size === 0) return products
-    return products.filter((p) => {
-      const sizeOpt = (p.options ?? []).find((o) =>
-        SIZE_OPTION_NAMES.includes(o.name)
-      )
-      if (!sizeOpt) return false
-      return sizeOpt.values.some((v) => selectedSizes.has(v))
-    })
-  }, [products, selectedSizes])
+  // === Productos filtrados ===
 
-  const toggleSize = (size: string) => {
-    setSelectedSizes((prev) => {
-      const next = new Set(prev)
-      if (next.has(size)) next.delete(size)
-      else next.add(size)
-      return next
+  const filtered = useMemo(() => {
+    return products.filter((p) => {
+      if (filters.onlyAvailable && !p.availableForSale) return false
+
+      if (filters.vendors.size > 0 && !filters.vendors.has(p.vendor)) return false
+
+      if (filters.types.size > 0 && !filters.types.has(p.productType)) return false
+
+      if (filters.sizes.size > 0) {
+        const sizeOpt = (p.options ?? []).find((o) =>
+          SIZE_OPTION_NAMES.includes(o.name)
+        )
+        if (!sizeOpt) return false
+        const hasSize = sizeOpt.values.some((v) => filters.sizes.has(v))
+        if (!hasSize) return false
+      }
+
+      return true
+    })
+  }, [products, filters])
+
+  const activeCount =
+    filters.vendors.size +
+    filters.sizes.size +
+    filters.types.size +
+    (filters.onlyAvailable ? 1 : 0)
+
+  const clearAll = () => setFilters(EMPTY_FILTERS)
+
+  const toggle = (key: "vendors" | "sizes" | "types", value: string) => {
+    setFilters((prev) => {
+      const next = new Set(prev[key])
+      if (next.has(value)) next.delete(value)
+      else next.add(value)
+      return { ...prev, [key]: next }
     })
   }
 
-  const clearFilters = () => setSelectedSizes(new Set())
-
   return (
-    <>
-      {/* Toolbar: count + filtros */}
-      <div className="mb-8 pb-4 border-b border-border">
-        <div className="flex items-center justify-between mb-4">
-          <p className="text-sm text-text-muted">
-            {filtered.length} producto{filtered.length === 1 ? "" : "s"}
-            {selectedSizes.size > 0 && ` (filtrado de ${products.length})`}
-          </p>
-          {selectedSizes.size > 0 && (
+    <div className="grid grid-cols-1 lg:grid-cols-[16rem_1fr] gap-8">
+      {/* Sidebar desktop / drawer mobile */}
+      <aside
+        className={`
+          ${mobileOpen ? "fixed inset-0 z-50 bg-bg overflow-y-auto" : "hidden"}
+          lg:block lg:static lg:bg-transparent lg:overflow-visible lg:z-auto
+        `}
+      >
+        {/* Header drawer mobile */}
+        {mobileOpen && (
+          <div className="flex items-center justify-between px-6 py-5 border-b border-border lg:hidden sticky top-0 bg-bg">
+            <h2 className="font-heading text-xl">Filtros</h2>
             <button
-              onClick={clearFilters}
-              className="text-xs uppercase tracking-wider text-leather hover:text-terracotta"
+              onClick={() => setMobileOpen(false)}
+              aria-label="Cerrar filtros"
+              className="p-2 -mr-2 hover:bg-bg-alt rounded"
             >
-              Limpiar filtros
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M18 6 6 18M6 6l12 12" />
+              </svg>
             </button>
+          </div>
+        )}
+
+        <div className={mobileOpen ? "px-6 py-4 space-y-6" : "space-y-6 lg:sticky lg:top-24"}>
+          {/* Header sidebar desktop */}
+          <div className="hidden lg:flex items-center justify-between pb-3 border-b border-border">
+            <h2 className="font-heading text-base text-text">Filtros</h2>
+            {activeCount > 0 && (
+              <button
+                onClick={clearAll}
+                className="text-xs uppercase tracking-wider text-leather hover:text-terracotta"
+              >
+                Limpiar ({activeCount})
+              </button>
+            )}
+          </div>
+
+          {/* Disponibilidad */}
+          <FilterSection title="Disponibilidad">
+            <label className="flex items-center gap-2 cursor-pointer text-sm">
+              <input
+                type="checkbox"
+                checked={filters.onlyAvailable}
+                onChange={(e) =>
+                  setFilters((prev) => ({ ...prev, onlyAvailable: e.target.checked }))
+                }
+                className="rounded border-border accent-leather"
+              />
+              Solo en stock
+            </label>
+          </FilterSection>
+
+          {/* Marca */}
+          {facets.vendors.length > 0 && (
+            <FilterSection title="Marca">
+              <div className="space-y-2">
+                {facets.vendors.map((vendor) => (
+                  <label key={vendor} className="flex items-center gap-2 cursor-pointer text-sm hover:text-leather">
+                    <input
+                      type="checkbox"
+                      checked={filters.vendors.has(vendor)}
+                      onChange={() => toggle("vendors", vendor)}
+                      className="rounded border-border accent-leather"
+                    />
+                    <span className="flex-1">{vendor}</span>
+                    <span className="text-xs text-text-subtle">
+                      {products.filter((p) => p.vendor === vendor).length}
+                    </span>
+                  </label>
+                ))}
+              </div>
+            </FilterSection>
+          )}
+
+          {/* Estilo */}
+          {facets.types.length > 0 && (
+            <FilterSection title="Estilo">
+              <div className="space-y-2">
+                {facets.types.map((type) => (
+                  <label key={type} className="flex items-center gap-2 cursor-pointer text-sm hover:text-leather">
+                    <input
+                      type="checkbox"
+                      checked={filters.types.has(type)}
+                      onChange={() => toggle("types", type)}
+                      className="rounded border-border accent-leather"
+                    />
+                    <span className="flex-1">{type}</span>
+                    <span className="text-xs text-text-subtle">
+                      {products.filter((p) => p.productType === type).length}
+                    </span>
+                  </label>
+                ))}
+              </div>
+            </FilterSection>
+          )}
+
+          {/* Talla */}
+          {facets.sizes.length > 0 && (
+            <FilterSection title="Talla">
+              <div className="flex flex-wrap gap-2">
+                {facets.sizes.map((size) => {
+                  const active = filters.sizes.has(size)
+                  return (
+                    <button
+                      key={size}
+                      onClick={() => toggle("sizes", size)}
+                      aria-pressed={active}
+                      className={`min-w-[2.5rem] px-3 py-1.5 text-xs border transition-colors ${
+                        active
+                          ? "border-leather bg-leather text-bg"
+                          : "border-border text-text hover:border-leather"
+                      }`}
+                    >
+                      {size}
+                    </button>
+                  )
+                })}
+              </div>
+            </FilterSection>
+          )}
+
+          {/* Próximamente — color, material */}
+          <FilterSection title="Color">
+            <p className="text-xs text-text-subtle">Próximamente</p>
+          </FilterSection>
+          <FilterSection title="Material">
+            <p className="text-xs text-text-subtle">Próximamente</p>
+          </FilterSection>
+
+          {/* Footer drawer mobile */}
+          {mobileOpen && (
+            <div className="pt-4 sticky bottom-0 bg-bg border-t border-border -mx-6 px-6 py-4 flex gap-3">
+              <button
+                onClick={clearAll}
+                className="flex-1 py-3 border border-border text-sm uppercase tracking-wider hover:border-leather"
+              >
+                Limpiar
+              </button>
+              <button
+                onClick={() => setMobileOpen(false)}
+                className="flex-1 py-3 bg-leather text-bg text-sm uppercase tracking-wider hover:bg-text"
+              >
+                Ver {filtered.length}
+              </button>
+            </div>
           )}
         </div>
+      </aside>
 
-        {availableSizes.length > 0 && (
-          <div>
-            <p className="eyebrow text-text-muted text-xs mb-2">Talla</p>
-            <div className="flex flex-wrap gap-2">
-              {availableSizes.map((size) => {
-                const active = selectedSizes.has(size)
-                return (
-                  <button
-                    key={size}
-                    onClick={() => toggleSize(size)}
-                    aria-pressed={active}
-                    className={`min-w-[2.5rem] px-3 py-1.5 text-sm border transition-colors ${
-                      active
-                        ? "border-leather bg-leather text-bg"
-                        : "border-border text-text hover:border-leather"
-                    }`}
-                  >
-                    {size}
-                  </button>
-                )
-              })}
+      {/* Main: toolbar + grid */}
+      <div>
+        {/* Toolbar */}
+        <div className="mb-6 pb-4 border-b border-border flex items-center justify-between gap-4">
+          <p className="text-sm text-text-muted">
+            {filtered.length} producto{filtered.length === 1 ? "" : "s"}
+            {activeCount > 0 && (
+              <span className="text-text-subtle"> de {products.length}</span>
+            )}
+          </p>
+          <button
+            onClick={() => setMobileOpen(true)}
+            className="lg:hidden inline-flex items-center gap-2 px-4 py-2 border border-border text-xs uppercase tracking-wider hover:border-leather"
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="4" y1="6" x2="20" y2="6" />
+              <line x1="7" y1="12" x2="17" y2="12" />
+              <line x1="10" y1="18" x2="14" y2="18" />
+            </svg>
+            Filtros
+            {activeCount > 0 && (
+              <span className="bg-leather text-bg w-5 h-5 rounded-full flex items-center justify-center text-[10px]">
+                {activeCount}
+              </span>
+            )}
+          </button>
+        </div>
+
+        {/* Grid o empty state */}
+        {filtered.length === 0 ? (
+          activeCount > 0 ? (
+            <div className="border border-border bg-bg-alt p-10 text-center">
+              <p className="font-heading text-xl text-text mb-2">
+                Sin resultados
+              </p>
+              <p className="text-text-muted mb-6">
+                Ningún producto coincide con los filtros aplicados.
+              </p>
+              <button
+                onClick={clearAll}
+                className="inline-flex px-6 py-3 border border-leather text-leather text-sm uppercase tracking-wider hover:bg-leather hover:text-bg transition-colors"
+              >
+                Limpiar filtros
+              </button>
             </div>
+          ) : (
+            <EmptyProductsState
+              title="Catálogo en construcción"
+              description="Estamos cargando las primeras botas de los talleres de León."
+            />
+          )
+        ) : (
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-10">
+            {filtered.map((p) => (
+              <ProductCard key={p.id} product={p} />
+            ))}
           </div>
         )}
       </div>
+    </div>
+  )
+}
 
-      {/* Grid o empty state */}
-      {filtered.length === 0 ? (
-        selectedSizes.size > 0 ? (
-          <div className="border border-border bg-bg-alt p-10 text-center">
-            <p className="font-heading text-xl text-text mb-2">
-              Sin resultados
-            </p>
-            <p className="text-text-muted mb-6">
-              No hay productos en stock con esas tallas.
-            </p>
-            <button
-              onClick={clearFilters}
-              className="inline-flex px-6 py-3 border border-leather text-leather text-sm uppercase tracking-wider hover:bg-leather hover:text-bg transition-colors"
-            >
-              Limpiar filtros
-            </button>
-          </div>
-        ) : (
-          <EmptyProductsState
-            title="Catálogo en construcción"
-            description="Estamos cargando las primeras botas de los talleres de León. Vuelve pronto."
-          />
-        )
-      ) : (
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-6 gap-y-10">
-          {filtered.map((p) => (
-            <ProductCard key={p.id} product={p} />
-          ))}
-        </div>
-      )}
-    </>
+function FilterSection({
+  title,
+  children,
+}: {
+  title: string
+  children: React.ReactNode
+}) {
+  return (
+    <div className="pb-5 border-b border-border last:border-b-0">
+      <p className="eyebrow text-text text-xs mb-3">{title}</p>
+      {children}
+    </div>
   )
 }
