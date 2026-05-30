@@ -8,7 +8,8 @@ import { BrandGrid } from "@/components/BrandGrid"
 import { FAQAccordion } from "@/components/FAQAccordion"
 import { ProductCard } from "@/components/ProductCard"
 import { EmptyProductsState } from "@/components/EmptyState"
-import { getProducts, getHeroSlides } from "@/lib/shopify"
+import { LatestByGenderTabs } from "@/components/LatestByGenderTabs"
+import { getProducts, getHeroSlides, getProductsByTaxonomy } from "@/lib/shopify"
 
 /**
  * Home page (server component, Next.js 16).
@@ -30,18 +31,20 @@ import { getProducts, getHeroSlides } from "@/lib/shopify"
  * visualmente completa.
  */
 export default async function HomePage() {
-  let products: Awaited<ReturnType<typeof getProducts>> = []
-  let fetchError: string | null = null
-  try {
-    products = await getProducts({ first: 8 })
-  } catch (e) {
-    fetchError = e instanceof Error ? e.message : String(e)
-  }
+  // Parallel fetch: home arma 4 buckets de productos (bestsellers,
+  // hombre nuevo, mujer nuevo) + hero slides en una sola pasada.
+  const [
+    products,
+    hombreProducts,
+    mujerProducts,
+    heroSlides,
+  ] = await Promise.all([
+    getProducts({ first: 8 }).catch(() => []),
+    getProductsByTaxonomy("gender", "masculino", 8).catch(() => []),
+    getProductsByTaxonomy("gender", "femenino", 8).catch(() => []),
+    getHeroSlides().catch(() => []),
+  ])
 
-  // Hero slides desde Metaobjects — getHeroSlides() ya maneja errores
-  // y devuelve [] si la definition aún no existe; HeroCarousel cae
-  // al placeholder en ese caso.
-  const heroSlides = await getHeroSlides()
 
   return (
     <>
@@ -53,41 +56,10 @@ export default async function HomePage() {
 
         <CategoryShowcase />
 
-        {/* Lo más nuevo */}
-        <section className="mx-auto max-w-7xl px-6 py-20 md:py-24">
-          <div className="flex items-end justify-between mb-10">
-            <div>
-              <p className="eyebrow text-leather mb-2">Catálogo</p>
-              <h2 className="font-heading text-3xl md:text-4xl text-text">
-                Lo más nuevo
-              </h2>
-            </div>
-            <Link
-              href="/products"
-              className="hidden sm:inline-flex items-center text-leather font-medium hover:text-terracotta transition-colors"
-            >
-              Ver todo →
-            </Link>
-          </div>
-
-          {fetchError ? (
-            <div className="border border-red-300 bg-red-50 text-red-900 rounded-sm p-6">
-              <p className="font-medium mb-2">Error al cargar productos de Shopify</p>
-              <p className="text-sm font-mono break-all">{fetchError}</p>
-            </div>
-          ) : products.length === 0 ? (
-            <EmptyProductsState
-              title="Próximamente"
-              description="Estamos cargando el catálogo con las primeras botas de los talleres de León."
-            />
-          ) : (
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-              {products.map((p) => (
-                <ProductCard key={p.id} product={p} />
-              ))}
-            </div>
-          )}
-        </section>
+        <LatestByGenderTabs
+          hombreProducts={hombreProducts}
+          mujerProducts={mujerProducts}
+        />
 
         <BrandGrid />
 
