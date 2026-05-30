@@ -4,13 +4,25 @@ applications:
     frontend:
       phases:
         preBuild:
+          # La UI de Amplify estaba enviando SHOPIFY_STOREFRONT_ACCESS_TOKEN
+          # con valor vacío (TOKEN_present=YES pero length=0). Generamos
+          # un .env.production.local que Next.js lee al build, usando los
+          # valores de la UI cuando existen y cayendo a defaults committed
+          # cuando vienen vacíos. El Storefront token es público por diseño
+          # (read-only, scoped a la tienda), así que comitearlo no compromete.
           commands:
-            - echo "=== Shopify env vars check ==="
-            - echo "STORE_DOMAIN=${SHOPIFY_STORE_DOMAIN:-MISSING}"
-            - echo "API_VERSION=${SHOPIFY_API_VERSION:-MISSING}"
-            - echo "TOKEN_present=$([ -n \"$SHOPIFY_STOREFRONT_ACCESS_TOKEN\" ] && echo YES || echo NO)"
-            - echo "TOKEN_length=${#SHOPIFY_STOREFRONT_ACCESS_TOKEN}"
-            - echo "==============================="
+            - TOKEN="${SHOPIFY_STOREFRONT_ACCESS_TOKEN:-a972078fe7ba6fa5a4f2247ba596e2b9}"
+            - DOMAIN="${SHOPIFY_STORE_DOMAIN:-botas-leon-3.myshopify.com}"
+            - VERSION="${SHOPIFY_API_VERSION:-2025-01}"
+            - SITE_URL="${NEXT_PUBLIC_SITE_URL:-https://main.dlrgtndu7af79.amplifyapp.com}"
+            - echo "SHOPIFY_STOREFRONT_ACCESS_TOKEN=$TOKEN" >  .env.production.local
+            - echo "SHOPIFY_STORE_DOMAIN=$DOMAIN"           >> .env.production.local
+            - echo "SHOPIFY_API_VERSION=$VERSION"           >> .env.production.local
+            - echo "NEXT_PUBLIC_SITE_URL=$SITE_URL"         >> .env.production.local
+            - echo "=== env injected ==="
+            - echo "DOMAIN=$DOMAIN VERSION=$VERSION SITE_URL=$SITE_URL"
+            - echo "TOKEN_length=${#TOKEN}"
+            - echo "==================="
             - npm install
         build:
           commands:
