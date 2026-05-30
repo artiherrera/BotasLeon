@@ -3,6 +3,7 @@ import { Header } from "@/components/Header"
 import { Footer } from "@/components/Footer"
 import { HeroCarousel } from "@/components/HeroCarousel"
 import { TrustBadges } from "@/components/TrustBadges"
+import { CategoryShowcase } from "@/components/CategoryShowcase"
 import { BrandGrid } from "@/components/BrandGrid"
 import { FAQAccordion } from "@/components/FAQAccordion"
 import { ProductCard } from "@/components/ProductCard"
@@ -49,6 +50,8 @@ export default async function HomePage() {
         <HeroCarousel slides={heroSlides} />
 
         <TrustBadges />
+
+        <CategoryShowcase />
 
         {/* Lo más nuevo */}
         <section className="mx-auto max-w-7xl px-6 py-20 md:py-24">

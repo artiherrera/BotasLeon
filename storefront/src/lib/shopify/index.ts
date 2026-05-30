@@ -11,6 +11,7 @@ import {
   GET_PRODUCTS_QUERY,
   GET_PRODUCT_BY_HANDLE_QUERY,
   GET_COLLECTIONS_QUERY,
+  GET_COLLECTION_BY_HANDLE_QUERY,
   GET_HERO_SLIDES_QUERY,
   SHOP_INFO_QUERY,
 } from "./queries"
@@ -71,6 +72,39 @@ export async function getCollections(first = 20): Promise<Collection[]> {
     { tags: ["collections"] }
   )
   return data.collections.edges.map((e) => e.node)
+}
+
+export type CollectionWithProducts = Collection & {
+  products: Product[]
+}
+
+// Devuelve la colección con sus productos, o null si la colección no
+// existe en Shopify. El caller decide qué mostrar (lista de productos
+// si hay, empty state con instrucciones si no).
+export async function getCollectionByHandle(
+  handle: string,
+  first = 48
+): Promise<CollectionWithProducts | null> {
+  type Resp = {
+    collection: (Omit<Collection, never> & {
+      products: Edge<Product>
+    }) | null
+  }
+  try {
+    const data = await shopifyFetch<Resp>(
+      GET_COLLECTION_BY_HANDLE_QUERY,
+      { handle, first },
+      { tags: [`collection-${handle}`] }
+    )
+    if (!data.collection) return null
+    return {
+      ...data.collection,
+      products: data.collection.products.edges.map((e) => e.node),
+    }
+  } catch (e) {
+    console.error(`[getCollectionByHandle] handle=${handle}:`, e instanceof Error ? e.message : e)
+    return null
+  }
 }
 
 // === Hero slides (Metaobjects) ===

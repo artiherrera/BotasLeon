@@ -50,6 +50,7 @@ export const PRODUCT_CARD_FRAGMENT = /* GraphQL */ `
       minVariantPrice { ...MoneyFields }
       maxVariantPrice { ...MoneyFields }
     }
+    options { id name values }
   }
 `
 
@@ -121,6 +122,31 @@ export const GET_COLLECTIONS_QUERY = /* GraphQL */ `
     }
   }
   ${IMAGE_FRAGMENT}
+`
+
+// Productos por colección — usado por páginas /hombre, /mujer, /nino
+// y eventualmente /marcas/[handle]. Las colecciones se manejan en
+// Shopify admin (Productos → Colecciones), idealmente automatizadas
+// con reglas tipo "metacampo Sexo objetivo = Female".
+//
+// Si la colección no existe, `collection` devuelve null y la página
+// muestra empty state pidiendo al admin crearla.
+export const GET_COLLECTION_BY_HANDLE_QUERY = /* GraphQL */ `
+  query GetCollectionByHandle($handle: String!, $first: Int!) {
+    collection(handle: $handle) {
+      id
+      handle
+      title
+      description
+      image { ...ImageFields }
+      products(first: $first) {
+        edges { node { ...ProductCardFields } }
+      }
+    }
+  }
+  ${IMAGE_FRAGMENT}
+  ${MONEY_FRAGMENT}
+  ${PRODUCT_CARD_FRAGMENT}
 `
 
 // Hero slides — Metaobjects de tipo "hero_slide" definidos en
