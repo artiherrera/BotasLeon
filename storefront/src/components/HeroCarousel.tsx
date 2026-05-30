@@ -101,9 +101,12 @@ export function HeroCarousel({ slides }: Props) {
             idx === active ? "opacity-100 z-10" : "opacity-0 z-0 pointer-events-none"
           }`}
         >
-          {/* Background — imagen real si existe, gradient de cuero si no */}
+          {/* Background — imagen real si existe, gradient de cuero si no.
+              `hero-ken-burns` se aplica solo cuando el slide está activo:
+              al rotar la clase desaparece, y al volver a este slide se
+              reaplica desde 0% (browser reinicia la animación). */}
           {slide.image ? (
-            <div className="absolute inset-0 transition-transform duration-[1500ms] group-hover:scale-[1.02]">
+            <div className={`absolute inset-0 ${idx === active ? "hero-ken-burns" : ""}`}>
               <Image
                 src={slide.image.url}
                 alt={slide.image.altText || slide.title}
@@ -114,7 +117,7 @@ export function HeroCarousel({ slides }: Props) {
               />
             </div>
           ) : (
-            <div className={`absolute inset-0 ${slide.bgClass ?? "bg-leather"} transition-transform duration-[1500ms] group-hover:scale-[1.02]`} />
+            <div className={`absolute inset-0 ${slide.bgClass ?? "bg-leather"} ${idx === active ? "hero-ken-burns" : ""}`} />
           )}
 
           {/* Texture overlay */}

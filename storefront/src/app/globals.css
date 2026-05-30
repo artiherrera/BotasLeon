@@ -55,3 +55,15 @@ h5, .h5, h6, .h6, .eyebrow {
   text-transform: uppercase;
   letter-spacing: 0.1em;
 }
+
+/* Ken Burns — zoom sutil para el hero. Dura lo mismo que el slide activo
+   (8s, sincronizado con AUTO_ROTATE_MS en HeroCarousel). Aplicar solo
+   al slide visible — al rotar pierde la clase y la animación se reinicia
+   en el próximo slide que la reciba. */
+@keyframes hero-ken-burns {
+  from { transform: scale(1); }
+  to   { transform: scale(1.08); }
+}
+.hero-ken-burns {
+  animation: hero-ken-burns 8s ease-out forwards;
+}
