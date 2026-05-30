@@ -8,8 +8,9 @@ export default function HombrePage() {
       eyebrow="Hombre"
       title="Botas para hombre"
       description="Vaqueras, botines y botas de rancho hechas en León. Cada par seleccionado por su construcción, ajuste y durabilidad."
-      collectionHandle="hombre"
-      collectionRuleHint='metacampo "Sexo objetivo" (target_gender) = Male'
+      taxonomyKey="gender"
+      taxonomyHandle="masculino"
+      configHint='el metacampo "Sexo objetivo" = Masculino'
     />
   )
 }

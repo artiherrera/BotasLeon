@@ -8,8 +8,9 @@ export default function MujerPage() {
       eyebrow="Mujer"
       title="Botas para mujer"
       description="Vaqueras, botines, largas y de fashion en cuero auténtico. Tradición artesanal mexicana con silueta contemporánea."
-      collectionHandle="mujer"
-      collectionRuleHint='metacampo "Sexo objetivo" (target_gender) = Female'
+      taxonomyKey="gender"
+      taxonomyHandle="femenino"
+      configHint='el metacampo "Sexo objetivo" = Femenino'
     />
   )
 }

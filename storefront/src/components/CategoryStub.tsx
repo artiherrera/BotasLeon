@@ -2,37 +2,41 @@ import Link from "next/link"
 import { Header } from "./Header"
 import { Footer } from "./Footer"
 import { ProductsListing } from "./ProductsListing"
-import { getCollectionByHandle } from "@/lib/shopify"
+import { getProductsByTaxonomy } from "@/lib/shopify"
 
 /**
  * CategoryStub — página de categoría.
  *
- * SIEMPRE consulta Shopify Collection por handle. Si la colección no
- * existe, muestra empty state con instrucciones EN LUGAR de fallback
- * a "todos los productos" — esa estrategia mostraba productos de mujer
- * en /hombre y viceversa, lo cual confunde al cliente y luce amateur.
+ * Filtra productos por metafield de taxonomía Shopify (target-gender o
+ * age-group) dereferenciado a handle. No requiere colecciones manuales:
+ * el admin solo necesita marcar el metacampo correcto en cada producto
+ * (lo que ya hace al subir un producto con categoría "Boots").
  *
- * Mientras el admin no cree la colección, la página queda intencionalmente
- * vacía. Es preferible "vacío con explicación" que "wrong data".
+ * Si no hay productos que coincidan, empty state limpio (no muestra
+ * productos de otras categorías como antes).
  */
 
 type Props = {
   eyebrow: string
   title: string
   description: string
-  collectionHandle: string
-  collectionRuleHint: string
+  // Tipo de taxonomía a filtrar
+  taxonomyKey: "gender" | "age"
+  // Handle del metaobject Shopify (ej. "femenino", "masculino", "adultos", "ninos")
+  taxonomyHandle: string
+  // Hint humano de qué configurar si la página queda vacía
+  configHint: string
 }
 
 export async function CategoryStub({
   eyebrow,
   title,
   description,
-  collectionHandle,
-  collectionRuleHint,
+  taxonomyKey,
+  taxonomyHandle,
+  configHint,
 }: Props) {
-  const collection = await getCollectionByHandle(collectionHandle)
-  const products = collection?.products ?? []
+  const products = await getProductsByTaxonomy(taxonomyKey, taxonomyHandle)
 
   return (
     <>
@@ -47,13 +51,8 @@ export async function CategoryStub({
             <p className="text-text-muted max-w-xl">{description}</p>
           </div>
 
-          {!collection ? (
-            <CollectionMissingState
-              handle={collectionHandle}
-              rule={collectionRuleHint}
-            />
-          ) : products.length === 0 ? (
-            <CollectionEmptyState />
+          {products.length === 0 ? (
+            <EmptyState configHint={configHint} />
           ) : (
             <ProductsListing products={products} />
           )}
@@ -64,39 +63,26 @@ export async function CategoryStub({
   )
 }
 
-function CollectionMissingState({ handle, rule }: { handle: string; rule: string }) {
+function EmptyState({ configHint }: { configHint: string }) {
   return (
-    <div className="border border-amber-300 bg-amber-50 p-8 max-w-2xl">
-      <p className="eyebrow text-amber-900 mb-2">Configuración pendiente</p>
+    <div className="border border-border bg-bg-alt p-10 max-w-2xl">
+      <p className="eyebrow text-leather mb-2">Aún sin productos</p>
       <h2 className="font-heading text-2xl text-text mb-3">
         Sección en construcción
       </h2>
       <p className="text-text-muted mb-5">
-        Aún estamos cargando productos en esta categoría.
+        Aún no hay productos en esta categoría. Vuelve pronto.
       </p>
-      <details className="text-sm text-amber-900/90">
+      <details className="text-sm text-text-muted">
         <summary className="cursor-pointer font-medium">
           Detalles técnicos para el admin
         </summary>
-        <div className="mt-3 space-y-2">
+        <div className="mt-3">
           <p>
-            Para que esta página muestre productos, crea una colección en
-            Shopify admin → Productos → Colecciones:
+            Esta categoría muestra productos que tienen {configHint}.
+            Si un producto debería aparecer aquí pero no lo hace, verifica
+            que tenga el metacampo correcto en Shopify admin.
           </p>
-          <ul className="list-disc pl-5 space-y-1">
-            <li>
-              <strong>Handle</strong>:{" "}
-              <code className="bg-white px-1.5 py-0.5 rounded text-leather">
-                {handle}
-              </code>
-            </li>
-            <li>
-              <strong>Tipo</strong>: Automatizada
-            </li>
-            <li>
-              <strong>Condición</strong>: {rule}
-            </li>
-          </ul>
         </div>
       </details>
       <div className="mt-6">
@@ -107,23 +93,6 @@ function CollectionMissingState({ handle, rule }: { handle: string; rule: string
           Ver catálogo completo
         </Link>
       </div>
-    </div>
-  )
-}
-
-function CollectionEmptyState() {
-  return (
-    <div className="border border-border bg-bg-alt p-10 text-center">
-      <p className="font-heading text-xl text-text mb-2">Aún sin productos</p>
-      <p className="text-text-muted mb-6">
-        Ningún producto cumple los criterios de esta categoría. Vuelve pronto.
-      </p>
-      <Link
-        href="/products"
-        className="inline-flex px-6 py-3 border border-leather text-leather text-sm uppercase tracking-wider hover:bg-leather hover:text-bg transition-colors"
-      >
-        Ver catálogo completo
-      </Link>
     </div>
   )
 }

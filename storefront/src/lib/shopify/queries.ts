@@ -124,6 +124,38 @@ export const GET_COLLECTIONS_QUERY = /* GraphQL */ `
   ${IMAGE_FRAGMENT}
 `
 
+// Productos con sus metafields de taxonomía Shopify (gender, age).
+// Usado por páginas /hombre, /mujer, /nino que filtran por estos
+// metafields en lugar de requerir colecciones manuales.
+//
+// El field `references(first:5)` resuelve el GID del metaobject a un
+// handle como "femenino", "masculino", "adultos", "kids". Filtramos
+// en JS por ese handle.
+export const GET_PRODUCTS_WITH_TAXONOMY_QUERY = /* GraphQL */ `
+  query GetProductsWithTaxonomy($first: Int!) {
+    products(first: $first, sortKey: BEST_SELLING) {
+      edges {
+        node {
+          ...ProductCardFields
+          gender: metafield(namespace: "shopify", key: "target-gender") {
+            references(first: 5) {
+              edges { node { ... on Metaobject { handle } } }
+            }
+          }
+          age: metafield(namespace: "shopify", key: "age-group") {
+            references(first: 5) {
+              edges { node { ... on Metaobject { handle } } }
+            }
+          }
+        }
+      }
+    }
+  }
+  ${IMAGE_FRAGMENT}
+  ${MONEY_FRAGMENT}
+  ${PRODUCT_CARD_FRAGMENT}
+`
+
 // Brands — Metaobjects tipo "brand" para controlar qué marcas se
 // muestran en el home y /marcas, en qué orden, y con qué logo.
 // La match con productos se hace por el field `name` que debe coincidir

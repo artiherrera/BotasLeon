@@ -12,6 +12,7 @@ import {
   GET_PRODUCT_BY_HANDLE_QUERY,
   GET_COLLECTIONS_QUERY,
   GET_COLLECTION_BY_HANDLE_QUERY,
+  GET_PRODUCTS_WITH_TAXONOMY_QUERY,
   GET_HERO_SLIDES_QUERY,
   GET_BRANDS_QUERY,
   SHOP_INFO_QUERY,
@@ -166,6 +167,48 @@ export async function getProductsByVendor(
 ): Promise<Product[]> {
   const escaped = vendor.replace(/"/g, '\\"')
   return getProducts({ first, query: `vendor:"${escaped}"` })
+}
+
+// === Products por taxonomy (gender, age-group) ===
+//
+// Filtra productos por el handle del metaobject referenciado en los
+// metafields shopify.target-gender y shopify.age-group. Esto evita
+// que el admin tenga que crear colecciones manuales para cada categoría.
+//
+// Handles esperados (Shopify localiza al idioma de la tienda):
+//   target-gender: "femenino", "masculino", "unisex"
+//   age-group: "adultos", "ninos" (o "kids" según idioma)
+
+type TaxonomyKey = "gender" | "age"
+
+export async function getProductsByTaxonomy(
+  key: TaxonomyKey,
+  handle: string,
+  first = 48
+): Promise<Product[]> {
+  type ProductWithTaxonomy = Product & {
+    gender?: { references?: { edges: Array<{ node: { handle: string } }> } } | null
+    age?: { references?: { edges: Array<{ node: { handle: string } }> } } | null
+  }
+  type Resp = { products: Edge<ProductWithTaxonomy> }
+
+  let data: Resp
+  try {
+    data = await shopifyFetch<Resp>(
+      GET_PRODUCTS_WITH_TAXONOMY_QUERY,
+      { first },
+      { tags: ["products"] }
+    )
+  } catch (e) {
+    console.error("[getProductsByTaxonomy] fetch error:", e instanceof Error ? e.message : e)
+    return []
+  }
+
+  const all = data.products.edges.map((e) => e.node)
+  return all.filter((p) => {
+    const refs = p[key]?.references?.edges ?? []
+    return refs.some((r) => r.node.handle === handle)
+  })
 }
 
 // === Hero slides (Metaobjects) ===
