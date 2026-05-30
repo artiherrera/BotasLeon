@@ -1,0 +1,25 @@
+version: 1
+applications:
+  - appRoot: storefront
+    frontend:
+      phases:
+        preBuild:
+          commands:
+            - echo "=== Shopify env vars check ==="
+            - echo "STORE_DOMAIN=${SHOPIFY_STORE_DOMAIN:-MISSING}"
+            - echo "API_VERSION=${SHOPIFY_API_VERSION:-MISSING}"
+            - echo "TOKEN_present=$([ -n \"$SHOPIFY_STOREFRONT_ACCESS_TOKEN\" ] && echo YES || echo NO)"
+            - echo "TOKEN_length=${#SHOPIFY_STOREFRONT_ACCESS_TOKEN}"
+            - echo "==============================="
+            - npm install
+        build:
+          commands:
+            - npm run build
+      artifacts:
+        baseDirectory: .next
+        files:
+          - '**/*'
+      cache:
+        paths:
+          - .next/cache/**/*
+          - node_modules/**/*
