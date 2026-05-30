@@ -1,6 +1,7 @@
 "use client"
 
 import { useMemo, useState } from "react"
+import { useCart } from "./CartProvider"
 import type { Product } from "@/lib/shopify/types"
 
 /**
@@ -22,6 +23,8 @@ type Props = {
 }
 
 export function ProductOptions({ product }: Props) {
+  const { addItem, isPending } = useCart()
+
   const isDefaultOnly =
     product.variants.length === 1 &&
     product.variants[0].selectedOptions.every(
@@ -112,17 +115,19 @@ export function ProductOptions({ product }: Props) {
         </div>
       )}
 
-      {/* Botón placeholder — se conectará al cart en el siguiente push */}
       <button
         type="button"
-        disabled
-        className="w-full py-4 bg-text-subtle text-bg text-sm uppercase tracking-widest cursor-not-allowed"
+        onClick={() => activeVariant && isAvailable && addItem(activeVariant.id, 1)}
+        disabled={!isAvailable || isPending || isUnknownCombo}
+        className="w-full py-4 bg-leather text-bg text-sm uppercase tracking-widest hover:bg-text disabled:bg-text-subtle disabled:cursor-not-allowed transition-colors"
       >
-        {isUnknownCombo
-          ? "Combinación no disponible"
-          : !isAvailable
-            ? "Agotado"
-            : "Carrito próximamente"}
+        {isPending
+          ? "Agregando..."
+          : isUnknownCombo
+            ? "Combinación no disponible"
+            : !isAvailable
+              ? "Agotado"
+              : "Agregar al carrito"}
       </button>
 
       <p className="text-xs text-text-muted text-center">

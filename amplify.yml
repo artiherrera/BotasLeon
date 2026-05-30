@@ -15,10 +15,16 @@ applications:
             - DOMAIN="${SHOPIFY_STORE_DOMAIN:-botas-leon-3.myshopify.com}"
             - VERSION="${SHOPIFY_API_VERSION:-2025-01}"
             - SITE_URL="${NEXT_PUBLIC_SITE_URL:-https://main.dlrgtndu7af79.amplifyapp.com}"
-            - echo "SHOPIFY_STOREFRONT_ACCESS_TOKEN=$TOKEN" >  .env.production.local
-            - echo "SHOPIFY_STORE_DOMAIN=$DOMAIN"           >> .env.production.local
-            - echo "SHOPIFY_API_VERSION=$VERSION"           >> .env.production.local
-            - echo "NEXT_PUBLIC_SITE_URL=$SITE_URL"         >> .env.production.local
+            - echo "SHOPIFY_STOREFRONT_ACCESS_TOKEN=$TOKEN"               >  .env.production.local
+            - echo "SHOPIFY_STORE_DOMAIN=$DOMAIN"                         >> .env.production.local
+            - echo "SHOPIFY_API_VERSION=$VERSION"                         >> .env.production.local
+            - echo "NEXT_PUBLIC_SITE_URL=$SITE_URL"                       >> .env.production.local
+            # NEXT_PUBLIC_* se exponen al bundle del navegador. El cart
+            # client-side hace fetch directo desde el browser a Shopify
+            # (sin pasar por nuestro server), así que necesita ambos.
+            - echo "NEXT_PUBLIC_SHOPIFY_STORE_DOMAIN=$DOMAIN"             >> .env.production.local
+            - echo "NEXT_PUBLIC_SHOPIFY_STOREFRONT_ACCESS_TOKEN=$TOKEN"   >> .env.production.local
+            - echo "NEXT_PUBLIC_SHOPIFY_API_VERSION=$VERSION"             >> .env.production.local
             - echo "=== env injected ==="
             - echo "DOMAIN=$DOMAIN VERSION=$VERSION SITE_URL=$SITE_URL"
             - echo "TOKEN_length=${#TOKEN}"

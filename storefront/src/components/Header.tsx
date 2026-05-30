@@ -1,11 +1,16 @@
+"use client"
+
 import Link from "next/link"
+import { useCart } from "./CartProvider"
 
 /**
  * Header del storefront. Sticky con logo, navegación principal,
- * search y carrito. Diseño minimalista premium — la marca brilla
- * con el wordmark, no con elementos decorativos.
+ * search, cuenta y carrito. Es client component porque el badge del
+ * carrito se hidrata desde localStorage en el navegador.
  */
 export function Header() {
+  const { itemCount, openCart } = useCart()
+
   return (
     <header className="sticky top-0 z-40 border-b border-border bg-bg/95 backdrop-blur supports-[backdrop-filter]:bg-bg/80">
       <div className="mx-auto max-w-7xl px-6 py-4 flex items-center gap-8">
@@ -61,13 +66,19 @@ export function Header() {
           >
             <UserIcon />
           </Link>
-          <Link
-            href="/cart"
-            aria-label="Carrito"
-            className="p-2 hover:bg-bg-alt rounded transition-colors relative"
+          <button
+            type="button"
+            onClick={openCart}
+            aria-label={`Carrito${itemCount > 0 ? `: ${itemCount} artículo${itemCount > 1 ? "s" : ""}` : ""}`}
+            className="p-2 hover:bg-bg-alt rounded transition-colors relative cursor-pointer"
           >
             <BagIcon />
-          </Link>
+            {itemCount > 0 && (
+              <span className="absolute -top-0.5 -right-0.5 bg-leather text-bg text-[10px] font-medium min-w-[1.125rem] h-[1.125rem] px-1 rounded-full flex items-center justify-center">
+                {itemCount > 99 ? "99+" : itemCount}
+              </span>
+            )}
+          </button>
         </div>
       </div>
     </header>

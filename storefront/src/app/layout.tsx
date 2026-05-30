@@ -1,5 +1,7 @@
 import type { Metadata } from "next"
 import { Bevan, Zilla_Slab, Inter } from "next/font/google"
+import { CartProvider } from "@/components/CartProvider"
+import { CartDrawer } from "@/components/CartDrawer"
 import "./globals.css"
 
 /**
@@ -41,13 +43,19 @@ export const metadata: Metadata = {
 export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
+  // Layout permanece SYNC — el CartProvider es client component que
+  // hidrata desde localStorage en el navegador. Así todas las rutas
+  // siguen siendo static + revalidate (lo que Amplify sí sirve sin 500).
   return (
     <html
       lang="es"
       className={`${bevan.variable} ${zilla.variable} ${inter.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-bg text-text">
-        {children}
+        <CartProvider>
+          {children}
+          <CartDrawer />
+        </CartProvider>
       </body>
     </html>
   )
