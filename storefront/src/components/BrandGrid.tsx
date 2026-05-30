@@ -107,19 +107,17 @@ function RealBrandCard({ brand: b }: { brand: Awaited<ReturnType<typeof getBrand
   return (
     <Link
       href={`/marcas/${b.handle}`}
-      className="group relative aspect-[5/4] overflow-hidden block bg-bg-alt border border-border hover:border-leather transition-colors"
+      className="group relative aspect-[5/4] overflow-hidden block bg-bg-alt"
     >
       {b.logo ? (
-        <div className="absolute inset-0 p-8 flex items-center justify-center">
-          <div className="relative w-full h-full transition-transform group-hover:scale-105">
-            <Image
-              src={b.logo.url}
-              alt={b.logo.altText || b.name}
-              fill
-              sizes="(max-width: 768px) 50vw, 33vw"
-              className="object-contain"
-            />
-          </div>
+        <div className="absolute inset-0">
+          <Image
+            src={b.logo.url}
+            alt={b.logo.altText || b.name}
+            fill
+            sizes="(max-width: 768px) 50vw, 33vw"
+            className="object-cover transition-transform duration-700 group-hover:scale-105"
+          />
         </div>
       ) : (
         <div className="absolute inset-0 flex items-center justify-center bg-leather">

@@ -54,13 +54,13 @@ export default async function MarcaPage({ params }: Props) {
           {/* Hero de la marca */}
           <div className="mb-12 flex flex-col md:flex-row items-start md:items-center gap-8 pb-10 border-b border-border">
             {brand.logo && (
-              <div className="relative w-32 h-32 md:w-40 md:h-40 flex-shrink-0 bg-bg-alt p-4">
+              <div className="relative w-32 h-32 md:w-40 md:h-40 flex-shrink-0 bg-bg-alt overflow-hidden">
                 <Image
                   src={brand.logo.url}
                   alt={brand.logo.altText || brand.name}
                   fill
                   sizes="160px"
-                  className="object-contain"
+                  className="object-cover"
                 />
               </div>
             )}

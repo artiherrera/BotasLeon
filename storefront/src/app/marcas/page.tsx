@@ -54,19 +54,17 @@ export default async function MarcasPage() {
                   <Link
                     key={b.handle}
                     href={`/marcas/${b.handle}`}
-                    className="group relative aspect-[5/4] bg-bg-alt border border-border hover:border-leather transition-colors overflow-hidden"
+                    className="group relative aspect-[5/4] bg-bg-alt overflow-hidden"
                   >
                     {b.logo ? (
-                      <div className="absolute inset-0 p-8 flex items-center justify-center">
-                        <div className="relative w-full h-full transition-transform group-hover:scale-105">
-                          <Image
-                            src={b.logo.url}
-                            alt={b.logo.altText || b.name}
-                            fill
-                            sizes="(max-width: 768px) 50vw, 25vw"
-                            className="object-contain"
-                          />
-                        </div>
+                      <div className="absolute inset-0">
+                        <Image
+                          src={b.logo.url}
+                          alt={b.logo.altText || b.name}
+                          fill
+                          sizes="(max-width: 768px) 50vw, 25vw"
+                          className="object-cover transition-transform duration-700 group-hover:scale-105"
+                        />
                       </div>
                     ) : (
                       <div className="absolute inset-0 flex items-center justify-center bg-leather">
