@@ -1,6 +1,7 @@
 "use client"
 
 import Link from "next/link"
+import Image from "next/image"
 import { useCart } from "./CartProvider"
 
 /**
@@ -14,12 +15,20 @@ export function Header() {
   return (
     <header className="sticky top-0 z-40 border-b border-border bg-bg/95 backdrop-blur supports-[backdrop-filter]:bg-bg/80">
       <div className="mx-auto max-w-7xl px-6 py-4 flex items-center gap-8">
-        {/* Logo / wordmark */}
+        {/* Logo */}
         <Link
           href="/"
-          className="font-display text-2xl tracking-tight text-leather hover:text-text transition-colors"
+          aria-label="BotasLeón — Inicio"
+          className="block flex-shrink-0 transition-opacity hover:opacity-80"
         >
-          BotasLeón
+          <Image
+            src="/logo_botasleon.png"
+            alt="BotasLeón"
+            width={800}
+            height={220}
+            priority
+            className="h-9 md:h-10 w-auto"
+          />
         </Link>
 
         {/* Navegación principal */}
