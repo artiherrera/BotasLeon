@@ -12,14 +12,9 @@ import {
   GET_PRODUCT_BY_HANDLE_QUERY,
   GET_COLLECTIONS_QUERY,
   GET_HERO_SLIDES_QUERY,
-  GET_CART_QUERY,
-  CART_CREATE_MUTATION,
-  CART_LINES_ADD_MUTATION,
-  CART_LINES_UPDATE_MUTATION,
-  CART_LINES_REMOVE_MUTATION,
   SHOP_INFO_QUERY,
 } from "./queries"
-import type { Product, Collection, HeroSlide, Image, Cart } from "./types"
+import type { Product, Collection, HeroSlide, Image } from "./types"
 
 type Edge<T> = { edges: Array<{ node: T }> }
 
@@ -167,104 +162,6 @@ export async function getHeroSlides(): Promise<HeroSlide[]> {
     .filter((s) => s.active && s.slide.title) // saltar slides incompletos o desactivados
     .sort((a, b) => a.sortOrder - b.sortOrder)
     .map((s) => s.slide)
-}
-
-// === Cart ===
-//
-// Shopify devuelve `lines.edges[].node` que es ruido — esta capa lo
-// aplana al tipo `Cart` plano que usa el frontend. Las mutaciones
-// también devuelven `userErrors` con problemas de negocio (variant
-// no disponible, etc.) — los exponemos como excepción ShopifyApiError
-// para que las server actions las atrapen y muestren al usuario.
-
-type RawCart = Omit<Cart, "lines"> & {
-  lines: { edges: Array<{ node: Cart["lines"][number] }> }
-}
-
-function flattenCart(raw: RawCart | null): Cart | null {
-  if (!raw) return null
-  return {
-    ...raw,
-    lines: raw.lines.edges.map((e) => e.node),
-  }
-}
-
-type CartMutationResp<K extends string> = Record<
-  K,
-  {
-    cart: RawCart | null
-    userErrors: Array<{ field: string[] | null; message: string }>
-  }
->
-
-function handleCartResp<K extends string>(
-  resp: CartMutationResp<K>,
-  key: K
-): Cart {
-  const { cart, userErrors } = resp[key]
-  if (userErrors.length > 0) {
-    throw new Error(userErrors.map((e) => e.message).join("; "))
-  }
-  if (!cart) throw new Error("Shopify devolvió un cart vacío")
-  return flattenCart(cart)!
-}
-
-export async function getCart(cartId: string): Promise<Cart | null> {
-  type Resp = { cart: RawCart | null }
-  const data = await shopifyFetch<Resp>(
-    GET_CART_QUERY,
-    { cartId },
-    { cache: "no-store" }
-  )
-  return flattenCart(data.cart)
-}
-
-export async function createCart(
-  lines: Array<{ merchandiseId: string; quantity: number }>
-): Promise<Cart> {
-  const data = await shopifyFetch<CartMutationResp<"cartCreate">>(
-    CART_CREATE_MUTATION,
-    { input: { lines } },
-    { cache: "no-store" }
-  )
-  return handleCartResp(data, "cartCreate")
-}
-
-export async function addToCart(
-  cartId: string,
-  lines: Array<{ merchandiseId: string; quantity: number }>
-): Promise<Cart> {
-  const data = await shopifyFetch<CartMutationResp<"cartLinesAdd">>(
-    CART_LINES_ADD_MUTATION,
-    { cartId, lines },
-    { cache: "no-store" }
-  )
-  return handleCartResp(data, "cartLinesAdd")
-}
-
-export async function updateCartLine(
-  cartId: string,
-  lineId: string,
-  quantity: number
-): Promise<Cart> {
-  const data = await shopifyFetch<CartMutationResp<"cartLinesUpdate">>(
-    CART_LINES_UPDATE_MUTATION,
-    { cartId, lines: [{ id: lineId, quantity }] },
-    { cache: "no-store" }
-  )
-  return handleCartResp(data, "cartLinesUpdate")
-}
-
-export async function removeFromCart(
-  cartId: string,
-  lineIds: string[]
-): Promise<Cart> {
-  const data = await shopifyFetch<CartMutationResp<"cartLinesRemove">>(
-    CART_LINES_REMOVE_MUTATION,
-    { cartId, lineIds },
-    { cache: "no-store" }
-  )
-  return handleCartResp(data, "cartLinesRemove")
 }
 
 // === Health check ===
