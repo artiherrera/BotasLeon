@@ -7,7 +7,7 @@ import { BrandGrid } from "@/components/BrandGrid"
 import { FAQAccordion } from "@/components/FAQAccordion"
 import { ProductCard } from "@/components/ProductCard"
 import { EmptyProductsState } from "@/components/EmptyState"
-import { getProducts } from "@/lib/shopify"
+import { getProducts, getHeroSlides } from "@/lib/shopify"
 
 /**
  * Home page (server component, Next.js 16).
@@ -37,11 +37,16 @@ export default async function HomePage() {
     fetchError = e instanceof Error ? e.message : String(e)
   }
 
+  // Hero slides desde Metaobjects — getHeroSlides() ya maneja errores
+  // y devuelve [] si la definition aún no existe; HeroCarousel cae
+  // al placeholder en ese caso.
+  const heroSlides = await getHeroSlides()
+
   return (
     <>
       <Header />
       <main className="flex-1">
-        <HeroCarousel />
+        <HeroCarousel slides={heroSlides} />
 
         <TrustBadges />
 

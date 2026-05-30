@@ -2,9 +2,15 @@
 
 import { useCallback, useEffect, useState } from "react"
 import Link from "next/link"
+import Image from "next/image"
+import type { HeroSlide } from "@/lib/shopify/types"
 
 /**
  * HeroCarousel — slideshow rotativo del home.
+ *
+ * Fuente de datos: `slides` viene de Shopify Metaobjects (definición
+ * `hero_slide`). Si llega vacío (admin no ha cargado nada o el query
+ * falló), usamos PLACEHOLDER_SLIDES para no dejar la home en blanco.
  *
  * Principios de diseño:
  *  - El SLIDE entero es el link (no botón encima). Hover sutil indica
@@ -16,37 +22,48 @@ import Link from "next/link"
  *  - Slide bg con pointer-events para que sea clickeable, dots con z encima
  */
 
-type Slide = {
-  eyebrow: string
-  title: string
-  href: string
-  bgClass: string
+type Props = {
+  slides?: HeroSlide[]
 }
 
-const SLIDES: Slide[] = [
+// Fallback cuando Shopify aún no tiene Metaobjects cargados.
+// La estructura imita el HeroSlide pero sin imagen — usa los gradients
+// de cuero como background. Mismo orden de gradients que HERO_FALLBACK_GRADIENTS
+// en lib/shopify/index.ts para que el look se mantenga al ir migrando uno a uno.
+const PLACEHOLDER_SLIDES: HeroSlide[] = [
   {
+    id: "placeholder-1",
+    handle: "placeholder-1",
     eyebrow: "Colección · Otoño",
     title: "Hecho en León.",
     href: "/products",
+    image: null,
     bgClass: "bg-gradient-to-br from-leather via-leather-light to-leather-dark",
   },
   {
+    id: "placeholder-2",
+    handle: "placeholder-2",
     eyebrow: "Hombre · Vaqueras",
     title: "Para décadas.",
     href: "/hombre",
+    image: null,
     bgClass: "bg-gradient-to-br from-terracotta-dark via-terracotta to-leather",
   },
   {
+    id: "placeholder-3",
+    handle: "placeholder-3",
     eyebrow: "Mujer · Nueva colección",
     title: "Cuero auténtico.",
     href: "/mujer",
+    image: null,
     bgClass: "bg-gradient-to-br from-cognac via-gold to-leather-light",
   },
 ]
 
 const AUTO_ROTATE_MS = 8000
 
-export function HeroCarousel() {
+export function HeroCarousel({ slides }: Props) {
+  const data = slides && slides.length > 0 ? slides : PLACEHOLDER_SLIDES
   const [active, setActive] = useState(0)
   const [paused, setPaused] = useState(false)
 
@@ -55,12 +72,12 @@ export function HeroCarousel() {
   }, [])
 
   useEffect(() => {
-    if (paused) return
+    if (paused || data.length <= 1) return
     const interval = setInterval(() => {
-      setActive((prev) => (prev + 1) % SLIDES.length)
+      setActive((prev) => (prev + 1) % data.length)
     }, AUTO_ROTATE_MS)
     return () => clearInterval(interval)
-  }, [paused])
+  }, [paused, data.length])
 
   return (
     <section
@@ -73,9 +90,9 @@ export function HeroCarousel() {
       aria-label="Banners destacados"
     >
       {/* Slides — cada uno es Link clickeable completo */}
-      {SLIDES.map((slide, idx) => (
+      {data.map((slide, idx) => (
         <Link
-          key={idx}
+          key={slide.id}
           href={slide.href}
           tabIndex={idx === active ? 0 : -1}
           aria-hidden={idx !== active}
@@ -84,12 +101,25 @@ export function HeroCarousel() {
             idx === active ? "opacity-100 z-10" : "opacity-0 z-0 pointer-events-none"
           }`}
         >
-          {/* Background */}
-          <div className={`absolute inset-0 ${slide.bgClass} transition-transform duration-[1500ms] group-hover:scale-[1.02]`} />
+          {/* Background — imagen real si existe, gradient de cuero si no */}
+          {slide.image ? (
+            <div className="absolute inset-0 transition-transform duration-[1500ms] group-hover:scale-[1.02]">
+              <Image
+                src={slide.image.url}
+                alt={slide.image.altText || slide.title}
+                fill
+                priority={idx === 0}
+                sizes="100vw"
+                className="object-cover"
+              />
+            </div>
+          ) : (
+            <div className={`absolute inset-0 ${slide.bgClass ?? "bg-leather"} transition-transform duration-[1500ms] group-hover:scale-[1.02]`} />
+          )}
 
           {/* Texture overlay */}
           <div
-            className="absolute inset-0 opacity-20 mix-blend-overlay"
+            className="absolute inset-0 opacity-20 mix-blend-overlay pointer-events-none"
             style={{
               backgroundImage: `
                 radial-gradient(circle at 25% 30%, rgba(255,255,255,0.22) 0%, transparent 55%),
@@ -99,14 +129,16 @@ export function HeroCarousel() {
           />
 
           {/* Gradient inferior para contraste */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/15 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/15 to-transparent pointer-events-none" />
 
           {/* Content anclado abajo-izquierda */}
           <div className="absolute inset-x-0 bottom-0 px-8 md:px-16 lg:px-20 pb-20 md:pb-24">
             <div className="max-w-7xl mx-auto">
-              <p className="eyebrow text-gold mb-4 text-xs md:text-sm tracking-[0.25em]">
-                {slide.eyebrow}
-              </p>
+              {slide.eyebrow && (
+                <p className="eyebrow text-gold mb-4 text-xs md:text-sm tracking-[0.25em]">
+                  {slide.eyebrow}
+                </p>
+              )}
               <h2 className="font-display text-bg text-4xl md:text-5xl lg:text-6xl leading-[1] tracking-tight">
                 {slide.title}
               </h2>
@@ -121,27 +153,29 @@ export function HeroCarousel() {
         </Link>
       ))}
 
-      {/* Dots — z-30, separados del Link de slide */}
-      <div className="absolute bottom-6 left-0 right-0 z-30 flex justify-center gap-2">
-        {SLIDES.map((slide, idx) => (
-          <button
-            key={idx}
-            type="button"
-            onClick={() => goTo(idx)}
-            aria-label={`Ir al slide ${idx + 1}`}
-            aria-current={idx === active ? "true" : "false"}
-            className="group p-3 cursor-pointer"
-          >
-            <span
-              className={`block h-[3px] rounded-full transition-all duration-300 ${
-                idx === active
-                  ? "w-10 bg-bg"
-                  : "w-6 bg-bg/40 group-hover:bg-bg/75"
-              }`}
-            />
-          </button>
-        ))}
-      </div>
+      {/* Dots — z-30, separados del Link de slide. Solo si hay más de uno. */}
+      {data.length > 1 && (
+        <div className="absolute bottom-6 left-0 right-0 z-30 flex justify-center gap-2">
+          {data.map((_, idx) => (
+            <button
+              key={idx}
+              type="button"
+              onClick={() => goTo(idx)}
+              aria-label={`Ir al slide ${idx + 1}`}
+              aria-current={idx === active ? "true" : "false"}
+              className="group p-3 cursor-pointer"
+            >
+              <span
+                className={`block h-[3px] rounded-full transition-all duration-300 ${
+                  idx === active
+                    ? "w-10 bg-bg"
+                    : "w-6 bg-bg/40 group-hover:bg-bg/75"
+                }`}
+              />
+            </button>
+          ))}
+        </div>
+      )}
     </section>
   )
 }

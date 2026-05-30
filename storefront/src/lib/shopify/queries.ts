@@ -123,6 +123,36 @@ export const GET_COLLECTIONS_QUERY = /* GraphQL */ `
   ${IMAGE_FRAGMENT}
 `
 
+// Hero slides — Metaobjects de tipo "hero_slide" definidos en
+// Shopify admin (Settings → Custom data → Metaobjects). Cada slide
+// tiene fields: image (File), eyebrow, title, link_url, sort_order,
+// is_active. El frontend los renderiza ordenados por sort_order.
+//
+// Setup admin requerido (una vez): crear la definition + entries.
+// Documentación: docs.shopify.com/api/admin/migrate/new-product-model/metaobjects
+export const GET_HERO_SLIDES_QUERY = /* GraphQL */ `
+  query GetHeroSlides {
+    metaobjects(type: "hero_slide", first: 10) {
+      edges {
+        node {
+          id
+          handle
+          fields {
+            key
+            value
+            reference {
+              ... on MediaImage {
+                image { ...ImageFields }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  ${IMAGE_FRAGMENT}
+`
+
 // Health check — no requiere datos reales, sirve para verificar
 // que el token funciona al conectar por primera vez.
 export const SHOP_INFO_QUERY = /* GraphQL */ `

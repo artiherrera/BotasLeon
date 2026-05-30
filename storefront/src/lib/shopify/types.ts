@@ -69,6 +69,22 @@ export type Collection = {
   productsCount?: number
 }
 
+// Hero slide — origen Metaobjects (Settings → Custom data en Shopify admin).
+// `image` puede venir null si el field viene vacío o aún sin asset;
+// el componente debe seguir renderizando con su gradient de fallback.
+export type HeroSlide = {
+  id: string
+  handle: string
+  eyebrow: string
+  title: string
+  href: string
+  image: Image | null
+  // El componente usa una clase Tailwind para el gradient cuando no hay
+  // imagen. Si en el futuro queremos overridear desde el admin, agregar
+  // un field más en el metaobject (ej. `accent_color`).
+  bgClass?: string
+}
+
 export type Cart = {
   id: string
   checkoutUrl: string

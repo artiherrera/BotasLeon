@@ -11,9 +11,10 @@ import {
   GET_PRODUCTS_QUERY,
   GET_PRODUCT_BY_HANDLE_QUERY,
   GET_COLLECTIONS_QUERY,
+  GET_HERO_SLIDES_QUERY,
   SHOP_INFO_QUERY,
 } from "./queries"
-import type { Product, Collection } from "./types"
+import type { Product, Collection, HeroSlide, Image } from "./types"
 
 type Edge<T> = { edges: Array<{ node: T }> }
 
@@ -70,6 +71,70 @@ export async function getCollections(first = 20): Promise<Collection[]> {
     { tags: ["collections"] }
   )
   return data.collections.edges.map((e) => e.node)
+}
+
+// === Hero slides (Metaobjects) ===
+
+// Lista cíclica de gradients de fallback — se asigna por índice cuando
+// el slide no trae imagen, para que la home no quede en blanco mientras
+// el admin sube los assets.
+const HERO_FALLBACK_GRADIENTS = [
+  "bg-gradient-to-br from-leather via-leather-light to-leather-dark",
+  "bg-gradient-to-br from-terracotta-dark via-terracotta to-leather",
+  "bg-gradient-to-br from-cognac via-gold to-leather-light",
+]
+
+type MetaobjectField = {
+  key: string
+  value: string | null
+  reference: { image: Image | null } | null
+}
+
+type MetaobjectNode = {
+  id: string
+  handle: string
+  fields: MetaobjectField[]
+}
+
+export async function getHeroSlides(): Promise<HeroSlide[]> {
+  type Resp = { metaobjects: Edge<MetaobjectNode> | null }
+  // El query devuelve null si la definition aún no existe en el admin —
+  // tratamos eso como "sin slides" para que el carousel use sus placeholders.
+  let data: Resp
+  try {
+    data = await shopifyFetch<Resp>(
+      GET_HERO_SLIDES_QUERY,
+      undefined,
+      { tags: ["hero-slides"] }
+    )
+  } catch {
+    return []
+  }
+
+  const nodes = data.metaobjects?.edges?.map((e) => e.node) ?? []
+
+  const slides = nodes.map((node, idx) => {
+    const fieldMap = new Map(node.fields.map((f) => [f.key, f] as const))
+    const get = (key: string) => fieldMap.get(key)?.value ?? ""
+    const image = fieldMap.get("image")?.reference?.image ?? null
+
+    const slide: HeroSlide = {
+      id: node.id,
+      handle: node.handle,
+      eyebrow: get("eyebrow"),
+      title: get("title"),
+      href: get("link_url") || "/products",
+      image,
+      bgClass: HERO_FALLBACK_GRADIENTS[idx % HERO_FALLBACK_GRADIENTS.length],
+    }
+
+    return { slide, sortOrder: Number(get("sort_order")) || idx, active: get("is_active") !== "false" }
+  })
+
+  return slides
+    .filter((s) => s.active && s.slide.title) // saltar slides incompletos o desactivados
+    .sort((a, b) => a.sortOrder - b.sortOrder)
+    .map((s) => s.slide)
 }
 
 // === Health check ===
