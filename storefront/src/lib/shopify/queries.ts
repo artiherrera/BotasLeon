@@ -45,6 +45,7 @@ export const PRODUCT_CARD_FRAGMENT = /* GraphQL */ `
     productType
     tags
     availableForSale
+    createdAt
     featuredImage { ...ImageFields }
     priceRange {
       minVariantPrice { ...MoneyFields }

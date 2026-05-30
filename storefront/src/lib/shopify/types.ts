@@ -46,6 +46,7 @@ export type Product = {
   productType: string
   tags: string[]
   availableForSale: boolean
+  createdAt: string  // ISO timestamp — usado para sort "Recientes" en /products
   featuredImage: Image | null
   images: Image[]
   priceRange: {

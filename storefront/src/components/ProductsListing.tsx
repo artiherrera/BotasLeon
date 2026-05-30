@@ -43,8 +43,19 @@ const EMPTY_FILTERS: FilterState = {
   onlyAvailable: false,
 }
 
+type SortKey = "default" | "recientes" | "precio-asc" | "precio-desc" | "titulo"
+
+const SORT_LABELS: Record<SortKey, string> = {
+  default: "Más vendidos",
+  recientes: "Más recientes",
+  "precio-asc": "Precio: menor a mayor",
+  "precio-desc": "Precio: mayor a menor",
+  titulo: "Nombre: A → Z",
+}
+
 export function ProductsListing({ products }: Props) {
   const [filters, setFilters] = useState<FilterState>(EMPTY_FILTERS)
+  const [sortKey, setSortKey] = useState<SortKey>("default")
   const [mobileOpen, setMobileOpen] = useState(false)
 
   // === Facetas — qué opciones mostrar en sidebar ===
@@ -96,6 +107,33 @@ export function ProductsListing({ products }: Props) {
       return true
     })
   }, [products, filters])
+
+  // Sort después de filtrar — default conserva el orden del server (BEST_SELLING).
+  // Hacemos copia para no mutar el array filtrado.
+  const sorted = useMemo(() => {
+    if (sortKey === "default") return filtered
+    const arr = [...filtered]
+    switch (sortKey) {
+      case "recientes":
+        return arr.sort((a, b) => (b.createdAt ?? "").localeCompare(a.createdAt ?? ""))
+      case "precio-asc":
+        return arr.sort(
+          (a, b) =>
+            parseFloat(a.priceRange.minVariantPrice.amount) -
+            parseFloat(b.priceRange.minVariantPrice.amount)
+        )
+      case "precio-desc":
+        return arr.sort(
+          (a, b) =>
+            parseFloat(b.priceRange.minVariantPrice.amount) -
+            parseFloat(a.priceRange.minVariantPrice.amount)
+        )
+      case "titulo":
+        return arr.sort((a, b) => a.title.localeCompare(b.title))
+      default:
+        return arr
+    }
+  }, [filtered, sortKey])
 
   const activeCount =
     filters.vendors.size +
@@ -267,34 +305,55 @@ export function ProductsListing({ products }: Props) {
 
       {/* Main: toolbar + grid */}
       <div>
-        {/* Toolbar */}
-        <div className="mb-6 pb-4 border-b border-border flex items-center justify-between gap-4">
+        {/* Toolbar — count, sort, filtros button (mobile) */}
+        <div className="mb-6 pb-4 border-b border-border flex flex-wrap items-center justify-between gap-3">
           <p className="text-sm text-text-muted">
-            {filtered.length} producto{filtered.length === 1 ? "" : "s"}
+            {sorted.length} producto{sorted.length === 1 ? "" : "s"}
             {activeCount > 0 && (
               <span className="text-text-subtle"> de {products.length}</span>
             )}
           </p>
-          <button
-            onClick={() => setMobileOpen(true)}
-            className="lg:hidden inline-flex items-center gap-2 px-4 py-2 border border-border text-xs uppercase tracking-wider hover:border-leather"
-          >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <line x1="4" y1="6" x2="20" y2="6" />
-              <line x1="7" y1="12" x2="17" y2="12" />
-              <line x1="10" y1="18" x2="14" y2="18" />
-            </svg>
-            Filtros
-            {activeCount > 0 && (
-              <span className="bg-leather text-bg w-5 h-5 rounded-full flex items-center justify-center text-[10px]">
-                {activeCount}
-              </span>
-            )}
-          </button>
+
+          <div className="flex items-center gap-3">
+            {/* Sort */}
+            <label className="text-xs text-text-muted hidden sm:inline">
+              Ordenar
+            </label>
+            <select
+              value={sortKey}
+              onChange={(e) => setSortKey(e.target.value as SortKey)}
+              aria-label="Ordenar productos por"
+              className="text-sm bg-bg border border-border px-3 py-1.5 hover:border-leather focus:outline-none focus:border-leather cursor-pointer"
+            >
+              {(Object.keys(SORT_LABELS) as SortKey[]).map((key) => (
+                <option key={key} value={key}>
+                  {SORT_LABELS[key]}
+                </option>
+              ))}
+            </select>
+
+            {/* Mobile: abre drawer de filtros */}
+            <button
+              onClick={() => setMobileOpen(true)}
+              className="lg:hidden inline-flex items-center gap-2 px-4 py-1.5 border border-border text-xs uppercase tracking-wider hover:border-leather"
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="4" y1="6" x2="20" y2="6" />
+                <line x1="7" y1="12" x2="17" y2="12" />
+                <line x1="10" y1="18" x2="14" y2="18" />
+              </svg>
+              Filtros
+              {activeCount > 0 && (
+                <span className="bg-leather text-bg w-5 h-5 rounded-full flex items-center justify-center text-[10px]">
+                  {activeCount}
+                </span>
+              )}
+            </button>
+          </div>
         </div>
 
         {/* Grid o empty state */}
-        {filtered.length === 0 ? (
+        {sorted.length === 0 ? (
           activeCount > 0 ? (
             <div className="border border-border bg-bg-alt p-10 text-center">
               <p className="font-heading text-xl text-text mb-2">
@@ -318,7 +377,7 @@ export function ProductsListing({ products }: Props) {
           )
         ) : (
           <div className="grid grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-10">
-            {filtered.map((p) => (
+            {sorted.map((p) => (
               <ProductCard key={p.id} product={p} />
             ))}
           </div>
