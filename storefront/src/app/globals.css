@@ -1,0 +1,57 @@
+@import "tailwindcss";
+
+/**
+ * BotasLeón — sistema de diseño
+ * Aesthetic: Western / Cuero Premium
+ * Paleta y tipografías acordadas con el cliente.
+ */
+
+@theme {
+  /* === Colores === */
+  --color-bg: #FBF8F1;
+  --color-bg-alt: #F4E9D8;
+  --color-text: #1F1814;
+  --color-text-muted: #5A4F44;
+  --color-text-subtle: #8A7E6E;
+  --color-leather: #4B2E1F;
+  --color-leather-light: #8B5A2B;
+  --color-terracotta: #8B3A24;
+  --color-terracotta-dark: #5C1F1F;
+  --color-cognac: #BC7B3C;
+  --color-gold: #B8924A;
+  --color-border: #D4CCBE;
+  --color-border-strong: #8B5A2B;
+
+  /* === Tipografías === */
+  --font-display: var(--font-bevan);
+  --font-heading: var(--font-zilla);
+  --font-body: var(--font-inter);
+}
+
+body {
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Headings con jerarquía western. H1 = Bevan display (hero only).
+   H2-H4 = Zilla Slab elegante. H5-H6 = Inter caps (labels). */
+h1, .h1 {
+  font-family: var(--font-display);
+  font-weight: 400;
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+}
+h2, .h2, h3, .h3, h4, .h4 {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  line-height: 1.2;
+}
+h5, .h5, h6, .h6, .eyebrow {
+  font-family: var(--font-body);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}

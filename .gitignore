@@ -1,0 +1,37 @@
+# BotasLeon — gitignore raíz.
+# Las subcarpetas (storefront/) tienen su propio .gitignore que aplica
+# encima de éste.
+
+# === Credenciales y archivos sensibles ===
+# Backup de credenciales de la fase Medusa — NUNCA committear
+_RESCATADO_*.env
+*.credentials
+*.secret
+.env
+.env.local
+.env.*.local
+
+# === Sistema operativo ===
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+
+# === Editores ===
+.vscode/
+.idea/
+*.sublime-*
+
+# === Logs ===
+*.log
+logs/
+
+# === Dependencias y builds (redundante pero por si acaso) ===
+node_modules/
+.next/
+dist/
+build/
+
+# === Temporales ===
+.tmp/
+.cache/
