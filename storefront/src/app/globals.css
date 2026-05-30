@@ -67,3 +67,22 @@ h5, .h5, h6, .h6, .eyebrow {
 .hero-ken-burns {
   animation: hero-ken-burns 8s ease-out forwards;
 }
+
+/* Marquee — cintillo horizontal scrolling. Items se duplican 2x en JSX
+   y la animación va de 0% a -50% para loop perfecto. Pausa al hover
+   para que el usuario pueda leer un mensaje específico. */
+@keyframes marquee-scroll {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+.marquee-track {
+  animation: marquee-scroll 40s linear infinite;
+}
+.marquee-track:hover {
+  animation-play-state: paused;
+}
+@media (prefers-reduced-motion: reduce) {
+  .marquee-track {
+    animation: none;
+  }
+}

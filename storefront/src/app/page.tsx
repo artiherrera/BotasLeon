@@ -2,7 +2,7 @@ import Link from "next/link"
 import { Header } from "@/components/Header"
 import { Footer } from "@/components/Footer"
 import { HeroCarousel } from "@/components/HeroCarousel"
-import { TrustBadges } from "@/components/TrustBadges"
+import { MarqueeBar } from "@/components/MarqueeBar"
 import { CategoryShowcase } from "@/components/CategoryShowcase"
 import { BrandGrid } from "@/components/BrandGrid"
 import { FAQAccordion } from "@/components/FAQAccordion"
@@ -49,7 +49,7 @@ export default async function HomePage() {
       <main className="flex-1">
         <HeroCarousel slides={heroSlides} />
 
-        <TrustBadges />
+        <MarqueeBar />
 
         <CategoryShowcase />
 
