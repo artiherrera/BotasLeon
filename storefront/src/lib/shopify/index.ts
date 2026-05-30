@@ -98,20 +98,23 @@ type MetaobjectNode = {
 
 export async function getHeroSlides(): Promise<HeroSlide[]> {
   type Resp = { metaobjects: Edge<MetaobjectNode> | null }
-  // El query devuelve null si la definition aún no existe en el admin —
-  // tratamos eso como "sin slides" para que el carousel use sus placeholders.
+  // Revalida cada 60s — suficiente para que cambios en admin lleguen
+  // pronto sin tirar full no-store (que vuelve la home dinámica).
   let data: Resp
   try {
     data = await shopifyFetch<Resp>(
       GET_HERO_SLIDES_QUERY,
       undefined,
-      { tags: ["hero-slides"] }
+      { revalidate: 60 }
     )
-  } catch {
+  } catch (e) {
+    // Logging visible en Amplify build logs para diagnóstico.
+    console.error("[getHeroSlides] fetch error:", e instanceof Error ? e.message : e)
     return []
   }
 
   const nodes = data.metaobjects?.edges?.map((e) => e.node) ?? []
+  console.log(`[getHeroSlides] nodes recibidos: ${nodes.length}`)
 
   const slides = nodes.map((node, idx) => {
     const fieldMap = new Map(node.fields.map((f) => [f.key, f] as const))

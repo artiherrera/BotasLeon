@@ -52,6 +52,10 @@ export async function shopifyFetch<TData, TVariables extends Record<string, unkn
     // Tags para revalidación Next.js — usar cuando se quiera invalidar
     // por evento (ej. 'products' al editar productos en admin)
     tags?: string[]
+    // Segundos antes de considerar la respuesta stale. Útil para data
+    // que cambia poco pero queremos refrescar en background (ej. hero
+    // slides editables desde admin).
+    revalidate?: number
   }
 ): Promise<TData> {
   if (!TOKEN) {
@@ -60,6 +64,10 @@ export async function shopifyFetch<TData, TVariables extends Record<string, unkn
       0
     )
   }
+
+  const nextOpts: { tags?: string[]; revalidate?: number } = {}
+  if (options?.tags) nextOpts.tags = options.tags
+  if (options?.revalidate !== undefined) nextOpts.revalidate = options.revalidate
 
   const res = await fetch(ENDPOINT, {
     method: "POST",
@@ -70,7 +78,7 @@ export async function shopifyFetch<TData, TVariables extends Record<string, unkn
     },
     body: JSON.stringify({ query, variables }),
     cache: options?.cache ?? "force-cache",
-    next: options?.tags ? { tags: options.tags } : undefined,
+    next: Object.keys(nextOpts).length > 0 ? nextOpts : undefined,
   })
 
   if (!res.ok) {
