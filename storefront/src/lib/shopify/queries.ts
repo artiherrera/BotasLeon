@@ -124,6 +124,43 @@ export const GET_COLLECTIONS_QUERY = /* GraphQL */ `
   ${IMAGE_FRAGMENT}
 `
 
+// Brands — Metaobjects tipo "brand" para controlar qué marcas se
+// muestran en el home y /marcas, en qué orden, y con qué logo.
+// La match con productos se hace por el field `name` que debe coincidir
+// EXACTAMENTE con el `vendor` del producto en Shopify.
+//
+// Fields esperados del metaobject:
+//   - logo (File reference, opcional pero recomendado)
+//   - name (single line text, debe = product.vendor)
+//   - tagline (single line text, opcional)
+//   - sort_order (integer)
+//   - is_active (boolean)
+//
+// El handle del metaobject (autogenerado, ej. "josepha") es el slug
+// que usamos para /marcas/[handle].
+export const GET_BRANDS_QUERY = /* GraphQL */ `
+  query GetBrands {
+    metaobjects(type: "brand", first: 50) {
+      edges {
+        node {
+          id
+          handle
+          fields {
+            key
+            value
+            reference {
+              ... on MediaImage {
+                image { ...ImageFields }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  ${IMAGE_FRAGMENT}
+`
+
 // Productos por colección — usado por páginas /hombre, /mujer, /nino
 // y eventualmente /marcas/[handle]. Las colecciones se manejan en
 // Shopify admin (Productos → Colecciones), idealmente automatizadas

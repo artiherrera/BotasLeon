@@ -1,27 +1,32 @@
 import Link from "next/link"
+import Image from "next/image"
 import { Header } from "@/components/Header"
 import { Footer } from "@/components/Footer"
-import { getProducts } from "@/lib/shopify"
+import { getBrands, getProducts } from "@/lib/shopify"
 
 export const revalidate = 60
 
 /**
- * /marcas — listado de marcas que comercializamos.
+ * /marcas — listado completo de marcas que comercializamos.
  *
- * Agrega productos por vendor y muestra cada marca como card.
- * Por ahora muestra solo los vendors únicos que existen en el catálogo.
- * Cuando construyamos /marcas/[handle] en Sprint C, cada card va a esa
- * página individual de marca.
+ * Si hay metaobjects "brand" definidos, los usa con su logo, orden y
+ * is_active. Si no, hace fallback al listado de vendors únicos del
+ * catálogo. Cada card lleva a /marcas/[handle].
  */
 export default async function MarcasPage() {
-  let products: Awaited<ReturnType<typeof getProducts>> = []
-  try {
-    products = await getProducts({ first: 100 })
-  } catch {}
+  const brands = await getBrands()
 
-  const vendors = Array.from(
-    new Set(products.map((p) => p.vendor).filter(Boolean))
-  ).sort()
+  // Para cada brand, contamos cuántos productos del catálogo tienen
+  // ese vendor. Una sola query para todos los productos para no hacer
+  // N+1 fetches.
+  const products = brands.length > 0
+    ? await getProducts({ first: 200 }).catch(() => [])
+    : []
+
+  const productCountByName = new Map<string, number>()
+  for (const p of products) {
+    productCountByName.set(p.vendor, (productCountByName.get(p.vendor) ?? 0) + 1)
+  }
 
   return (
     <>
@@ -39,33 +44,45 @@ export default async function MarcasPage() {
             </p>
           </div>
 
-          {vendors.length === 0 ? (
-            <div className="border border-border bg-bg-alt p-10 text-center">
-              <p className="font-heading text-xl text-text mb-2">Próximamente</p>
-              <p className="text-text-muted">
-                Estamos finalizando acuerdos con las primeras marcas. Vuelve
-                pronto.
-              </p>
-            </div>
+          {brands.length === 0 ? (
+            <ConfigBanner />
           ) : (
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-              {vendors.map((vendor) => {
-                const count = products.filter((p) => p.vendor === vendor).length
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+              {brands.map((b) => {
+                const count = productCountByName.get(b.name) ?? 0
                 return (
                   <Link
-                    key={vendor}
-                    href="/products"
-                    className="group relative aspect-[5/4] bg-leather text-bg p-6 flex flex-col justify-between hover:bg-text transition-colors"
+                    key={b.handle}
+                    href={`/marcas/${b.handle}`}
+                    className="group relative aspect-[5/4] bg-bg-alt border border-border hover:border-leather transition-colors overflow-hidden"
                   >
-                    <div>
-                      <p className="eyebrow text-bg/70 text-xs">Marca</p>
-                    </div>
-                    <div>
-                      <h3 className="font-display text-2xl md:text-3xl leading-none mb-1">
-                        {vendor}
-                      </h3>
-                      <p className="text-xs uppercase tracking-wider text-bg/70">
-                        {count} {count === 1 ? "producto" : "productos"} →
+                    {b.logo ? (
+                      <div className="absolute inset-0 p-8 flex items-center justify-center">
+                        <div className="relative w-full h-full transition-transform group-hover:scale-105">
+                          <Image
+                            src={b.logo.url}
+                            alt={b.logo.altText || b.name}
+                            fill
+                            sizes="(max-width: 768px) 50vw, 25vw"
+                            className="object-contain"
+                          />
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="absolute inset-0 flex items-center justify-center bg-leather">
+                        <h3 className="font-display text-2xl text-bg">
+                          {b.name}
+                        </h3>
+                      </div>
+                    )}
+
+                    <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent p-4">
+                      <p className="text-bg text-sm font-medium">{b.name}</p>
+                      {b.tagline && (
+                        <p className="text-bg/80 text-xs mt-1">{b.tagline}</p>
+                      )}
+                      <p className="text-bg/60 text-xs mt-1">
+                        {count} {count === 1 ? "producto" : "productos"}
                       </p>
                     </div>
                   </Link>
@@ -80,8 +97,30 @@ export default async function MarcasPage() {
   )
 }
 
+function ConfigBanner() {
+  return (
+    <div className="border border-amber-300 bg-amber-50 p-8 max-w-2xl">
+      <p className="eyebrow text-amber-900 mb-2">Configuración pendiente</p>
+      <h2 className="font-heading text-2xl text-text mb-3">
+        Aún sin marcas definidas
+      </h2>
+      <p className="text-text-muted mb-4">
+        Para mostrar tus marcas con logo y orden controlado, crea un
+        metaobject tipo <code className="bg-bg px-1.5 py-0.5 rounded text-leather">brand</code> en Shopify admin →
+        Settings → Custom data → Metaobjects → Add definition.
+      </p>
+      <p className="text-sm text-text-muted">
+        Mientras tanto, las marcas de tus productos aparecen automáticamente en
+        el catálogo (ver{" "}
+        <Link href="/products" className="text-leather hover:text-terracotta">
+          todas las botas
+        </Link>{" "}
+        y usa el filtro "Marca" del sidebar).
+      </p>
+    </div>
+  )
+}
+
 export const metadata = {
   title: "Marcas — BotasLeón",
-  description:
-    "Marcas y casas de calzado de León, Guanajuato que comercializamos en BotasLeón.",
 }

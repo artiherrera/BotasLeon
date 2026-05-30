@@ -13,9 +13,10 @@ import {
   GET_COLLECTIONS_QUERY,
   GET_COLLECTION_BY_HANDLE_QUERY,
   GET_HERO_SLIDES_QUERY,
+  GET_BRANDS_QUERY,
   SHOP_INFO_QUERY,
 } from "./queries"
-import type { Product, Collection, HeroSlide, Image } from "./types"
+import type { Product, Collection, HeroSlide, Image, Brand } from "./types"
 
 type Edge<T> = { edges: Array<{ node: T }> }
 
@@ -105,6 +106,66 @@ export async function getCollectionByHandle(
     console.error(`[getCollectionByHandle] handle=${handle}:`, e instanceof Error ? e.message : e)
     return null
   }
+}
+
+// === Brands (Metaobjects) ===
+
+export async function getBrands(): Promise<Brand[]> {
+  type RawNode = {
+    id: string
+    handle: string
+    fields: Array<{
+      key: string
+      value: string | null
+      reference: { image: Image | null } | null
+    }>
+  }
+  type Resp = { metaobjects: Edge<RawNode> | null }
+  let data: Resp
+  try {
+    data = await shopifyFetch<Resp>(
+      GET_BRANDS_QUERY,
+      undefined,
+      { revalidate: 60 }
+    )
+  } catch (e) {
+    console.error("[getBrands] fetch error:", e instanceof Error ? e.message : e)
+    return []
+  }
+
+  const nodes = data.metaobjects?.edges?.map((e) => e.node) ?? []
+  console.log(`[getBrands] nodes recibidos: ${nodes.length}`)
+
+  const brands = nodes.map((node, idx) => {
+    const fieldMap = new Map(node.fields.map((f) => [f.key, f] as const))
+    const get = (key: string) => fieldMap.get(key)?.value ?? ""
+    const logo = fieldMap.get("logo")?.reference?.image ?? null
+
+    const brand: Brand = {
+      id: node.id,
+      handle: node.handle,
+      name: get("name"),
+      tagline: get("tagline"),
+      logo,
+    }
+    return { brand, sortOrder: Number(get("sort_order")) || idx, active: get("is_active") !== "false" }
+  })
+
+  return brands
+    .filter((b) => b.active && b.brand.name)
+    .sort((a, b) => a.sortOrder - b.sortOrder)
+    .map((b) => b.brand)
+}
+
+// Productos de una marca específica — filtramos por vendor.
+// Vendor con espacios o caracteres especiales necesita escape;
+// quoting siempre es seguro.
+export async function getProductsByVendor(
+  vendor: string,
+  first = 48
+): Promise<Product[]> {
+  const escaped = vendor.replace(/"/g, '\\"')
+  return getProducts({ first, query: `vendor:"${escaped}"` })
 }
 
 // === Hero slides (Metaobjects) ===

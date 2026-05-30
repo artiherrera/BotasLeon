@@ -85,6 +85,17 @@ export type HeroSlide = {
   bgClass?: string
 }
 
+// Brand — viene de Metaobject tipo "brand". El handle es el slug del
+// metaobject (autogenerado por Shopify), el name debe coincidir con
+// product.vendor para que la página individual pueda filtrar productos.
+export type Brand = {
+  id: string
+  handle: string  // slug, ej. "josepha"
+  name: string   // display name, ej. "Josepha"
+  tagline: string
+  logo: Image | null
+}
+
 export type Cart = {
   id: string
   checkoutUrl: string
