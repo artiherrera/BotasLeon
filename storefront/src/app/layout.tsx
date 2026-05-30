@@ -2,7 +2,7 @@ import type { Metadata } from "next"
 import { Bevan, Zilla_Slab, Inter } from "next/font/google"
 import { CartProvider } from "@/components/CartProvider"
 import { CartDrawer } from "@/components/CartDrawer"
-import { getCartFromCookie } from "@/lib/cart/queries"
+import { getCartFromCookie } from "@/lib/cart/actions"
 import "./globals.css"
 
 /**

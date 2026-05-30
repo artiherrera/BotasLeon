@@ -6,6 +6,7 @@ import {
   addToCart as shopifyAddToCart,
   updateCartLine as shopifyUpdateCartLine,
   removeFromCart as shopifyRemoveFromCart,
+  getCart,
 } from "@/lib/shopify"
 import type { Cart } from "@/lib/shopify/types"
 
@@ -41,6 +42,18 @@ async function setCartCookie(cartId: string) {
 async function getCartIdFromCookie(): Promise<string | null> {
   const jar = await cookies()
   return jar.get(COOKIE_NAME)?.value ?? null
+}
+
+export async function getCartFromCookie(): Promise<Cart | null> {
+  const id = await getCartIdFromCookie()
+  if (!id) return null
+  try {
+    const cart = await getCart(id)
+    // Si Shopify devuelve null el cart expiró o fue borrado.
+    return cart
+  } catch {
+    return null
+  }
 }
 
 export async function addItemAction(input: {
