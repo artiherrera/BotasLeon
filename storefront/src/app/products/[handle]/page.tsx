@@ -1,0 +1,119 @@
+import { notFound } from "next/navigation"
+import Link from "next/link"
+import { Header } from "@/components/Header"
+import { Footer } from "@/components/Footer"
+import { ProductGallery } from "@/components/ProductGallery"
+import { ProductOptions } from "@/components/ProductOptions"
+import { getProductByHandle, getProducts } from "@/lib/shopify"
+import { formatMoney } from "@/lib/utils"
+
+/**
+ * PDP — Página de detalle de producto.
+ *
+ * Static con generateStaticParams — pre-construimos una página por
+ * cada producto existente al momento del build. Productos nuevos
+ * requieren rebuild (next push o empty commit).
+ *
+ * Razón: Amplify Hosting da 500 en rutas Next 16 puramente dinámicas,
+ * así que no podemos depender de generación on-the-fly. Acepamos
+ * que cargar producto nuevo en Shopify requiera un redeploy hasta
+ * que automaticemos via webhook (futuro).
+ *
+ * ProductOptions tiene selector de talla funcional pero botón
+ * "Agregar al carrito" deshabilitado por ahora — se activa en el
+ * paso 3 cuando reintroduzcamos el cart.
+ */
+
+export const revalidate = 60
+
+type Props = {
+  params: Promise<{ handle: string }>
+}
+
+export async function generateStaticParams() {
+  try {
+    const products = await getProducts({ first: 100 })
+    return products.map((p) => ({ handle: p.handle }))
+  } catch {
+    return []
+  }
+}
+
+export default async function ProductPage({ params }: Props) {
+  const { handle } = await params
+  const product = await getProductByHandle(handle)
+
+  if (!product) notFound()
+
+  const price = product.priceRange.minVariantPrice
+
+  return (
+    <>
+      <Header />
+      <main className="flex-1">
+        <div className="mx-auto max-w-7xl px-6 py-8 md:py-12">
+          <nav className="mb-8 text-sm text-text-muted">
+            <Link href="/" className="hover:text-leather">Inicio</Link>
+            <span className="mx-2">/</span>
+            <Link href="/products" className="hover:text-leather">Catálogo</Link>
+            <span className="mx-2">/</span>
+            <span className="text-text">{product.title}</span>
+          </nav>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16">
+            <ProductGallery
+              images={
+                product.images.length > 0
+                  ? product.images
+                  : product.featuredImage
+                    ? [product.featuredImage]
+                    : []
+              }
+              title={product.title}
+            />
+
+            <div className="lg:sticky lg:top-24 lg:self-start">
+              {product.vendor && (
+                <p className="eyebrow text-leather mb-2">{product.vendor}</p>
+              )}
+              <h1 className="font-heading text-3xl md:text-4xl text-text mb-4 leading-tight">
+                {product.title}
+              </h1>
+
+              <p className="font-display text-2xl text-text mb-8">
+                {formatMoney(price.amount, price.currencyCode)}
+              </p>
+
+              <ProductOptions product={product} />
+
+              {product.descriptionHtml && (
+                <div className="mt-12 pt-8 border-t border-border">
+                  <h2 className="eyebrow text-leather mb-4">Descripción</h2>
+                  <div
+                    className="prose prose-sm max-w-none text-text-muted leading-relaxed [&_p]:mb-3"
+                    dangerouslySetInnerHTML={{ __html: product.descriptionHtml }}
+                  />
+                </div>
+              )}
+
+              <div className="mt-8 pt-6 border-t border-border text-sm text-text-subtle space-y-1">
+                {product.productType && <p>Tipo: {product.productType}</p>}
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+      <Footer />
+    </>
+  )
+}
+
+export async function generateMetadata({ params }: Props) {
+  const { handle } = await params
+  const product = await getProductByHandle(handle)
+  if (!product) return { title: "Producto no encontrado" }
+  return {
+    title: `${product.title} — BotasLeón`,
+    description: product.description.slice(0, 160),
+  }
+}
