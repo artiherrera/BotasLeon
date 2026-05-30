@@ -14,25 +14,21 @@ const MESSAGES = [
   "380 años de experiencia",
   "León, capital mundial del cuero",
   "Envío MX y USA",
-  "Cambio de talla",
   "3, 6 y 9 meses sin intereses",
 ]
 
 export function MarqueeBar() {
   return (
     <div className="overflow-hidden bg-leather text-bg border-y border-leather-light/20">
-      <div className="marquee-track flex w-max gap-12 py-3.5">
+      <div className="marquee-track flex w-max py-5">
         {/* Items duplicados 2x para loop seamless */}
         {[...MESSAGES, ...MESSAGES].map((msg, idx) => (
           <span
             key={idx}
-            className="flex items-center gap-12 text-sm font-medium tracking-wide whitespace-nowrap"
+            className="px-12 text-base md:text-lg font-medium tracking-wide whitespace-nowrap"
             aria-hidden={idx >= MESSAGES.length}
           >
             {msg}
-            <span className="text-gold/70 select-none" aria-hidden="true">
-              ✦
-            </span>
           </span>
         ))}
       </div>
