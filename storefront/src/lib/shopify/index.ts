@@ -84,6 +84,30 @@ const HERO_FALLBACK_GRADIENTS = [
   "bg-gradient-to-br from-cognac via-gold to-leather-light",
 ]
 
+// Convierte el valor del field "link_url" en un href usable por Next <Link>.
+// Shopify maneja dos tipos:
+//   - "Enlace" (Link): guarda como JSON `{"text":"...","url":"..."}` con URL absoluta
+//   - "URL" o "Single line text": string plano
+// Además, si la URL es absoluta apuntando a nuestro dominio, extraemos solo
+// el pathname — así cuando movamos a custom domain las entries no se rompen.
+function parseHrefFromLinkField(value: string): string {
+  if (!value) return ""
+  let urlString = value
+  try {
+    const parsed = JSON.parse(value)
+    if (parsed && typeof parsed.url === "string") urlString = parsed.url
+  } catch {
+    // value es string plano, no JSON
+  }
+  try {
+    const u = new URL(urlString)
+    return u.pathname + u.search + u.hash
+  } catch {
+    // urlString ya es path relativo (sin protocolo)
+    return urlString
+  }
+}
+
 type MetaobjectField = {
   key: string
   value: string | null
@@ -126,7 +150,7 @@ export async function getHeroSlides(): Promise<HeroSlide[]> {
       handle: node.handle,
       eyebrow: get("eyebrow"),
       title: get("title"),
-      href: get("link_url") || "/products",
+      href: parseHrefFromLinkField(get("link_url")) || "/products",
       image,
       bgClass: HERO_FALLBACK_GRADIENTS[idx % HERO_FALLBACK_GRADIENTS.length],
     }
