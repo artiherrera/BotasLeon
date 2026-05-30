@@ -3,6 +3,7 @@
 import Link from "next/link"
 import Image from "next/image"
 import { useCart } from "./CartProvider"
+import { MegaMenu } from "./MegaMenu"
 
 /**
  * Header del storefront. Sticky con logo, navegación principal,
@@ -13,7 +14,7 @@ export function Header() {
   const { itemCount, openCart } = useCart()
 
   return (
-    <header className="sticky top-0 z-40 border-b border-border bg-bg/95 backdrop-blur supports-[backdrop-filter]:bg-bg/80">
+    <header className="sticky top-0 z-40 border-b border-border bg-bg/95 backdrop-blur supports-[backdrop-filter]:bg-bg/80 relative">
       <div className="mx-auto max-w-7xl px-6 py-4 flex items-center gap-8">
         {/* Logo */}
         <Link
@@ -31,30 +32,8 @@ export function Header() {
           />
         </Link>
 
-        {/* Navegación principal */}
-        <nav className="hidden md:flex items-center gap-6 text-sm font-medium">
-          <Link href="/hombre" className="hover:text-leather transition-colors">
-            Hombre
-          </Link>
-          <Link href="/mujer" className="hover:text-leather transition-colors">
-            Mujer
-          </Link>
-          <Link href="/nino" className="hover:text-leather transition-colors">
-            Niño
-          </Link>
-          <Link
-            href="/marcas"
-            className="hover:text-leather transition-colors"
-          >
-            Marcas
-          </Link>
-          <Link
-            href="/outlet"
-            className="hover:text-terracotta transition-colors"
-          >
-            Outlet
-          </Link>
-        </nav>
+        {/* Mega menu — desktop. Mobile usa fallback inline (futuro hamburger) */}
+        <MegaMenu />
 
         {/* Spacer */}
         <div className="flex-1" />
