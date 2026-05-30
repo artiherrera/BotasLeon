@@ -1,5 +1,8 @@
 import type { Metadata } from "next"
 import { Bevan, Zilla_Slab, Inter } from "next/font/google"
+import { CartProvider } from "@/components/CartProvider"
+import { CartDrawer } from "@/components/CartDrawer"
+import { getCartFromCookie } from "@/lib/cart/actions"
 import "./globals.css"
 
 /**
@@ -38,16 +41,23 @@ export const metadata: Metadata = {
     "Botas premium fabricadas en León. Vaqueras, industriales, casuales. Tradición artesanal mexicana, envío a todo México y Estados Unidos.",
 }
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
+  // Cart inicial desde cookie + Shopify. Si el visitante nunca agregó nada
+  // o su cart expiró, esto devuelve null y el provider arranca vacío.
+  const initialCart = await getCartFromCookie()
+
   return (
     <html
       lang="es"
       className={`${bevan.variable} ${zilla.variable} ${inter.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-bg text-text">
-        {children}
+        <CartProvider initialCart={initialCart}>
+          {children}
+          <CartDrawer />
+        </CartProvider>
       </body>
     </html>
   )

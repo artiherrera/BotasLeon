@@ -1,0 +1,153 @@
+"use client"
+
+import { useMemo, useState } from "react"
+import { useCart } from "./CartProvider"
+import type { Product } from "@/lib/shopify/types"
+
+/**
+ * ProductOptions — selector de variantes + botón Agregar al carrito.
+ *
+ * Lógica de matching: para cada `option` del producto (Size, Color, etc.),
+ * el usuario elige un value. Cuando todos los options tienen value,
+ * buscamos la variante que matchea todos los selectedOptions. Si no
+ * hay match exacto, el producto no tiene esa combinación → disable
+ * add-to-cart.
+ *
+ * Si el producto solo tiene 1 variante (caso "Default Title"), se
+ * salta el selector y muestra solo el botón.
+ */
+
+type Props = {
+  product: Product
+}
+
+export function ProductOptions({ product }: Props) {
+  const { addItem, isPending } = useCart()
+
+  // Producto sin variantes reales: salta selector.
+  const isDefaultOnly =
+    product.variants.length === 1 &&
+    product.variants[0].selectedOptions.every(
+      (o) => o.value.toLowerCase() === "default title"
+    )
+
+  // Estado: { [optionName]: selectedValue }
+  // Inicializa con el primer valor de cada option (primer variant disponible).
+  const initialSelection = useMemo(() => {
+    if (isDefaultOnly) return {}
+    const firstAvailable = product.variants.find((v) => v.availableForSale) ?? product.variants[0]
+    return Object.fromEntries(
+      firstAvailable.selectedOptions.map((o) => [o.name, o.value])
+    )
+  }, [product.variants, isDefaultOnly])
+
+  const [selection, setSelection] = useState<Record<string, string>>(initialSelection)
+
+  // Variante actualmente seleccionada
+  const activeVariant = useMemo(() => {
+    if (isDefaultOnly) return product.variants[0]
+    return product.variants.find((v) =>
+      v.selectedOptions.every((o) => selection[o.name] === o.value)
+    ) ?? null
+  }, [product.variants, selection, isDefaultOnly])
+
+  const isAvailable = activeVariant?.availableForSale ?? false
+  const isUnknownCombo = !activeVariant
+
+  const handleAdd = () => {
+    if (!activeVariant || !isAvailable) return
+    addItem(activeVariant.id, 1)
+  }
+
+  return (
+    <div className="space-y-6">
+      {/* Selectores de option */}
+      {!isDefaultOnly &&
+        product.options.map((option) => (
+          <div key={option.id}>
+            <p className="eyebrow text-text-muted text-xs mb-3">
+              {option.name}
+              {selection[option.name] && (
+                <span className="ml-2 text-text normal-case tracking-normal font-medium">
+                  {selection[option.name]}
+                </span>
+              )}
+            </p>
+            <div className="flex flex-wrap gap-2">
+              {option.values.map((value) => {
+                // Verifica si combinar este value con la selección actual
+                // resulta en una variante disponible.
+                const candidateSel = { ...selection, [option.name]: value }
+                const matchVariant = product.variants.find((v) =>
+                  v.selectedOptions.every((o) => candidateSel[o.name] === o.value)
+                )
+                const candidateAvailable = matchVariant?.availableForSale ?? false
+                const isActive = selection[option.name] === value
+
+                return (
+                  <button
+                    key={value}
+                    type="button"
+                    onClick={() => setSelection(candidateSel)}
+                    aria-pressed={isActive}
+                    className={`min-w-[3rem] px-4 py-2 text-sm border transition-all ${
+                      isActive
+                        ? "border-leather bg-leather text-bg"
+                        : candidateAvailable
+                          ? "border-border text-text hover:border-leather"
+                          : "border-border text-text-subtle line-through cursor-not-allowed"
+                    }`}
+                    disabled={!candidateAvailable && !isActive}
+                  >
+                    {value}
+                  </button>
+                )
+              })}
+            </div>
+          </div>
+        ))}
+
+      {/* Stock status */}
+      {activeVariant && (
+        <div className="text-sm">
+          {isAvailable ? (
+            <span className="text-emerald-700 inline-flex items-center gap-2">
+              <span className="w-2 h-2 bg-emerald-700 rounded-full inline-block" />
+              Disponible
+              {activeVariant.quantityAvailable && activeVariant.quantityAvailable <= 5 && (
+                <span className="text-text-muted">
+                  (solo {activeVariant.quantityAvailable})
+                </span>
+              )}
+            </span>
+          ) : (
+            <span className="text-text-subtle inline-flex items-center gap-2">
+              <span className="w-2 h-2 bg-text-subtle rounded-full inline-block" />
+              Agotado
+            </span>
+          )}
+        </div>
+      )}
+
+      {/* Add to cart */}
+      <button
+        type="button"
+        onClick={handleAdd}
+        disabled={!isAvailable || isPending || isUnknownCombo}
+        className="w-full py-4 bg-leather text-bg text-sm uppercase tracking-widest hover:bg-text disabled:bg-text-subtle disabled:cursor-not-allowed transition-colors"
+      >
+        {isPending
+          ? "Agregando..."
+          : isUnknownCombo
+            ? "Combinación no disponible"
+            : !isAvailable
+              ? "Agotado"
+              : "Agregar al carrito"}
+      </button>
+
+      <p className="text-xs text-text-muted text-center">
+        Envío MX 3-5 días · Cambio de talla sin costo
+      </p>
+    </div>
+  )
+}
