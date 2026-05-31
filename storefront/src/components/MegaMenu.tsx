@@ -182,13 +182,14 @@ export function MegaMenu() {
           onMouseLeave={scheduleClose}
         >
           <div className="mx-auto max-w-7xl px-6 py-8 grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-10">
-            {/* Sections */}
+            {/* Sections — el title del section ("Por estilo") se omite
+                porque es redundante con los sub-items que claramente son
+                estilos. Si en el futuro hay sections distintas (ej.
+                "Por color" / "Por marca" en el mismo dropdown), se puede
+                reactivar el título por section. */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
               {activeItem.sections!.map((section) => (
                 <div key={section.title}>
-                  <p className="eyebrow text-leather text-xs mb-4">
-                    {section.title}
-                  </p>
                   <ul className="space-y-3">
                     {section.links.map((link) => (
                       <li key={link.label}>
@@ -197,7 +198,7 @@ export function MegaMenu() {
                           onClick={() => setOpenIdx(null)}
                           className="group block"
                         >
-                          <span className="font-heading text-text group-hover:text-leather transition-colors">
+                          <span className="text-base font-medium text-text group-hover:text-leather transition-colors">
                             {link.label}
                           </span>
                           {link.description && (
