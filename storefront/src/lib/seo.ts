@@ -5,7 +5,7 @@
  */
 
 export const SITE_URL =
-  process.env.NEXT_PUBLIC_SITE_URL ?? "https://main.dlrgtndu7af79.amplifyapp.com"
+  process.env.NEXT_PUBLIC_SITE_URL ?? "https://botasleon.com"
 
 export const SITE_NAME = "BotasLeón"
 export const SITE_DESCRIPTION =
