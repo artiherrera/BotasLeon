@@ -7,7 +7,7 @@ export default function MujerPage() {
     <CategoryStub
       eyebrow="Mujer"
       title="Botas para mujer"
-      description="Vaqueras, botines, largas y de fashion en cuero auténtico. Tradición artesanal mexicana con silueta contemporánea."
+      description="Vaqueras, clásicas, largas y de fashion en cuero auténtico. Tradición artesanal mexicana con silueta contemporánea."
       taxonomyKey="gender"
       taxonomyHandle="femenino"
       configHint='el metacampo "Sexo objetivo" = Femenino'
@@ -17,5 +17,5 @@ export default function MujerPage() {
 
 export const metadata = {
   title: "Botas para mujer — BotasLeón",
-  description: "Botas vaqueras, botines y largas para mujer, hechas en León.",
+  description: "Botas vaqueras, clásicas y largas para mujer, hechas en León.",
 }

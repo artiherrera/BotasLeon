@@ -7,7 +7,7 @@ export default function HombrePage() {
     <CategoryStub
       eyebrow="Hombre"
       title="Botas para hombre"
-      description="Vaqueras, botines y botas de rancho hechas en León. Cada par seleccionado por su construcción, ajuste y durabilidad."
+      description="Vaqueras, clásicas y botas de rancho hechas en León. Cada par seleccionado por su construcción, ajuste y durabilidad."
       taxonomyKey="gender"
       taxonomyHandle="masculino"
       configHint='el metacampo "Sexo objetivo" = Masculino'
@@ -17,5 +17,5 @@ export default function HombrePage() {
 
 export const metadata = {
   title: "Botas para hombre — BotasLeón",
-  description: "Botas vaqueras, botines y de rancho para hombre, hechas en León.",
+  description: "Botas vaqueras, clásicas y de rancho para hombre, hechas en León.",
 }

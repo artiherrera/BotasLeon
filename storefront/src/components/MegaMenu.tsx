@@ -13,7 +13,7 @@ import Link from "next/link"
  * Mobile: el nav se oculta (hidden md:flex) — futuro hamburger menu
  * va a tomar este rol en otro sprint.
  *
- * Las sub-categorías (Vaqueras, Botines, etc.) aún no tienen ruta
+ * Las sub-categorías (Vaqueras, Clásicas, etc.) aún no tienen ruta
  * propia (/hombre/vaqueras no existe), así que todos apuntan al
  * padre /hombre por ahora. Cuando construyamos las rutas hijas
  * solo actualizamos hrefs en MENU.
@@ -41,8 +41,8 @@ const MENU: MenuItem[] = [
       {
         title: "Por estilo",
         links: [
-          { label: "Vaqueras", href: "/hombre", description: "Caña alta clásica" },
-          { label: "Botines", href: "/hombre", description: "Urbanos, caña corta" },
+          { label: "Vaqueras", href: "/hombre", description: "Caña alta, silueta tradicional" },
+          { label: "Clásicas", href: "/hombre", description: "Caña media, lisas, sin grabado" },
           { label: "Rancho", href: "/hombre", description: "Faena y campo" },
           { label: "Exóticas", href: "/hombre", description: "Avestruz, cocodrilo, pitón" },
         ],
@@ -58,8 +58,8 @@ const MENU: MenuItem[] = [
       {
         title: "Por estilo",
         links: [
-          { label: "Vaqueras", href: "/mujer", description: "Caña alta clásica" },
-          { label: "Botines", href: "/mujer", description: "Urbanos, caña corta" },
+          { label: "Vaqueras", href: "/mujer", description: "Caña alta, silueta tradicional" },
+          { label: "Clásicas", href: "/mujer", description: "Caña media, lisas, sin grabado" },
           { label: "Largas", href: "/mujer", description: "Sobre la rodilla, fashion" },
           { label: "Exóticas", href: "/mujer", description: "Avestruz, cocodrilo, pitón" },
         ],
@@ -76,7 +76,7 @@ const MENU: MenuItem[] = [
         title: "Por estilo",
         links: [
           { label: "Vaqueras", href: "/nino", description: "Mini-vaqueras" },
-          { label: "Botines", href: "/nino", description: "Casual, escuela" },
+          { label: "Clásicas", href: "/nino", description: "Caña media, casual" },
         ],
       },
     ],

@@ -24,7 +24,7 @@ type PlaceholderBrand = {
 const PLACEHOLDER_BRANDS: PlaceholderBrand[] = [
   { handle: "placeholder-1", name: "Marca 01", tagline: "Vaqueras premium", bgClass: "bg-leather", textClass: "text-bg" },
   { handle: "placeholder-2", name: "Marca 02", tagline: "Botas de trabajo", bgClass: "bg-bg-alt", textClass: "text-leather" },
-  { handle: "placeholder-3", name: "Marca 03", tagline: "Botines urbanos", bgClass: "bg-terracotta", textClass: "text-bg" },
+  { handle: "placeholder-3", name: "Marca 03", tagline: "Clásicas", bgClass: "bg-terracotta", textClass: "text-bg" },
   { handle: "placeholder-4", name: "Marca 04", tagline: "Cuero exótico", bgClass: "bg-leather-light", textClass: "text-bg" },
   { handle: "placeholder-5", name: "Marca 05", tagline: "Tradición artesanal", bgClass: "bg-cognac", textClass: "text-text" },
   { handle: "placeholder-6", name: "Marca 06", tagline: "Estilo casual", bgClass: "bg-text", textClass: "text-bg" },

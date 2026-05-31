@@ -12,7 +12,7 @@ import type { Product } from "@/lib/shopify/types"
  * PRODUCT_CARD_FRAGMENT que ya tenemos):
  *  - Marca (vendor)
  *  - Talla (de Product.options "Talla del calzado")
- *  - Estilo (Product.productType: Vaqueras, Botines, etc.)
+ *  - Estilo (Product.productType: Vaqueras, Clásicas, etc.)
  *  - Disponibilidad (en stock vs. todos)
  *
  * Filtros que faltan y vienen en próximas iteraciones cuando agreguemos
