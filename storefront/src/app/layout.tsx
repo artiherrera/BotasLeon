@@ -2,6 +2,8 @@ import type { Metadata } from "next"
 import { Bevan, Zilla_Slab, Inter } from "next/font/google"
 import { CartProvider } from "@/components/CartProvider"
 import { CartDrawer } from "@/components/CartDrawer"
+import { OrganizationJsonLd, WebsiteJsonLd } from "@/components/StructuredData"
+import { SITE_URL, SITE_NAME, SITE_DESCRIPTION } from "@/lib/seo"
 import "./globals.css"
 
 /**
@@ -32,12 +34,52 @@ const inter = Inter({
 })
 
 export const metadata: Metadata = {
+  metadataBase: new URL(SITE_URL),
   title: {
-    default: "BotasLeón · Botas hechas en León, Guanajuato",
-    template: "%s · BotasLeón",
+    default: `${SITE_NAME} · Botas hechas en León, Guanajuato`,
+    template: `%s · ${SITE_NAME}`,
   },
-  description:
-    "Botas premium fabricadas en León. Vaqueras, industriales, casuales. Tradición artesanal mexicana, envío a todo México y Estados Unidos.",
+  description: SITE_DESCRIPTION,
+  keywords: [
+    "botas vaqueras",
+    "botas mexicanas",
+    "botas de cuero",
+    "botas hechas en León",
+    "botas Guanajuato",
+    "botas exóticas avestruz cocodrilo",
+    "botas de rancho",
+    "botas hombre",
+    "botas mujer",
+    "BotasLeón",
+  ],
+  authors: [{ name: SITE_NAME }],
+  creator: SITE_NAME,
+  openGraph: {
+    type: "website",
+    locale: "es_MX",
+    url: SITE_URL,
+    siteName: SITE_NAME,
+    title: `${SITE_NAME} · 380 años de experiencia. A la puerta de tu casa.`,
+    description: SITE_DESCRIPTION,
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: `${SITE_NAME} · Botas hechas en León`,
+    description: SITE_DESCRIPTION,
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
+  alternates: {
+    canonical: SITE_URL,
+  },
 }
 
 export default function RootLayout({
@@ -52,6 +94,9 @@ export default function RootLayout({
       className={`${bevan.variable} ${zilla.variable} ${inter.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-bg text-text">
+        {/* JSON-LD Schema.org global — Organization + WebSite con search */}
+        <OrganizationJsonLd />
+        <WebsiteJsonLd />
         <CartProvider>
           {children}
           <CartDrawer />

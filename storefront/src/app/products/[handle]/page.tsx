@@ -4,8 +4,10 @@ import { Header } from "@/components/Header"
 import { Footer } from "@/components/Footer"
 import { ProductGallery } from "@/components/ProductGallery"
 import { ProductOptions } from "@/components/ProductOptions"
+import { ProductJsonLd, BreadcrumbJsonLd } from "@/components/StructuredData"
 import { getProductByHandle, getProducts } from "@/lib/shopify"
 import { formatMoney } from "@/lib/utils"
+import { absoluteUrl } from "@/lib/seo"
 
 /**
  * PDP — Página de detalle de producto.
@@ -49,6 +51,16 @@ export default async function ProductPage({ params }: Props) {
 
   return (
     <>
+      {/* Structured data Schema.org para rich snippets en Google */}
+      <ProductJsonLd product={product} />
+      <BreadcrumbJsonLd
+        items={[
+          { name: "Inicio", url: "/" },
+          { name: "Catálogo", url: "/products" },
+          { name: product.title, url: `/products/${product.handle}` },
+        ]}
+      />
+
       <Header />
       <main className="flex-1">
         <div className="mx-auto max-w-7xl px-6 py-8 md:py-12">
@@ -112,8 +124,26 @@ export async function generateMetadata({ params }: Props) {
   const { handle } = await params
   const product = await getProductByHandle(handle)
   if (!product) return { title: "Producto no encontrado" }
+  const description = (product.description || `${product.title} por ${product.vendor || "BotasLeón"}`).slice(0, 160)
+  const featuredImage = product.featuredImage?.url
   return {
-    title: `${product.title} — BotasLeón`,
-    description: product.description.slice(0, 160),
+    title: product.title,
+    description,
+    alternates: {
+      canonical: absoluteUrl(`/products/${product.handle}`),
+    },
+    openGraph: {
+      title: product.title,
+      description,
+      type: "website",
+      url: absoluteUrl(`/products/${product.handle}`),
+      images: featuredImage ? [{ url: featuredImage, alt: product.title }] : undefined,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: product.title,
+      description,
+      images: featuredImage ? [featuredImage] : undefined,
+    },
   }
 }
