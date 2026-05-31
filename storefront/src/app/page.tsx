@@ -6,45 +6,36 @@ import { MarqueeBar } from "@/components/MarqueeBar"
 import { CategoryShowcase } from "@/components/CategoryShowcase"
 import { BrandGrid } from "@/components/BrandGrid"
 import { FAQAccordion } from "@/components/FAQAccordion"
-import { ProductCard } from "@/components/ProductCard"
-import { EmptyProductsState } from "@/components/EmptyState"
 import { LatestByGenderTabs } from "@/components/LatestByGenderTabs"
-import { getProducts, getHeroSlides, getProductsByTaxonomy } from "@/lib/shopify"
+import { getHeroSlides, getProductsByTaxonomy } from "@/lib/shopify"
 
 /**
  * Home page (server component, Next.js 16).
  *
- * Estructura premium multi-brand:
+ * Orden (re-jerarquizado):
  *   1. Header sticky
- *   2. HeroCarousel — 3 slides rotativos
- *   3. TrustBadges — 4 promesas BotasLeón
- *   4. "Lo más nuevo" — grid de productos (vacío hasta cargar Shopify)
- *   5. BrandGrid — sección "Nuestras marcas" (placeholders)
- *   6. Storytelling "Hecho en León"
- *   7. "Más vendidos" — segundo grid de productos
- *   8. FAQAccordion — 6 preguntas frecuentes
- *   9. Newsletter signup
+ *   2. HeroCarousel — 3 slides Metaobjects con Ken Burns
+ *   3. MarqueeBar — cintillo trust con 4 mensajes
+ *   4. CategoryShowcase — 3 cards Hombre/Mujer/Niños
+ *   5. BrandGrid — Marcas que comercializamos (Metaobjects)
+ *   6. LatestByGenderTabs — Lo más nuevo con tabs Hombre/Mujer
+ *   7. Storytelling "Hecho en León" — brand anchor antes del cierre
+ *   8. FAQAccordion
+ *   9. Newsletter
  *   10. Footer
  *
- * Server fetch a Shopify Storefront API por sección que lo requiera.
- * Si la tienda no tiene productos aún, el EmptyState mantiene la home
- * visualmente completa.
+ * Eliminada la sección "Más vendidos" mientras el catálogo es chico
+ * (mostraba los mismos productos que "Lo más nuevo" → redundante).
+ * Cuando haya 20+ productos la re-introducimos con datos distintos
+ * o cambiamos a "Curated" / "Editor's pick".
  */
 export default async function HomePage() {
-  // Parallel fetch: home arma 4 buckets de productos (bestsellers,
-  // hombre nuevo, mujer nuevo) + hero slides en una sola pasada.
-  const [
-    products,
-    hombreProducts,
-    mujerProducts,
-    heroSlides,
-  ] = await Promise.all([
-    getProducts({ first: 8 }).catch(() => []),
+  // Parallel fetch — hero + 2 grids por género en una pasada.
+  const [hombreProducts, mujerProducts, heroSlides] = await Promise.all([
     getProductsByTaxonomy("gender", "masculino", 8).catch(() => []),
     getProductsByTaxonomy("gender", "femenino", 8).catch(() => []),
     getHeroSlides().catch(() => []),
   ])
-
 
   return (
     <>
@@ -56,16 +47,15 @@ export default async function HomePage() {
 
         <CategoryShowcase />
 
+        <BrandGrid />
+
         <LatestByGenderTabs
           hombreProducts={hombreProducts}
           mujerProducts={mujerProducts}
         />
 
-        <BrandGrid />
-
-        {/* Storytelling Hecho en León */}
+        {/* Storytelling Hecho en León — brand anchor antes del cierre */}
         <section className="bg-leather text-bg py-24 md:py-32 relative overflow-hidden">
-          {/* Texture overlay sutil */}
           <div
             className="absolute inset-0 opacity-20 mix-blend-overlay"
             style={{
@@ -96,7 +86,7 @@ export default async function HomePage() {
                   puerta.
                 </p>
                 <Link
-                  href="/sobre-nosotros"
+                  href="/nosotros"
                   className="inline-flex items-center px-8 py-4 border border-bg/40 text-bg hover:bg-bg/10 transition-colors"
                 >
                   Conoce nuestra historia
@@ -122,37 +112,6 @@ export default async function HomePage() {
               </div>
             </div>
           </div>
-        </section>
-
-        {/* Más vendidos */}
-        <section className="mx-auto max-w-7xl px-6 py-20 md:py-24">
-          <div className="flex items-end justify-between mb-10">
-            <div>
-              <p className="eyebrow text-leather mb-2">Selección</p>
-              <h2 className="font-heading text-3xl md:text-4xl text-text">
-                Más vendidos
-              </h2>
-            </div>
-            <Link
-              href="/products?sort=best-selling"
-              className="hidden sm:inline-flex items-center text-leather font-medium hover:text-terracotta transition-colors"
-            >
-              Ver todo →
-            </Link>
-          </div>
-
-          {products.length === 0 ? (
-            <EmptyProductsState
-              title="Aún sin datos de ventas"
-              description="Esta sección se llenará automáticamente cuando empieces a vender."
-            />
-          ) : (
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-              {products.slice(0, 4).map((p) => (
-                <ProductCard key={p.id} product={p} />
-              ))}
-            </div>
-          )}
         </section>
 
         <FAQAccordion />
