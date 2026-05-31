@@ -57,7 +57,7 @@ export const PRODUCT_CARD_FRAGMENT = /* GraphQL */ `
         edges { node { ... on Metaobject { handle fields { key value } } } }
       }
     }
-    material: metafield(namespace: "shopify", key: "shoe-material") {
+    material: metafield(namespace: "shopify", key: "footwear-material") {
       references(first: 5) {
         edges { node { ... on Metaobject { handle fields { key value } } } }
       }
