@@ -39,3 +39,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# generado por scripts/generate-sitemap.mjs en cada build
+/public/sitemap.xml
