@@ -33,6 +33,8 @@ type FilterState = {
   vendors: Set<string>
   sizes: Set<string>
   types: Set<string>
+  colors: Set<string>
+  materials: Set<string>
   onlyAvailable: boolean
 }
 
@@ -40,7 +42,24 @@ const EMPTY_FILTERS: FilterState = {
   vendors: new Set(),
   sizes: new Set(),
   types: new Set(),
+  colors: new Set(),
+  materials: new Set(),
   onlyAvailable: false,
+}
+
+// Extrae los handles de un metafield de taxonomía (Color, Material, etc.)
+// junto con su label legible (campo "label" del metaobject).
+function extractTaxonomyValues(
+  metafield?: { references?: { edges: Array<{ node: { handle: string; fields: Array<{ key: string; value: string | null }> } }> } } | null
+): Array<{ handle: string; label: string }> {
+  const edges = metafield?.references?.edges ?? []
+  return edges.map((e) => {
+    const labelField = e.node.fields.find((f) => f.key === "label")
+    return {
+      handle: e.node.handle,
+      label: labelField?.value || e.node.handle,
+    }
+  })
 }
 
 type SortKey = "default" | "recientes" | "precio-asc" | "precio-desc" | "titulo"
@@ -64,6 +83,10 @@ export function ProductsListing({ products }: Props) {
     const vendors = new Set<string>()
     const sizes = new Set<string>()
     const types = new Set<string>()
+    // Mapas handle → label para mostrar nombres legibles ("Negro" en vez de "negro")
+    const colorMap = new Map<string, string>()
+    const materialMap = new Map<string, string>()
+
     for (const p of products) {
       if (p.vendor) vendors.add(p.vendor)
       if (p.productType) types.add(p.productType)
@@ -71,6 +94,13 @@ export function ProductsListing({ products }: Props) {
         SIZE_OPTION_NAMES.includes(o.name)
       )
       if (sizeOpt) for (const v of sizeOpt.values) sizes.add(v)
+
+      for (const c of extractTaxonomyValues(p.color)) {
+        colorMap.set(c.handle, c.label)
+      }
+      for (const m of extractTaxonomyValues(p.material)) {
+        materialMap.set(m.handle, m.label)
+      }
     }
     const sortNumeric = (a: string, b: string) => {
       const na = parseFloat(a)
@@ -82,6 +112,12 @@ export function ProductsListing({ products }: Props) {
       vendors: Array.from(vendors).sort(),
       sizes: Array.from(sizes).sort(sortNumeric),
       types: Array.from(types).sort(),
+      colors: Array.from(colorMap.entries())
+        .map(([handle, label]) => ({ handle, label }))
+        .sort((a, b) => a.label.localeCompare(b.label)),
+      materials: Array.from(materialMap.entries())
+        .map(([handle, label]) => ({ handle, label }))
+        .sort((a, b) => a.label.localeCompare(b.label)),
     }
   }, [products])
 
@@ -102,6 +138,16 @@ export function ProductsListing({ products }: Props) {
         if (!sizeOpt) return false
         const hasSize = sizeOpt.values.some((v) => filters.sizes.has(v))
         if (!hasSize) return false
+      }
+
+      if (filters.colors.size > 0) {
+        const colors = extractTaxonomyValues(p.color)
+        if (!colors.some((c) => filters.colors.has(c.handle))) return false
+      }
+
+      if (filters.materials.size > 0) {
+        const materials = extractTaxonomyValues(p.material)
+        if (!materials.some((m) => filters.materials.has(m.handle))) return false
       }
 
       return true
@@ -139,11 +185,16 @@ export function ProductsListing({ products }: Props) {
     filters.vendors.size +
     filters.sizes.size +
     filters.types.size +
+    filters.colors.size +
+    filters.materials.size +
     (filters.onlyAvailable ? 1 : 0)
 
   const clearAll = () => setFilters(EMPTY_FILTERS)
 
-  const toggle = (key: "vendors" | "sizes" | "types", value: string) => {
+  const toggle = (
+    key: "vendors" | "sizes" | "types" | "colors" | "materials",
+    value: string
+  ) => {
     setFilters((prev) => {
       const next = new Set(prev[key])
       if (next.has(value)) next.delete(value)
@@ -275,13 +326,49 @@ export function ProductsListing({ products }: Props) {
             </FilterSection>
           )}
 
-          {/* Próximamente — color, material */}
-          <FilterSection title="Color">
-            <p className="text-xs text-text-subtle">Próximamente</p>
-          </FilterSection>
-          <FilterSection title="Material">
-            <p className="text-xs text-text-subtle">Próximamente</p>
-          </FilterSection>
+          {/* Color — datos del metafield shopify.color-pattern */}
+          {facets.colors.length > 0 && (
+            <FilterSection title="Color">
+              <div className="space-y-2">
+                {facets.colors.map(({ handle, label }) => (
+                  <label
+                    key={handle}
+                    className="flex items-center gap-2 cursor-pointer text-sm hover:text-leather"
+                  >
+                    <input
+                      type="checkbox"
+                      checked={filters.colors.has(handle)}
+                      onChange={() => toggle("colors", handle)}
+                      className="rounded border-border accent-leather"
+                    />
+                    <span className="flex-1">{label}</span>
+                  </label>
+                ))}
+              </div>
+            </FilterSection>
+          )}
+
+          {/* Material — datos del metafield shopify.shoe-material */}
+          {facets.materials.length > 0 && (
+            <FilterSection title="Material">
+              <div className="space-y-2">
+                {facets.materials.map(({ handle, label }) => (
+                  <label
+                    key={handle}
+                    className="flex items-center gap-2 cursor-pointer text-sm hover:text-leather"
+                  >
+                    <input
+                      type="checkbox"
+                      checked={filters.materials.has(handle)}
+                      onChange={() => toggle("materials", handle)}
+                      className="rounded border-border accent-leather"
+                    />
+                    <span className="flex-1">{label}</span>
+                  </label>
+                ))}
+              </div>
+            </FilterSection>
+          )}
 
           {/* Footer drawer mobile */}
           {mobileOpen && (

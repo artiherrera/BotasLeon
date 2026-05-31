@@ -36,6 +36,16 @@ export type ProductOption = {
   values: string[]
 }
 
+// Metafield reference dereferenced — usado para Color, Material, etc.
+// que vienen del PRODUCT_CARD_FRAGMENT con references(first: 5).
+export type TaxonomyRef = {
+  handle: string
+  fields: Array<{ key: string; value: string | null }>
+}
+export type TaxonomyMetafield = {
+  references: { edges: Array<{ node: TaxonomyRef }> }
+} | null
+
 export type Product = {
   id: string
   handle: string
@@ -55,6 +65,8 @@ export type Product = {
   }
   options: ProductOption[]
   variants: ProductVariant[]
+  color?: TaxonomyMetafield
+  material?: TaxonomyMetafield
   // Metadata custom — para nuestro modelo "segmento" / "estilos"
   // (lo seteamos como tags hasta tener metafields)
   // segmento?: 'hombre' | 'mujer' | 'nino' | 'unisex'

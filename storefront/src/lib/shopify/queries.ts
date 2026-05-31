@@ -52,6 +52,16 @@ export const PRODUCT_CARD_FRAGMENT = /* GraphQL */ `
       maxVariantPrice { ...MoneyFields }
     }
     options { id name values }
+    color: metafield(namespace: "shopify", key: "color-pattern") {
+      references(first: 5) {
+        edges { node { ... on Metaobject { handle fields { key value } } } }
+      }
+    }
+    material: metafield(namespace: "shopify", key: "shoe-material") {
+      references(first: 5) {
+        edges { node { ... on Metaobject { handle fields { key value } } } }
+      }
+    }
   }
 `
 
