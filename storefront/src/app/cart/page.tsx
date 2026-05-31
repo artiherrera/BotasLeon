@@ -1,11 +1,13 @@
 "use client"
 
+import { useEffect, useState } from "react"
 import Image from "next/image"
 import Link from "next/link"
 import { Header } from "@/components/Header"
 import { Footer } from "@/components/Footer"
 import { useCart } from "@/components/CartProvider"
 import { formatMoney } from "@/lib/utils"
+import { getPendingDiscount, withDiscount } from "@/lib/discount/client"
 
 /**
  * /cart — vista full-page del carrito.
@@ -18,8 +20,13 @@ import { formatMoney } from "@/lib/utils"
 
 export default function CartPage() {
   const { cart, ready, isPending, updateLine, removeLine } = useCart()
+  const [pendingDiscount, setPendingDiscount] = useState<string | null>(null)
   const lines = cart?.lines ?? []
   const isEmpty = lines.length === 0
+
+  useEffect(() => {
+    setPendingDiscount(getPendingDiscount())
+  }, [ready])
 
   // Mientras hidrata desde localStorage, mostramos un skeleton mínimo
   if (!ready) {
@@ -206,9 +213,16 @@ export default function CartPage() {
                 </span>
               </div>
 
+              {pendingDiscount && (
+                <div className="mb-3 p-3 bg-leather text-bg text-xs rounded-sm">
+                  <p className="font-medium">Descuento aplicado al pagar</p>
+                  <p className="text-bg/80 mt-0.5">{pendingDiscount}</p>
+                </div>
+              )}
+
               {cart?.checkoutUrl ? (
                 <a
-                  href={cart.checkoutUrl}
+                  href={withDiscount(cart.checkoutUrl, pendingDiscount)}
                   className="block w-full text-center py-4 bg-leather text-bg text-sm uppercase tracking-widest hover:bg-text transition-colors"
                 >
                   Proceder al pago

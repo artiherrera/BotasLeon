@@ -1,10 +1,11 @@
 "use client"
 
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import Image from "next/image"
 import Link from "next/link"
 import { useCart } from "./CartProvider"
 import { formatMoney } from "@/lib/utils"
+import { getPendingDiscount, withDiscount } from "@/lib/discount/client"
 
 /**
  * CartDrawer — sidebar lateral derecho con líneas del cart.
@@ -16,6 +17,14 @@ import { formatMoney } from "@/lib/utils"
  */
 export function CartDrawer() {
   const { cart, isOpen, isPending, closeCart, updateLine, removeLine } = useCart()
+  const [pendingDiscount, setPendingDiscountState] = useState<string | null>(null)
+
+  // Lee el código pendiente del localStorage solo cuando se abre el drawer
+  // (re-checa por si el cliente acaba de venir de /discount/[code])
+  useEffect(() => {
+    if (!isOpen) return
+    setPendingDiscountState(getPendingDiscount())
+  }, [isOpen])
 
   useEffect(() => {
     if (isOpen) document.body.style.overflow = "hidden"
@@ -193,6 +202,13 @@ export function CartDrawer() {
 
             {/* Footer con totales + checkout */}
             <div className="border-t border-border px-6 py-5 bg-bg-alt">
+              {pendingDiscount && (
+                <div className="mb-3 p-3 bg-leather text-bg text-xs rounded-sm">
+                  <p className="font-medium">Descuento aplicado al pagar</p>
+                  <p className="text-bg/80 mt-0.5">{pendingDiscount}</p>
+                </div>
+              )}
+
               <div className="flex justify-between items-baseline mb-1">
                 <span className="text-sm text-text-muted">Subtotal</span>
                 <span className="font-heading text-lg text-text">
@@ -209,7 +225,7 @@ export function CartDrawer() {
 
               {cart?.checkoutUrl ? (
                 <a
-                  href={cart.checkoutUrl}
+                  href={withDiscount(cart.checkoutUrl, pendingDiscount)}
                   className="block w-full text-center py-4 bg-leather text-bg text-sm uppercase tracking-wider hover:bg-text transition-colors"
                 >
                   Pagar
