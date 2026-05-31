@@ -14,7 +14,7 @@ applications:
             - TOKEN="${SHOPIFY_STOREFRONT_ACCESS_TOKEN:-a972078fe7ba6fa5a4f2247ba596e2b9}"
             - DOMAIN="${SHOPIFY_STORE_DOMAIN:-botas-leon-3.myshopify.com}"
             - VERSION="${SHOPIFY_API_VERSION:-2025-01}"
-            - SITE_URL="${NEXT_PUBLIC_SITE_URL:-https://botasleon.com}"
+            - SITE_URL="https://botasleon.com"
             - echo "SHOPIFY_STOREFRONT_ACCESS_TOKEN=$TOKEN"               >  .env.production.local
             - echo "SHOPIFY_STORE_DOMAIN=$DOMAIN"                         >> .env.production.local
             - echo "SHOPIFY_API_VERSION=$VERSION"                         >> .env.production.local

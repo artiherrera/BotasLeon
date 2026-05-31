@@ -3,14 +3,15 @@ import { getProducts, getBrands } from "@/lib/shopify"
 import { SITE_URL } from "@/lib/seo"
 
 /**
- * Sitemap dinámico — Next.js 16 lo genera al build como /sitemap.xml.
+ * Sitemap estático — Next.js 16 lo genera al build como /sitemap.xml.
  * Google + Bing lo descubren automáticamente vía robots.txt.
  *
  * Cuenta rutas estáticas + un entry por producto y por marca.
- * Cada uno con prioridad y frecuencia recomendada.
+ * Se regenera en cada deploy. `force-static` evita que Amplify lo
+ * trate como ruta dinámica (que daría 500).
  */
-
-export const revalidate = 3600 // regenerar 1 vez por hora
+export const dynamic = "force-static"
+export const revalidate = false
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const now = new Date()
