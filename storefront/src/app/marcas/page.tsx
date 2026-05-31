@@ -47,14 +47,15 @@ export default async function MarcasPage() {
           {brands.length === 0 ? (
             <ConfigBanner />
           ) : (
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+            <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3 md:gap-4">
               {brands.map((b) => {
                 const count = productCountByName.get(b.name) ?? 0
                 return (
                   <Link
                     key={b.handle}
                     href={`/marcas/${b.handle}`}
-                    className="group relative aspect-[5/4] bg-bg-alt overflow-hidden"
+                    aria-label={b.name}
+                    className="group relative aspect-square bg-bg-alt overflow-hidden"
                   >
                     {b.logo ? (
                       <div className="absolute inset-0">
@@ -62,24 +63,23 @@ export default async function MarcasPage() {
                           src={b.logo.url}
                           alt={b.logo.altText || b.name}
                           fill
-                          sizes="(max-width: 768px) 50vw, 25vw"
-                          className="object-cover transition-transform duration-700 group-hover:scale-105"
+                          sizes="(max-width: 640px) 33vw, (max-width: 1024px) 25vw, 16vw"
+                          className="object-cover transition-transform duration-500 group-hover:scale-105"
                         />
                       </div>
                     ) : (
-                      <div className="absolute inset-0 flex items-center justify-center bg-leather">
-                        <h3 className="font-display text-2xl text-bg">
+                      <div className="absolute inset-0 flex items-center justify-center bg-leather p-2">
+                        <h3 className="font-display text-base md:text-lg text-bg text-center leading-tight">
                           {b.name}
                         </h3>
                       </div>
                     )}
 
-                    <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent p-4">
-                      <p className="text-bg text-sm font-medium">{b.name}</p>
-                      {b.tagline && (
-                        <p className="text-bg/80 text-xs mt-1">{b.tagline}</p>
-                      )}
-                      <p className="text-bg/60 text-xs mt-1">
+                    <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 to-transparent p-2">
+                      <p className="text-bg text-xs font-medium text-center truncate">
+                        {b.name}
+                      </p>
+                      <p className="text-bg/70 text-[10px] text-center">
                         {count} {count === 1 ? "producto" : "productos"}
                       </p>
                     </div>

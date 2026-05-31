@@ -49,7 +49,7 @@ export async function BrandGrid() {
         </p>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
+      <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-2 md:gap-3">
         {usingPlaceholders
           ? PLACEHOLDER_BRANDS.map((b) => (
               <PlaceholderCard key={b.handle} brand={b} />
@@ -81,7 +81,7 @@ function PlaceholderCard({ brand: b }: { brand: PlaceholderBrand }) {
   return (
     <Link
       href="/marcas"
-      className="group relative aspect-[5/4] overflow-hidden block"
+      className="group relative aspect-square overflow-hidden block"
     >
       <div className={`absolute inset-0 ${b.bgClass}`} />
       <div
@@ -90,14 +90,11 @@ function PlaceholderCard({ brand: b }: { brand: PlaceholderBrand }) {
           backgroundImage: `radial-gradient(circle at 30% 70%, rgba(255,255,255,0.4) 0%, transparent 60%)`,
         }}
       />
-      <div className={`relative h-full p-8 flex flex-col justify-between ${b.textClass}`}>
-        <p className="eyebrow text-current opacity-70 text-xs">{b.tagline}</p>
-        <div>
-          <h3 className="font-display text-3xl md:text-4xl leading-none">{b.name}</h3>
-          <p className="text-xs uppercase tracking-wider mt-2 opacity-70 group-hover:opacity-100 transition-opacity">
-            Próximamente →
-          </p>
-        </div>
+      <div className={`relative h-full p-3 flex flex-col items-center justify-center text-center ${b.textClass}`}>
+        <h3 className="font-display text-base md:text-lg leading-none">{b.name}</h3>
+        <p className="text-[10px] uppercase tracking-wider mt-1 opacity-70">
+          Próximamente
+        </p>
       </div>
     </Link>
   )
@@ -107,7 +104,8 @@ function RealBrandCard({ brand: b }: { brand: Awaited<ReturnType<typeof getBrand
   return (
     <Link
       href={`/marcas/${b.handle}`}
-      className="group relative aspect-[5/4] overflow-hidden block bg-bg-alt"
+      aria-label={b.name}
+      className="group relative aspect-square overflow-hidden block bg-bg-alt"
     >
       {b.logo ? (
         <div className="absolute inset-0">
@@ -115,22 +113,21 @@ function RealBrandCard({ brand: b }: { brand: Awaited<ReturnType<typeof getBrand
             src={b.logo.url}
             alt={b.logo.altText || b.name}
             fill
-            sizes="(max-width: 768px) 50vw, 33vw"
-            className="object-cover transition-transform duration-700 group-hover:scale-105"
+            sizes="(max-width: 640px) 33vw, (max-width: 1024px) 25vw, 12.5vw"
+            className="object-cover transition-transform duration-500 group-hover:scale-105"
           />
         </div>
       ) : (
-        <div className="absolute inset-0 flex items-center justify-center bg-leather">
-          <h3 className="font-display text-3xl md:text-4xl text-bg">{b.name}</h3>
+        <div className="absolute inset-0 flex items-center justify-center bg-leather p-2">
+          <h3 className="font-display text-base md:text-lg text-bg text-center leading-tight">
+            {b.name}
+          </h3>
         </div>
       )}
 
-      {/* Hover overlay con tagline */}
-      <div className="absolute inset-x-0 bottom-0 p-4 bg-gradient-to-t from-black/70 to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
-        <p className="text-bg text-sm font-medium">{b.name}</p>
-        {b.tagline && (
-          <p className="text-bg/80 text-xs mt-1">{b.tagline}</p>
-        )}
+      {/* Hover overlay con name (tagline omitido en cards chicos) */}
+      <div className="absolute inset-x-0 bottom-0 p-2 bg-gradient-to-t from-black/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
+        <p className="text-bg text-xs font-medium text-center truncate">{b.name}</p>
       </div>
     </Link>
   )
