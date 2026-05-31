@@ -14,7 +14,7 @@ export function Header() {
   const { itemCount, openCart } = useCart()
 
   return (
-    <header className="sticky top-0 z-40 border-b border-border bg-bg/95 backdrop-blur supports-[backdrop-filter]:bg-bg/80 relative">
+    <header className="sticky top-0 z-40 border-b border-border/60 bg-bg/95 backdrop-blur-xl backdrop-saturate-150 supports-[backdrop-filter]:bg-bg/70 relative">
       <div className="px-4 md:px-6 lg:px-8 py-4 flex items-center gap-6 md:gap-8">
         {/* Logo */}
         <Link

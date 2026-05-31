@@ -177,7 +177,7 @@ export function MegaMenu() {
       {/* Panel desplegable — full-width debajo del header */}
       {showPanel && activeItem && (
         <div
-          className="absolute left-0 right-0 top-full bg-bg border-b border-border shadow-xl z-30"
+          className="absolute left-0 right-0 top-full bg-bg/85 backdrop-blur-xl backdrop-saturate-150 border-b border-border/50 shadow-xl z-30"
           onMouseEnter={cancelClose}
           onMouseLeave={scheduleClose}
         >

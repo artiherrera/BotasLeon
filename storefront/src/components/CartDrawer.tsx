@@ -50,7 +50,7 @@ export function CartDrawer() {
       <aside
         aria-label="Carrito de compras"
         aria-hidden={!isOpen}
-        className={`fixed top-0 right-0 h-full w-full sm:w-[28rem] bg-bg z-50 shadow-2xl transition-transform duration-300 flex flex-col ${
+        className={`fixed top-0 right-0 h-full w-full sm:w-[28rem] bg-bg/85 backdrop-blur-2xl backdrop-saturate-150 border-l border-border/40 z-50 shadow-2xl transition-transform duration-300 flex flex-col ${
           isOpen ? "translate-x-0" : "translate-x-full"
         }`}
       >
