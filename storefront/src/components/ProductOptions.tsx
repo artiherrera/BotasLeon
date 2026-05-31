@@ -2,7 +2,10 @@
 
 import { useMemo, useState } from "react"
 import { useCart } from "./CartProvider"
+import { formatSizeWithUs } from "@/lib/sizes"
 import type { Product } from "@/lib/shopify/types"
+
+const SIZE_OPTION_NAMES = ["Talla", "Talla del calzado", "Size"]
 
 /**
  * ProductOptions — selector de variantes + botón Agregar al carrito.
@@ -54,50 +57,70 @@ export function ProductOptions({ product }: Props) {
   const isAvailable = activeVariant?.availableForSale ?? false
   const isUnknownCombo = !activeVariant
 
+  // Handle del metaobject de "Sexo objetivo" — para conversión MX→US.
+  // Solo aplica al option de Talla; otros options se muestran tal cual.
+  const genderHandle = product.targetGender?.references?.edges?.[0]?.node?.handle ?? null
+
   return (
     <div className="space-y-6">
       {!isDefaultOnly &&
-        product.options.map((option) => (
-          <div key={option.id}>
-            <p className="eyebrow text-text-muted text-xs mb-3">
-              {option.name}
-              {selection[option.name] && (
-                <span className="ml-2 text-text normal-case tracking-normal font-medium">
-                  {selection[option.name]}
-                </span>
-              )}
-            </p>
-            <div className="flex flex-wrap gap-2">
-              {option.values.map((value) => {
-                const candidateSel = { ...selection, [option.name]: value }
-                const matchVariant = product.variants.find((v) =>
-                  v.selectedOptions.every((o) => candidateSel[o.name] === o.value)
-                )
-                const candidateAvailable = matchVariant?.availableForSale ?? false
-                const isActive = selection[option.name] === value
+        product.options.map((option) => {
+          const isSizeOption = SIZE_OPTION_NAMES.includes(option.name)
+          return (
+            <div key={option.id}>
+              <p className="eyebrow text-text-muted text-xs mb-3">
+                {isSizeOption ? "Talla" : option.name}
+                {selection[option.name] && (
+                  <span className="ml-2 text-text normal-case tracking-normal font-medium">
+                    {isSizeOption
+                      ? formatSizeWithUs(selection[option.name], genderHandle)
+                      : selection[option.name]}
+                  </span>
+                )}
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {option.values.map((value) => {
+                  const candidateSel = { ...selection, [option.name]: value }
+                  const matchVariant = product.variants.find((v) =>
+                    v.selectedOptions.every((o) => candidateSel[o.name] === o.value)
+                  )
+                  const candidateAvailable = matchVariant?.availableForSale ?? false
+                  const isActive = selection[option.name] === value
+                  const label = isSizeOption
+                    ? formatSizeWithUs(value, genderHandle)
+                    : value
 
-                return (
-                  <button
-                    key={value}
-                    type="button"
-                    onClick={() => setSelection(candidateSel)}
-                    aria-pressed={isActive}
-                    className={`min-w-[3rem] px-4 py-2 text-sm border transition-all ${
-                      isActive
-                        ? "border-leather bg-leather text-bg"
-                        : candidateAvailable
-                          ? "border-border text-text hover:border-leather"
-                          : "border-border text-text-subtle line-through cursor-not-allowed"
-                    }`}
-                    disabled={!candidateAvailable && !isActive}
-                  >
-                    {value}
-                  </button>
-                )
-              })}
+                  return (
+                    <button
+                      key={value}
+                      type="button"
+                      onClick={() => setSelection(candidateSel)}
+                      aria-pressed={isActive}
+                      className={`min-w-[3rem] px-4 py-2 text-sm border transition-all whitespace-nowrap ${
+                        isActive
+                          ? "border-leather bg-leather text-bg"
+                          : candidateAvailable
+                            ? "border-border text-text hover:border-leather"
+                            : "border-border text-text-subtle line-through cursor-not-allowed"
+                      }`}
+                      disabled={!candidateAvailable && !isActive}
+                    >
+                      {label}
+                    </button>
+                  )
+                })}
+              </div>
+              {isSizeOption && genderHandle && (
+                <p className="text-xs text-text-subtle mt-2">
+                  MX · US ·{" "}
+                  <a href="/guia-tallas" className="underline hover:text-leather">
+                    Guía de tallas
+                  </a>
+                </p>
+              )}
             </div>
-          </div>
-        ))}
+          )
+        })}
 
       {activeVariant && (
         <div className="text-sm">

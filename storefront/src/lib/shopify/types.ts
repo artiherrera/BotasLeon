@@ -67,6 +67,11 @@ export type Product = {
   variants: ProductVariant[]
   color?: TaxonomyMetafield
   material?: TaxonomyMetafield
+  // Sexo objetivo (Shopify target-gender). Solo el handle del metaobject,
+  // sin fields — usamos handle directo para mapear MX→US sizes
+  targetGender?: {
+    references: { edges: Array<{ node: { handle: string } }> }
+  } | null
   // Metadata custom — para nuestro modelo "segmento" / "estilos"
   // (lo seteamos como tags hasta tener metafields)
   // segmento?: 'hombre' | 'mujer' | 'nino' | 'unisex'

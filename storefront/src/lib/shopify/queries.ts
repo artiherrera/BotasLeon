@@ -88,6 +88,11 @@ export const PRODUCT_DETAIL_FRAGMENT = /* GraphQL */ `
     variants(first: 100) {
       edges { node { ...VariantFields } }
     }
+    targetGender: metafield(namespace: "shopify", key: "target-gender") {
+      references(first: 5) {
+        edges { node { ... on Metaobject { handle } } }
+      }
+    }
   }
 `
 
