@@ -5,6 +5,7 @@ import { Footer } from "@/components/Footer"
 import { ProductGallery } from "@/components/ProductGallery"
 import { ProductOptions } from "@/components/ProductOptions"
 import { ProductJsonLd, BreadcrumbJsonLd } from "@/components/StructuredData"
+import { ProductViewedTracker } from "@/components/ProductViewedTracker"
 import { getProductByHandle, getProducts } from "@/lib/shopify"
 import { formatMoney } from "@/lib/utils"
 import { absoluteUrl } from "@/lib/seo"
@@ -60,6 +61,9 @@ export default async function ProductPage({ params }: Props) {
           { name: product.title, url: `/products/${product.handle}` },
         ]}
       />
+
+      {/* Klaviyo: dispara 'Viewed Product' para Browse Abandonment flow */}
+      <ProductViewedTracker product={product} />
 
       <Header />
       <main className="flex-1">

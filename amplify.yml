@@ -25,6 +25,9 @@ applications:
             - echo "NEXT_PUBLIC_SHOPIFY_STORE_DOMAIN=$DOMAIN"             >> .env.production.local
             - echo "NEXT_PUBLIC_SHOPIFY_STOREFRONT_ACCESS_TOKEN=$TOKEN"   >> .env.production.local
             - echo "NEXT_PUBLIC_SHOPIFY_API_VERSION=$VERSION"             >> .env.production.local
+            # Klaviyo public key (alias Company ID / Site ID) — público por
+            # diseño, va al bundle JS para subscriber form + tracking onsite.
+            - echo "NEXT_PUBLIC_KLAVIYO_PUBLIC_KEY=STeTJE"                >> .env.production.local
             - echo "=== env injected ==="
             - echo "DOMAIN=$DOMAIN VERSION=$VERSION SITE_URL=$SITE_URL"
             - echo "TOKEN_length=${#TOKEN}"

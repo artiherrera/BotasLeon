@@ -1,10 +1,13 @@
 import type { Metadata } from "next"
+import Script from "next/script"
 import { Bevan, Zilla_Slab, Inter } from "next/font/google"
 import { CartProvider } from "@/components/CartProvider"
 import { CartDrawer } from "@/components/CartDrawer"
 import { OrganizationJsonLd, WebsiteJsonLd } from "@/components/StructuredData"
 import { SITE_URL, SITE_NAME, SITE_DESCRIPTION } from "@/lib/seo"
 import "./globals.css"
+
+const KLAVIYO_KEY = process.env.NEXT_PUBLIC_KLAVIYO_PUBLIC_KEY
 
 /**
  * Tipografías acordadas:
@@ -97,6 +100,16 @@ export default function RootLayout({
         {/* JSON-LD Schema.org global — Organization + WebSite con search */}
         <OrganizationJsonLd />
         <WebsiteJsonLd />
+
+        {/* Klaviyo Onsite tracking — carga async, expone window.klaviyo */}
+        {KLAVIYO_KEY && (
+          <Script
+            id="klaviyo-onsite"
+            src={`https://static.klaviyo.com/onsite/js/klaviyo.js?company_id=${KLAVIYO_KEY}`}
+            strategy="afterInteractive"
+          />
+        )}
+
         <CartProvider>
           {children}
           <CartDrawer />

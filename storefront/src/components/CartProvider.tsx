@@ -16,6 +16,7 @@ import {
   clientRemoveLines,
   clientUpdateLines,
 } from "@/lib/cart/client"
+import { track } from "@/lib/klaviyo/client"
 import type { Cart } from "@/lib/shopify/types"
 
 /**
@@ -108,6 +109,21 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
             : await clientCreateCart([{ merchandiseId, quantity }])
           persist(updated)
           setIsOpen(true)
+          // Trigger Klaviyo event para que abandoned cart flow tenga data
+          const lastLine = updated.lines[updated.lines.length - 1]
+          if (lastLine) {
+            track("Added to Cart", {
+              $value: parseFloat(updated.cost.subtotalAmount.amount),
+              ItemId: lastLine.merchandise.id,
+              ProductName: lastLine.merchandise.product.title,
+              CheckoutURL: updated.checkoutUrl,
+              Items: updated.lines.map((l) => ({
+                ProductName: l.merchandise.product.title,
+                ProductId: l.merchandise.product.handle,
+                Quantity: l.quantity,
+              })),
+            })
+          }
         } catch (e) {
           // Si el cart se invalidó server-side, intentar crear uno nuevo
           const msg = e instanceof Error ? e.message : String(e)

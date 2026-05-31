@@ -7,6 +7,7 @@ import { CategoryShowcase } from "@/components/CategoryShowcase"
 import { BrandGrid } from "@/components/BrandGrid"
 import { FAQAccordion } from "@/components/FAQAccordion"
 import { LatestByGenderTabs } from "@/components/LatestByGenderTabs"
+import { NewsletterForm } from "@/components/NewsletterForm"
 import { getHeroSlides, getProductsByTaxonomy } from "@/lib/shopify"
 
 /**
@@ -127,20 +128,7 @@ export default async function HomePage() {
               Lanzamientos, ofertas exclusivas y novedades de los talleres de
               León. Sin spam, prometido.
             </p>
-            <form className="flex flex-col sm:flex-row gap-2 max-w-md mx-auto">
-              <input
-                type="email"
-                placeholder="tu@correo.com"
-                className="flex-1 px-4 py-3 border border-border bg-bg focus:outline-none focus:border-leather"
-                aria-label="Correo electrónico"
-              />
-              <button
-                type="submit"
-                className="px-6 py-3 bg-leather text-bg font-medium hover:bg-text transition-colors"
-              >
-                Suscribirme
-              </button>
-            </form>
+            <NewsletterForm />
           </div>
         </section>
       </main>
