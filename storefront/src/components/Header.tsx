@@ -4,6 +4,7 @@ import Link from "next/link"
 import Image from "next/image"
 import { useCart } from "./CartProvider"
 import { MegaMenu } from "./MegaMenu"
+import { MobileNav } from "./MobileNav"
 
 /**
  * Header del storefront. Sticky con logo, navegación principal,
@@ -15,7 +16,10 @@ export function Header() {
 
   return (
     <header className="sticky top-0 z-40 border-b border-border/30 bg-bg/95 backdrop-blur-2xl backdrop-saturate-200 supports-[backdrop-filter]:bg-bg/55 relative">
-      <div className="px-4 md:px-6 lg:px-8 py-4 flex items-center gap-6 md:gap-8">
+      <div className="px-4 md:px-6 lg:px-8 py-4 flex items-center gap-3 md:gap-8">
+        {/* Hamburger — solo mobile (md:hidden internamente) */}
+        <MobileNav />
+
         {/* Logo */}
         <Link
           href="/"
@@ -28,7 +32,7 @@ export function Header() {
             width={800}
             height={220}
             priority
-            className="h-12 md:h-14 w-auto"
+            className="h-10 md:h-14 w-auto"
           />
         </Link>
 
