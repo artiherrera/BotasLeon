@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
+import { createPortal } from "react-dom"
 import Link from "next/link"
 
 /**
@@ -87,6 +88,16 @@ const COMPANY_LINKS = [
 
 export function MobileNav() {
   const [open, setOpen] = useState(false)
+  const [mounted, setMounted] = useState(false)
+
+  // El drawer se monta vía portal en document.body para escapar el
+  // backdrop-filter del Header. Cualquier ancestro con backdrop-filter,
+  // transform, filter, perspective o contain se vuelve containing
+  // block de los descendientes `position: fixed`, lo que rompía
+  // `h-full` del drawer (medía la altura del Header, no del viewport).
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   useEffect(() => {
     if (open) document.body.style.overflow = "hidden"
@@ -107,18 +118,8 @@ export function MobileNav() {
 
   const close = () => setOpen(false)
 
-  return (
+  const drawer = (
     <>
-      <button
-        type="button"
-        onClick={() => setOpen(true)}
-        aria-label="Abrir menú"
-        aria-expanded={open}
-        className="md:hidden p-2 -ml-2 hover:bg-bg-alt rounded transition-colors"
-      >
-        <HamburgerIcon />
-      </button>
-
       <div
         onClick={close}
         aria-hidden={!open}
@@ -131,7 +132,7 @@ export function MobileNav() {
         aria-label="Navegación"
         aria-hidden={!open}
         style={{ backgroundColor: "#FBF8F1" }}
-        className={`md:hidden fixed top-0 left-0 h-full w-[90%] max-w-sm
+        className={`md:hidden fixed inset-y-0 left-0 w-[90%] max-w-sm
           border-r border-leather/15 shadow-2xl
           z-50 flex flex-col transition-transform duration-300 ${
             open ? "translate-x-0" : "-translate-x-full"
@@ -279,6 +280,21 @@ export function MobileNav() {
           </p>
         </div>
       </aside>
+    </>
+  )
+
+  return (
+    <>
+      <button
+        type="button"
+        onClick={() => setOpen(true)}
+        aria-label="Abrir menú"
+        aria-expanded={open}
+        className="md:hidden p-2 -ml-2 hover:bg-bg-alt rounded transition-colors"
+      >
+        <HamburgerIcon />
+      </button>
+      {mounted ? createPortal(drawer, document.body) : null}
     </>
   )
 }
