@@ -1,8 +1,9 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { createPortal } from "react-dom"
 import Link from "next/link"
+import Image from "next/image"
 
 /**
  * MobileNav — hamburger + drawer lateral para navegación mobile.
@@ -89,6 +90,8 @@ const COMPANY_LINKS = [
 export function MobileNav() {
   const [open, setOpen] = useState(false)
   const [mounted, setMounted] = useState(false)
+  const hamburgerRef = useRef<HTMLButtonElement>(null)
+  const closeButtonRef = useRef<HTMLButtonElement>(null)
 
   // El drawer se monta vía portal en document.body para escapar el
   // backdrop-filter del Header. Cualquier ancestro con backdrop-filter,
@@ -100,10 +103,11 @@ export function MobileNav() {
   }, [])
 
   useEffect(() => {
-    if (open) document.body.style.overflow = "hidden"
-    else document.body.style.overflow = ""
+    if (!open) return
+    const prev = document.body.style.overflow
+    document.body.style.overflow = "hidden"
     return () => {
-      document.body.style.overflow = ""
+      document.body.style.overflow = prev
     }
   }, [open])
 
@@ -115,6 +119,20 @@ export function MobileNav() {
     window.addEventListener("keydown", handler)
     return () => window.removeEventListener("keydown", handler)
   }, [open])
+
+  const wasOpenRef = useRef(false)
+  useEffect(() => {
+    if (!mounted) return
+    if (open) {
+      wasOpenRef.current = true
+      closeButtonRef.current?.focus()
+      return
+    }
+    if (wasOpenRef.current) {
+      wasOpenRef.current = false
+      hamburgerRef.current?.focus()
+    }
+  }, [open, mounted])
 
   const close = () => setOpen(false)
 
@@ -129,10 +147,11 @@ export function MobileNav() {
       />
 
       <aside
+        role="dialog"
+        aria-modal="true"
         aria-label="Navegación"
-        aria-hidden={!open}
-        style={{ backgroundColor: "#FBF8F1" }}
-        className={`md:hidden fixed inset-y-0 left-0 w-[90%] max-w-sm
+        inert={!open}
+        className={`md:hidden fixed inset-y-0 left-0 w-[90%] max-w-sm bg-bg/85 backdrop-blur-2xl backdrop-saturate-200 supports-[backdrop-filter]:bg-bg/75
           border-r border-leather/15 shadow-2xl
           z-50 flex flex-col transition-transform duration-300 ${
             open ? "translate-x-0" : "-translate-x-full"
@@ -140,10 +159,23 @@ export function MobileNav() {
       >
         {/* Header */}
         <div className="flex items-center justify-between px-5 py-4 border-b border-border/40">
-          <span className="font-display text-xl text-leather tracking-tight">
-            BotasLeón
-          </span>
+          <Link
+            href="/"
+            onClick={close}
+            aria-label="BotasLeón — Inicio"
+            className="block transition-opacity hover:opacity-80"
+          >
+            <Image
+              src="/logo_botasleon.png"
+              alt="BotasLeón"
+              width={800}
+              height={220}
+              priority
+              className="h-9 w-auto"
+            />
+          </Link>
           <button
+            ref={closeButtonRef}
             type="button"
             onClick={close}
             aria-label="Cerrar menú"
@@ -286,6 +318,7 @@ export function MobileNav() {
   return (
     <>
       <button
+        ref={hamburgerRef}
         type="button"
         onClick={() => setOpen(true)}
         aria-label="Abrir menú"
