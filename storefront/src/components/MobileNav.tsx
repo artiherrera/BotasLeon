@@ -8,24 +8,16 @@ import Link from "next/link"
  *
  * Solo se ve en mobile (md:hidden). Desktop usa MegaMenu.
  *
- * Espeja la estructura del MegaMenu (mismos sections, mismas
- * descriptions, mismo CTA "Ver todas las botas de X") para que la
- * experiencia mobile y desktop sean equivalentes. No duplicamos
- * accesos que ya viven en el Header desktop (Buscar, Mi cuenta,
- * Carrito) — sus íconos están a la derecha del hamburger.
+ * Estructura: TODO desplegado, sin acordeón. Cada categoría grande
+ * (HOMBRE / MUJER / NIÑOS) actúa como header de sección, con sus
+ * subcategorías visibles debajo. El usuario ve toda la navegación
+ * de un vistazo sin tener que hacer tap para expandir nada.
  *
- * Liquid frost: bg-bg/80 + backdrop-blur-3xl + saturate-200. Con
- * supports-[backdrop-filter] bajamos a /65 para que el frosted se
- * note más cuando el navegador soporta blur; sin soporte queda en
- * /80 más opaco para que siga siendo legible.
+ * Liquid frost: bg-bg/80 + backdrop-blur-3xl + saturate-200
+ * (mismo patrón que el Header desktop).
  *
- * Estructura del drawer (de arriba a abajo):
- *  1. Header con wordmark + close
- *  2. Value prop band (MSI · envío)
- *  3. Catálogo (mismo que MegaMenu — acordeón con descriptions + CTA)
- *  4. Ayuda
- *  5. Empresa
- *  6. Footer contacto
+ * No duplicamos accesos que ya viven en el Header (Buscar, Mi
+ * cuenta, Carrito están como íconos a la derecha del hamburger).
  */
 
 type SubLink = {
@@ -34,16 +26,14 @@ type SubLink = {
   description?: string
 }
 
-type MenuItem = {
+type Category = {
   label: string
   href: string
-  highlight?: boolean
-  sublinks?: SubLink[]
-  ctaLabel?: string
-  ctaHref?: string
+  sublinks: SubLink[]
+  ctaLabel: string
 }
 
-const MENU: MenuItem[] = [
+const CATEGORIES: Category[] = [
   {
     label: "Hombre",
     href: "/hombre",
@@ -54,7 +44,6 @@ const MENU: MenuItem[] = [
       { label: "Exóticas", href: "/hombre", description: "Avestruz, cocodrilo, pitón" },
     ],
     ctaLabel: "Ver todas las botas de hombre",
-    ctaHref: "/hombre",
   },
   {
     label: "Mujer",
@@ -66,7 +55,6 @@ const MENU: MenuItem[] = [
       { label: "Exóticas", href: "/mujer", description: "Avestruz, cocodrilo, pitón" },
     ],
     ctaLabel: "Ver todas las botas de mujer",
-    ctaHref: "/mujer",
   },
   {
     label: "Niños",
@@ -76,8 +64,10 @@ const MENU: MenuItem[] = [
       { label: "Clásicas", href: "/nino", description: "Caña media, casual" },
     ],
     ctaLabel: "Ver todas las botas de niños",
-    ctaHref: "/nino",
   },
+]
+
+const QUICK_LINKS = [
   { label: "Marcas", href: "/marcas" },
   { label: "Outlet", href: "/outlet", highlight: true },
 ]
@@ -97,7 +87,6 @@ const COMPANY_LINKS = [
 
 export function MobileNav() {
   const [open, setOpen] = useState(false)
-  const [expandedIdx, setExpandedIdx] = useState<number | null>(null)
 
   useEffect(() => {
     if (open) document.body.style.overflow = "hidden"
@@ -116,10 +105,7 @@ export function MobileNav() {
     return () => window.removeEventListener("keydown", handler)
   }, [open])
 
-  const close = () => {
-    setOpen(false)
-    setExpandedIdx(null)
-  }
+  const close = () => setOpen(false)
 
   return (
     <>
@@ -144,9 +130,9 @@ export function MobileNav() {
       <aside
         aria-label="Navegación"
         aria-hidden={!open}
-        className={`md:hidden fixed top-0 left-0 h-full w-[88%] max-w-sm
-          bg-bg/80 backdrop-blur-3xl backdrop-saturate-200
-          supports-[backdrop-filter]:bg-bg/65
+        className={`md:hidden fixed top-0 left-0 h-full w-[90%] max-w-sm
+          bg-bg backdrop-blur-2xl backdrop-saturate-200
+          supports-[backdrop-filter]:bg-bg/92
           border-r border-leather/15 shadow-2xl
           z-50 flex flex-col transition-transform duration-300 ${
             open ? "translate-x-0" : "-translate-x-full"
@@ -175,118 +161,113 @@ export function MobileNav() {
 
         {/* Scrollable content */}
         <div className="flex-1 overflow-y-auto">
-          {/* Catálogo — espeja MegaMenu */}
-          <nav className="px-5 pt-5 pb-2">
-            <p className="eyebrow text-text-subtle mb-2 text-[10px]">Catálogo</p>
-            {MENU.map((item, idx) => {
-              const isExpanded = expandedIdx === idx
-              const hasSubs = item.sublinks && item.sublinks.length > 0
-              return (
-                <div key={item.label} className="border-b border-border/40">
-                  <div className="flex items-stretch">
-                    <Link
-                      href={item.href}
-                      onClick={close}
-                      className={`flex-1 py-4 text-base font-medium ${
-                        item.highlight
-                          ? "text-terracotta"
-                          : "text-text hover:text-leather"
-                      } transition-colors`}
-                    >
-                      {item.label}
-                    </Link>
-                    {hasSubs && (
-                      <button
-                        type="button"
-                        onClick={() => setExpandedIdx(isExpanded ? null : idx)}
-                        aria-label={`${isExpanded ? "Contraer" : "Expandir"} ${item.label}`}
-                        aria-expanded={isExpanded}
-                        className="px-4 hover:bg-bg-alt/60 transition-colors flex items-center"
-                      >
-                        <ChevronIcon
-                          className={`transition-transform ${isExpanded ? "rotate-180" : ""}`}
-                        />
-                      </button>
-                    )}
-                  </div>
-                  {hasSubs && (
-                    <div
-                      className={`grid overflow-hidden transition-all duration-300 ${
-                        isExpanded ? "grid-rows-[1fr] pb-4" : "grid-rows-[0fr]"
-                      }`}
-                    >
-                      <div className="overflow-hidden">
-                        <ul className="pl-1 space-y-3 pt-1">
-                          {item.sublinks!.map((sub) => (
-                            <li key={sub.label}>
-                              <Link
-                                href={sub.href}
-                                onClick={close}
-                                className="block group"
-                              >
-                                <span className="block text-sm font-medium text-text group-hover:text-leather transition-colors">
-                                  {sub.label}
-                                </span>
-                                {sub.description && (
-                                  <span className="block text-xs text-text-muted mt-0.5">
-                                    {sub.description}
-                                  </span>
-                                )}
-                              </Link>
-                            </li>
-                          ))}
-                        </ul>
-                        {item.ctaHref && item.ctaLabel && (
-                          <Link
-                            href={item.ctaHref}
-                            onClick={close}
-                            className="mt-4 inline-flex items-center gap-2 text-xs uppercase tracking-wider text-leather hover:text-text transition-colors"
-                          >
-                            <span>{item.ctaLabel}</span>
-                            <span className="transition-transform group-hover:translate-x-0.5">→</span>
-                          </Link>
-                        )}
-                      </div>
-                    </div>
-                  )}
-                </div>
-              )
-            })}
-          </nav>
+          {/* Categorías — TODO desplegado */}
+          <div className="px-5 pt-6 pb-2 space-y-7">
+            {CATEGORIES.map((cat) => (
+              <section key={cat.label}>
+                {/* Header de categoría grande */}
+                <Link
+                  href={cat.href}
+                  onClick={close}
+                  className="block mb-3 group"
+                >
+                  <h3 className="font-display text-2xl text-text group-hover:text-leather transition-colors leading-none">
+                    {cat.label}
+                  </h3>
+                </Link>
 
-          {/* Ayuda */}
-          <div className="px-5 pt-6 pb-2">
-            <p className="eyebrow text-text-subtle mb-2 text-[10px]">Ayuda</p>
-            {HELP_LINKS.map((link) => (
+                {/* Sublinks visibles siempre */}
+                <ul className="space-y-2.5 border-l-2 border-leather/20 pl-4">
+                  {cat.sublinks.map((sub) => (
+                    <li key={sub.label}>
+                      <Link
+                        href={sub.href}
+                        onClick={close}
+                        className="block group"
+                      >
+                        <span className="block text-sm font-medium text-text group-hover:text-leather transition-colors">
+                          {sub.label}
+                        </span>
+                        {sub.description && (
+                          <span className="block text-[11px] text-text-muted mt-0.5 leading-snug">
+                            {sub.description}
+                          </span>
+                        )}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+
+                {/* CTA "Ver todas" */}
+                <Link
+                  href={cat.href}
+                  onClick={close}
+                  className="mt-3 ml-4 inline-flex items-center gap-1.5 text-[11px] uppercase tracking-wider text-leather hover:text-text transition-colors"
+                >
+                  <span>{cat.ctaLabel}</span>
+                  <span>→</span>
+                </Link>
+              </section>
+            ))}
+          </div>
+
+          {/* Quick links: Marcas + Outlet */}
+          <div className="px-5 pt-6 pb-2 border-t border-border/40 mt-2">
+            {QUICK_LINKS.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
                 onClick={close}
-                className="block py-2.5 border-b border-border/30 text-sm text-text-muted hover:text-leather transition-colors"
+                className={`block py-3.5 font-display text-xl border-b border-border/30 transition-colors ${
+                  link.highlight
+                    ? "text-terracotta hover:text-terracotta-dark"
+                    : "text-text hover:text-leather"
+                }`}
               >
                 {link.label}
               </Link>
             ))}
           </div>
 
+          {/* Ayuda */}
+          <div className="px-5 pt-6 pb-2">
+            <p className="eyebrow text-text-subtle mb-3 text-[10px]">Ayuda</p>
+            <ul className="space-y-0">
+              {HELP_LINKS.map((link) => (
+                <li key={link.href}>
+                  <Link
+                    href={link.href}
+                    onClick={close}
+                    className="block py-2.5 border-b border-border/25 text-sm text-text-muted hover:text-leather transition-colors"
+                  >
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
           {/* Empresa */}
-          <div className="px-5 pt-6 pb-6">
-            <p className="eyebrow text-text-subtle mb-2 text-[10px]">Empresa</p>
-            {COMPANY_LINKS.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                onClick={close}
-                className="block py-2.5 border-b border-border/30 text-sm text-text-muted hover:text-leather transition-colors"
-              >
-                {link.label}
-              </Link>
-            ))}
+          <div className="px-5 pt-6 pb-8">
+            <p className="eyebrow text-text-subtle mb-3 text-[10px]">Empresa</p>
+            <ul className="space-y-0">
+              {COMPANY_LINKS.map((link) => (
+                <li key={link.href}>
+                  <Link
+                    href={link.href}
+                    onClick={close}
+                    className="block py-2.5 border-b border-border/25 text-sm text-text-muted hover:text-leather transition-colors"
+                  >
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
           </div>
         </div>
 
         {/* Footer: contacto + branding */}
-        <div className="border-t border-border/40 bg-bg-alt/40 px-5 py-5 space-y-3">
+        <div className="border-t border-border/40 bg-bg-alt/40 px-5 py-5 space-y-2">
           <a
             href="mailto:hola@botasleon.com"
             className="flex items-center gap-3 text-sm text-text hover:text-leather transition-colors"
@@ -317,14 +298,6 @@ function CloseIcon() {
   return (
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
       <path d="M18 6 6 18M6 6l12 12" />
-    </svg>
-  )
-}
-
-function ChevronIcon({ className = "" }: { className?: string }) {
-  return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-      <path d="m6 9 6 6 6-6" />
     </svg>
   )
 }
