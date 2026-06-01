@@ -130,9 +130,8 @@ export function MobileNav() {
       <aside
         aria-label="Navegación"
         aria-hidden={!open}
+        style={{ backgroundColor: "#FBF8F1" }}
         className={`md:hidden fixed top-0 left-0 h-full w-[90%] max-w-sm
-          bg-bg backdrop-blur-2xl backdrop-saturate-200
-          supports-[backdrop-filter]:bg-bg/92
           border-r border-leather/15 shadow-2xl
           z-50 flex flex-col transition-transform duration-300 ${
             open ? "translate-x-0" : "-translate-x-full"
