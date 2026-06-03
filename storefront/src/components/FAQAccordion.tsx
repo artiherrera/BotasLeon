@@ -1,55 +1,20 @@
 "use client"
 
 import { useState } from "react"
+import { FAQS } from "@/lib/faqs"
+
+// Re-export para compatibilidad con imports existentes.
+// La data canónica vive en @/lib/faqs (módulo plano sin "use client")
+// para evitar problemas de RSC boundary al cruzarla a server components.
+export { FAQS } from "@/lib/faqs"
+export type { FAQ } from "@/lib/faqs"
 
 /**
  * FAQAccordion — sección de preguntas frecuentes en el home.
  *
  * Patrón estándar: acordeón vertical, una pregunta abierta a la vez.
  * Click expande/colapsa. Iconos +/- para affordance visual.
- *
- * Las 6 preguntas están elegidas para responder las dudas más comunes
- * antes de la compra (origen, materiales, envíos, cambios) — reducen
- * fricción y aumentan conversión.
  */
-
-export type FAQ = {
-  question: string
-  answer: string
-}
-
-export const FAQS: FAQ[] = [
-  {
-    question: "¿Las botas son hechas en México?",
-    answer:
-      "Sí. Todas las botas que comercializamos son fabricadas en León, Guanajuato — la capital mundial del cuero. Trabajamos directamente con talleres locales, muchos con tres generaciones de experiencia. No vendemos imitaciones ni botas importadas de Asia.",
-  },
-  {
-    question: "¿Qué tipo de piel utilizan?",
-    answer:
-      "Cada bota lleva piel genuina de origen vacuno como base. Para colecciones exóticas (cocodrilo, avestruz, pitón) trabajamos solo con proveedores certificados que cumplen regulaciones CITES de comercio responsable. La descripción de cada producto indica el tipo exacto de piel.",
-  },
-  {
-    question: "¿Cuánto tarda mi pedido?",
-    answer:
-      "Envíos dentro de México: 3-5 días hábiles. Envíos a Estados Unidos: 7-10 días hábiles. Algunas piezas hechas a la medida pueden tomar 2-3 semanas adicionales; lo indicamos claramente en la página del producto.",
-  },
-  {
-    question: "¿Puedo cambiar la talla si no me queda?",
-    answer:
-      "Sí. Tienes 30 días desde que recibes tu bota para solicitar cambio de talla sin costo, dentro de México. La bota debe estar sin uso, sin marcas, en su caja original. Para envíos internacionales aplica una tarifa logística reducida.",
-  },
-  {
-    question: "¿Qué métodos de pago aceptan?",
-    answer:
-      "Tarjetas de crédito y débito (Visa, MasterCard, Amex), Mercado Pago, OXXO, SPEI, transferencia bancaria, y meses sin intereses con bancos participantes. En USA aceptamos también Apple Pay y Shop Pay.",
-  },
-  {
-    question: "¿Trabajan con distribuidores o mayoristas?",
-    answer:
-      "Sí. Si tienes una tienda física o un proyecto de reventa, escríbenos a hola@botasleon.com con los detalles. Manejamos precios mayoristas a partir de cierto volumen mínimo y enviamos catálogo completo bajo NDA.",
-  },
-]
 
 export function FAQAccordion() {
   const [openIdx, setOpenIdx] = useState<number | null>(0)

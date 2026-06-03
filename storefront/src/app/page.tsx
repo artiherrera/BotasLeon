@@ -5,10 +5,11 @@ import { HeroCarousel } from "@/components/HeroCarousel"
 import { MarqueeBar } from "@/components/MarqueeBar"
 import { CategoryShowcase } from "@/components/CategoryShowcase"
 import { BrandGrid } from "@/components/BrandGrid"
-import { FAQAccordion, FAQS } from "@/components/FAQAccordion"
+import { FAQAccordion } from "@/components/FAQAccordion"
 import { LatestByGenderTabs } from "@/components/LatestByGenderTabs"
 import { NewsletterForm } from "@/components/NewsletterForm"
 import { FAQJsonLd } from "@/components/StructuredData"
+import { FAQS } from "@/lib/faqs"
 import { getHeroSlides, getProductsByTaxonomy } from "@/lib/shopify"
 
 /**
