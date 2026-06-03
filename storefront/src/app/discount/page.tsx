@@ -52,8 +52,8 @@ function LoadingShell() {
 function DiscountHandler() {
   const search = useSearchParams()
   const router = useRouter()
-  const code = (search.get("code") || "").trim()
-  const redirect = search.get("redirect") || "/products"
+  const code = (search?.get("code") || "").trim()
+  const redirect = search?.get("redirect") || "/products"
   const [stored, setStored] = useState(false)
 
   useEffect(() => {
