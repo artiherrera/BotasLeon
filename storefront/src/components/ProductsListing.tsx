@@ -26,6 +26,10 @@ import type { Product } from "@/lib/shopify/types"
 
 type Props = {
   products: Product[]
+  // Estilo pre-aplicado vía server-side (sub-rutas /hombre/vaqueras, etc.).
+  // Tiene precedencia sobre ?estilo= legacy. Si está ausente, caemos al
+  // query-string para no romper bookmarks viejos.
+  initialStyle?: string
 }
 
 const SIZE_OPTION_NAMES = ["Talla", "Talla del calzado", "Size"]
@@ -76,42 +80,54 @@ const SORT_LABELS: Record<SortKey, string> = {
   titulo: "Nombre: A → Z",
 }
 
-export function ProductsListing({ products }: Props) {
-  // Lectura del filtro de subcategoría directo desde la URL.
-  // useSearchParams se re-evalúa en cada navegación dentro del mismo
-  // segmento (ej. /hombre?estilo=vaqueras → /hombre?estilo=clasicas),
-  // cosa que un prop server-side no hace porque el client component
-  // no se remonta. .get() ya devuelve solo el primer valor → cubre el
-  // edge case ?estilo=a&estilo=b. Trim por si llega con espacios.
+export function ProductsListing({ products, initialStyle }: Props) {
+  // Dos fuentes de "estilo activo":
+  //   1. initialStyle (server-driven, vía sub-ruta /hombre/vaqueras).
+  //   2. ?estilo= legacy en query string (bookmarks viejos, links externos).
+  // Precedencia: initialStyle > ?estilo=. searchParams se mantiene como
+  // fallback y para detectar cambios dentro del mismo segmento padre.
   const searchParams = useSearchParams()
-  const estilo = searchParams?.get("estilo")?.trim() ?? ""
 
-  const [filters, setFilters] = useState<FilterState>(EMPTY_FILTERS)
-  const [sortKey, setSortKey] = useState<SortKey>("default")
-  const [mobileOpen, setMobileOpen] = useState(false)
-
-  // Sincroniza el filtro types con ?estilo de la URL.
-  // - Cuando estilo cambia a un valor no vacío: reseteamos TODOS los filtros
-  //   y aplicamos solo el matching productType. Es un cambio de subcategoría
-  //   de nav (top-level), no un toggle del sidebar — limpiar es lo correcto.
-  // - Cuando estilo está vacío: no tocamos nada, para no pisar filtros que
-  //   el usuario haya armado manualmente.
-  // - Si no encontramos match para el estilo (productType inexistente),
-  //   usamos el valor crudo como sentinela → empty state "Sin resultados".
-  useEffect(() => {
-    if (!estilo) return
-    const target = normalize(estilo)
+  const [filters, setFilters] = useState<FilterState>(() => {
+    const initial = initialStyle ?? searchParams?.get("estilo")?.trim() ?? ""
+    if (!initial) return EMPTY_FILTERS
+    const target = normalize(initial)
     const matching = new Set(
       products
         .map((p) => p.productType)
         .filter(Boolean)
         .filter((t) => normalize(t) === target)
     )
+    return {
+      ...EMPTY_FILTERS,
+      types: matching.size > 0 ? matching : new Set([initial]),
+    }
+  })
+  const [sortKey, setSortKey] = useState<SortKey>("default")
+  const [mobileOpen, setMobileOpen] = useState(false)
+
+  // Sincroniza el filtro types cuando cambia el estilo activo.
+  // Necesario porque al navegar /hombre/vaqueras → /hombre/clasicas Next
+  // PUEDE preservar el segmento padre y no remontar este client component,
+  // entonces el lazy-init de useState no se vuelve a ejecutar. Lo mismo
+  // aplica al cambio de ?estilo= en navegación dentro del mismo segmento.
+  // - Estilo vacío: no tocamos nada (preservamos filtros manuales).
+  // - Sin match para el estilo: sentinela con el raw → empty state.
+  useEffect(() => {
+    const target = initialStyle ?? searchParams?.get("estilo")?.trim() ?? ""
+    if (!target) return
+    const normalized = normalize(target)
+    const matching = new Set(
+      products
+        .map((p) => p.productType)
+        .filter(Boolean)
+        .filter((t) => normalize(t) === normalized)
+    )
     setFilters({
       ...EMPTY_FILTERS,
-      types: matching.size > 0 ? matching : new Set([estilo]),
+      types: matching.size > 0 ? matching : new Set([target]),
     })
-  }, [estilo, products])
+  }, [initialStyle, searchParams, products])
 
   // === Facetas — qué opciones mostrar en sidebar ===
 

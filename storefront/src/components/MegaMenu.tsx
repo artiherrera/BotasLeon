@@ -13,10 +13,10 @@ import Link from "next/link"
  * Mobile: el nav se oculta (hidden md:flex) — futuro hamburger menu
  * va a tomar este rol en otro sprint.
  *
- * Las sub-categorías (Vaqueras, Clásicas, etc.) aún no tienen ruta
- * propia (/hombre/vaqueras no existe), así que todos apuntan al
- * padre /hombre por ahora. Cuando construyamos las rutas hijas
- * solo actualizamos hrefs en MENU.
+ * Las sub-categorías (Vaqueras, Clásicas, etc.) viven en sub-rutas
+ * estáticas /hombre/[estilo], /mujer/[estilo], /nino/[estilo] —
+ * URLs limpias indexables (sin ?estilo=). El padre /hombre sigue
+ * siendo el listado general.
  */
 
 type Section = {
@@ -41,10 +41,10 @@ const MENU: MenuItem[] = [
       {
         title: "Por estilo",
         links: [
-          { label: "Vaqueras", href: "/hombre?estilo=vaqueras", description: "Caña alta, silueta tradicional" },
-          { label: "Clásicas", href: "/hombre?estilo=clasicas", description: "Caña media, lisas, sin grabado" },
-          { label: "Rancho", href: "/hombre?estilo=rancho", description: "Faena y campo" },
-          { label: "Exóticas", href: "/hombre?estilo=exoticas", description: "Avestruz, cocodrilo, pitón" },
+          { label: "Vaqueras", href: "/hombre/vaqueras", description: "Caña alta, silueta tradicional" },
+          { label: "Clásicas", href: "/hombre/clasicas", description: "Caña media, lisas, sin grabado" },
+          { label: "Rancho", href: "/hombre/rancho", description: "Faena y campo" },
+          { label: "Exóticas", href: "/hombre/exoticas", description: "Avestruz, cocodrilo, pitón" },
         ],
       },
     ],
@@ -58,10 +58,10 @@ const MENU: MenuItem[] = [
       {
         title: "Por estilo",
         links: [
-          { label: "Vaqueras", href: "/mujer?estilo=vaqueras", description: "Caña alta, silueta tradicional" },
-          { label: "Clásicas", href: "/mujer?estilo=clasicas", description: "Caña media, lisas, sin grabado" },
-          { label: "Largas", href: "/mujer?estilo=largas", description: "Sobre la rodilla, fashion" },
-          { label: "Exóticas", href: "/mujer?estilo=exoticas", description: "Avestruz, cocodrilo, pitón" },
+          { label: "Vaqueras", href: "/mujer/vaqueras", description: "Caña alta, silueta tradicional" },
+          { label: "Clásicas", href: "/mujer/clasicas", description: "Caña media, lisas, sin grabado" },
+          { label: "Largas", href: "/mujer/largas", description: "Sobre la rodilla, fashion" },
+          { label: "Exóticas", href: "/mujer/exoticas", description: "Avestruz, cocodrilo, pitón" },
         ],
       },
     ],
@@ -75,8 +75,8 @@ const MENU: MenuItem[] = [
       {
         title: "Por estilo",
         links: [
-          { label: "Vaqueras", href: "/nino?estilo=vaqueras", description: "Mini-vaqueras" },
-          { label: "Clásicas", href: "/nino?estilo=clasicas", description: "Caña media, casual" },
+          { label: "Vaqueras", href: "/nino/vaqueras", description: "Mini-vaqueras" },
+          { label: "Clásicas", href: "/nino/clasicas", description: "Caña media, casual" },
         ],
       },
     ],

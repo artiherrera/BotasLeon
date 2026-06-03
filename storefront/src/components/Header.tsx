@@ -1,10 +1,12 @@
 "use client"
 
+import { useRef, useState } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { useCart } from "./CartProvider"
 import { MegaMenu } from "./MegaMenu"
 import { MobileNav } from "./MobileNav"
+import { SearchOverlay } from "./SearchOverlay"
 
 /**
  * Header del storefront. Sticky con logo, navegación principal,
@@ -13,6 +15,15 @@ import { MobileNav } from "./MobileNav"
  */
 export function Header() {
   const { itemCount, openCart } = useCart()
+  const [searchOpen, setSearchOpen] = useState(false)
+  const searchBtnRef = useRef<HTMLButtonElement>(null)
+
+  // Al cerrar, devolvemos focus al botón que abrió el overlay
+  // (a11y: keyboard users esperan que el focus vuelva al trigger).
+  const closeSearch = () => {
+    setSearchOpen(false)
+    searchBtnRef.current?.focus()
+  }
 
   return (
     <header className="sticky top-0 z-40 border-b border-border/30 bg-bg/95 backdrop-blur-2xl backdrop-saturate-200 supports-[backdrop-filter]:bg-bg/55 relative">
@@ -44,13 +55,15 @@ export function Header() {
 
         {/* Search + Cuenta + Cart */}
         <div className="flex items-center gap-2">
-          <Link
-            href="/search"
+          <button
+            ref={searchBtnRef}
+            type="button"
             aria-label="Buscar"
-            className="p-2 hover:bg-bg-alt rounded transition-colors"
+            onClick={() => setSearchOpen(true)}
+            className="p-2 hover:bg-bg-alt rounded transition-colors cursor-pointer"
           >
             <SearchIcon />
-          </Link>
+          </button>
           <Link
             href="/cuenta"
             aria-label="Mi cuenta"
@@ -73,6 +86,7 @@ export function Header() {
           </button>
         </div>
       </div>
+      <SearchOverlay open={searchOpen} onClose={closeSearch} />
     </header>
   )
 }

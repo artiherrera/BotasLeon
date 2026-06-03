@@ -1,3 +1,4 @@
+import Image from "next/image"
 import Link from "next/link"
 import { PaymentBadges } from "./PaymentBadges"
 
@@ -11,7 +12,20 @@ export function Footer() {
     <footer className="mt-24 bg-leather text-bg-alt">
       <div className="mx-auto max-w-7xl px-6 py-16 grid grid-cols-2 md:grid-cols-4 gap-10">
         <div className="col-span-2 md:col-span-1">
-          <h3 className="font-display text-2xl text-bg mb-3">BotasLeón</h3>
+          <Link
+            href="/"
+            aria-label="BotasLeón — Inicio"
+            className="inline-block mb-3 transition-opacity hover:opacity-80"
+          >
+            <Image
+              src="/logo_botasleon.png"
+              alt="BotasLeón"
+              width={800}
+              height={220}
+              className="h-10 md:h-12 w-auto"
+              style={{ filter: "brightness(0) invert(1) sepia(0.15)" }}
+            />
+          </Link>
           <p className="text-sm text-bg-alt/80 max-w-xs leading-relaxed">
             Botas premium fabricadas en León, Guanajuato. Tradición artesanal
             mexicana en cada par.

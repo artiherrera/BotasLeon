@@ -27,6 +27,10 @@ type Props = {
   taxonomyHandle: string
   // Hint humano de qué configurar si la página queda vacía
   configHint: string
+  // Estilo pre-aplicado (ej. "vaqueras") cuando esta página corresponde
+  // a una sub-ruta /hombre/vaqueras. ProductsListing lo usa como filtro
+  // inicial server-driven, sin depender del query-string.
+  initialStyle?: string
 }
 
 export async function CategoryStub({
@@ -36,6 +40,7 @@ export async function CategoryStub({
   taxonomyKey,
   taxonomyHandle,
   configHint,
+  initialStyle,
 }: Props) {
   const products = await getProductsByTaxonomy(taxonomyKey, taxonomyHandle)
 
@@ -59,7 +64,7 @@ export async function CategoryStub({
             // y sin boundary Next falla el build estático con
             // "Missing Suspense boundary with useSearchParams".
             <Suspense fallback={<div className="min-h-[400px]" />}>
-              <ProductsListing products={products} />
+              <ProductsListing products={products} initialStyle={initialStyle} />
             </Suspense>
           )}
         </div>
