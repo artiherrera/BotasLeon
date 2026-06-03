@@ -1,4 +1,5 @@
 import Link from "next/link"
+import { PaymentBadges } from "./PaymentBadges"
 
 /**
  * Footer del storefront. Tres columnas + barra inferior.
@@ -47,6 +48,18 @@ export function Footer() {
             <li><Link href="/terminos" className="hover:text-bg transition-colors">Términos</Link></li>
             <li><Link href="/privacidad" className="hover:text-bg transition-colors">Privacidad</Link></li>
           </ul>
+        </div>
+      </div>
+
+      <div className="border-t border-bg-alt/20">
+        {/* PaymentBadges en su propio row centrado — los tokens border / text-*
+            del componente heredan los colores oscuros del footer y dan suficiente
+            contraste sobre bg-leather. */}
+        <div className="mx-auto max-w-7xl px-6 pt-6 pb-4 flex flex-col items-center gap-2 text-bg-alt/70">
+          <PaymentBadges />
+          <p className="text-[11px] text-bg-alt/60">
+            Pago seguro procesado por Shopify
+          </p>
         </div>
       </div>
 

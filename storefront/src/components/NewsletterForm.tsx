@@ -55,29 +55,42 @@ export function NewsletterForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-2 max-w-md mx-auto">
-      <input
-        type="email"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-        placeholder="tu@correo.com"
-        required
-        disabled={status === "loading"}
-        className="flex-1 px-4 py-3 border border-border bg-bg focus:outline-none focus:border-leather disabled:opacity-60"
-        aria-label="Correo electrónico"
-      />
-      <button
-        type="submit"
-        disabled={status === "loading"}
-        className="px-6 py-3 bg-leather text-bg font-medium hover:bg-text transition-colors disabled:opacity-60"
-      >
-        {status === "loading" ? "Enviando..." : "Suscribirme"}
-      </button>
-      {error && (
-        <p className="text-xs text-red-700 sm:w-full mt-1">
-          {error}
-        </p>
-      )}
-    </form>
+    <div className="max-w-md mx-auto">
+      <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-2">
+        <input
+          type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          placeholder="tu@correo.com"
+          required
+          disabled={status === "loading"}
+          autoComplete="email"
+          inputMode="email"
+          enterKeyHint="go"
+          className="flex-1 px-4 py-3 border border-border bg-bg focus:outline-none focus:border-leather disabled:opacity-60"
+          aria-label="Correo electrónico para newsletter con 10% de descuento"
+        />
+        <button
+          type="submit"
+          disabled={status === "loading"}
+          className="px-6 py-3 bg-leather text-bg font-medium hover:bg-text transition-colors disabled:opacity-60"
+          aria-label="Suscribirme y recibir mi cupón de 10%"
+        >
+          {status === "loading"
+            ? "Enviando..."
+            : status === "success"
+              ? "¡Listo! Revisa tu correo."
+              : "Suscribirme"}
+        </button>
+        {error && (
+          <p className="text-xs text-red-700 sm:w-full mt-1" role="alert">
+            {error}
+          </p>
+        )}
+      </form>
+      <p className="text-xs text-text-subtle mt-3 text-center">
+        El descuento llega a tu correo al confirmar.
+      </p>
+    </div>
   )
 }

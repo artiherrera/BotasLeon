@@ -13,12 +13,12 @@ import { useState } from "react"
  * fricción y aumentan conversión.
  */
 
-type FAQ = {
+export type FAQ = {
   question: string
   answer: string
 }
 
-const FAQS: FAQ[] = [
+export const FAQS: FAQ[] = [
   {
     question: "¿Las botas son hechas en México?",
     answer:

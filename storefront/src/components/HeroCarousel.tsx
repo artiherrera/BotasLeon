@@ -1,6 +1,6 @@
 "use client"
 
-import { useCallback, useEffect, useState } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import type { HeroSlide } from "@/lib/shopify/types"
@@ -65,28 +65,96 @@ const AUTO_ROTATE_MS = 8000
 export function HeroCarousel({ slides }: Props) {
   const data = slides && slides.length > 0 ? slides : PLACEHOLDER_SLIDES
   const [active, setActive] = useState(0)
+  // touched: el usuario interactuó (click en dot, touchstart, keydown nav).
+  // Una vez true queda permanente — el usuario tomó control, no le re-
+  // imponemos la rotación automática (WCAG 2.2.2).
+  const [touched, setTouched] = useState(false)
+  // visible: el hero está dentro del viewport. Si el usuario scrolleó
+  // más abajo, pausamos la rotación para ahorrar batería + cumplir WCAG.
+  const [visible, setVisible] = useState(true)
+  // reducedMotion: respetar prefers-reduced-motion. Si true, no arranca
+  // auto-rotate; solo se muestra el primer slide (active=0).
+  const [reducedMotion, setReducedMotion] = useState(false)
+  const sectionRef = useRef<HTMLElement | null>(null)
+
+  const markTouched = useCallback(() => {
+    setTouched(true)
+  }, [])
 
   const goTo = useCallback((idx: number) => {
     setActive(idx)
+    setTouched(true)
   }, [])
 
-  // Rota cada 8s. Sin pause-on-hover porque el hero ocupa 70vh y casi
-  // siempre el mouse del usuario está sobre él (al cargar la página, al
-  // scrollear), congelando la rotación. UX preferida: rotación constante;
-  // el usuario puede saltar manualmente via los dots.
+  // Detecta prefers-reduced-motion en mount + escucha cambios.
+  useEffect(() => {
+    if (typeof window === "undefined" || !window.matchMedia) return
+    const mq = window.matchMedia("(prefers-reduced-motion: reduce)")
+    setReducedMotion(mq.matches)
+    const onChange = (e: MediaQueryListEvent) => setReducedMotion(e.matches)
+    mq.addEventListener("change", onChange)
+    return () => mq.removeEventListener("change", onChange)
+  }, [])
+
+  // IntersectionObserver — pausa cuando el hero sale del viewport.
+  useEffect(() => {
+    const node = sectionRef.current
+    if (!node || typeof IntersectionObserver === "undefined") return
+    const io = new IntersectionObserver(
+      ([entry]) => setVisible(entry.isIntersecting),
+      { threshold: 0.1 }
+    )
+    io.observe(node)
+    return () => io.disconnect()
+  }, [])
+
+  // Auto-rotate cada 8s. Se deshabilita si:
+  //  - hay un solo slide
+  //  - el usuario ya interactuó (touched)
+  //  - el sistema pide reduced motion
+  //  - el hero está fuera del viewport
   useEffect(() => {
     if (data.length <= 1) return
+    if (touched) return
+    if (reducedMotion) return
+    if (!visible) return
     const interval = setInterval(() => {
       setActive((prev) => (prev + 1) % data.length)
     }, AUTO_ROTATE_MS)
     return () => clearInterval(interval)
-  }, [data.length])
+  }, [data.length, touched, reducedMotion, visible])
+
+  // Keydown nav handler — flechas izq/der saltan slide y marcan touched.
+  const onKeyDown = useCallback(
+    (e: React.KeyboardEvent<HTMLElement>) => {
+      if (data.length <= 1) return
+      if (e.key === "ArrowRight") {
+        e.preventDefault()
+        setActive((prev) => (prev + 1) % data.length)
+        setTouched(true)
+      } else if (e.key === "ArrowLeft") {
+        e.preventDefault()
+        setActive((prev) => (prev - 1 + data.length) % data.length)
+        setTouched(true)
+      }
+    },
+    [data.length]
+  )
+
+  // Ken-burns solo si NO hay reduced motion (la CSS rule también lo
+  // respeta, pero aplicar la clase condicionalmente evita cualquier
+  // animación parásita / FOUC en navegadores que tarden en parsear MQ).
+  const kenBurnsClass = reducedMotion ? "" : "hero-ken-burns"
 
   return (
     <section
+      ref={sectionRef}
       className="relative w-full h-[70vh] min-h-[480px] max-h-[680px] overflow-hidden bg-leather"
       aria-roledescription="carousel"
       aria-label="Banners destacados"
+      onTouchStart={markTouched}
+      onPointerDown={markTouched}
+      onKeyDown={onKeyDown}
     >
       {/* Slides — cada uno es Link clickeable completo */}
       {data.map((slide, idx) => (
@@ -105,7 +173,7 @@ export function HeroCarousel({ slides }: Props) {
               al rotar la clase desaparece, y al volver a este slide se
               reaplica desde 0% (browser reinicia la animación). */}
           {slide.image ? (
-            <div className={`absolute inset-0 ${idx === active ? "hero-ken-burns" : ""}`}>
+            <div className={`absolute inset-0 ${idx === active ? kenBurnsClass : ""}`}>
               <Image
                 src={slide.image.url}
                 alt={slide.image.altText || slide.title}
@@ -116,7 +184,7 @@ export function HeroCarousel({ slides }: Props) {
               />
             </div>
           ) : (
-            <div className={`absolute inset-0 ${slide.bgClass ?? "bg-leather"} ${idx === active ? "hero-ken-burns" : ""}`} />
+            <div className={`absolute inset-0 ${slide.bgClass ?? "bg-leather"} ${idx === active ? kenBurnsClass : ""}`} />
           )}
 
           {/* Texture overlay */}

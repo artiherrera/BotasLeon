@@ -278,20 +278,30 @@ export function ProductsListing({ products }: Props) {
             )}
           </div>
 
-          {/* Disponibilidad */}
-          <FilterSection title="Disponibilidad">
-            <label className="flex items-center gap-2 cursor-pointer text-sm">
-              <input
-                type="checkbox"
-                checked={filters.onlyAvailable}
-                onChange={(e) =>
-                  setFilters((prev) => ({ ...prev, onlyAvailable: e.target.checked }))
-                }
-                className="rounded border-border accent-leather"
-              />
-              Solo en stock
-            </label>
-          </FilterSection>
+          {/* Talla */}
+          {facets.sizes.length > 0 && (
+            <FilterSection title="Talla">
+              <div className="flex flex-wrap gap-2">
+                {facets.sizes.map((size) => {
+                  const active = filters.sizes.has(size)
+                  return (
+                    <button
+                      key={size}
+                      onClick={() => toggle("sizes", size)}
+                      aria-pressed={active}
+                      className={`min-w-[2.5rem] px-3 py-1.5 text-xs border transition-colors ${
+                        active
+                          ? "border-leather bg-leather text-bg"
+                          : "border-border text-text hover:border-leather"
+                      }`}
+                    >
+                      {size}
+                    </button>
+                  )
+                })}
+              </div>
+            </FilterSection>
+          )}
 
           {/* Marca */}
           {facets.vendors.length > 0 && (
@@ -333,31 +343,6 @@ export function ProductsListing({ products }: Props) {
                     </span>
                   </label>
                 ))}
-              </div>
-            </FilterSection>
-          )}
-
-          {/* Talla */}
-          {facets.sizes.length > 0 && (
-            <FilterSection title="Talla">
-              <div className="flex flex-wrap gap-2">
-                {facets.sizes.map((size) => {
-                  const active = filters.sizes.has(size)
-                  return (
-                    <button
-                      key={size}
-                      onClick={() => toggle("sizes", size)}
-                      aria-pressed={active}
-                      className={`min-w-[2.5rem] px-3 py-1.5 text-xs border transition-colors ${
-                        active
-                          ? "border-leather bg-leather text-bg"
-                          : "border-border text-text hover:border-leather"
-                      }`}
-                    >
-                      {size}
-                    </button>
-                  )
-                })}
               </div>
             </FilterSection>
           )}
@@ -405,6 +390,21 @@ export function ProductsListing({ products }: Props) {
               </div>
             </FilterSection>
           )}
+
+          {/* Disponibilidad */}
+          <FilterSection title="Disponibilidad">
+            <label className="flex items-center gap-2 cursor-pointer text-sm">
+              <input
+                type="checkbox"
+                checked={filters.onlyAvailable}
+                onChange={(e) =>
+                  setFilters((prev) => ({ ...prev, onlyAvailable: e.target.checked }))
+                }
+                className="rounded border-border accent-leather"
+              />
+              Solo en stock
+            </label>
+          </FilterSection>
 
           {/* Footer drawer mobile */}
           {mobileOpen && (

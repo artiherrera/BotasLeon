@@ -102,6 +102,42 @@ export function ProductJsonLd({ product }: { product: Product }) {
             ? "https://schema.org/InStock"
             : "https://schema.org/OutOfStock",
           url: absoluteUrl(`/products/${product.handle}`),
+          shippingDetails: {
+            "@type": "OfferShippingDetails",
+            shippingRate: {
+              "@type": "MonetaryAmount",
+              value: 0,
+              currency: product.priceRange.minVariantPrice.currencyCode,
+            },
+            shippingDestination: {
+              "@type": "DefinedRegion",
+              addressCountry: "MX",
+            },
+            deliveryTime: {
+              "@type": "ShippingDeliveryTime",
+              handlingTime: {
+                "@type": "QuantitativeValue",
+                minValue: 0,
+                maxValue: 1,
+                unitCode: "DAY",
+              },
+              transitTime: {
+                "@type": "QuantitativeValue",
+                minValue: 3,
+                maxValue: 5,
+                unitCode: "DAY",
+              },
+            },
+          },
+          hasMerchantReturnPolicy: {
+            "@type": "MerchantReturnPolicy",
+            applicableCountry: "MX",
+            returnPolicyCategory:
+              "https://schema.org/MerchantReturnFiniteReturnWindow",
+            merchantReturnDays: 30,
+            returnFees: "https://schema.org/FreeReturn",
+            returnMethod: "https://schema.org/ReturnByMail",
+          },
         },
       }}
     />
@@ -124,6 +160,31 @@ export function BreadcrumbJsonLd({
           position: idx + 1,
           name: item.name,
           item: absoluteUrl(item.url),
+        })),
+      }}
+    />
+  )
+}
+
+// === FAQPage — emitir en home (donde renderiza FAQAccordion). Activa el
+// rich result de preguntas frecuentes expandibles en SERPs de Google. ===
+export function FAQJsonLd({
+  items,
+}: {
+  items: Array<{ question: string; answer: string }>
+}) {
+  return (
+    <JsonLd
+      data={{
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        mainEntity: items.map((q) => ({
+          "@type": "Question",
+          name: q.question,
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: q.answer,
+          },
         })),
       }}
     />

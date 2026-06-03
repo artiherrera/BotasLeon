@@ -77,26 +77,29 @@ function EmptyState({ configHint }: { configHint: string }) {
         Sección en construcción
       </h2>
       <p className="text-text-muted mb-5">
-        Aún no hay productos en esta categoría. Vuelve pronto.
+        Estamos cargando primeras botas. Mientras tanto, explora el resto
+        del catálogo.
       </p>
-      <details className="text-sm text-text-muted">
-        <summary className="cursor-pointer font-medium">
-          Detalles técnicos para el admin
-        </summary>
-        <div className="mt-3">
-          <p>
-            Esta categoría muestra productos que tienen {configHint}.
-            Si un producto debería aparecer aquí pero no lo hace, verifica
-            que tenga el metacampo correcto en Shopify admin.
-          </p>
-        </div>
-      </details>
+      {process.env.NODE_ENV === "development" && (
+        <details className="text-sm text-text-muted">
+          <summary className="cursor-pointer font-medium">
+            Detalles técnicos para el admin
+          </summary>
+          <div className="mt-3">
+            <p>
+              Esta categoría muestra productos que tienen {configHint}.
+              Si un producto debería aparecer aquí pero no lo hace, verifica
+              que tenga el metacampo correcto en Shopify admin.
+            </p>
+          </div>
+        </details>
+      )}
       <div className="mt-6">
         <Link
           href="/products"
           className="inline-flex px-6 py-3 border border-leather text-leather text-sm uppercase tracking-wider hover:bg-leather hover:text-bg transition-colors"
         >
-          Ver catálogo completo
+          Ver catálogo completo →
         </Link>
       </div>
     </div>

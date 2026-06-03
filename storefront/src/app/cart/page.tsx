@@ -6,8 +6,18 @@ import Link from "next/link"
 import { Header } from "@/components/Header"
 import { Footer } from "@/components/Footer"
 import { useCart } from "@/components/CartProvider"
+import { FreeShippingBar } from "@/components/FreeShippingBar"
+import { MSIBreakdown } from "@/components/MSIBreakdown"
+import { PaymentBadges } from "@/components/PaymentBadges"
 import { formatMoney } from "@/lib/utils"
-import { getPendingDiscount, withDiscount } from "@/lib/discount/client"
+import {
+  getPendingDiscount,
+  setPendingDiscount as savePendingDiscount,
+  withDiscount,
+} from "@/lib/discount/client"
+import { track } from "@/lib/klaviyo/client"
+
+const FREE_SHIPPING_THRESHOLD = 3000
 
 /**
  * /cart — vista full-page del carrito.
@@ -19,14 +29,45 @@ import { getPendingDiscount, withDiscount } from "@/lib/discount/client"
  */
 
 export default function CartPage() {
-  const { cart, ready, isPending, updateLine, removeLine } = useCart()
+  const { cart, ready, isPending, updateLine, removeLine, showToast } = useCart()
   const [pendingDiscount, setPendingDiscount] = useState<string | null>(null)
+  const [couponInput, setCouponInput] = useState("")
   const lines = cart?.lines ?? []
   const isEmpty = lines.length === 0
+  const subtotalNum = cart ? parseFloat(cart.cost.subtotalAmount.amount) : 0
+  const subtotalCurrency = cart?.cost.subtotalAmount.currencyCode ?? "MXN"
 
   useEffect(() => {
     setPendingDiscount(getPendingDiscount())
   }, [ready])
+
+  const handleApplyCoupon = (e: React.FormEvent) => {
+    e.preventDefault()
+    const code = couponInput.trim().toUpperCase()
+    if (!code) return
+    savePendingDiscount(code)
+    setPendingDiscount(code)
+    setCouponInput("")
+    showToast(`Código "${code}" guardado. Se aplica al pagar.`, "success")
+  }
+
+  const handleCheckoutClick = () => {
+    if (!cart) return
+    track("Started Checkout", {
+      $value: subtotalNum,
+      currency: subtotalCurrency,
+      ItemCount: cart.totalQuantity,
+      items: cart.lines.map((l) => ({
+        ProductName: l.merchandise.product.title,
+        ItemId: l.merchandise.id,
+        Quantity: l.quantity,
+        Price: parseFloat(l.cost.totalAmount.amount),
+        ProductCategories: [],
+        ProductURL: `/products/${l.merchandise.product.handle}`,
+      })),
+      CheckoutURL: cart.checkoutUrl,
+    })
+  }
 
   // Mientras hidrata desde localStorage, mostramos un skeleton mínimo
   if (!ready) {
@@ -185,7 +226,13 @@ export default function CartPage() {
             <aside className="bg-bg-alt p-6 h-fit lg:sticky lg:top-24">
               <h2 className="eyebrow text-leather mb-4">Resumen</h2>
 
-              <div className="space-y-2 mb-6">
+              <FreeShippingBar
+                subtotal={subtotalNum}
+                threshold={FREE_SHIPPING_THRESHOLD}
+                currency={subtotalCurrency}
+              />
+
+              <div className="space-y-2 mt-3 mb-6">
                 <div className="flex justify-between text-sm text-text-muted">
                   <span>Subtotal</span>
                   <span className="text-text">
@@ -196,6 +243,7 @@ export default function CartPage() {
                       )}
                   </span>
                 </div>
+                <MSIBreakdown amount={subtotalNum} currency={subtotalCurrency} />
                 <div className="flex justify-between text-sm text-text-muted">
                   <span>Envío</span>
                   <span className="text-text">Calculado al pagar</span>
@@ -213,6 +261,33 @@ export default function CartPage() {
                 </span>
               </div>
 
+              {/* Cupón manual — desplegable para no añadir ruido visual a quien
+                  no trae código */}
+              <details className="mb-4 text-sm border-t border-border pt-4">
+                <summary className="cursor-pointer text-text-muted hover:text-text transition-colors select-none">
+                  ¿Tienes un código de descuento?
+                </summary>
+                <form onSubmit={handleApplyCoupon} className="mt-3 flex gap-2">
+                  <input
+                    type="text"
+                    value={couponInput}
+                    onChange={(e) => setCouponInput(e.target.value)}
+                    placeholder="CÓDIGO"
+                    autoCapitalize="characters"
+                    autoCorrect="off"
+                    spellCheck={false}
+                    className="flex-1 min-w-0 px-3 py-2 bg-bg border border-border text-sm text-text uppercase tracking-wider focus:outline-none focus:border-leather"
+                  />
+                  <button
+                    type="submit"
+                    disabled={!couponInput.trim()}
+                    className="px-4 py-2 bg-leather text-bg text-xs uppercase tracking-wider hover:bg-text transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                  >
+                    Aplicar
+                  </button>
+                </form>
+              </details>
+
               {pendingDiscount && (
                 <div className="mb-3 p-3 bg-leather text-bg text-xs rounded-sm">
                   <p className="font-medium">Descuento aplicado al pagar</p>
@@ -220,9 +295,14 @@ export default function CartPage() {
                 </div>
               )}
 
+              <div className="mb-4">
+                <PaymentBadges />
+              </div>
+
               {cart?.checkoutUrl ? (
                 <a
                   href={withDiscount(cart.checkoutUrl, pendingDiscount)}
+                  onClick={handleCheckoutClick}
                   className="block w-full text-center py-4 bg-leather text-bg text-sm uppercase tracking-widest hover:bg-text transition-colors"
                 >
                   Proceder al pago

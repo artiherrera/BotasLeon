@@ -8,6 +8,14 @@ const nextConfig: NextConfig = {
       { protocol: "https", hostname: "cdn.shopify.com" },
     ],
   },
+  async redirects() {
+    // Consolidamos toda la jerarquía bajo /nino (singular) para evitar
+    // contenido duplicado SEO. /ninos y sus hijos quedan como 308 permanente.
+    return [
+      { source: "/ninos", destination: "/nino", permanent: true },
+      { source: "/ninos/:path*", destination: "/nino/:path*", permanent: true },
+    ];
+  },
 };
 
 export default nextConfig;

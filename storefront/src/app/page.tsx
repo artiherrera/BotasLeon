@@ -5,9 +5,10 @@ import { HeroCarousel } from "@/components/HeroCarousel"
 import { MarqueeBar } from "@/components/MarqueeBar"
 import { CategoryShowcase } from "@/components/CategoryShowcase"
 import { BrandGrid } from "@/components/BrandGrid"
-import { FAQAccordion } from "@/components/FAQAccordion"
+import { FAQAccordion, FAQS } from "@/components/FAQAccordion"
 import { LatestByGenderTabs } from "@/components/LatestByGenderTabs"
 import { NewsletterForm } from "@/components/NewsletterForm"
+import { FAQJsonLd } from "@/components/StructuredData"
 import { getHeroSlides, getProductsByTaxonomy } from "@/lib/shopify"
 
 /**
@@ -41,7 +42,12 @@ export default async function HomePage() {
   return (
     <>
       <Header />
+      <FAQJsonLd items={FAQS} />
       <main className="flex-1">
+        <h1 className="sr-only">
+          Botas mexicanas hechas en León — vaqueras, clásicas, exóticas y de
+          rancho
+        </h1>
         <HeroCarousel slides={heroSlides} />
 
         <MarqueeBar />
@@ -122,11 +128,11 @@ export default async function HomePage() {
           <div className="border border-border p-10 md:p-16 text-center bg-bg-alt">
             <p className="eyebrow text-leather mb-3">Newsletter</p>
             <h3 className="font-heading text-2xl md:text-3xl text-text mb-3">
-              Las novedades, antes que nadie.
+              Suscríbete y recibe 10% en tu primera compra
             </h3>
             <p className="text-text-muted mb-8 max-w-md mx-auto">
-              Lanzamientos, ofertas exclusivas y novedades de los talleres de
-              León. Sin spam, prometido.
+              Plus las novedades de las marcas de León antes que nadie. Sin
+              spam, prometido.
             </p>
             <NewsletterForm />
           </div>

@@ -1,8 +1,10 @@
-import type { Metadata } from "next"
+import type { Metadata, Viewport } from "next"
 import Script from "next/script"
 import { Bevan, Zilla_Slab, Inter } from "next/font/google"
 import { CartProvider } from "@/components/CartProvider"
 import { CartDrawer } from "@/components/CartDrawer"
+import { Toast } from "@/components/Toast"
+import { CookiesBanner } from "@/components/CookiesBanner"
 import { OrganizationJsonLd, WebsiteJsonLd } from "@/components/StructuredData"
 import { SITE_URL, SITE_NAME, SITE_DESCRIPTION } from "@/lib/seo"
 import "./globals.css"
@@ -85,6 +87,15 @@ export const metadata: Metadata = {
   // del home). Cada page.tsx declara su propio canonical vía pageMetadata().
 }
 
+/**
+ * viewport — tint la status bar de Safari iOS / Chrome Android en
+ * cuero #4B2E1F. Señal visual premium que extiende el branding al chrome
+ * del navegador.
+ */
+export const viewport: Viewport = {
+  themeColor: "#4B2E1F",
+}
+
 export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
@@ -101,19 +112,23 @@ export default function RootLayout({
         <OrganizationJsonLd />
         <WebsiteJsonLd />
 
-        {/* Klaviyo Onsite tracking — carga async, expone window.klaviyo */}
+        {/* Klaviyo Onsite tracking — carga async, expone window.klaviyo.
+            lazyOnload: difiere a browser idle. Mejora LCP en 3G/4G porque
+            no compite con el HTML/CSS/IMG críticos del above-the-fold. */}
         {KLAVIYO_KEY && (
           <Script
             id="klaviyo-onsite"
             src={`https://static.klaviyo.com/onsite/js/klaviyo.js?company_id=${KLAVIYO_KEY}`}
-            strategy="afterInteractive"
+            strategy="lazyOnload"
           />
         )}
 
         <CartProvider>
           {children}
           <CartDrawer />
+          <Toast />
         </CartProvider>
+        <CookiesBanner />
       </body>
     </html>
   )

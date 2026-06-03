@@ -4,8 +4,14 @@ import { useEffect, useState } from "react"
 import Image from "next/image"
 import Link from "next/link"
 import { useCart } from "./CartProvider"
+import { FreeShippingBar } from "./FreeShippingBar"
+import { MSIBreakdown } from "./MSIBreakdown"
+import { PaymentBadges } from "./PaymentBadges"
 import { formatMoney } from "@/lib/utils"
 import { getPendingDiscount, withDiscount } from "@/lib/discount/client"
+import { track } from "@/lib/klaviyo/client"
+
+const FREE_SHIPPING_THRESHOLD = 3000
 
 /**
  * CartDrawer — sidebar lateral derecho con líneas del cart.
@@ -45,6 +51,26 @@ export function CartDrawer() {
 
   const lines = cart?.lines ?? []
   const isEmpty = lines.length === 0
+  const subtotalNum = cart ? parseFloat(cart.cost.subtotalAmount.amount) : 0
+  const subtotalCurrency = cart?.cost.subtotalAmount.currencyCode ?? "MXN"
+
+  const handleCheckoutClick = () => {
+    if (!cart) return
+    track("Started Checkout", {
+      $value: subtotalNum,
+      currency: subtotalCurrency,
+      ItemCount: cart.totalQuantity,
+      items: cart.lines.map((l) => ({
+        ProductName: l.merchandise.product.title,
+        ItemId: l.merchandise.id,
+        Quantity: l.quantity,
+        Price: parseFloat(l.cost.totalAmount.amount),
+        ProductCategories: [],
+        ProductURL: `/products/${l.merchandise.product.handle}`,
+      })),
+      CheckoutURL: cart.checkoutUrl,
+    })
+  }
 
   return (
     <>
@@ -201,7 +227,12 @@ export function CartDrawer() {
             </div>
 
             {/* Footer con totales + checkout */}
-            <div className="border-t border-border px-6 py-5 bg-bg-alt">
+            <div
+              className="border-t border-border px-6 pt-4 bg-bg-alt"
+              style={{
+                paddingBottom: "calc(1.25rem + env(safe-area-inset-bottom))",
+              }}
+            >
               {pendingDiscount && (
                 <div className="mb-3 p-3 bg-leather text-bg text-xs rounded-sm">
                   <p className="font-medium">Descuento aplicado al pagar</p>
@@ -209,7 +240,13 @@ export function CartDrawer() {
                 </div>
               )}
 
-              <div className="flex justify-between items-baseline mb-1">
+              <FreeShippingBar
+                subtotal={subtotalNum}
+                threshold={FREE_SHIPPING_THRESHOLD}
+                currency={subtotalCurrency}
+              />
+
+              <div className="flex justify-between items-baseline mt-2 mb-1">
                 <span className="text-sm text-text-muted">Subtotal</span>
                 <span className="font-heading text-lg text-text">
                   {cart &&
@@ -219,13 +256,19 @@ export function CartDrawer() {
                     )}
                 </span>
               </div>
-              <p className="text-xs text-text-muted mb-4">
+              <MSIBreakdown amount={subtotalNum} currency={subtotalCurrency} />
+              <p className="text-xs text-text-muted mt-1 mb-4">
                 Envío e impuestos calculados al pagar
               </p>
+
+              <div className="mb-4">
+                <PaymentBadges />
+              </div>
 
               {cart?.checkoutUrl ? (
                 <a
                   href={withDiscount(cart.checkoutUrl, pendingDiscount)}
+                  onClick={handleCheckoutClick}
                   className="block w-full text-center py-4 bg-leather text-bg text-sm uppercase tracking-wider hover:bg-text transition-colors"
                 >
                   Pagar

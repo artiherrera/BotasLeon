@@ -36,6 +36,9 @@ import type { Cart } from "@/lib/shopify/types"
 
 const STORAGE_KEY = "botasleon:cartId"
 
+export type ToastVariant = "success" | "error" | "info"
+export type ToastMessage = { msg: string; variant?: ToastVariant }
+
 type CartContextValue = {
   cart: Cart | null
   ready: boolean        // false durante hidratación inicial
@@ -48,6 +51,8 @@ type CartContextValue = {
   updateLine: (lineId: string, quantity: number) => void
   removeLine: (lineId: string) => void
   itemCount: number
+  toast: ToastMessage | null
+  showToast: (msg: string, variant?: ToastVariant) => void
 }
 
 const CartContext = createContext<CartContextValue | null>(null)
@@ -57,7 +62,9 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const [ready, setReady] = useState(false)
   const [isOpen, setIsOpen] = useState(false)
   const [isPending, startTransition] = useTransition()
+  const [toast, setToast] = useState<ToastMessage | null>(null)
   const cartIdRef = useRef<string | null>(null)
+  const toastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   // Hidratación inicial — corre solo en cliente.
   useEffect(() => {
@@ -99,6 +106,22 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const closeCart = useCallback(() => setIsOpen(false), [])
   const toggleCart = useCallback(() => setIsOpen((v) => !v), [])
 
+  const showToast = useCallback((msg: string, variant: ToastVariant = "info") => {
+    setToast({ msg, variant })
+    if (toastTimerRef.current) clearTimeout(toastTimerRef.current)
+    toastTimerRef.current = setTimeout(() => {
+      setToast(null)
+      toastTimerRef.current = null
+    }, 3000)
+  }, [])
+
+  // Cleanup pendiente al unmount
+  useEffect(() => {
+    return () => {
+      if (toastTimerRef.current) clearTimeout(toastTimerRef.current)
+    }
+  }, [])
+
   const addItem = useCallback(
     (merchandiseId: string, quantity = 1) => {
       startTransition(async () => {
@@ -138,11 +161,11 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
             }
           }
           console.error("[cart] addItem falló:", e)
-          alert(`No se pudo agregar al carrito: ${msg}`)
+          showToast(`No se pudo agregar al carrito: ${msg}`, "error")
         }
       })
     },
-    [persist]
+    [persist, showToast]
   )
 
   const updateLine = useCallback(
@@ -193,6 +216,8 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         updateLine,
         removeLine,
         itemCount,
+        toast,
+        showToast,
       }}
     >
       {children}

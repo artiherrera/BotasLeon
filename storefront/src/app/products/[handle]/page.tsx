@@ -4,6 +4,9 @@ import { Header } from "@/components/Header"
 import { Footer } from "@/components/Footer"
 import { ProductGallery } from "@/components/ProductGallery"
 import { ProductOptions } from "@/components/ProductOptions"
+import { PDPTrustBlock } from "@/components/PDPTrustBlock"
+import { RelatedProducts } from "@/components/RelatedProducts"
+import { RecentlyViewed } from "@/components/RecentlyViewed"
 import { ProductJsonLd, BreadcrumbJsonLd } from "@/components/StructuredData"
 import { ProductViewedTracker } from "@/components/ProductViewedTracker"
 import { getProductByHandle, getProducts } from "@/lib/shopify"
@@ -102,6 +105,8 @@ export default async function ProductPage({ params }: Props) {
 
               <ProductOptions product={product} />
 
+              <PDPTrustBlock product={product} />
+
               {product.descriptionHtml && (
                 <div className="mt-12 pt-8 border-t border-border">
                   <h2 className="eyebrow text-leather mb-4">Descripción</h2>
@@ -118,6 +123,13 @@ export default async function ProductPage({ params }: Props) {
             </div>
           </div>
         </div>
+
+        <RelatedProducts currentHandle={product.handle} vendor={product.vendor} />
+        <RecentlyViewed
+          currentHandle={product.handle}
+          currentTitle={product.title}
+          currentImage={product.featuredImage?.url}
+        />
       </main>
       <Footer />
     </>

@@ -75,6 +75,10 @@ export default function SearchPage() {
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Ej. vaqueras avestruz, Josepha, botín café..."
               autoFocus
+              autoComplete="off"
+              inputMode="search"
+              enterKeyHint="search"
+              aria-label="Buscar productos por nombre, marca, tipo o material"
               className="w-full pl-14 pr-6 py-5 text-lg border-2 border-border focus:border-leather focus:outline-none bg-bg transition-colors"
             />
             <svg
