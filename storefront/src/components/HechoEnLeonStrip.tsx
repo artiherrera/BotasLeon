@@ -49,11 +49,11 @@ export function HechoEnLeonStrip() {
 
           <div>
             <p className="font-display text-4xl md:text-5xl text-bg leading-none mb-2">
-              Curadores
+              100%
             </p>
-            <p className="eyebrow text-gold text-[11px] mb-1">No fabricantes</p>
+            <p className="eyebrow text-gold text-[11px] mb-1">Piel genuina</p>
             <p className="text-bg-alt text-sm leading-relaxed">
-              Recorremos los talleres, verificamos cada par, traemos solo lo que vale la pena.
+              Cuero verificado en cada par. CITES certificado en colecciones exóticas.
             </p>
           </div>
         </div>
