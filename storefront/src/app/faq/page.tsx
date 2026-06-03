@@ -1,4 +1,5 @@
 import { ContentPage } from "@/components/ContentPage"
+import { pageMetadata } from "@/lib/seo"
 
 export default function FaqPage() {
   return (
@@ -81,6 +82,9 @@ export default function FaqPage() {
   )
 }
 
-export const metadata = {
-  title: "Preguntas frecuentes — BotasLeón",
-}
+export const metadata = pageMetadata({
+  path: "/faq",
+  title: "Preguntas frecuentes",
+  description:
+    "Respuestas a las dudas más comunes sobre envíos, tallas, materiales y cuidado de tus botas.",
+})

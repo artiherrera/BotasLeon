@@ -1,3 +1,4 @@
+import { Suspense } from "react"
 import Link from "next/link"
 import { Header } from "./Header"
 import { Footer } from "./Footer"
@@ -54,7 +55,12 @@ export async function CategoryStub({
           {products.length === 0 ? (
             <EmptyState configHint={configHint} />
           ) : (
-            <ProductsListing products={products} />
+            // Suspense requerido: ProductsListing usa useSearchParams,
+            // y sin boundary Next falla el build estático con
+            // "Missing Suspense boundary with useSearchParams".
+            <Suspense fallback={<div className="min-h-[400px]" />}>
+              <ProductsListing products={products} />
+            </Suspense>
           )}
         </div>
       </main>

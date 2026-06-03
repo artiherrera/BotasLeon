@@ -1,4 +1,5 @@
 import { ContentPage } from "@/components/ContentPage"
+import { pageMetadata } from "@/lib/seo"
 
 export default function PrivacidadPage() {
   return (
@@ -122,6 +123,9 @@ export default function PrivacidadPage() {
   )
 }
 
-export const metadata = {
-  title: "Aviso de privacidad — BotasLeón",
-}
+export const metadata = pageMetadata({
+  path: "/privacidad",
+  title: "Aviso de privacidad",
+  description:
+    "Cómo recolectamos, usamos y protegemos tus datos personales conforme a la LFPDPPP.",
+})

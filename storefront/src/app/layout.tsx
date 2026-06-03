@@ -80,9 +80,9 @@ export const metadata: Metadata = {
       "max-snippet": -1,
     },
   },
-  alternates: {
-    canonical: SITE_URL,
-  },
+  // NO declarar `alternates.canonical` aquí — se hereda a todas las páginas
+  // hijas y rompe la indexación (Google trata toda la taxonomía como duplicado
+  // del home). Cada page.tsx declara su propio canonical vía pageMetadata().
 }
 
 export default function RootLayout({

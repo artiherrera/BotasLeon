@@ -1,4 +1,5 @@
 import { CategoryStub } from "@/components/CategoryStub"
+import { pageMetadata } from "@/lib/seo"
 
 export const revalidate = 60
 
@@ -15,7 +16,9 @@ export default function NinoPage() {
   )
 }
 
-export const metadata = {
-  title: "Botas para niños — BotasLeón",
-  description: "Botas vaqueras y clásicas para niños y niñas, hechas en León.",
-}
+export const metadata = pageMetadata({
+  path: "/nino",
+  title: "Botas para niños",
+  description:
+    "Botas vaqueras y clásicas miniatura para niños y niñas — mismas marcas y construcción que las de adulto. Hechas en León.",
+})

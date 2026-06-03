@@ -1,4 +1,5 @@
 import { ContentPage } from "@/components/ContentPage"
+import { pageMetadata } from "@/lib/seo"
 
 export default function ContactoPage() {
   return (
@@ -49,6 +50,9 @@ export default function ContactoPage() {
   )
 }
 
-export const metadata = {
-  title: "Contacto — BotasLeón",
-}
+export const metadata = pageMetadata({
+  path: "/contacto",
+  title: "Contacto",
+  description:
+    "Escríbenos a hola@botasleon.com — resolvemos talla, envíos y devoluciones.",
+})

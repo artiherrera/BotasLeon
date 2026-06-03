@@ -1,5 +1,6 @@
 import { Header } from "@/components/Header"
 import { Footer } from "@/components/Footer"
+import { pageMetadata } from "@/lib/seo"
 
 /**
  * /cuenta — landing de cuenta.
@@ -53,6 +54,10 @@ export default function CuentaPage() {
   )
 }
 
-export const metadata = {
-  title: "Mi cuenta — BotasLeón",
-}
+export const metadata = pageMetadata({
+  path: "/cuenta",
+  title: "Mi cuenta",
+  description:
+    "Tu cuenta en BotasLeón — pedidos, direcciones y datos personales.",
+  noindex: true,
+})

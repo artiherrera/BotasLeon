@@ -1,7 +1,9 @@
+import { Suspense } from "react"
 import { Header } from "@/components/Header"
 import { Footer } from "@/components/Footer"
 import { ProductsListing } from "@/components/ProductsListing"
 import { getProducts } from "@/lib/shopify"
+import { pageMetadata } from "@/lib/seo"
 
 /**
  * Listing global de productos. Server fetcha → pasa a ProductsListing
@@ -40,7 +42,9 @@ export default async function ProductsPage() {
               <p className="text-sm font-mono break-all">{fetchError}</p>
             </div>
           ) : (
-            <ProductsListing products={products} />
+            <Suspense fallback={<div className="min-h-[400px]" />}>
+              <ProductsListing products={products} />
+            </Suspense>
           )}
         </div>
       </main>
@@ -49,6 +53,9 @@ export default async function ProductsPage() {
   )
 }
 
-export const metadata = {
-  title: "Todas las botas — BotasLeón",
-}
+export const metadata = pageMetadata({
+  path: "/products",
+  title: "Todas las botas",
+  description:
+    "Catálogo completo de botas mexicanas — vaqueras, clásicas, exóticas y de rancho. Filtra por marca, talla, color y material.",
+})

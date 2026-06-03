@@ -40,10 +40,10 @@ const CATEGORIES: Category[] = [
     label: "Hombre",
     href: "/hombre",
     sublinks: [
-      { label: "Vaqueras", href: "/hombre", description: "Caña alta, silueta tradicional" },
-      { label: "Clásicas", href: "/hombre", description: "Caña media, lisas, sin grabado" },
-      { label: "Rancho", href: "/hombre", description: "Faena y campo" },
-      { label: "Exóticas", href: "/hombre", description: "Avestruz, cocodrilo, pitón" },
+      { label: "Vaqueras", href: "/hombre?estilo=vaqueras", description: "Caña alta, silueta tradicional" },
+      { label: "Clásicas", href: "/hombre?estilo=clasicas", description: "Caña media, lisas, sin grabado" },
+      { label: "Rancho", href: "/hombre?estilo=rancho", description: "Faena y campo" },
+      { label: "Exóticas", href: "/hombre?estilo=exoticas", description: "Avestruz, cocodrilo, pitón" },
     ],
     ctaLabel: "Ver todas las botas de hombre",
   },
@@ -51,10 +51,10 @@ const CATEGORIES: Category[] = [
     label: "Mujer",
     href: "/mujer",
     sublinks: [
-      { label: "Vaqueras", href: "/mujer", description: "Caña alta, silueta tradicional" },
-      { label: "Clásicas", href: "/mujer", description: "Caña media, lisas, sin grabado" },
-      { label: "Largas", href: "/mujer", description: "Sobre la rodilla, fashion" },
-      { label: "Exóticas", href: "/mujer", description: "Avestruz, cocodrilo, pitón" },
+      { label: "Vaqueras", href: "/mujer?estilo=vaqueras", description: "Caña alta, silueta tradicional" },
+      { label: "Clásicas", href: "/mujer?estilo=clasicas", description: "Caña media, lisas, sin grabado" },
+      { label: "Largas", href: "/mujer?estilo=largas", description: "Sobre la rodilla, fashion" },
+      { label: "Exóticas", href: "/mujer?estilo=exoticas", description: "Avestruz, cocodrilo, pitón" },
     ],
     ctaLabel: "Ver todas las botas de mujer",
   },
@@ -62,16 +62,17 @@ const CATEGORIES: Category[] = [
     label: "Niños",
     href: "/nino",
     sublinks: [
-      { label: "Vaqueras", href: "/nino", description: "Mini-vaqueras" },
-      { label: "Clásicas", href: "/nino", description: "Caña media, casual" },
+      { label: "Vaqueras", href: "/nino?estilo=vaqueras", description: "Mini-vaqueras" },
+      { label: "Clásicas", href: "/nino?estilo=clasicas", description: "Caña media, casual" },
     ],
     ctaLabel: "Ver todas las botas de niños",
   },
 ]
 
-const QUICK_LINKS = [
+const QUICK_LINKS: Array<{ label: string; href: string; highlight?: boolean }> = [
   { label: "Marcas", href: "/marcas" },
-  { label: "Outlet", href: "/outlet", highlight: true },
+  // Outlet oculto hasta que haya productos con compareAtPrice.
+  // Para reactivar: { label: "Outlet", href: "/outlet", highlight: true }
 ]
 
 const HELP_LINKS = [

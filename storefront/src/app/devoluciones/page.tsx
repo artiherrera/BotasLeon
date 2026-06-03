@@ -1,4 +1,5 @@
 import { ContentPage } from "@/components/ContentPage"
+import { pageMetadata } from "@/lib/seo"
 
 export default function DevolucionesPage() {
   return (
@@ -63,6 +64,9 @@ export default function DevolucionesPage() {
   )
 }
 
-export const metadata = {
-  title: "Devoluciones — BotasLeón",
-}
+export const metadata = pageMetadata({
+  path: "/devoluciones",
+  title: "Devoluciones y cambios",
+  description:
+    "Cambio de talla sin costo durante 30 días. Política completa de devoluciones.",
+})

@@ -1,4 +1,5 @@
 import { ContentPage } from "@/components/ContentPage"
+import { pageMetadata } from "@/lib/seo"
 
 export default function EnviosPage() {
   return (
@@ -54,6 +55,9 @@ export default function EnviosPage() {
   )
 }
 
-export const metadata = {
-  title: "Envíos — BotasLeón",
-}
+export const metadata = pageMetadata({
+  path: "/envios",
+  title: "Envíos",
+  description:
+    "Envío a todo México y Estados Unidos. Tiempos, costos y rastreo de pedidos.",
+})

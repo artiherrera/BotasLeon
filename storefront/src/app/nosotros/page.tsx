@@ -1,4 +1,5 @@
 import { ContentPage } from "@/components/ContentPage"
+import { pageMetadata } from "@/lib/seo"
 
 export default function NosotrosPage() {
   return (
@@ -63,6 +64,9 @@ export default function NosotrosPage() {
   )
 }
 
-export const metadata = {
-  title: "Nosotros — BotasLeón",
-}
+export const metadata = pageMetadata({
+  path: "/nosotros",
+  title: "Nosotros",
+  description:
+    "380 años de tradición artesanal en León, Guanajuato — curaduría de talleres y compromiso con el cuero.",
+})

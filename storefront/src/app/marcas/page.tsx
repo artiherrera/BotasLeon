@@ -3,6 +3,7 @@ import Image from "next/image"
 import { Header } from "@/components/Header"
 import { Footer } from "@/components/Footer"
 import { getBrands, getProducts } from "@/lib/shopify"
+import { pageMetadata } from "@/lib/seo"
 
 export const revalidate = 60
 
@@ -119,6 +120,9 @@ function ConfigBanner() {
   )
 }
 
-export const metadata = {
-  title: "Marcas — BotasLeón",
-}
+export const metadata = pageMetadata({
+  path: "/marcas",
+  title: "Marcas",
+  description:
+    "Casas de calzado de León que comercializamos. Cada taller pasa nuestra curaduría — material, construcción y reputación.",
+})

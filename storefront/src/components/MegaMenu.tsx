@@ -41,10 +41,10 @@ const MENU: MenuItem[] = [
       {
         title: "Por estilo",
         links: [
-          { label: "Vaqueras", href: "/hombre", description: "Caña alta, silueta tradicional" },
-          { label: "Clásicas", href: "/hombre", description: "Caña media, lisas, sin grabado" },
-          { label: "Rancho", href: "/hombre", description: "Faena y campo" },
-          { label: "Exóticas", href: "/hombre", description: "Avestruz, cocodrilo, pitón" },
+          { label: "Vaqueras", href: "/hombre?estilo=vaqueras", description: "Caña alta, silueta tradicional" },
+          { label: "Clásicas", href: "/hombre?estilo=clasicas", description: "Caña media, lisas, sin grabado" },
+          { label: "Rancho", href: "/hombre?estilo=rancho", description: "Faena y campo" },
+          { label: "Exóticas", href: "/hombre?estilo=exoticas", description: "Avestruz, cocodrilo, pitón" },
         ],
       },
     ],
@@ -58,10 +58,10 @@ const MENU: MenuItem[] = [
       {
         title: "Por estilo",
         links: [
-          { label: "Vaqueras", href: "/mujer", description: "Caña alta, silueta tradicional" },
-          { label: "Clásicas", href: "/mujer", description: "Caña media, lisas, sin grabado" },
-          { label: "Largas", href: "/mujer", description: "Sobre la rodilla, fashion" },
-          { label: "Exóticas", href: "/mujer", description: "Avestruz, cocodrilo, pitón" },
+          { label: "Vaqueras", href: "/mujer?estilo=vaqueras", description: "Caña alta, silueta tradicional" },
+          { label: "Clásicas", href: "/mujer?estilo=clasicas", description: "Caña media, lisas, sin grabado" },
+          { label: "Largas", href: "/mujer?estilo=largas", description: "Sobre la rodilla, fashion" },
+          { label: "Exóticas", href: "/mujer?estilo=exoticas", description: "Avestruz, cocodrilo, pitón" },
         ],
       },
     ],
@@ -75,8 +75,8 @@ const MENU: MenuItem[] = [
       {
         title: "Por estilo",
         links: [
-          { label: "Vaqueras", href: "/nino", description: "Mini-vaqueras" },
-          { label: "Clásicas", href: "/nino", description: "Caña media, casual" },
+          { label: "Vaqueras", href: "/nino?estilo=vaqueras", description: "Mini-vaqueras" },
+          { label: "Clásicas", href: "/nino?estilo=clasicas", description: "Caña media, casual" },
         ],
       },
     ],
@@ -99,11 +99,8 @@ const MENU: MenuItem[] = [
       },
     ],
   },
-  {
-    label: "Outlet",
-    href: "/outlet",
-    highlight: true,
-  },
+  // Outlet oculto hasta que haya productos con compareAtPrice.
+  // Para reactivarlo: descomentar aquí + en MobileNav.tsx (QUICK_LINKS).
 ]
 
 const CLOSE_DELAY_MS = 150

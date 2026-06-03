@@ -1,3 +1,4 @@
+import { Suspense } from "react"
 import { notFound } from "next/navigation"
 import Link from "next/link"
 import Image from "next/image"
@@ -5,6 +6,7 @@ import { Header } from "@/components/Header"
 import { Footer } from "@/components/Footer"
 import { ProductsListing } from "@/components/ProductsListing"
 import { getBrands, getProductsByVendor } from "@/lib/shopify"
+import { pageMetadata } from "@/lib/seo"
 
 /**
  * Página individual de marca. Static via generateStaticParams —
@@ -94,7 +96,9 @@ export default async function MarcaPage({ params }: Props) {
               </Link>
             </div>
           ) : (
-            <ProductsListing products={products} />
+            <Suspense fallback={<div className="min-h-[400px]" />}>
+              <ProductsListing products={products} />
+            </Suspense>
           )}
         </div>
       </main>
@@ -108,8 +112,9 @@ export async function generateMetadata({ params }: Props) {
   const brands = await getBrands()
   const brand = brands.find((b) => b.handle === handle)
   if (!brand) return { title: "Marca no encontrada" }
-  return {
-    title: `${brand.name} — BotasLeón`,
+  return pageMetadata({
+    path: `/marcas/${handle}`,
+    title: brand.name,
     description: brand.tagline || `Botas de ${brand.name} hechas en León.`,
-  }
+  })
 }

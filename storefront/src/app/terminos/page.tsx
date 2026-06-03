@@ -1,4 +1,5 @@
 import { ContentPage } from "@/components/ContentPage"
+import { pageMetadata } from "@/lib/seo"
 
 export default function TerminosPage() {
   return (
@@ -84,6 +85,9 @@ export default function TerminosPage() {
   )
 }
 
-export const metadata = {
-  title: "Términos y condiciones — BotasLeón",
-}
+export const metadata = pageMetadata({
+  path: "/terminos",
+  title: "Términos y condiciones",
+  description:
+    "Términos de uso del sitio y condiciones de venta de BotasLeón.",
+})

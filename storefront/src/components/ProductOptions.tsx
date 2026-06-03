@@ -1,8 +1,11 @@
 "use client"
 
-import { useMemo, useState } from "react"
+import { useEffect, useMemo, useRef, useState } from "react"
+import { createPortal } from "react-dom"
+import Image from "next/image"
 import { useCart } from "./CartProvider"
 import { formatSizeWithUs } from "@/lib/sizes"
+import { formatMoney } from "@/lib/utils"
 import type { Product } from "@/lib/shopify/types"
 
 const SIZE_OPTION_NAMES = ["Talla", "Talla del calzado", "Size"]
@@ -10,11 +13,10 @@ const SIZE_OPTION_NAMES = ["Talla", "Talla del calzado", "Size"]
 /**
  * ProductOptions — selector de variantes + botón Agregar al carrito.
  *
- * Por ahora el botón está deshabilitado con "Cart próximamente" porque
- * el cart system aún no está conectado (lo hacemos en el siguiente push,
- * client-side con localStorage). El selector de talla SÍ funciona
- * para que el cliente vea su variante elegida; cuando conectemos el
- * cart la talla seleccionada se envía a Shopify.
+ * Incluye una barra sticky mobile que aparece cuando el CTA principal
+ * sale del viewport (IntersectionObserver). La barra se renderiza vía
+ * createPortal a document.body para escapar cualquier containing block
+ * de transform/backdrop-filter en los ancestros del PDP. Solo md:hidden.
  *
  * Lógica de matching: cuando el usuario elige una talla buscamos la
  * variante exacta. Si no hay match exacto (combinación inexistente),
@@ -60,6 +62,88 @@ export function ProductOptions({ product }: Props) {
   // Handle del metaobject de "Sexo objetivo" — para conversión MX→US.
   // Solo aplica al option de Talla; otros options se muestran tal cual.
   const genderHandle = product.targetGender?.references?.edges?.[0]?.node?.handle ?? null
+
+  // === Sticky mobile bar ===
+  const ctaRef = useRef<HTMLButtonElement>(null)
+  const [showSticky, setShowSticky] = useState(false)
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => setMounted(true), [])
+
+  useEffect(() => {
+    const el = ctaRef.current
+    if (!el) return
+    const observer = new IntersectionObserver(
+      ([entry]) => setShowSticky(!entry.isIntersecting),
+      { threshold: 0, rootMargin: "0px 0px -10px 0px" }
+    )
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [])
+
+  const handleAdd = () => {
+    if (activeVariant && isAvailable) addItem(activeVariant.id, 1)
+  }
+
+  const ctaLabel = isPending
+    ? "Agregando..."
+    : isUnknownCombo
+      ? "Combinación no disponible"
+      : !isAvailable
+        ? "Agotado"
+        : "Agregar al carrito"
+
+  const stickyCtaLabel = isPending
+    ? "..."
+    : isUnknownCombo
+      ? "Elige talla"
+      : !isAvailable
+        ? "Agotado"
+        : "Agregar"
+
+  const price = product.priceRange.minVariantPrice
+
+  const stickyBar = (
+    <div
+      role="region"
+      aria-label="Acciones del producto"
+      className={`md:hidden fixed inset-x-0 bottom-0 z-40 bg-bg/95 backdrop-blur-xl backdrop-saturate-200 border-t border-border/60 shadow-[0_-8px_24px_rgba(0,0,0,0.06)] transition-transform duration-300 ${
+        showSticky ? "translate-y-0" : "translate-y-full pointer-events-none"
+      }`}
+      style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
+    >
+      <div className="flex items-center gap-3 p-3">
+        {product.featuredImage ? (
+          <div className="relative w-12 h-12 flex-shrink-0 bg-bg-alt overflow-hidden rounded-sm">
+            <Image
+              src={product.featuredImage.url}
+              alt=""
+              fill
+              sizes="48px"
+              className="object-cover"
+            />
+          </div>
+        ) : null}
+        <div className="flex-1 min-w-0">
+          <p className="text-xs text-text font-medium truncate leading-tight">
+            {product.title}
+          </p>
+          <p className="text-sm font-medium text-leather mt-0.5">
+            {formatMoney(price.amount, price.currencyCode)}
+          </p>
+        </div>
+        <button
+          type="button"
+          onClick={handleAdd}
+          disabled={!isAvailable || isPending || isUnknownCombo}
+          aria-label={ctaLabel}
+          className="px-5 py-3 bg-leather text-bg text-xs uppercase tracking-wider font-medium hover:bg-text disabled:bg-text-subtle disabled:cursor-not-allowed transition-colors whitespace-nowrap"
+        >
+          {stickyCtaLabel}
+        </button>
+      </div>
+    </div>
+  )
 
   return (
     <div className="space-y-6">
@@ -139,23 +223,20 @@ export function ProductOptions({ product }: Props) {
       )}
 
       <button
+        ref={ctaRef}
         type="button"
-        onClick={() => activeVariant && isAvailable && addItem(activeVariant.id, 1)}
+        onClick={handleAdd}
         disabled={!isAvailable || isPending || isUnknownCombo}
         className="w-full py-4 bg-leather text-bg text-sm uppercase tracking-widest hover:bg-text disabled:bg-text-subtle disabled:cursor-not-allowed transition-colors"
       >
-        {isPending
-          ? "Agregando..."
-          : isUnknownCombo
-            ? "Combinación no disponible"
-            : !isAvailable
-              ? "Agotado"
-              : "Agregar al carrito"}
+        {ctaLabel}
       </button>
 
       <p className="text-xs text-text-muted text-center">
         Envío MX 3-5 días · Cambio de talla sin costo
       </p>
+
+      {mounted ? createPortal(stickyBar, document.body) : null}
     </div>
   )
 }

@@ -1,4 +1,5 @@
 import { ContentPage } from "@/components/ContentPage"
+import { pageMetadata } from "@/lib/seo"
 
 export default function GuiaTallasPage() {
   return (
@@ -100,6 +101,9 @@ export default function GuiaTallasPage() {
   )
 }
 
-export const metadata = {
-  title: "Guía de tallas — BotasLeón",
-}
+export const metadata = pageMetadata({
+  path: "/guia-tallas",
+  title: "Guía de tallas",
+  description:
+    "Tabla de equivalencias MX ↔ US para botas de hombre, mujer y niños. Cómo medir tu pie.",
+})

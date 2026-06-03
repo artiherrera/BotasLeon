@@ -1,4 +1,5 @@
 import { ContentPage } from "@/components/ContentPage"
+import { pageMetadata } from "@/lib/seo"
 
 export default function ProveedoresPage() {
   return (
@@ -55,6 +56,9 @@ export default function ProveedoresPage() {
   )
 }
 
-export const metadata = {
-  title: "Proveedores — BotasLeón",
-}
+export const metadata = pageMetadata({
+  path: "/proveedores",
+  title: "Trabaja con nosotros",
+  description:
+    "Eres taller en León? Aplica para comercializar tus botas en BotasLeón.",
+})

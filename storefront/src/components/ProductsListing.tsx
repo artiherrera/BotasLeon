@@ -1,6 +1,7 @@
 "use client"
 
-import { useMemo, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
+import { useSearchParams } from "next/navigation"
 import { ProductCard } from "./ProductCard"
 import { EmptyProductsState } from "./EmptyState"
 import type { Product } from "@/lib/shopify/types"
@@ -28,6 +29,9 @@ type Props = {
 }
 
 const SIZE_OPTION_NAMES = ["Talla", "Talla del calzado", "Size"]
+
+const normalize = (s: string) =>
+  s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().trim()
 
 type FilterState = {
   vendors: Set<string>
@@ -73,9 +77,41 @@ const SORT_LABELS: Record<SortKey, string> = {
 }
 
 export function ProductsListing({ products }: Props) {
+  // Lectura del filtro de subcategoría directo desde la URL.
+  // useSearchParams se re-evalúa en cada navegación dentro del mismo
+  // segmento (ej. /hombre?estilo=vaqueras → /hombre?estilo=clasicas),
+  // cosa que un prop server-side no hace porque el client component
+  // no se remonta. .get() ya devuelve solo el primer valor → cubre el
+  // edge case ?estilo=a&estilo=b. Trim por si llega con espacios.
+  const searchParams = useSearchParams()
+  const estilo = searchParams.get("estilo")?.trim() ?? ""
+
   const [filters, setFilters] = useState<FilterState>(EMPTY_FILTERS)
   const [sortKey, setSortKey] = useState<SortKey>("default")
   const [mobileOpen, setMobileOpen] = useState(false)
+
+  // Sincroniza el filtro types con ?estilo de la URL.
+  // - Cuando estilo cambia a un valor no vacío: reseteamos TODOS los filtros
+  //   y aplicamos solo el matching productType. Es un cambio de subcategoría
+  //   de nav (top-level), no un toggle del sidebar — limpiar es lo correcto.
+  // - Cuando estilo está vacío: no tocamos nada, para no pisar filtros que
+  //   el usuario haya armado manualmente.
+  // - Si no encontramos match para el estilo (productType inexistente),
+  //   usamos el valor crudo como sentinela → empty state "Sin resultados".
+  useEffect(() => {
+    if (!estilo) return
+    const target = normalize(estilo)
+    const matching = new Set(
+      products
+        .map((p) => p.productType)
+        .filter(Boolean)
+        .filter((t) => normalize(t) === target)
+    )
+    setFilters({
+      ...EMPTY_FILTERS,
+      types: matching.size > 0 ? matching : new Set([estilo]),
+    })
+  }, [estilo, products])
 
   // === Facetas — qué opciones mostrar en sidebar ===
 

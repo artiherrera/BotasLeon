@@ -1,6 +1,7 @@
 import Link from "next/link"
 import { Header } from "@/components/Header"
 import { Footer } from "@/components/Footer"
+import { pageMetadata } from "@/lib/seo"
 
 export default function OutletPage() {
   return (
@@ -29,7 +30,8 @@ export default function OutletPage() {
   )
 }
 
-export const metadata = {
-  title: "Outlet — BotasLeón",
+export const metadata = pageMetadata({
+  path: "/outlet",
+  title: "Outlet",
   description: "Botas con descuento y ofertas especiales en BotasLeón.",
-}
+})
