@@ -5,6 +5,7 @@ import { CartProvider } from "@/components/CartProvider"
 import { CartDrawer } from "@/components/CartDrawer"
 import { Toast } from "@/components/Toast"
 import { CookiesBanner } from "@/components/CookiesBanner"
+import { AnnouncementBar } from "@/components/AnnouncementBar"
 import { OrganizationJsonLd, WebsiteJsonLd } from "@/components/StructuredData"
 import { SITE_URL, SITE_NAME, SITE_DESCRIPTION } from "@/lib/seo"
 import "./globals.css"
@@ -108,6 +109,9 @@ export default function RootLayout({
       className={`${bevan.variable} ${zilla.variable} ${inter.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-bg text-text">
+        {/* Promo bar arriba de TODO — captura email/atención. Dismissible. */}
+        <AnnouncementBar />
+
         {/* JSON-LD Schema.org global — Organization + WebSite con search */}
         <OrganizationJsonLd />
         <WebsiteJsonLd />

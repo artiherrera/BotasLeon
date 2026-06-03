@@ -84,8 +84,8 @@ export default async function HomePage() {
 
         <FAQAccordion />
 
-        {/* Newsletter */}
-        <section className="mx-auto max-w-7xl px-6 py-20">
+        {/* Newsletter — id newsletter para scroll-target del AnnouncementBar */}
+        <section id="newsletter" className="mx-auto max-w-7xl px-6 py-20 scroll-mt-24">
           <div className="border border-border p-10 md:p-16 text-center bg-bg-alt">
             <p className="eyebrow text-leather mb-3">Newsletter</p>
             <h3 className="font-heading text-2xl md:text-3xl text-text mb-3">
