@@ -56,10 +56,8 @@ export function AnnouncementBar() {
           onClick={handleClick}
           className="flex-1 text-center text-[12px] md:text-sm tracking-wide hover:text-gold transition-colors"
         >
-          <span className="hidden sm:inline">🎁 </span>
-          Suscríbete y recibe{" "}
-          <span className="font-semibold text-gold">10% en tu primera compra</span>{" "}
-          <span className="hidden md:inline">— sin spam, prometido</span>
+          Nuevos modelos y ofertas, antes que nadie.{" "}
+          <span className="font-semibold text-gold">Suscríbete</span>
           <span aria-hidden className="ml-2">→</span>
         </a>
         <button
