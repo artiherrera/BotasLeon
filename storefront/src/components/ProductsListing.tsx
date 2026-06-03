@@ -84,7 +84,7 @@ export function ProductsListing({ products }: Props) {
   // no se remonta. .get() ya devuelve solo el primer valor → cubre el
   // edge case ?estilo=a&estilo=b. Trim por si llega con espacios.
   const searchParams = useSearchParams()
-  const estilo = searchParams.get("estilo")?.trim() ?? ""
+  const estilo = searchParams?.get("estilo")?.trim() ?? ""
 
   const [filters, setFilters] = useState<FilterState>(EMPTY_FILTERS)
   const [sortKey, setSortKey] = useState<SortKey>("default")
