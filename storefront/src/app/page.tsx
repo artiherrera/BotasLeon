@@ -10,7 +10,14 @@ import { LatestByGenderTabs } from "@/components/LatestByGenderTabs"
 import { NewsletterForm } from "@/components/NewsletterForm"
 import { FAQJsonLd } from "@/components/StructuredData"
 import { FAQS } from "@/lib/faqs"
+import { absoluteUrl } from "@/lib/seo"
 import { getHeroSlides, getProductsByTaxonomy } from "@/lib/shopify"
+
+// Canonical para el home (las páginas hijas ya lo tienen vía pageMetadata).
+// El title default y description vienen del layout — no los reescribimos.
+export const metadata = {
+  alternates: { canonical: absoluteUrl("/") },
+}
 
 /**
  * Home page (server component, Next.js 16).

@@ -54,9 +54,11 @@ export function LatestByGenderTabs({ hombreProducts, mujerProducts }: Props) {
         <EmptyProductsState
           title="Próximamente"
           description={
-            active === "hombre"
-              ? "Aún no hay productos de hombre. Sube alguno con el metacampo 'Sexo objetivo: Masculino'."
-              : "Aún no hay productos de mujer. Sube alguno con el metacampo 'Sexo objetivo: Femenino'."
+            process.env.NODE_ENV === "development"
+              ? active === "hombre"
+                ? "Aún no hay productos de hombre. Sube alguno con el metacampo 'Sexo objetivo: Masculino'."
+                : "Aún no hay productos de mujer. Sube alguno con el metacampo 'Sexo objetivo: Femenino'."
+              : "Estamos cargando las primeras botas de esta categoría. Mientras tanto, explora el resto del catálogo."
           }
         />
       ) : (
