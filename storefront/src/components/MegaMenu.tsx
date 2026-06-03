@@ -171,10 +171,16 @@ export function MegaMenu() {
         ))}
       </nav>
 
-      {/* Panel desplegable — full-width debajo del header */}
+      {/* Panel desplegable — full-width debajo del header.
+          Liquid frost: bg-bg/95 sólido para fallback, /80 con backdrop-filter
+          → frosted glass legible. shadow-2xl + border-leather/15 dan
+          definición clara contra el contenido detrás. */}
       {showPanel && activeItem && (
         <div
-          className="absolute left-0 right-0 top-full bg-bg/85 backdrop-blur-xl backdrop-saturate-150 border-b border-border/50 shadow-xl z-30"
+          className="absolute left-0 right-0 top-full
+            bg-bg/95 backdrop-blur-2xl backdrop-saturate-200
+            supports-[backdrop-filter]:bg-bg/80
+            border-b border-leather/15 shadow-2xl z-30"
           onMouseEnter={cancelClose}
           onMouseLeave={scheduleClose}
         >
