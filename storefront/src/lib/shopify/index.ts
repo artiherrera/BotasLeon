@@ -17,28 +17,45 @@ import {
   GET_BRANDS_QUERY,
   SHOP_INFO_QUERY,
 } from "./queries"
-import type { Product, Collection, HeroSlide, Image, Brand } from "./types"
+import type { Product, Collection, HeroSlide, Image, Brand, PageInfo } from "./types"
 
 type Edge<T> = { edges: Array<{ node: T }> }
+type Connection<T> = Edge<T> & { pageInfo: PageInfo }
+
+export type ProductSortKey =
+  | "TITLE"
+  | "PRICE"
+  | "BEST_SELLING"
+  | "CREATED_AT"
+  | "UPDATED_AT"
+  | "RELEVANCE"
 
 // === Productos ===
 
+// Cursor pagination — devuelve el batch + pageInfo para que el caller
+// pueda hacer "Cargar más" pasando endCursor como `after`. Los callers
+// que solo necesitan el array destructuran `{ products }`.
 export async function getProducts(opts?: {
   first?: number
+  after?: string | null
   query?: string
-  sortKey?: "TITLE" | "PRICE" | "BEST_SELLING" | "CREATED_AT" | "UPDATED_AT" | "RELEVANCE"
-}): Promise<Product[]> {
-  type Resp = { products: Edge<Product> }
+  sortKey?: ProductSortKey
+}): Promise<{ products: Product[]; pageInfo: PageInfo }> {
+  type Resp = { products: Connection<Product> }
   const data = await shopifyFetch<Resp>(
     GET_PRODUCTS_QUERY,
     {
       first: opts?.first ?? 24,
+      after: opts?.after ?? null,
       query: opts?.query,
       sortKey: opts?.sortKey ?? "BEST_SELLING",
     },
     { tags: ["products"] }
   )
-  return data.products.edges.map((e) => e.node)
+  return {
+    products: data.products.edges.map((e) => e.node),
+    pageInfo: data.products.pageInfo,
+  }
 }
 
 export async function getProductByHandle(handle: string): Promise<Product | null> {
@@ -166,7 +183,8 @@ export async function getProductsByVendor(
   first = 48
 ): Promise<Product[]> {
   const escaped = vendor.replace(/"/g, '\\"')
-  return getProducts({ first, query: `vendor:"${escaped}"` })
+  const { products } = await getProducts({ first, query: `vendor:"${escaped}"` })
+  return products
 }
 
 // === Products por taxonomy (gender, age-group) ===

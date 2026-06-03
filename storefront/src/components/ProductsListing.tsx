@@ -4,7 +4,8 @@ import { useEffect, useMemo, useState } from "react"
 import { useSearchParams } from "next/navigation"
 import { ProductCard } from "./ProductCard"
 import { EmptyProductsState } from "./EmptyState"
-import type { Product } from "@/lib/shopify/types"
+import { loadMoreProducts } from "@/lib/search/client"
+import type { Product, PageInfo } from "@/lib/shopify/types"
 
 /**
  * ProductsListing — grid con sidebar de filtros (estilo Amazon).
@@ -30,6 +31,11 @@ type Props = {
   // Tiene precedencia sobre ?estilo= legacy. Si está ausente, caemos al
   // query-string para no romper bookmarks viejos.
   initialStyle?: string
+  // Cursor pagination — solo pasado desde /products. Cuando está presente
+  // (y no hay filtros activos), renderizamos botón "Cargar más" que llama
+  // a loadMoreProducts. Si las rutas /hombre, /mujer, /nino, /marcas/X
+  // adoptan paginación en el futuro, pueden pasarlo también.
+  initialPageInfo?: PageInfo
 }
 
 const SIZE_OPTION_NAMES = ["Talla", "Talla del calzado", "Size"]
@@ -80,13 +86,29 @@ const SORT_LABELS: Record<SortKey, string> = {
   titulo: "Nombre: A → Z",
 }
 
-export function ProductsListing({ products, initialStyle }: Props) {
+export function ProductsListing({ products, initialStyle, initialPageInfo }: Props) {
   // Dos fuentes de "estilo activo":
   //   1. initialStyle (server-driven, vía sub-ruta /hombre/vaqueras).
   //   2. ?estilo= legacy en query string (bookmarks viejos, links externos).
   // Precedencia: initialStyle > ?estilo=. searchParams se mantiene como
   // fallback y para detectar cambios dentro del mismo segmento padre.
   const searchParams = useSearchParams()
+
+  // Estado paginación — `allProducts` arranca con el batch SSG y crece
+  // cuando el usuario hace "Cargar más". `pageInfo` controla si seguimos
+  // mostrando el botón. Solo aplicable cuando viene initialPageInfo
+  // (= la ruta /products lo pasa); las páginas que no paginan dejan ambos
+  // estáticos.
+  const [allProducts, setAllProducts] = useState<Product[]>(products)
+  const [pageInfo, setPageInfo] = useState<PageInfo | undefined>(initialPageInfo)
+  const [loadingMore, setLoadingMore] = useState(false)
+
+  // Si el server re-renderiza con un batch fresco (revalidate 60s o
+  // navegación cliente que vuelve a entrar), resetamos.
+  useEffect(() => {
+    setAllProducts(products)
+    setPageInfo(initialPageInfo)
+  }, [products, initialPageInfo])
 
   const [filters, setFilters] = useState<FilterState>(() => {
     const initial = initialStyle ?? searchParams?.get("estilo")?.trim() ?? ""
@@ -139,7 +161,7 @@ export function ProductsListing({ products, initialStyle }: Props) {
     const colorMap = new Map<string, string>()
     const materialMap = new Map<string, string>()
 
-    for (const p of products) {
+    for (const p of allProducts) {
       if (p.vendor) vendors.add(p.vendor)
       if (p.productType) types.add(p.productType)
       const sizeOpt = (p.options ?? []).find((o) =>
@@ -171,12 +193,12 @@ export function ProductsListing({ products, initialStyle }: Props) {
         .map(([handle, label]) => ({ handle, label }))
         .sort((a, b) => a.label.localeCompare(b.label)),
     }
-  }, [products])
+  }, [allProducts])
 
   // === Productos filtrados ===
 
   const filtered = useMemo(() => {
-    return products.filter((p) => {
+    return allProducts.filter((p) => {
       if (filters.onlyAvailable && !p.availableForSale) return false
 
       if (filters.vendors.size > 0 && !filters.vendors.has(p.vendor)) return false
@@ -204,7 +226,7 @@ export function ProductsListing({ products, initialStyle }: Props) {
 
       return true
     })
-  }, [products, filters])
+  }, [allProducts, filters])
 
   // Sort después de filtrar — default conserva el orden del server (BEST_SELLING).
   // Hacemos copia para no mutar el array filtrado.
@@ -333,7 +355,7 @@ export function ProductsListing({ products, initialStyle }: Props) {
                     />
                     <span className="flex-1">{vendor}</span>
                     <span className="text-xs text-text-subtle">
-                      {products.filter((p) => p.vendor === vendor).length}
+                      {allProducts.filter((p) => p.vendor === vendor).length}
                     </span>
                   </label>
                 ))}
@@ -355,7 +377,7 @@ export function ProductsListing({ products, initialStyle }: Props) {
                     />
                     <span className="flex-1">{type}</span>
                     <span className="text-xs text-text-subtle">
-                      {products.filter((p) => p.productType === type).length}
+                      {allProducts.filter((p) => p.productType === type).length}
                     </span>
                   </label>
                 ))}
@@ -449,7 +471,7 @@ export function ProductsListing({ products, initialStyle }: Props) {
           <p className="text-sm text-text-muted">
             {sorted.length} producto{sorted.length === 1 ? "" : "s"}
             {activeCount > 0 && (
-              <span className="text-text-subtle"> de {products.length}</span>
+              <span className="text-text-subtle"> de {allProducts.length}</span>
             )}
           </p>
 
@@ -515,11 +537,52 @@ export function ProductsListing({ products, initialStyle }: Props) {
             />
           )
         ) : (
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-10">
-            {sorted.map((p) => (
-              <ProductCard key={p.id} product={p} />
-            ))}
-          </div>
+          <>
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-10">
+              {sorted.map((p) => (
+                <ProductCard key={p.id} product={p} />
+              ))}
+            </div>
+
+            {/* Cursor pagination — solo cuando hay más Y no hay filtros.
+                Si el usuario está filtrando, "Cargar más" traería productos
+                que probablemente no cumplen el filtro (mala UX); mejor le
+                pedimos limpiar primero. */}
+            {pageInfo?.hasNextPage && activeCount === 0 && (
+              <div className="text-center mt-12">
+                <button
+                  type="button"
+                  disabled={loadingMore || !pageInfo.endCursor}
+                  onClick={async () => {
+                    if (!pageInfo?.endCursor || loadingMore) return
+                    setLoadingMore(true)
+                    try {
+                      const next = await loadMoreProducts({
+                        after: pageInfo.endCursor,
+                        first: 24,
+                        sortKey: "BEST_SELLING",
+                      })
+                      setAllProducts((prev) => [...prev, ...next.products])
+                      setPageInfo(next.pageInfo)
+                    } catch (e) {
+                      console.error("loadMoreProducts failed", e)
+                    } finally {
+                      setLoadingMore(false)
+                    }
+                  }}
+                  className="inline-flex items-center gap-2 px-8 py-4 border border-leather text-leather text-sm uppercase tracking-wider hover:bg-leather hover:text-bg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {loadingMore ? "Cargando..." : "Cargar más productos"}
+                </button>
+              </div>
+            )}
+
+            {pageInfo?.hasNextPage && activeCount > 0 && (
+              <div className="text-center mt-8 text-xs text-text-subtle">
+                Limpia los filtros para ver más productos.
+              </div>
+            )}
+          </>
         )}
       </div>
     </div>

@@ -1,5 +1,6 @@
 import { ProductCard } from "@/components/ProductCard"
 import { getProducts } from "@/lib/shopify"
+import type { Product } from "@/lib/shopify/types"
 
 /**
  * RelatedProducts — grid de 4 productos relacionados al final del PDP.
@@ -18,17 +19,17 @@ type Props = {
 }
 
 export async function RelatedProducts({ currentHandle, vendor }: Props) {
-  let products = [] as Awaited<ReturnType<typeof getProducts>>
+  let products: Product[] = []
 
   if (vendor) {
-    const sameVendor = await getProducts({ first: 8 })
+    const { products: sameVendor } = await getProducts({ first: 8 })
     products = sameVendor
       .filter((p) => p.vendor === vendor && p.handle !== currentHandle)
       .slice(0, 4)
   }
 
   if (products.length < 1) {
-    const fallback = await getProducts({ first: 4 })
+    const { products: fallback } = await getProducts({ first: 4 })
     products = fallback.filter((p) => p.handle !== currentHandle).slice(0, 4)
   }
 

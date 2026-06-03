@@ -11,6 +11,15 @@ export type Money = {
   currencyCode: "MXN" | "USD" | string
 }
 
+// Cursor pagination — devuelto por queries de listing (products, collections)
+// que soportan first/after. `endCursor` es el cursor del último edge en la
+// respuesta actual; lo pasamos como `after` en la siguiente request para
+// obtener la próxima página. `hasNextPage: false` indica que ya no hay más.
+export type PageInfo = {
+  hasNextPage: boolean
+  endCursor: string | null
+}
+
 export type Image = {
   url: string
   altText: string | null

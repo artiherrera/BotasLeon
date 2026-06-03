@@ -99,10 +99,19 @@ export const PRODUCT_DETAIL_FRAGMENT = /* GraphQL */ `
 // ───── Queries ─────
 
 export const GET_PRODUCTS_QUERY = /* GraphQL */ `
-  query GetProducts($first: Int!, $query: String, $sortKey: ProductSortKeys) {
-    products(first: $first, query: $query, sortKey: $sortKey) {
+  query GetProducts(
+    $first: Int!
+    $after: String
+    $query: String
+    $sortKey: ProductSortKeys
+  ) {
+    products(first: $first, after: $after, query: $query, sortKey: $sortKey) {
       edges {
         node { ...ProductCardFields }
+      }
+      pageInfo {
+        hasNextPage
+        endCursor
       }
     }
   }

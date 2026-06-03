@@ -21,7 +21,9 @@ export default async function MarcasPage() {
   // ese vendor. Una sola query para todos los productos para no hacer
   // N+1 fetches.
   const products = brands.length > 0
-    ? await getProducts({ first: 200 }).catch(() => [])
+    ? await getProducts({ first: 200 })
+        .then((r) => r.products)
+        .catch(() => [])
     : []
 
   const productCountByName = new Map<string, number>()

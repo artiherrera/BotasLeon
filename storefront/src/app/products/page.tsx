@@ -3,19 +3,27 @@ import { Header } from "@/components/Header"
 import { Footer } from "@/components/Footer"
 import { ProductsListing } from "@/components/ProductsListing"
 import { getProducts } from "@/lib/shopify"
+import type { Product, PageInfo } from "@/lib/shopify/types"
 import { pageMetadata } from "@/lib/seo"
 
 /**
- * Listing global de productos. Server fetcha → pasa a ProductsListing
- * (client) que maneja filtros. Página estática con revalidate de 60s.
+ * Listing global de productos. Server fetcha el primer batch → pasa a
+ * ProductsListing (client) que maneja filtros + "Cargar más" (cursor
+ * pagination) llamando a Shopify directo. Página estática con
+ * revalidate de 60s.
+ *
+ * Initial first=24 para LCP rápido; siguientes batches via loadMoreProducts.
  */
 export const revalidate = 60
 
 export default async function ProductsPage() {
-  let products: Awaited<ReturnType<typeof getProducts>> = []
+  let products: Product[] = []
+  let pageInfo: PageInfo | undefined
   let fetchError: string | null = null
   try {
-    products = await getProducts({ first: 48, sortKey: "BEST_SELLING" })
+    const res = await getProducts({ first: 24, sortKey: "BEST_SELLING" })
+    products = res.products
+    pageInfo = res.pageInfo
   } catch (e) {
     fetchError = e instanceof Error ? e.message : String(e)
   }
@@ -43,7 +51,7 @@ export default async function ProductsPage() {
             </div>
           ) : (
             <Suspense fallback={<div className="min-h-[400px]" />}>
-              <ProductsListing products={products} />
+              <ProductsListing products={products} initialPageInfo={pageInfo} />
             </Suspense>
           )}
         </div>

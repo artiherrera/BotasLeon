@@ -38,7 +38,7 @@ type Props = {
 
 export async function generateStaticParams() {
   try {
-    const products = await getProducts({ first: 100 })
+    const { products } = await getProducts({ first: 100 })
     return products.map((p) => ({ handle: p.handle }))
   } catch {
     return []
