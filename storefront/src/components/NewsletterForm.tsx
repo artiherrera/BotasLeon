@@ -76,11 +76,7 @@ export function NewsletterForm() {
           className="px-6 py-3 bg-leather text-bg font-medium hover:bg-text transition-colors disabled:opacity-60"
           aria-label="Suscribirme y recibir mi cupón de 10%"
         >
-          {status === "loading"
-            ? "Enviando..."
-            : status === "success"
-              ? "¡Listo! Revisa tu correo."
-              : "Suscribirme"}
+          {status === "loading" ? "Enviando..." : "Suscribirme"}
         </button>
         {error && (
           <p className="text-xs text-red-700 sm:w-full mt-1" role="alert">
