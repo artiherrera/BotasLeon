@@ -1,4 +1,3 @@
-import Link from "next/link"
 import { Header } from "@/components/Header"
 import { Footer } from "@/components/Footer"
 import { HeroCarousel } from "@/components/HeroCarousel"
@@ -8,6 +7,7 @@ import { BrandGrid } from "@/components/BrandGrid"
 import { FAQAccordion } from "@/components/FAQAccordion"
 import { LatestByGenderTabs } from "@/components/LatestByGenderTabs"
 import { NewsletterForm } from "@/components/NewsletterForm"
+import { HechoEnLeonStrip } from "@/components/HechoEnLeonStrip"
 import { FAQJsonLd } from "@/components/StructuredData"
 import { FAQS } from "@/lib/faqs"
 import { absoluteUrl } from "@/lib/seo"
@@ -22,22 +22,28 @@ export const metadata = {
 /**
  * Home page (server component, Next.js 16).
  *
- * Orden (re-jerarquizado):
+ * Orden re-jerarquizado para conversión (productos visibles en viewport 2):
  *   1. Header sticky
- *   2. HeroCarousel — 3 slides Metaobjects con Ken Burns
- *   3. MarqueeBar — cintillo trust con 4 mensajes
- *   4. CategoryShowcase — 3 cards Hombre/Mujer/Niños
- *   5. BrandGrid — Marcas que comercializamos (Metaobjects)
- *   6. LatestByGenderTabs — Lo más nuevo con tabs Hombre/Mujer
- *   7. Storytelling "Hecho en León" — brand anchor antes del cierre
+ *   2. MarqueeBar — trust strip arriba del Hero (MSI · envío · cambios)
+ *   3. HeroCarousel — 3 slides Metaobjects con Ken Burns (intacto)
+ *   4. LatestByGenderTabs — productos reales JUSTO después del Hero
+ *   5. CategoryShowcase — 3 cards Hombre/Mujer/Niños
+ *   6. BrandGrid — Marcas (oculto cuando 0 marcas, curado cuando 1-3)
+ *   7. HechoEnLeonStrip — banda compacta 380 años · 7 de 10 · curadores
  *   8. FAQAccordion
  *   9. Newsletter
- *   10. Footer
+ *  10. Footer
  *
- * Eliminada la sección "Más vendidos" mientras el catálogo es chico
- * (mostraba los mismos productos que "Lo más nuevo" → redundante).
- * Cuando haya 20+ productos la re-introducimos con datos distintos
- * o cambiamos a "Curated" / "Editor's pick".
+ * Por qué este orden:
+ *  - MarqueeBar arriba del Hero = trust signals visibles en scroll 0 (patrón Zara/H&M).
+ *  - LatestByGenderTabs justo tras Hero = el usuario ve botas reales en viewport 2,
+ *    no después de 4-5 scrolls (antes la 1ª bota aparecía en pos 6).
+ *  - Storytelling 380 años pasa de sección XL (~700px) a strip horizontal (~250px) =
+ *    libera 1 viewport completo en mobile manteniendo la narrativa.
+ *
+ * La sección storytelling completa antigua se mantiene en git history; si en
+ * el futuro se quiere recuperar como "Acerca de" en /nosotros, restaurar desde
+ * commit anterior.
  */
 export default async function HomePage() {
   // Parallel fetch — hero + 2 grids por género en una pasada.
@@ -56,78 +62,25 @@ export default async function HomePage() {
           Botas mexicanas hechas en León — vaqueras, clásicas, exóticas y de
           rancho
         </h1>
-        <HeroCarousel slides={heroSlides} />
 
+        {/* Trust strip ARRIBA del Hero — patrón Zara/H&M/Liverpool */}
         <MarqueeBar />
 
-        <CategoryShowcase />
+        {/* Hero — intacto */}
+        <HeroCarousel slides={heroSlides} />
 
-        <BrandGrid />
-
+        {/* PRODUCTOS REALES en viewport 2 (antes pos 6, ahora pos 4) */}
         <LatestByGenderTabs
           hombreProducts={hombreProducts}
           mujerProducts={mujerProducts}
         />
 
-        {/* Storytelling Hecho en León — brand anchor antes del cierre */}
-        <section className="bg-leather text-bg py-24 md:py-32 relative overflow-hidden">
-          <div
-            className="absolute inset-0 opacity-20 mix-blend-overlay"
-            style={{
-              backgroundImage: `
-                radial-gradient(circle at 80% 20%, rgba(255,255,255,0.3) 0%, transparent 50%),
-                radial-gradient(circle at 20% 80%, rgba(0,0,0,0.4) 0%, transparent 50%)
-              `,
-            }}
-          />
+        <CategoryShowcase />
 
-          <div className="relative mx-auto max-w-5xl px-6">
-            <div className="grid grid-cols-1 md:grid-cols-12 gap-12 items-center">
-              <div className="md:col-span-7">
-                <p className="eyebrow text-gold mb-4">Origen</p>
-                <h2 className="font-display text-4xl md:text-5xl lg:text-6xl text-bg leading-[1.05] mb-8">
-                  Hecho en León,
-                  <br />
-                  Guanajuato.
-                </h2>
-                <p className="text-bg-alt text-lg leading-relaxed mb-6 max-w-xl">
-                  León lleva <strong className="text-bg">380 años</strong>{" "}
-                  haciendo calzado. Es la capital mundial del cuero — el lugar
-                  donde nacen 7 de cada 10 botas mexicanas.
-                </p>
-                <p className="text-bg-alt text-lg leading-relaxed mb-10 max-w-xl">
-                  Nosotros somos curadores: recorremos los talleres, verificamos
-                  cada par, y traemos solo lo que vale la pena, directo a tu
-                  puerta.
-                </p>
-                <Link
-                  href="/nosotros"
-                  className="inline-flex items-center px-8 py-4 border border-bg/40 text-bg hover:bg-bg/10 transition-colors"
-                >
-                  Conoce nuestra historia
-                  <span className="ml-2">→</span>
-                </Link>
-              </div>
+        <BrandGrid />
 
-              <div className="md:col-span-5">
-                <div className="aspect-[4/5] bg-gradient-to-br from-leather-light via-cognac to-terracotta-dark relative overflow-hidden">
-                  <div
-                    className="absolute inset-0 opacity-30 mix-blend-overlay"
-                    style={{
-                      backgroundImage: `radial-gradient(circle at 50% 50%, rgba(255,255,255,0.4) 0%, transparent 70%)`,
-                    }}
-                  />
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="text-center">
-                      <p className="font-display text-7xl text-bg mb-2">380</p>
-                      <p className="eyebrow text-bg/80">Años de tradición</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
+        {/* Storytelling compacto — banda horizontal en lugar de sección XL */}
+        <HechoEnLeonStrip />
 
         <FAQAccordion />
 
