@@ -273,6 +273,40 @@ export const GET_HERO_SLIDES_QUERY = /* GraphQL */ `
   ${IMAGE_FRAGMENT}
 `
 
+// Category cards — Metaobjects tipo "category_card". Cards del home
+// (Hombre/Mujer/Niños) gestionadas desde Shopify admin para que el
+// admin pueda cambiar la foto/copy por temporada sin tocar código.
+//
+// Fields del metaobject:
+//   - image (File) — opcional; sin imagen el componente usa gradient
+//   - eyebrow (single line text)
+//   - title (single line text)
+//   - description (single line text)
+//   - link_url (link/URL — JSON `{"url":"..."}`)
+//   - sort_order (integer)
+//   - is_active (boolean)
+export const GET_CATEGORY_CARDS_QUERY = /* GraphQL */ `
+  query GetCategoryCards {
+    metaobjects(type: "category_card", first: 12) {
+      edges {
+        node {
+          handle
+          fields {
+            key
+            value
+            reference {
+              ... on MediaImage {
+                image { ...ImageFields }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  ${IMAGE_FRAGMENT}
+`
+
 // Health check — no requiere datos reales, sirve para verificar
 // que el token funciona al conectar por primera vez.
 export const SHOP_INFO_QUERY = /* GraphQL */ `

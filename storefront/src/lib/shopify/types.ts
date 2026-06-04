@@ -123,6 +123,35 @@ export type Brand = {
   logo: Image | null
 }
 
+// Category card — Metaobject tipo "category_card". Maneja las tarjetas
+// del home (Hombre/Mujer/Niños) para que el admin pueda cambiar foto/copy
+// por temporada sin tocar código. Si no hay entries en Shopify, el
+// componente cae al hardcode anterior (gradients).
+//
+// Fields esperados del metaobject:
+//   - image (File reference) — opcional; sin imagen se usa gradient fallback
+//   - eyebrow (single line text)
+//   - title (single line text)
+//   - description (single line text)
+//   - link_url (link/URL) — Shopify lo guarda como JSON `{"url":"..."}`
+//   - sort_order (integer)
+//   - is_active (boolean)
+export type CategoryCard = {
+  handle: string
+  image: {
+    url: string
+    altText: string | null
+    width: number
+    height: number
+  } | null
+  eyebrow: string
+  title: string
+  description: string
+  href: string // pathname ya parseado desde link_url
+  sortOrder: number
+  isActive: boolean
+}
+
 export type Cart = {
   id: string
   checkoutUrl: string

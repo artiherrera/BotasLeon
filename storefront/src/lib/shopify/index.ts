@@ -15,9 +15,10 @@ import {
   GET_PRODUCTS_WITH_TAXONOMY_QUERY,
   GET_HERO_SLIDES_QUERY,
   GET_BRANDS_QUERY,
+  GET_CATEGORY_CARDS_QUERY,
   SHOP_INFO_QUERY,
 } from "./queries"
-import type { Product, Collection, HeroSlide, Image, Brand, PageInfo } from "./types"
+import type { Product, Collection, HeroSlide, Image, Brand, CategoryCard, PageInfo } from "./types"
 
 type Edge<T> = { edges: Array<{ node: T }> }
 type Connection<T> = Edge<T> & { pageInfo: PageInfo }
@@ -318,6 +319,64 @@ export async function getHeroSlides(): Promise<HeroSlide[]> {
     .filter((s) => s.active && s.slide.title) // saltar slides incompletos o desactivados
     .sort((a, b) => a.sortOrder - b.sortOrder)
     .map((s) => s.slide)
+}
+
+// === Category cards (Metaobjects) ===
+
+// Cards del home (Hombre/Mujer/Niños). Si Shopify no devuelve nada o
+// falla, el componente cae al hardcode con gradients — el home nunca
+// se rompe mientras el admin configura el metaobject.
+export async function getCategoryCards(): Promise<CategoryCard[]> {
+  type Resp = { metaobjects: Edge<MetaobjectNode> | null }
+  let data: Resp
+  try {
+    data = await shopifyFetch<Resp>(
+      GET_CATEGORY_CARDS_QUERY,
+      undefined,
+      { revalidate: 60 }
+    )
+  } catch (e) {
+    console.error("[getCategoryCards] fetch error:", e instanceof Error ? e.message : e)
+    return []
+  }
+
+  const nodes = data.metaobjects?.edges?.map((e) => e.node) ?? []
+  console.log(`[getCategoryCards] nodes recibidos: ${nodes.length}`)
+
+  const cards = nodes.map((node, idx) => {
+    const fieldMap = new Map(node.fields.map((f) => [f.key, f] as const))
+    const get = (key: string) => fieldMap.get(key)?.value ?? ""
+    const rawImage = fieldMap.get("image")?.reference?.image ?? null
+
+    // Coerción: Image.width/height son nullable en el schema general;
+    // para next/image necesitamos números. Si Shopify reporta null
+    // (raro pero posible para SVG sin dimensions), usamos un fallback
+    // proporcional al aspect-[4/5] del card (800×1000).
+    const image: CategoryCard["image"] = rawImage
+      ? {
+          url: rawImage.url,
+          altText: rawImage.altText,
+          width: rawImage.width ?? 800,
+          height: rawImage.height ?? 1000,
+        }
+      : null
+
+    const card: CategoryCard = {
+      handle: node.handle,
+      image,
+      eyebrow: get("eyebrow"),
+      title: get("title"),
+      description: get("description"),
+      href: parseHrefFromLinkField(get("link_url")) || "#",
+      sortOrder: Number(get("sort_order")) || idx,
+      isActive: get("is_active") !== "false",
+    }
+    return card
+  })
+
+  return cards
+    .filter((c) => c.isActive && c.title)
+    .sort((a, b) => a.sortOrder - b.sortOrder)
 }
 
 // === Health check ===
