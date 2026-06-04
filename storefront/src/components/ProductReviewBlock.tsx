@@ -83,10 +83,10 @@ export function ProductReviewBlock({ product }: { product: Product }) {
       ) : (
         <div className="flex flex-col gap-3">
           <p className="text-text font-medium">
-            Sé el primero en dejar una reseña
+            ¿Ya la tienes? Comparte tu experiencia
           </p>
           <p className="text-text-muted text-sm">
-            Comparte tu experiencia con esta bota y ayuda a otros clientes a decidir.
+            Tu reseña ayuda a otros clientes a decidir con confianza.
           </p>
           {reviewsUrl && (
             <a
@@ -95,7 +95,7 @@ export function ProductReviewBlock({ product }: { product: Product }) {
               rel="noopener noreferrer"
               className="self-start inline-flex items-center gap-2 mt-2 text-sm font-medium text-leather hover:text-leather-dark underline underline-offset-4"
             >
-              Escribir una reseña
+              Ir a reseñas
               <svg
                 width="14"
                 height="14"
