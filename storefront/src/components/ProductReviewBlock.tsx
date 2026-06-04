@@ -32,8 +32,11 @@ export function ProductReviewBlock({ product }: { product: Product }) {
   const count = product.judgemeReviewCount ?? null
   const hasReviews = rating !== null && rating > 0
 
-  const shopUrl = getJudgemeShopUrl()
-  const reviewsUrl = shopUrl ? `${shopUrl}/reviews?product=${encodeURIComponent(product.handle)}` : null
+  // shopUrl ya termina en /reviews/{subdomain} — agregar /reviews otra vez
+  // genera 404 (lo que vimos). Tampoco existe filtro ?product= público en
+  // Judge.me — el usuario aterriza en la lista completa de reseñas de la
+  // tienda y filtra desde ahí con el UI nativo de Judge.me.
+  const reviewsUrl = getJudgemeShopUrl()
 
   return (
     <section
