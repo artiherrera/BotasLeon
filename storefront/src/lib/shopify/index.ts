@@ -23,6 +23,59 @@ import type { Product, Collection, HeroSlide, Image, Brand, CategoryCard, PageIn
 type Edge<T> = { edges: Array<{ node: T }> }
 type Connection<T> = Edge<T> & { pageInfo: PageInfo }
 
+// === Judge.me parsing ===
+//
+// Shopify devuelve los metafields de Judge.me con shape `{ type, value }`.
+// El tipo más común para `reviews.rating` es `rating` (Shopify nativo),
+// cuyo `value` es JSON serializado: `{"value":"4.3","scale_min":"1.0","scale_max":"5.0"}`.
+// `reviews.rating_count` es `number_integer` y `value` es string "125".
+//
+// La función parsea de forma defensiva — si el JSON no se puede parsear
+// (porque Judge.me cambió el formato, o el metafield no existe), regresa
+// null y el frontend muestra "Sin reseñas aún".
+type RawMetafield = { type: string | null; value: string | null } | null
+
+type JudgemeMetafields = {
+  reviewsRating?: RawMetafield
+  reviewsRatingCount?: RawMetafield
+  judgemeBadge?: RawMetafield
+}
+
+function parseJudgemeRating(mf: RawMetafield): number | null {
+  if (!mf?.value) return null
+  try {
+    // type "rating" → JSON con { value, scale_min, scale_max }
+    if (mf.type === "rating") {
+      const parsed = JSON.parse(mf.value) as { value?: string | number }
+      const n = typeof parsed.value === "string" ? parseFloat(parsed.value) : Number(parsed.value)
+      return Number.isFinite(n) && n > 0 ? n : null
+    }
+    // Fallback: string plano "4.5"
+    const n = parseFloat(mf.value)
+    return Number.isFinite(n) && n > 0 ? n : null
+  } catch {
+    return null
+  }
+}
+
+function parseJudgemeCount(mf: RawMetafield): number | null {
+  if (!mf?.value) return null
+  try {
+    const n = parseInt(mf.value, 10)
+    return Number.isFinite(n) && n >= 0 ? n : null
+  } catch {
+    return null
+  }
+}
+
+function applyJudgeme<T extends JudgemeMetafields>(node: T): T & { judgemeRating: number | null; judgemeReviewCount: number | null } {
+  return {
+    ...node,
+    judgemeRating: parseJudgemeRating(node.reviewsRating ?? null),
+    judgemeReviewCount: parseJudgemeCount(node.reviewsRatingCount ?? null),
+  }
+}
+
 export type ProductSortKey =
   | "TITLE"
   | "PRICE"
@@ -42,7 +95,7 @@ export async function getProducts(opts?: {
   query?: string
   sortKey?: ProductSortKey
 }): Promise<{ products: Product[]; pageInfo: PageInfo }> {
-  type Resp = { products: Connection<Product> }
+  type Resp = { products: Connection<Product & JudgemeMetafields> }
   const data = await shopifyFetch<Resp>(
     GET_PRODUCTS_QUERY,
     {
@@ -54,7 +107,7 @@ export async function getProducts(opts?: {
     { tags: ["products"] }
   )
   return {
-    products: data.products.edges.map((e) => e.node),
+    products: data.products.edges.map((e) => applyJudgeme(e.node)),
     pageInfo: data.products.pageInfo,
   }
 }
@@ -65,7 +118,7 @@ export async function getProductByHandle(handle: string): Promise<Product | null
       | (Omit<Product, "images" | "variants"> & {
           images: Edge<Product["images"][number]>
           variants: Edge<Product["variants"][number]>
-        })
+        } & JudgemeMetafields)
       | null
   }
   const data = await shopifyFetch<Resp>(
@@ -75,11 +128,11 @@ export async function getProductByHandle(handle: string): Promise<Product | null
   )
   if (!data.product) return null
   const p = data.product
-  return {
+  return applyJudgeme({
     ...p,
     images: p.images.edges.map((e) => e.node),
     variants: p.variants.edges.map((e) => e.node),
-  }
+  })
 }
 
 // === Collections ===
@@ -119,7 +172,7 @@ export async function getCollectionByHandle(
     if (!data.collection) return null
     return {
       ...data.collection,
-      products: data.collection.products.edges.map((e) => e.node),
+      products: data.collection.products.edges.map((e) => applyJudgeme(e.node as Product & JudgemeMetafields)),
     }
   } catch (e) {
     console.error(`[getCollectionByHandle] handle=${handle}:`, e instanceof Error ? e.message : e)
@@ -205,7 +258,7 @@ export async function getProductsByTaxonomy(
   handle: string,
   first = 48
 ): Promise<Product[]> {
-  type ProductWithTaxonomy = Product & {
+  type ProductWithTaxonomy = Product & JudgemeMetafields & {
     gender?: { references?: { edges: Array<{ node: { handle: string } }> } } | null
     age?: { references?: { edges: Array<{ node: { handle: string } }> } } | null
   }
@@ -223,7 +276,7 @@ export async function getProductsByTaxonomy(
     return []
   }
 
-  const all = data.products.edges.map((e) => e.node)
+  const all = data.products.edges.map((e) => applyJudgeme(e.node))
   return all.filter((p) => {
     const refs = p[key]?.references?.edges ?? []
     return refs.some((r) => r.node.handle === handle)

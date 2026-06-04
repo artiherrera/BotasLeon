@@ -62,6 +62,23 @@ export const PRODUCT_CARD_FRAGMENT = /* GraphQL */ `
         edges { node { ... on Metaobject { handle fields { key value } } } }
       }
     }
+    # Judge.me metafields — solo existen DESPUÉS de la primera reseña recibida.
+    # Mientras la tienda no tenga reseñas, todos devuelven null y el frontend
+    # debe fallar graceful ("Sin reseñas aún"). Probamos ambos namespaces
+    # porque Judge.me escribe en 'reviews.*' (canónico Shopify) y el cliente
+    # podría también exponer 'judgeme.*' (badge HTML).
+    reviewsRating: metafield(namespace: "reviews", key: "rating") {
+      type
+      value
+    }
+    reviewsRatingCount: metafield(namespace: "reviews", key: "rating_count") {
+      type
+      value
+    }
+    judgemeBadge: metafield(namespace: "judgeme", key: "badge") {
+      type
+      value
+    }
   }
 `
 
@@ -92,6 +109,21 @@ export const PRODUCT_DETAIL_FRAGMENT = /* GraphQL */ `
       references(first: 5) {
         edges { node { ... on Metaobject { handle } } }
       }
+    }
+    # Judge.me metafields para PDP (mismos que en card; redeclarado porque
+    # PDP usa fragment separado). Si Judge.me no ha sincronizado aún,
+    # ProductReviewBlock muestra CTA "Sé el primero".
+    reviewsRating: metafield(namespace: "reviews", key: "rating") {
+      type
+      value
+    }
+    reviewsRatingCount: metafield(namespace: "reviews", key: "rating_count") {
+      type
+      value
+    }
+    judgemeBadge: metafield(namespace: "judgeme", key: "badge") {
+      type
+      value
     }
   }
 `

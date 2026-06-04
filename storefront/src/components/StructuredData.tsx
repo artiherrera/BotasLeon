@@ -80,6 +80,23 @@ export function ProductJsonLd({ product }: { product: Product }) {
       ? [product.featuredImage.url]
       : []
 
+  // aggregateRating activa rich snippets (estrellitas en SERPs Google).
+  // Solo se emite si Judge.me ya escribió los metafields — si no, Google
+  // recibe schema válido sin rating (mejor que rating fake). reviewCount
+  // es required por schema, así que omitimos todo el bloque si falta.
+  const rating = product.judgemeRating
+  const reviewCount = product.judgemeReviewCount
+  const aggregateRating =
+    typeof rating === "number" && rating > 0 && typeof reviewCount === "number" && reviewCount > 0
+      ? {
+          "@type": "AggregateRating",
+          ratingValue: rating,
+          reviewCount,
+          bestRating: 5,
+          worstRating: 1,
+        }
+      : undefined
+
   return (
     <JsonLd
       data={{
@@ -92,6 +109,7 @@ export function ProductJsonLd({ product }: { product: Product }) {
         brand: product.vendor
           ? { "@type": "Brand", name: product.vendor }
           : undefined,
+        aggregateRating,
         offers: {
           "@type": "AggregateOffer",
           priceCurrency: product.priceRange.minVariantPrice.currencyCode,

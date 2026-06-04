@@ -81,6 +81,12 @@ export type Product = {
   targetGender?: {
     references: { edges: Array<{ node: { handle: string } }> }
   } | null
+  // Judge.me — ratings parseados desde reviews.rating + reviews.rating_count.
+  // Pueden ser null si la tienda aún no tiene reseñas en Judge.me (no se
+  // crean los metafields hasta la primera review). El frontend debe fallar
+  // graceful: cards muestran "Sin reseñas aún" y PDP "Sé el primero".
+  judgemeRating?: number | null
+  judgemeReviewCount?: number | null
   // Metadata custom — para nuestro modelo "segmento" / "estilos"
   // (lo seteamos como tags hasta tener metafields)
   // segmento?: 'hombre' | 'mujer' | 'nino' | 'unisex'

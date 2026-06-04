@@ -2,6 +2,7 @@ import Image from "next/image"
 import Link from "next/link"
 import type { Product } from "@/lib/shopify/types"
 import { formatMoney } from "@/lib/utils"
+import { JudgemeStars } from "./JudgemeStars"
 
 /**
  * Tarjeta de producto para grids (home, listing, marca page).
@@ -46,6 +47,13 @@ export function ProductCard({ product }: { product: Product }) {
         <h3 className="font-heading text-lg text-text leading-tight mb-1">
           {title}
         </h3>
+        <div className="mb-1">
+          <JudgemeStars
+            rating={product.judgemeRating ?? null}
+            count={product.judgemeReviewCount ?? null}
+            size="sm"
+          />
+        </div>
         <p className="text-text-muted text-sm">
           {formatMoney(minPrice.amount, minPrice.currencyCode)}
         </p>

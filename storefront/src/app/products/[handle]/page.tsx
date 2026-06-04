@@ -5,6 +5,7 @@ import { Footer } from "@/components/Footer"
 import { ProductGallery } from "@/components/ProductGallery"
 import { ProductOptions } from "@/components/ProductOptions"
 import { PDPTrustBlock } from "@/components/PDPTrustBlock"
+import { ProductReviewBlock } from "@/components/ProductReviewBlock"
 import { RelatedProducts } from "@/components/RelatedProducts"
 import { RecentlyViewed } from "@/components/RecentlyViewed"
 import { ProductJsonLd, BreadcrumbJsonLd } from "@/components/StructuredData"
@@ -106,6 +107,8 @@ export default async function ProductPage({ params }: Props) {
               <ProductOptions product={product} />
 
               <PDPTrustBlock product={product} />
+
+              <ProductReviewBlock product={product} />
 
               {product.descriptionHtml && (
                 <div className="mt-12 pt-8 border-t border-border">
