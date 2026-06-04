@@ -62,6 +62,14 @@ const PLACEHOLDER_SLIDES: HeroSlide[] = [
 
 const AUTO_ROTATE_MS = 8000
 
+// Swipe thresholds:
+//  - SWIPE_MIN_DELTA: distancia mínima horizontal para aceptar como swipe.
+//  - SWIPE_FLICK_DELTA + SWIPE_FLICK_VELOCITY: detección de flick rápido
+//    (gesto corto pero con alta velocidad).
+const SWIPE_MIN_DELTA = 50
+const SWIPE_FLICK_DELTA = 30
+const SWIPE_FLICK_VELOCITY = 0.5
+
 export function HeroCarousel({ slides }: Props) {
   const data = slides && slides.length > 0 ? slides : PLACEHOLDER_SLIDES
   const [active, setActive] = useState(0)
@@ -77,6 +85,13 @@ export function HeroCarousel({ slides }: Props) {
   const [reducedMotion, setReducedMotion] = useState(false)
   const sectionRef = useRef<HTMLElement | null>(null)
 
+  // Refs para tracking de swipe horizontal en mobile.
+  // Usamos refs (no state) porque no necesitamos re-render durante el gesto;
+  // solo leemos en touchend para decidir si fue swipe válido.
+  const touchStartX = useRef<number | null>(null)
+  const touchStartY = useRef<number | null>(null)
+  const touchStartTime = useRef<number | null>(null)
+
   const markTouched = useCallback(() => {
     setTouched(true)
   }, [])
@@ -84,6 +99,72 @@ export function HeroCarousel({ slides }: Props) {
   const goTo = useCallback((idx: number) => {
     setActive(idx)
     setTouched(true)
+  }, [])
+
+  const goNext = useCallback(() => {
+    setActive((prev) => (prev + 1) % data.length)
+    setTouched(true)
+  }, [data.length])
+
+  const goPrev = useCallback(() => {
+    setActive((prev) => (prev - 1 + data.length) % data.length)
+    setTouched(true)
+  }, [data.length])
+
+  const onTouchStart = useCallback((e: React.TouchEvent<HTMLElement>) => {
+    markTouched()
+    const t = e.touches[0]
+    if (!t) return
+    touchStartX.current = t.clientX
+    touchStartY.current = t.clientY
+    touchStartTime.current = Date.now()
+  }, [markTouched])
+
+  const onTouchEnd = useCallback(
+    (e: React.TouchEvent<HTMLElement>) => {
+      const startX = touchStartX.current
+      const startY = touchStartY.current
+      const startTime = touchStartTime.current
+      // Reset siempre, aunque no haya sido swipe válido.
+      touchStartX.current = null
+      touchStartY.current = null
+      touchStartTime.current = null
+
+      if (startX === null || startY === null || startTime === null) return
+      if (data.length <= 1) return
+
+      const t = e.changedTouches[0]
+      if (!t) return
+
+      const deltaX = t.clientX - startX
+      const deltaY = t.clientY - startY
+      const absX = Math.abs(deltaX)
+      const absY = Math.abs(deltaY)
+
+      // Si el movimiento es más vertical que horizontal, es scroll de página,
+      // no swipe del carousel. Ignorar.
+      if (absY > absX) return
+
+      const elapsed = Date.now() - startTime
+      const velocity = elapsed > 0 ? absX / elapsed : 0
+      const isFlick =
+        absX >= SWIPE_FLICK_DELTA && velocity > SWIPE_FLICK_VELOCITY
+
+      if (absX < SWIPE_MIN_DELTA && !isFlick) return
+
+      if (deltaX < 0) {
+        goNext()
+      } else {
+        goPrev()
+      }
+    },
+    [data.length, goNext, goPrev]
+  )
+
+  const onTouchCancel = useCallback(() => {
+    touchStartX.current = null
+    touchStartY.current = null
+    touchStartTime.current = null
   }, [])
 
   // Detecta prefers-reduced-motion en mount + escucha cambios.
@@ -149,10 +230,13 @@ export function HeroCarousel({ slides }: Props) {
   return (
     <section
       ref={sectionRef}
-      className="relative w-full h-[70vh] min-h-[480px] max-h-[680px] overflow-hidden bg-leather"
+      role="region"
+      className="relative w-full h-[70vh] min-h-[480px] max-h-[680px] overflow-hidden bg-leather touch-pan-y"
       aria-roledescription="carousel"
-      aria-label="Banners destacados"
-      onTouchStart={markTouched}
+      aria-label="Hero"
+      onTouchStart={onTouchStart}
+      onTouchEnd={onTouchEnd}
+      onTouchCancel={onTouchCancel}
       onPointerDown={markTouched}
       onKeyDown={onKeyDown}
     >
