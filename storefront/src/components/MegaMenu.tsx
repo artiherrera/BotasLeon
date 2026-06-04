@@ -172,15 +172,15 @@ export function MegaMenu() {
       </nav>
 
       {/* Panel desplegable — full-width debajo del header.
-          Mismo liquid frost que el Header sticky (bg-bg/95 + blur-2xl +
-          saturate-200, con supports-[backdrop-filter]:bg-bg/55 cuando
-          el browser soporta blur). Visual unificado: el panel se siente
-          parte natural del header, no overlay separado. */}
+          Frost denso: bg-bg/95 SIEMPRE (sin override transparente del
+          supports-) + blur para el efecto vidrio esmerilado. Panel
+          se ve sólido, solo con un toque de blur del contenido detrás
+          en los bordes. Header sí baja a /55 porque es sticky chico,
+          el MegaMenu es panel grande y necesita más cuerpo visual. */}
       {showPanel && activeItem && (
         <div
           className="absolute left-0 right-0 top-full
             bg-bg/95 backdrop-blur-2xl backdrop-saturate-200
-            supports-[backdrop-filter]:bg-bg/55
             border-b border-leather/15 shadow-2xl z-30"
           onMouseEnter={cancelClose}
           onMouseLeave={scheduleClose}
