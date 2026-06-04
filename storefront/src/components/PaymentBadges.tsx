@@ -1,59 +1,30 @@
+import Image from "next/image"
+
 /**
  * PaymentBadges — fila de logos reales de métodos de pago que Shopify
  * procesa para MX.
  *
- * Cada badge: SVG inline con los colores de marca oficiales sobre
- * tarjeta blanca con esquinas redondeadas. SVG inline (no archivos
- * externos) para LCP rápido + cero dependencias + control total.
+ * Mix de estrategias:
+ *  - Visa, Mastercard, Amex → SVGs oficiales en /public/payment-logos/
+ *    (descargados de aaronfagan/svg-credit-card-payment-icons, MIT).
+ *  - Mercado Pago, OXXO, SPEI → SVG inline porque los oficiales requieren
+ *    cuenta de merchant en cada portal y no son trivially descargables.
+ *    Las inline matches a brand colors recognizables al instante.
  *
- * aria-label en cada item para que screen readers digan el nombre
- * completo de la marca, no las letras.
+ * Cada badge en card blanca con esquinas redondeadas — los logos
+ * internacionales ya tienen background propio, las inline también.
+ * El frame blanco unifica visualmente.
  */
 
 type Method = {
   code: string
   label: string
-  // Width del viewBox del SVG. Heights todos a 24 para alineación.
-  width: number
-  icon: React.ReactNode
+  type: "image" | "inline"
+  // Para type="image"
+  src?: string
+  // Para type="inline"
+  icon?: React.ReactNode
 }
-
-const VisaIcon = (
-  <svg viewBox="0 0 64 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-    <g fill="#1A1F71" fontFamily="Helvetica, Arial, sans-serif" fontWeight="900" fontStyle="italic">
-      <text x="2" y="19" fontSize="20" letterSpacing="-0.5">VISA</text>
-    </g>
-  </svg>
-)
-
-const MastercardIcon = (
-  <svg viewBox="0 0 48 30" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-    <circle cx="18" cy="15" r="12" fill="#EB001B" />
-    <circle cx="30" cy="15" r="12" fill="#F79E1B" />
-    <path
-      d="M24 6.5a12 12 0 0 0 0 17 12 12 0 0 0 0-17z"
-      fill="#FF5F00"
-    />
-  </svg>
-)
-
-const AmexIcon = (
-  <svg viewBox="0 0 64 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-    <rect x="0" y="0" width="64" height="24" rx="2" fill="#2E77BC" />
-    <text
-      x="32"
-      y="16"
-      fill="#FFFFFF"
-      fontFamily="Helvetica, Arial, sans-serif"
-      fontWeight="900"
-      fontSize="11"
-      textAnchor="middle"
-      letterSpacing="1"
-    >
-      AMEX
-    </text>
-  </svg>
-)
 
 const MercadoPagoIcon = (
   <svg viewBox="0 0 64 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
@@ -122,12 +93,12 @@ const SpeiIcon = (
 )
 
 const METHODS: Method[] = [
-  { code: "visa", label: "Visa", width: 64, icon: VisaIcon },
-  { code: "mastercard", label: "Mastercard", width: 48, icon: MastercardIcon },
-  { code: "amex", label: "American Express", width: 64, icon: AmexIcon },
-  { code: "mercadopago", label: "Mercado Pago", width: 64, icon: MercadoPagoIcon },
-  { code: "oxxo", label: "OXXO", width: 64, icon: OxxoIcon },
-  { code: "spei", label: "SPEI", width: 64, icon: SpeiIcon },
+  { code: "visa", label: "Visa", type: "image", src: "/payment-logos/visa.svg" },
+  { code: "mastercard", label: "Mastercard", type: "image", src: "/payment-logos/mastercard.svg" },
+  { code: "amex", label: "American Express", type: "image", src: "/payment-logos/amex.svg" },
+  { code: "mercadopago", label: "Mercado Pago", type: "inline", icon: MercadoPagoIcon },
+  { code: "oxxo", label: "OXXO", type: "inline", icon: OxxoIcon },
+  { code: "spei", label: "SPEI", type: "inline", icon: SpeiIcon },
 ]
 
 export function PaymentBadges() {
@@ -138,16 +109,27 @@ export function PaymentBadges() {
         role="list"
         className="flex flex-wrap items-center justify-center gap-2 list-none p-0 m-0"
       >
-        {METHODS.map(({ code, label, icon }) => (
-          <li key={code}>
+        {METHODS.map((method) => (
+          <li key={method.code}>
             <span
-              aria-label={label}
-              title={label}
+              aria-label={method.label}
+              title={method.label}
               className="inline-flex items-center justify-center w-12 h-8 bg-white rounded shadow-sm overflow-hidden"
             >
-              <span aria-hidden="true" className="w-10 h-6 flex items-center justify-center">
-                {icon}
-              </span>
+              {method.type === "image" && method.src ? (
+                <Image
+                  src={method.src}
+                  alt={method.label}
+                  width={40}
+                  height={26}
+                  className="w-10 h-6 object-contain"
+                  unoptimized
+                />
+              ) : (
+                <span aria-hidden="true" className="w-10 h-6 flex items-center justify-center">
+                  {method.icon}
+                </span>
+              )}
             </span>
           </li>
         ))}
