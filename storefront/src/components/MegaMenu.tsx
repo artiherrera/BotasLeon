@@ -172,16 +172,15 @@ export function MegaMenu() {
       </nav>
 
       {/* Panel desplegable — full-width debajo del header.
-          Liquid frost agresivo: bg-bg/80 fallback, /60 con backdrop-filter.
-          Blur 3xl + saturate 200 para frost visible. El bg semitransparente
-          DEJA VER borroso el contenido del catálogo detrás (efecto vidrio
-          esmerilado tipo macOS). Si en algún device se ve demasiado
-          translúcido, subir a /70. */}
+          Mismo liquid frost que el Header sticky (bg-bg/95 + blur-2xl +
+          saturate-200, con supports-[backdrop-filter]:bg-bg/55 cuando
+          el browser soporta blur). Visual unificado: el panel se siente
+          parte natural del header, no overlay separado. */}
       {showPanel && activeItem && (
         <div
           className="absolute left-0 right-0 top-full
-            bg-bg/80 backdrop-blur-3xl backdrop-saturate-200
-            supports-[backdrop-filter]:bg-bg/60
+            bg-bg/95 backdrop-blur-2xl backdrop-saturate-200
+            supports-[backdrop-filter]:bg-bg/55
             border-b border-leather/15 shadow-2xl z-30"
           onMouseEnter={cancelClose}
           onMouseLeave={scheduleClose}
