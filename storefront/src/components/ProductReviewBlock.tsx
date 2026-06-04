@@ -83,35 +83,16 @@ export function ProductReviewBlock({ product }: { product: Product }) {
       ) : (
         <div className="flex flex-col gap-3">
           <p className="text-text font-medium">
-            ¿Ya la tienes? Comparte tu experiencia
+            Aún sin reseñas
           </p>
           <p className="text-text-muted text-sm">
-            Tu reseña ayuda a otros clientes a decidir con confianza.
+            Cuando compres esta bota, te enviaremos un correo para que
+            puedas reseñar y ayudar a otros clientes a decidir.
           </p>
-          {reviewsUrl && (
-            <a
-              href={reviewsUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="self-start inline-flex items-center gap-2 mt-2 text-sm font-medium text-leather hover:text-leather-dark underline underline-offset-4"
-            >
-              Ir a reseñas
-              <svg
-                width="14"
-                height="14"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                aria-hidden="true"
-              >
-                <path d="M7 17 17 7" />
-                <path d="M7 7h10v10" />
-              </svg>
-            </a>
-          )}
+          {/* CTA omitido en estado empty: judge.me/reviews/{shop} solo
+              existe cuando hay >=1 reseña publicada. Sin eso da
+              "Store Not Found" — dead-end UX. El CTA aparece automático
+              cuando llega la primera reseña (rama hasReviews arriba). */}
         </div>
       )}
     </section>
