@@ -6,6 +6,7 @@ import { CategoryShowcase } from "@/components/CategoryShowcase"
 import { BrandGrid } from "@/components/BrandGrid"
 import { FAQAccordion } from "@/components/FAQAccordion"
 import { LatestByGenderTabs } from "@/components/LatestByGenderTabs"
+import { AccessoriesShowcase } from "@/components/AccessoriesShowcase"
 import { NewsletterForm } from "@/components/NewsletterForm"
 import { HechoEnLeonStrip } from "@/components/HechoEnLeonStrip"
 import { FAQJsonLd } from "@/components/StructuredData"
@@ -27,7 +28,7 @@ export const metadata = {
  *   2. MarqueeBar — trust strip arriba del Hero (MSI · envío · cambios)
  *   3. HeroCarousel — 3 slides Metaobjects con Ken Burns (intacto)
  *   4. LatestByGenderTabs — productos reales JUSTO después del Hero
- *   5. CategoryShowcase — 3 cards Hombre/Mujer/Niños
+ *   5. CategoryShowcase — 3 cards Hombre/Mujer/Accesorios
  *   6. BrandGrid — Marcas (oculto cuando 0 marcas, curado cuando 1-3)
  *   7. HechoEnLeonStrip — banda compacta 380 años · 7 de 10 · curadores
  *   8. FAQAccordion
@@ -76,6 +77,9 @@ export default async function HomePage() {
         />
 
         <CategoryShowcase />
+
+        {/* Accesorios — banda compacta, oculto si no hay productos. */}
+        <AccessoriesShowcase />
 
         <BrandGrid />
 

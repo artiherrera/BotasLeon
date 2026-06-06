@@ -35,10 +35,10 @@ const FALLBACK_CATEGORIES = [
     bgClass: "bg-gradient-to-br from-terracotta-dark via-terracotta to-leather",
   },
   {
-    href: "/nino",
+    href: "/accesorios",
     eyebrow: "Categoría",
-    title: "Niños",
-    description: "Mini-vaqueras y clásicas para los que más crecen.",
+    title: "Accesorios",
+    description: "Cinturones, sombreros, carteras y cuidado del cuero.",
     bgClass: "bg-gradient-to-br from-cognac via-gold to-leather-light",
   },
 ] as const

@@ -59,13 +59,15 @@ const CATEGORIES: Category[] = [
     ctaLabel: "Ver todas las botas de mujer",
   },
   {
-    label: "Niños",
-    href: "/nino",
+    label: "Accesorios",
+    href: "/accesorios",
     sublinks: [
-      { label: "Vaqueras", href: "/nino/vaqueras", description: "Mini-vaqueras" },
-      { label: "Clásicas", href: "/nino/clasicas", description: "Caña media, casual" },
+      { label: "Cinturones", href: "/accesorios/cinturones", description: "Piteados, herrajes, hebillas" },
+      { label: "Sombreros", href: "/accesorios/sombreros", description: "Vaqueros tradicionales" },
+      { label: "Carteras", href: "/accesorios/carteras", description: "Piel grabada y lisa" },
+      { label: "Cuidado del cuero", href: "/accesorios/cuidado-del-cuero", description: "Cremas, ceras, betunes" },
     ],
-    ctaLabel: "Ver todas las botas de niños",
+    ctaLabel: "Ver todos los accesorios",
   },
 ]
 

@@ -118,7 +118,7 @@ export default function SearchPage() {
                 {[
                   { label: "Hombre", href: "/hombre" },
                   { label: "Mujer", href: "/mujer" },
-                  { label: "Niños", href: "/nino" },
+                  { label: "Accesorios", href: "/accesorios" },
                   { label: "Marcas", href: "/marcas" },
                 ].map((item) => (
                   <Link

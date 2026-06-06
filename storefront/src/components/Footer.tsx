@@ -37,8 +37,8 @@ export function Footer() {
           <ul className="space-y-2 text-sm">
             <li><Link href="/hombre" className="hover:text-bg transition-colors">Hombre</Link></li>
             <li><Link href="/mujer" className="hover:text-bg transition-colors">Mujer</Link></li>
-            <li><Link href="/nino" className="hover:text-bg transition-colors">Niño</Link></li>
             <li><Link href="/marcas" className="hover:text-bg transition-colors">Marcas</Link></li>
+            <li><Link href="/accesorios" className="hover:text-bg transition-colors">Accesorios</Link></li>
             {/* Outlet oculto hasta que haya productos con compareAtPrice. Re-enable en sync con MegaMenu/MobileNav. */}
           </ul>
         </div>

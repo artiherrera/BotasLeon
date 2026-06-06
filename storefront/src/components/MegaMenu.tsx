@@ -69,21 +69,6 @@ const MENU: MenuItem[] = [
     ctaLabel: "Ver todas las botas de mujer",
   },
   {
-    label: "Niños",
-    href: "/nino",
-    sections: [
-      {
-        title: "Por estilo",
-        links: [
-          { label: "Vaqueras", href: "/nino/vaqueras", description: "Mini-vaqueras" },
-          { label: "Clásicas", href: "/nino/clasicas", description: "Caña media, casual" },
-        ],
-      },
-    ],
-    ctaHref: "/nino",
-    ctaLabel: "Ver todas las botas de niños",
-  },
-  {
     label: "Marcas",
     href: "/marcas",
     sections: [
@@ -98,6 +83,23 @@ const MENU: MenuItem[] = [
         ],
       },
     ],
+  },
+  {
+    label: "Accesorios",
+    href: "/accesorios",
+    sections: [
+      {
+        title: "Por categoría",
+        links: [
+          { label: "Cinturones", href: "/accesorios/cinturones", description: "Piteados, herrajes, hebillas" },
+          { label: "Sombreros", href: "/accesorios/sombreros", description: "Vaqueros tradicionales" },
+          { label: "Carteras", href: "/accesorios/carteras", description: "Piel grabada y lisa" },
+          { label: "Cuidado del cuero", href: "/accesorios/cuidado-del-cuero", description: "Cremas, ceras, betunes" },
+        ],
+      },
+    ],
+    ctaHref: "/accesorios",
+    ctaLabel: "Ver todos los accesorios",
   },
   // Outlet oculto hasta que haya productos con compareAtPrice.
   // Para reactivarlo: descomentar aquí + en MobileNav.tsx (QUICK_LINKS).

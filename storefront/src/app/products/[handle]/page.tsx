@@ -127,7 +127,11 @@ export default async function ProductPage({ params }: Props) {
           </div>
         </div>
 
-        <RelatedProducts currentHandle={product.handle} vendor={product.vendor} />
+        <RelatedProducts
+          currentHandle={product.handle}
+          vendor={product.vendor}
+          productType={product.productType}
+        />
         <RecentlyViewed
           currentHandle={product.handle}
           currentTitle={product.title}

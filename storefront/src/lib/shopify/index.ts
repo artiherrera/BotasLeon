@@ -18,6 +18,12 @@ import {
   GET_CATEGORY_CARDS_QUERY,
   SHOP_INFO_QUERY,
 } from "./queries"
+import {
+  ACCESSORY_PRODUCT_TYPES,
+  BOOT_PRODUCT_TYPES,
+  isAccessory,
+  isBoot,
+} from "./taxonomy"
 import type { Product, Collection, HeroSlide, Image, Brand, CategoryCard, PageInfo } from "./types"
 
 type Edge<T> = { edges: Array<{ node: T }> }
@@ -250,14 +256,23 @@ export async function getProductsByVendor(
 // Handles esperados (Shopify localiza al idioma de la tienda):
 //   target-gender: "femenino", "masculino", "unisex"
 //   age-group: "adultos", "ninos" (o "kids" según idioma)
+//
+// Bota vs accesorio: por default `onlyBoots: true`. Las rutas de género
+// (/hombre, /mujer, /nino) son catálogos de botas — un cinturón con
+// "Sexo objetivo: Masculino" NO debe contaminar /hombre. Para incluir
+// accesorios (ej. página /outlet futura que mezcle todo), pasar
+// onlyBoots: false.
 
 type TaxonomyKey = "gender" | "age"
 
 export async function getProductsByTaxonomy(
   key: TaxonomyKey,
   handle: string,
-  first = 48
+  first = 48,
+  options?: { onlyBoots?: boolean }
 ): Promise<Product[]> {
+  const onlyBoots = options?.onlyBoots ?? true
+
   type ProductWithTaxonomy = Product & JudgemeMetafields & {
     gender?: { references?: { edges: Array<{ node: { handle: string } }> } } | null
     age?: { references?: { edges: Array<{ node: { handle: string } }> } } | null
@@ -279,9 +294,37 @@ export async function getProductsByTaxonomy(
   const all = data.products.edges.map((e) => applyJudgeme(e.node))
   return all.filter((p) => {
     const refs = p[key]?.references?.edges ?? []
-    return refs.some((r) => r.node.handle === handle)
+    const matchesTaxonomy = refs.some((r) => r.node.handle === handle)
+    if (!matchesTaxonomy) return false
+    if (onlyBoots && !isBoot(p)) return false
+    return true
   })
 }
+
+// === Accesorios ===
+//
+// Devuelve productos cuyo `productType` está en ACCESSORY_PRODUCT_TYPES.
+// Si se pasa `productType`, filtra a esa sub-categoría exacta (Cinturones,
+// Sombreros, etc.). Sin productType regresa todos los accesorios — usado
+// por /accesorios (listing general) y AccessoriesShowcase (home).
+//
+// Implementación: el query de Shopify Storefront acepta `product_type:X`
+// pero requiere el valor EXACTO incluyendo acentos. Para evitar problemas
+// con tilde de "Clásicas" en otros contextos, hacemos un fetch ancho y
+// filtramos en JS — más simple y consistente con getProductsByTaxonomy.
+export async function getAccessories(
+  productType?: string,
+  first = 100
+): Promise<Product[]> {
+  const { products: all } = await getProducts({ first, sortKey: "BEST_SELLING" })
+  return all.filter((p) => {
+    if (productType) return p.productType === productType
+    return isAccessory(p)
+  })
+}
+
+// Re-export para callers que solo necesitan las constantes (ej. rutas).
+export { ACCESSORY_PRODUCT_TYPES, BOOT_PRODUCT_TYPES, isAccessory, isBoot }
 
 // === Hero slides (Metaobjects) ===
 
