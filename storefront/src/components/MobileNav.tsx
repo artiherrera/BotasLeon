@@ -41,6 +41,7 @@ const CATEGORIES: Category[] = [
     href: "/hombre",
     sublinks: [
       { label: "Vaqueras", href: "/hombre/vaqueras", description: "Caña alta, silueta tradicional" },
+      { label: "Botines", href: "/hombre/botines", description: "Caña corta, tobillera" },
       { label: "Clásicas", href: "/hombre/clasicas", description: "Caña media, lisas, sin grabado" },
       { label: "Rancho", href: "/hombre/rancho", description: "Faena y campo" },
       { label: "Exóticas", href: "/hombre/exoticas", description: "Avestruz, cocodrilo, pitón" },
@@ -52,6 +53,7 @@ const CATEGORIES: Category[] = [
     href: "/mujer",
     sublinks: [
       { label: "Vaqueras", href: "/mujer/vaqueras", description: "Caña alta, silueta tradicional" },
+      { label: "Botines", href: "/mujer/botines", description: "Caña corta, tobillera" },
       { label: "Clásicas", href: "/mujer/clasicas", description: "Caña media, lisas, sin grabado" },
       { label: "Largas", href: "/mujer/largas", description: "Sobre la rodilla, fashion" },
       { label: "Exóticas", href: "/mujer/exoticas", description: "Avestruz, cocodrilo, pitón" },

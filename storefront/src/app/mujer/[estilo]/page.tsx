@@ -10,14 +10,26 @@ import { pageMetadata } from "@/lib/seo"
 
 export const revalidate = 60
 
-const VALID_STYLES = ["vaqueras", "clasicas", "largas", "exoticas"] as const
+const VALID_STYLES = ["vaqueras", "botines", "clasicas", "largas", "exoticas"] as const
 type EstiloMujer = (typeof VALID_STYLES)[number]
 
-const ESTILO_META: Record<EstiloMujer, { label: string; description: string }> = {
+// `titleNoun` reemplaza al sustantivo "Botas" cuando la palabra-categoría ya
+// es el sustantivo en sí (ej. "Botines para mujer" — NO "Botas botines para
+// mujer"). Para Vaqueras/Clásicas/etc no hace falta.
+const ESTILO_META: Record<
+  EstiloMujer,
+  { label: string; description: string; titleNoun?: string }
+> = {
   vaqueras: {
     label: "Vaqueras",
     description:
       "Botas vaqueras para mujer — caña alta, silueta tradicional. Cuero auténtico hecho en León.",
+  },
+  botines: {
+    label: "Botines",
+    titleNoun: "Botines",
+    description:
+      "Botines vaqueros para mujer — caña corta tobillera, fashion y casual. Cuero hecho en León.",
   },
   clasicas: {
     label: "Clásicas",
@@ -36,6 +48,11 @@ const ESTILO_META: Record<EstiloMujer, { label: string; description: string }> =
   },
 }
 
+function buildTitle(meta: { label: string; titleNoun?: string }, genderLabel: string): string {
+  if (meta.titleNoun) return `${meta.titleNoun} para ${genderLabel}`
+  return `Botas ${meta.label.toLowerCase()} para ${genderLabel}`
+}
+
 export async function generateStaticParams() {
   return VALID_STYLES.map((estilo) => ({ estilo }))
 }
@@ -49,7 +66,7 @@ export default async function MujerEstiloPage({ params }: Props) {
   return (
     <CategoryStub
       eyebrow={`Mujer · ${meta.label}`}
-      title={`Botas ${meta.label.toLowerCase()} para mujer`}
+      title={buildTitle(meta, "mujer")}
       description={meta.description}
       taxonomyKey="gender"
       taxonomyHandle="femenino"
@@ -65,7 +82,7 @@ export async function generateMetadata({ params }: Props) {
   const meta = ESTILO_META[estilo as EstiloMujer]
   return pageMetadata({
     path: `/mujer/${estilo}`,
-    title: `Botas ${meta.label.toLowerCase()} para mujer`,
+    title: buildTitle(meta, "mujer"),
     description: meta.description,
   })
 }

@@ -42,6 +42,7 @@ const MENU: MenuItem[] = [
         title: "Por estilo",
         links: [
           { label: "Vaqueras", href: "/hombre/vaqueras", description: "Caña alta, silueta tradicional" },
+          { label: "Botines", href: "/hombre/botines", description: "Caña corta, tobillera" },
           { label: "Clásicas", href: "/hombre/clasicas", description: "Caña media, lisas, sin grabado" },
           { label: "Rancho", href: "/hombre/rancho", description: "Faena y campo" },
           { label: "Exóticas", href: "/hombre/exoticas", description: "Avestruz, cocodrilo, pitón" },
@@ -59,6 +60,7 @@ const MENU: MenuItem[] = [
         title: "Por estilo",
         links: [
           { label: "Vaqueras", href: "/mujer/vaqueras", description: "Caña alta, silueta tradicional" },
+          { label: "Botines", href: "/mujer/botines", description: "Caña corta, tobillera" },
           { label: "Clásicas", href: "/mujer/clasicas", description: "Caña media, lisas, sin grabado" },
           { label: "Largas", href: "/mujer/largas", description: "Sobre la rodilla, fashion" },
           { label: "Exóticas", href: "/mujer/exoticas", description: "Avestruz, cocodrilo, pitón" },
@@ -67,22 +69,6 @@ const MENU: MenuItem[] = [
     ],
     ctaHref: "/mujer",
     ctaLabel: "Ver todas las botas de mujer",
-  },
-  {
-    label: "Marcas",
-    href: "/marcas",
-    sections: [
-      {
-        title: "Curaduría",
-        links: [
-          {
-            label: "Ver todas las marcas",
-            href: "/marcas",
-            description: "Casas de calzado de León que comercializamos",
-          },
-        ],
-      },
-    ],
   },
   {
     label: "Accesorios",
@@ -100,6 +86,22 @@ const MENU: MenuItem[] = [
     ],
     ctaHref: "/accesorios",
     ctaLabel: "Ver todos los accesorios",
+  },
+  {
+    label: "Marcas",
+    href: "/marcas",
+    sections: [
+      {
+        title: "Curaduría",
+        links: [
+          {
+            label: "Ver todas las marcas",
+            href: "/marcas",
+            description: "Casas de calzado de León que comercializamos",
+          },
+        ],
+      },
+    ],
   },
   // Outlet oculto hasta que haya productos con compareAtPrice.
   // Para reactivarlo: descomentar aquí + en MobileNav.tsx (QUICK_LINKS).

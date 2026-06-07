@@ -14,14 +14,27 @@ import { pageMetadata } from "@/lib/seo"
 
 export const revalidate = 60
 
-const VALID_STYLES = ["vaqueras", "clasicas", "rancho", "exoticas"] as const
+const VALID_STYLES = ["vaqueras", "botines", "clasicas", "rancho", "exoticas"] as const
 type EstiloHombre = (typeof VALID_STYLES)[number]
 
-const ESTILO_META: Record<EstiloHombre, { label: string; description: string }> = {
+// `titleNoun` reemplaza al sustantivo "Botas" cuando la palabra-categoría ya
+// es el sustantivo en sí (ej. "Botines para hombre" — NO "Botas botines para
+// hombre"). Para Vaqueras/Clásicas/etc el adjetivo decora "botas" de forma
+// natural y no se necesita override.
+const ESTILO_META: Record<
+  EstiloHombre,
+  { label: string; description: string; titleNoun?: string }
+> = {
   vaqueras: {
     label: "Vaqueras",
     description:
       "Botas vaqueras para hombre — caña alta, silueta tradicional. Cuero auténtico hecho en León.",
+  },
+  botines: {
+    label: "Botines",
+    titleNoun: "Botines",
+    description:
+      "Botines vaqueros para hombre — caña corta tobillera, versatilidad para diario y casual. Cuero hecho en León.",
   },
   clasicas: {
     label: "Clásicas",
@@ -40,6 +53,11 @@ const ESTILO_META: Record<EstiloHombre, { label: string; description: string }> 
   },
 }
 
+function buildTitle(meta: { label: string; titleNoun?: string }, genderLabel: string): string {
+  if (meta.titleNoun) return `${meta.titleNoun} para ${genderLabel}`
+  return `Botas ${meta.label.toLowerCase()} para ${genderLabel}`
+}
+
 export async function generateStaticParams() {
   return VALID_STYLES.map((estilo) => ({ estilo }))
 }
@@ -53,7 +71,7 @@ export default async function HombreEstiloPage({ params }: Props) {
   return (
     <CategoryStub
       eyebrow={`Hombre · ${meta.label}`}
-      title={`Botas ${meta.label.toLowerCase()} para hombre`}
+      title={buildTitle(meta, "hombre")}
       description={meta.description}
       taxonomyKey="gender"
       taxonomyHandle="masculino"
@@ -69,7 +87,7 @@ export async function generateMetadata({ params }: Props) {
   const meta = ESTILO_META[estilo as EstiloHombre]
   return pageMetadata({
     path: `/hombre/${estilo}`,
-    title: `Botas ${meta.label.toLowerCase()} para hombre`,
+    title: buildTitle(meta, "hombre"),
     description: meta.description,
   })
 }

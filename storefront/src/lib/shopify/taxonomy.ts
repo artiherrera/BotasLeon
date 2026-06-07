@@ -23,6 +23,7 @@ export const BOOT_PRODUCT_TYPES = [
   "Rancho",
   "Largas",
   "Exóticas",
+  "Botines",
 ] as const
 
 export type BootProductType = (typeof BOOT_PRODUCT_TYPES)[number]

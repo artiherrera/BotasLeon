@@ -23,8 +23,8 @@ import { ACCESSORY_SLUGS } from "@/lib/shopify/taxonomy"
  *  - /discount — landing transaccional, no para indexar
  */
 
-const BOOT_STYLES_HOMBRE = ["vaqueras", "clasicas", "rancho", "exoticas"]
-const BOOT_STYLES_MUJER = ["vaqueras", "clasicas", "largas", "exoticas"]
+const BOOT_STYLES_HOMBRE = ["vaqueras", "botines", "clasicas", "rancho", "exoticas"]
+const BOOT_STYLES_MUJER = ["vaqueras", "botines", "clasicas", "largas", "exoticas"]
 
 type Entry = MetadataRoute.Sitemap[number]
 
