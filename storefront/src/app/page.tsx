@@ -48,13 +48,19 @@ export const metadata = {
  */
 export default async function HomePage() {
   // Parallel fetch — hero + 2 grids por género en una pasada.
+  //
   // sortKey: CREATED_AT + reverse=true (lo más nuevo arriba) hace honor
-  // al título "Lo más nuevo Hombre/Mujer". Antes era BEST_SELLING — productos
-  // recién subidos sin ventas no aparecían. Las páginas /hombre /mujer
-  // siguen con BEST_SELLING (default) porque ahí sí tiene sentido el ranking.
+  // al título "Lo más nuevo Hombre/Mujer". Antes era BEST_SELLING —
+  // productos recién subidos sin ventas no aparecían.
+  //
+  // first: 50 (no 4). Razón crítica: el filtro por género ocurre en JS
+  // DESPUÉS del fetch. Si pedimos solo 8 productos a Shopify, y los 8
+  // más nuevos son del mismo género, el otro queda con 0. Pedimos 50
+  // para garantizar cobertura de ambos géneros mientras crece el
+  // catálogo. LatestByGenderTabs solo renderiza los primeros 4.
   const [hombreProducts, mujerProducts, heroSlides] = await Promise.all([
-    getProductsByTaxonomy("gender", "masculino", 8, { sortKey: "CREATED_AT" }).catch(() => []),
-    getProductsByTaxonomy("gender", "femenino", 8, { sortKey: "CREATED_AT" }).catch(() => []),
+    getProductsByTaxonomy("gender", "masculino", 50, { sortKey: "CREATED_AT" }).catch(() => []),
+    getProductsByTaxonomy("gender", "femenino", 50, { sortKey: "CREATED_AT" }).catch(() => []),
     getHeroSlides().catch(() => []),
   ])
 
