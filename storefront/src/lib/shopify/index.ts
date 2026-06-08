@@ -269,9 +269,16 @@ export async function getProductsByTaxonomy(
   key: TaxonomyKey,
   handle: string,
   first = 48,
-  options?: { onlyBoots?: boolean }
+  options?: { onlyBoots?: boolean; sortKey?: ProductSortKey }
 ): Promise<Product[]> {
   const onlyBoots = options?.onlyBoots ?? true
+  // Default BEST_SELLING para mantener compatibilidad con /hombre y /mujer
+  // (catálogo general — donde tiene sentido lo más vendido). Home pasa
+  // CREATED_AT explícitamente para sus tabs "Lo más nuevo".
+  const sortKey = options?.sortKey ?? "BEST_SELLING"
+  // Solo invertir cuando es CREATED_AT/UPDATED_AT — para que "más nuevos
+  // primero" funcione. BEST_SELLING ya viene rankeado más-a-menos por API.
+  const reverse = sortKey === "CREATED_AT" || sortKey === "UPDATED_AT"
 
   type ProductWithTaxonomy = Product & JudgemeMetafields & {
     gender?: { references?: { edges: Array<{ node: { handle: string } }> } } | null
@@ -283,7 +290,7 @@ export async function getProductsByTaxonomy(
   try {
     data = await shopifyFetch<Resp>(
       GET_PRODUCTS_WITH_TAXONOMY_QUERY,
-      { first },
+      { first, sortKey, reverse },
       { tags: ["products"] }
     )
   } catch (e) {
@@ -292,13 +299,34 @@ export async function getProductsByTaxonomy(
   }
 
   const all = data.products.edges.map((e) => applyJudgeme(e.node))
-  return all.filter((p) => {
+
+  // Log de auditoría para ver qué productos perdemos por filtros — útil
+  // para debuguear "¿por qué no aparece mi bota en /mujer?" desde Amplify
+  // build logs.
+  const filtered = all.filter((p) => {
     const refs = p[key]?.references?.edges ?? []
     const matchesTaxonomy = refs.some((r) => r.node.handle === handle)
     if (!matchesTaxonomy) return false
     if (onlyBoots && !isBoot(p)) return false
     return true
   })
+
+  if (all.length > 0 && filtered.length < all.length) {
+    const dropped = all.filter((p) => !filtered.includes(p))
+    const droppedReport = dropped.map((p) => {
+      const refs = p[key]?.references?.edges ?? []
+      const taxonomyHandles = refs.map((r) => r.node.handle).join(",") || "(empty)"
+      return `${p.handle} [type=${p.productType || "(empty)"}, ${key}=${taxonomyHandles}]`
+    })
+    console.log(
+      `[getProductsByTaxonomy] key=${key}/${handle} onlyBoots=${onlyBoots} kept=${filtered.length} dropped=${dropped.length}`
+    )
+    if (dropped.length > 0) {
+      console.log("[getProductsByTaxonomy] dropped:", droppedReport.join(" | "))
+    }
+  }
+
+  return filtered
 }
 
 // === Accesorios ===

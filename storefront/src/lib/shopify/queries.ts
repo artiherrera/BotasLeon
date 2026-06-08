@@ -189,8 +189,12 @@ export const GET_COLLECTIONS_QUERY = /* GraphQL */ `
 // handle como "femenino", "masculino", "adultos", "kids". Filtramos
 // en JS por ese handle.
 export const GET_PRODUCTS_WITH_TAXONOMY_QUERY = /* GraphQL */ `
-  query GetProductsWithTaxonomy($first: Int!) {
-    products(first: $first, sortKey: BEST_SELLING) {
+  query GetProductsWithTaxonomy(
+    $first: Int!
+    $sortKey: ProductSortKeys
+    $reverse: Boolean
+  ) {
+    products(first: $first, sortKey: $sortKey, reverse: $reverse) {
       edges {
         node {
           ...ProductCardFields

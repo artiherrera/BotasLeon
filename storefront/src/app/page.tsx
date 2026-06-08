@@ -48,9 +48,13 @@ export const metadata = {
  */
 export default async function HomePage() {
   // Parallel fetch — hero + 2 grids por género en una pasada.
+  // sortKey: CREATED_AT + reverse=true (lo más nuevo arriba) hace honor
+  // al título "Lo más nuevo Hombre/Mujer". Antes era BEST_SELLING — productos
+  // recién subidos sin ventas no aparecían. Las páginas /hombre /mujer
+  // siguen con BEST_SELLING (default) porque ahí sí tiene sentido el ranking.
   const [hombreProducts, mujerProducts, heroSlides] = await Promise.all([
-    getProductsByTaxonomy("gender", "masculino", 8).catch(() => []),
-    getProductsByTaxonomy("gender", "femenino", 8).catch(() => []),
+    getProductsByTaxonomy("gender", "masculino", 8, { sortKey: "CREATED_AT" }).catch(() => []),
+    getProductsByTaxonomy("gender", "femenino", 8, { sortKey: "CREATED_AT" }).catch(() => []),
     getHeroSlides().catch(() => []),
   ])
 
