@@ -1,34 +1,59 @@
 "use client"
 
-import { useEffect, useMemo, useRef, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { createPortal } from "react-dom"
 import Image from "next/image"
 import { useCart } from "./CartProvider"
+import { usePDPVariant } from "./PDPVariantContext"
+import { ColorSwatch } from "./ColorSwatch"
 import { formatSizeWithUs } from "@/lib/sizes"
 import { formatMoney } from "@/lib/utils"
-import type { Product } from "@/lib/shopify/types"
+import { COLOR_OPTION_NAMES, findVariantBySelection } from "@/lib/pdp/variants"
 
 const SIZE_OPTION_NAMES = ["Talla", "Talla del calzado", "Size"]
 
 /**
- * ProductOptions — selector de variantes + botón Agregar al carrito.
+ * ProductOptions — selector de variantes (Talla, Color) + Agregar al carrito.
  *
- * Incluye una barra sticky mobile que aparece cuando el CTA principal
- * sale del viewport (IntersectionObserver). La barra se renderiza vía
- * createPortal a document.body para escapar cualquier containing block
- * de transform/backdrop-filter en los ancestros del PDP. Solo md:hidden.
+ * Estado lift-up: la selección ya NO vive en este componente. Consume
+ * PDPVariantContext, que también es quien filtra las imágenes de la galería.
+ * Cuando el usuario cambia Color, ProductGalleryConnected se entera por
+ * el mismo context y muestra las fotos del nuevo color sin que este
+ * componente tenga que saber nada de la galería.
  *
- * Lógica de matching: cuando el usuario elige una talla buscamos la
- * variante exacta. Si no hay match exacto (combinación inexistente),
- * el botón queda deshabilitado.
+ * Renderizado de opciones:
+ *  - Color → ColorSwatch (círculos visuales con HEX)
+ *  - Talla → botones rectangulares con conversión MX→US
+ *  - Otras (si las hay) → botones rectangulares con valor crudo
+ *
+ * La barra sticky mobile sigue funcionando igual — vive en portal a body.
  */
 
 type Props = {
-  product: Product
+  // Producto pasado por la PDP page. Equivalente al ctx.product, pero
+  // mantenemos la prop para no forzar al caller a leer del context.
+  product: import("@/lib/shopify/types").Product
+}
+
+function normalize(s: string): string {
+  return s
+    .normalize("NFD")
+    .replace(/[̀-ͯ]/g, "")
+    .toLowerCase()
+    .trim()
+}
+
+function isColorOption(name: string): boolean {
+  return COLOR_OPTION_NAMES.includes(normalize(name))
+}
+
+function isSizeOption(name: string): boolean {
+  return SIZE_OPTION_NAMES.includes(name)
 }
 
 export function ProductOptions({ product }: Props) {
   const { addItem, isPending } = useCart()
+  const { selection, setOption, activeVariant } = usePDPVariant()
 
   const isDefaultOnly =
     product.variants.length === 1 &&
@@ -36,32 +61,12 @@ export function ProductOptions({ product }: Props) {
       (o) => o.value.toLowerCase() === "default title"
     )
 
-  const initialSelection = useMemo(() => {
-    if (isDefaultOnly) return {}
-    const firstAvailable =
-      product.variants.find((v) => v.availableForSale) ?? product.variants[0]
-    return Object.fromEntries(
-      firstAvailable.selectedOptions.map((o) => [o.name, o.value])
-    )
-  }, [product.variants, isDefaultOnly])
-
-  const [selection, setSelection] = useState<Record<string, string>>(initialSelection)
-
-  const activeVariant = useMemo(() => {
-    if (isDefaultOnly) return product.variants[0]
-    return (
-      product.variants.find((v) =>
-        v.selectedOptions.every((o) => selection[o.name] === o.value)
-      ) ?? null
-    )
-  }, [product.variants, selection, isDefaultOnly])
-
   const isAvailable = activeVariant?.availableForSale ?? false
   const isUnknownCombo = !activeVariant
 
   // Handle del metaobject de "Sexo objetivo" — para conversión MX→US.
-  // Solo aplica al option de Talla; otros options se muestran tal cual.
-  const genderHandle = product.targetGender?.references?.edges?.[0]?.node?.handle ?? null
+  const genderHandle =
+    product.targetGender?.references?.edges?.[0]?.node?.handle ?? null
 
   // === Sticky mobile bar ===
   const ctaRef = useRef<HTMLButtonElement>(null)
@@ -149,28 +154,43 @@ export function ProductOptions({ product }: Props) {
     <div className="space-y-6">
       {!isDefaultOnly &&
         product.options.map((option) => {
-          const isSizeOption = SIZE_OPTION_NAMES.includes(option.name)
+          const isSize = isSizeOption(option.name)
+          const isColor = isColorOption(option.name)
+          const labelTitle = isSize ? "Talla" : isColor ? "Color" : option.name
+          const currentValue = selection[option.name]
+
           return (
             <div key={option.id}>
               <p className="eyebrow text-text-muted text-xs mb-3">
-                {isSizeOption ? "Talla" : option.name}
-                {selection[option.name] && (
+                {labelTitle}
+                {currentValue && (
                   <span className="ml-2 text-text normal-case tracking-normal font-medium">
-                    {isSizeOption
-                      ? formatSizeWithUs(selection[option.name], genderHandle)
-                      : selection[option.name]}
+                    {isSize
+                      ? formatSizeWithUs(currentValue, genderHandle)
+                      : currentValue}
                   </span>
                 )}
               </p>
-              <div className="flex flex-wrap gap-2">
+              <div className={`flex flex-wrap ${isColor ? "gap-4" : "gap-2"}`}>
                 {option.values.map((value) => {
                   const candidateSel = { ...selection, [option.name]: value }
-                  const matchVariant = product.variants.find((v) =>
-                    v.selectedOptions.every((o) => candidateSel[o.name] === o.value)
-                  )
+                  const matchVariant = findVariantBySelection(product, candidateSel)
                   const candidateAvailable = matchVariant?.availableForSale ?? false
-                  const isActive = selection[option.name] === value
-                  const label = isSizeOption
+                  const isActive = currentValue === value
+
+                  if (isColor) {
+                    return (
+                      <ColorSwatch
+                        key={value}
+                        value={value}
+                        isActive={isActive}
+                        isAvailable={candidateAvailable}
+                        onClick={() => setOption(option.name, value)}
+                      />
+                    )
+                  }
+
+                  const label = isSize
                     ? formatSizeWithUs(value, genderHandle)
                     : value
 
@@ -178,7 +198,7 @@ export function ProductOptions({ product }: Props) {
                     <button
                       key={value}
                       type="button"
-                      onClick={() => setSelection(candidateSel)}
+                      onClick={() => setOption(option.name, value)}
                       aria-pressed={isActive}
                       className={`min-w-[3rem] px-4 py-2 text-sm border transition-all whitespace-nowrap ${
                         isActive
@@ -194,7 +214,7 @@ export function ProductOptions({ product }: Props) {
                   )
                 })}
               </div>
-              {isSizeOption && genderHandle && (
+              {isSize && genderHandle && (
                 <p className="text-xs text-text-subtle mt-2">
                   MX · US ·{" "}
                   <a href="/guia-tallas" className="underline hover:text-leather">

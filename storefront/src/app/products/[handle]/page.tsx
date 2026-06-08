@@ -2,8 +2,9 @@ import { notFound } from "next/navigation"
 import Link from "next/link"
 import { Header } from "@/components/Header"
 import { Footer } from "@/components/Footer"
-import { ProductGallery } from "@/components/ProductGallery"
+import { ProductGalleryConnected } from "@/components/ProductGalleryConnected"
 import { ProductOptions } from "@/components/ProductOptions"
+import { PDPVariantProvider } from "@/components/PDPVariantContext"
 import { PDPTrustBlock } from "@/components/PDPTrustBlock"
 import { ProductReviewBlock } from "@/components/ProductReviewBlock"
 import { RelatedProducts } from "@/components/RelatedProducts"
@@ -80,51 +81,46 @@ export default async function ProductPage({ params }: Props) {
             <span className="text-text">{product.title}</span>
           </nav>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16">
-            <ProductGallery
-              images={
-                product.images.length > 0
-                  ? product.images
-                  : product.featuredImage
-                    ? [product.featuredImage]
-                    : []
-              }
-              title={product.title}
-            />
+          {/* Provider envuelve SOLO el grid Gallery+Info. RelatedProducts y
+              RecentlyViewed quedan fuera y siguen siendo independientes. */}
+          <PDPVariantProvider product={product}>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16">
+              <ProductGalleryConnected />
 
-            <div className="lg:sticky lg:top-24 lg:self-start">
-              {product.vendor && (
-                <p className="eyebrow text-leather mb-2">{product.vendor}</p>
-              )}
-              <h1 className="font-heading text-3xl md:text-4xl text-text mb-4 leading-tight">
-                {product.title}
-              </h1>
+              <div className="lg:sticky lg:top-24 lg:self-start">
+                {product.vendor && (
+                  <p className="eyebrow text-leather mb-2">{product.vendor}</p>
+                )}
+                <h1 className="font-heading text-3xl md:text-4xl text-text mb-4 leading-tight">
+                  {product.title}
+                </h1>
 
-              <p className="font-display text-2xl text-text mb-8">
-                {formatMoney(price.amount, price.currencyCode)}
-              </p>
+                <p className="font-display text-2xl text-text mb-8">
+                  {formatMoney(price.amount, price.currencyCode)}
+                </p>
 
-              <ProductOptions product={product} />
+                <ProductOptions product={product} />
 
-              <PDPTrustBlock product={product} />
+                <PDPTrustBlock product={product} />
 
-              <ProductReviewBlock product={product} />
+                <ProductReviewBlock product={product} />
 
-              {product.descriptionHtml && (
-                <div className="mt-12 pt-8 border-t border-border">
-                  <h2 className="eyebrow text-leather mb-4">Descripción</h2>
-                  <div
-                    className="prose prose-sm max-w-none text-text-muted leading-relaxed [&_p]:mb-3"
-                    dangerouslySetInnerHTML={{ __html: product.descriptionHtml }}
-                  />
+                {product.descriptionHtml && (
+                  <div className="mt-12 pt-8 border-t border-border">
+                    <h2 className="eyebrow text-leather mb-4">Descripción</h2>
+                    <div
+                      className="prose prose-sm max-w-none text-text-muted leading-relaxed [&_p]:mb-3"
+                      dangerouslySetInnerHTML={{ __html: product.descriptionHtml }}
+                    />
+                  </div>
+                )}
+
+                <div className="mt-8 pt-6 border-t border-border text-sm text-text-subtle space-y-1">
+                  {product.productType && <p>Tipo: {product.productType}</p>}
                 </div>
-              )}
-
-              <div className="mt-8 pt-6 border-t border-border text-sm text-text-subtle space-y-1">
-                {product.productType && <p>Tipo: {product.productType}</p>}
               </div>
             </div>
-          </div>
+          </PDPVariantProvider>
         </div>
 
         <RelatedProducts
