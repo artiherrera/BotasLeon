@@ -19,6 +19,10 @@ const STORAGE_KEY = "botasleon:cookies-accepted"
  *
  * No bloqueamos scripts (Klaviyo) en base al consent porque la ley
  * mexicana solo exige aviso + opción, no opt-in estricto como GDPR.
+ *
+ * GA4 con Consent Mode v2: cuando el usuario acepta/declina, dispatcheamos
+ * el evento `botasleon:consent-change` que GoogleAnalytics escucha para
+ * promover analytics_storage a 'granted' o mantenerlo 'denied'.
  */
 export function CookiesBanner() {
   // hasConsent === null mientras leemos localStorage (evita flash en SSR).
@@ -46,6 +50,16 @@ export function CookiesBanner() {
       window.localStorage.setItem(STORAGE_KEY, value)
     } catch {
       // ignorar si localStorage no disponible
+    }
+    // Notifica a GoogleAnalytics + cualquier otro consumer del consent.
+    // Custom event vs storage event: storage solo dispara entre tabs,
+    // necesitamos uno que viaje en la misma pestaña.
+    try {
+      window.dispatchEvent(
+        new CustomEvent("botasleon:consent-change", { detail: { value } })
+      )
+    } catch {
+      // CustomEvent no soportado (navegadores muy viejos) — falla silencioso.
     }
     setOpen(false)
     setHasConsent(true)

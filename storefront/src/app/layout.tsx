@@ -5,6 +5,7 @@ import { CartProvider } from "@/components/CartProvider"
 import { CartDrawer } from "@/components/CartDrawer"
 import { Toast } from "@/components/Toast"
 import { CookiesBanner } from "@/components/CookiesBanner"
+import { GoogleAnalytics } from "@/components/GoogleAnalytics"
 import { AnnouncementBar } from "@/components/AnnouncementBar"
 import { OrganizationJsonLd, WebsiteJsonLd } from "@/components/StructuredData"
 import { SITE_URL, SITE_NAME, SITE_DESCRIPTION } from "@/lib/seo"
@@ -126,6 +127,10 @@ export default function RootLayout({
             strategy="lazyOnload"
           />
         )}
+
+        {/* GA4 con Consent Mode v2 — escucha botasleon:consent-change del
+            CookiesBanner para promover analytics_storage. */}
+        <GoogleAnalytics />
 
         <CartProvider>
           {children}
