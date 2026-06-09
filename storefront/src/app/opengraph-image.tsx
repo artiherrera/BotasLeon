@@ -1,3 +1,5 @@
+import { readFile } from "node:fs/promises"
+import { join } from "node:path"
 import { ImageResponse } from "next/og"
 
 /**
@@ -30,6 +32,24 @@ const CUERO_LIGHT = "#6B4423"
 const GOLD = "#D4AF37"
 const CREAM = "#FBF8F1"
 const CREAM_SOFT = "#EFE5D0"
+
+/**
+ * Carga logo_botasleon.png desde /public como data URL base64.
+ * Lectura al build (no runtime) — pasa el binary inline a Satori vía
+ * <img src="data:image/png;base64,..."> que sí renderiza.
+ *
+ * Si el archivo no existe (caso edge en build CI), regresa null y el
+ * componente cae al wordmark tipográfico.
+ */
+async function loadLogoAsDataUrl(): Promise<string | null> {
+  try {
+    const path = join(process.cwd(), "public", "logo_botasleon.png")
+    const buffer = await readFile(path)
+    return `data:image/png;base64,${buffer.toString("base64")}`
+  } catch {
+    return null
+  }
+}
 
 async function loadGoogleFont(family: string, weight: number, text: string) {
   try {
@@ -64,9 +84,10 @@ export default async function OpengraphImage() {
   // no necesitan estar en la fuente.
   const allText = displayText + taglineText + footerText + eyebrowText
 
-  const [zillaBold, interMedium] = await Promise.all([
+  const [zillaBold, interMedium, logoDataUrl] = await Promise.all([
     loadGoogleFont("Zilla Slab", 700, allText),
     loadGoogleFont("Inter", 500, allText),
+    loadLogoAsDataUrl(),
   ])
 
   const fonts: Array<{
@@ -183,22 +204,48 @@ export default async function OpengraphImage() {
             />
           </div>
 
-          {/* Wordmark BotasLeón */}
-          <div
-            style={{
-              fontFamily: displayFont,
-              fontSize: 152,
-              color: CREAM,
-              fontWeight: 700,
-              lineHeight: 0.95,
-              letterSpacing: "-0.02em",
-              marginBottom: 28,
-              // Sombra cuero sutil — siente cincelado
-              textShadow: "0 2px 0 rgba(0,0,0,0.25)",
-            }}
-          >
-            {displayText}
-          </div>
+          {/* Logo real sobre placa cream — siente "sello grabado en cuero".
+              Fallback: si readFile falla en build, cae a wordmark tipográfico
+              para que la imagen siga saliendo. */}
+          {logoDataUrl ? (
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                backgroundColor: CREAM,
+                padding: "40px 70px",
+                marginBottom: 28,
+                // Sombra sutil para flotar sobre el cuero — feel de placa
+                boxShadow: "0 8px 24px rgba(0,0,0,0.35)",
+                borderTop: `2px solid ${GOLD}`,
+                borderBottom: `2px solid ${GOLD}`,
+              }}
+            >
+              <img
+                src={logoDataUrl}
+                width={620}
+                height={170}
+                alt="BotasLeón"
+                style={{ display: "block" }}
+              />
+            </div>
+          ) : (
+            <div
+              style={{
+                fontFamily: displayFont,
+                fontSize: 152,
+                color: CREAM,
+                fontWeight: 700,
+                lineHeight: 0.95,
+                letterSpacing: "-0.02em",
+                marginBottom: 28,
+                textShadow: "0 2px 0 rgba(0,0,0,0.25)",
+              }}
+            >
+              {displayText}
+            </div>
+          )}
 
           {/* Divider inferior con ornamento — mirror del superior */}
           <div
