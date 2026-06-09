@@ -10,10 +10,12 @@
  * Pause-on-hover para que el lector pueda parar a leer un mensaje.
  */
 
+import { FREE_SHIPPING_THRESHOLD_LABEL } from "@/lib/shipping"
+
 const MESSAGES = [
   "380 años de experiencia",
   "León, capital mundial del cuero",
-  "Envío MX y USA",
+  `Envío GRATIS a partir de ${FREE_SHIPPING_THRESHOLD_LABEL}`,
   "3, 6 y 9 meses sin intereses",
 ]
 

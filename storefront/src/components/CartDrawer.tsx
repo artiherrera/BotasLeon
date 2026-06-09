@@ -10,8 +10,7 @@ import { PaymentBadges } from "./PaymentBadges"
 import { formatMoney } from "@/lib/utils"
 import { getPendingDiscount, withDiscount } from "@/lib/discount/client"
 import { track } from "@/lib/klaviyo/client"
-
-const FREE_SHIPPING_THRESHOLD = 3000
+import { FREE_SHIPPING_THRESHOLD } from "@/lib/shipping"
 
 /**
  * CartDrawer — sidebar lateral derecho con líneas del cart.

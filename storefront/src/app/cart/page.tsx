@@ -16,8 +16,7 @@ import {
   withDiscount,
 } from "@/lib/discount/client"
 import { track } from "@/lib/klaviyo/client"
-
-const FREE_SHIPPING_THRESHOLD = 3000
+import { FREE_SHIPPING_THRESHOLD } from "@/lib/shipping"
 
 /**
  * /cart — vista full-page del carrito.
