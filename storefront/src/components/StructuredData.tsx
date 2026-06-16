@@ -1,4 +1,5 @@
 import { SITE_URL, SITE_NAME, SITE_DESCRIPTION, absoluteUrl } from "@/lib/seo"
+import { getSameAsUrls } from "@/lib/social"
 import type { Product } from "@/lib/shopify/types"
 
 /**
@@ -22,6 +23,11 @@ function JsonLd({ data }: { data: object }) {
 
 // === Organization — emitir en layout.tsx (todas las páginas) ===
 export function OrganizationJsonLd() {
+  // sameAs: ayuda a Google conectar la marca con sus perfiles oficiales
+  // en el Knowledge Graph. Solo emitir el campo si hay al menos un link
+  // activo — un array vacío es válido pero genera ruido en validadores.
+  const sameAs = getSameAsUrls()
+
   return (
     <JsonLd
       data={{
@@ -31,6 +37,7 @@ export function OrganizationJsonLd() {
         url: SITE_URL,
         logo: absoluteUrl("/logo_botasleon.png"),
         description: SITE_DESCRIPTION,
+        ...(sameAs.length > 0 && { sameAs }),
         address: {
           "@type": "PostalAddress",
           addressLocality: "León",

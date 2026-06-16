@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react"
 import { createPortal } from "react-dom"
 import Link from "next/link"
 import Image from "next/image"
+import { SocialIcons } from "./SocialIcons"
 
 /**
  * MobileNav — hamburger + drawer lateral para navegación mobile.
@@ -303,8 +304,8 @@ export function MobileNav() {
           </div>
         </div>
 
-        {/* Footer: contacto + branding */}
-        <div className="border-t border-border/40 bg-bg-alt/40 px-5 py-5 space-y-2">
+        {/* Footer: contacto + redes sociales + branding */}
+        <div className="border-t border-border/40 bg-bg-alt/40 px-5 py-5 space-y-3">
           <a
             href="mailto:hola@botasleon.com"
             className="flex items-center gap-3 text-sm text-text hover:text-leather transition-colors"
@@ -312,6 +313,12 @@ export function MobileNav() {
             <MailIcon />
             <span>hola@botasleon.com</span>
           </a>
+
+          {/* Redes sociales */}
+          <div className="text-text-muted hover:[&_a]:text-leather">
+            <SocialIcons size="md" />
+          </div>
+
           <p className="text-[11px] text-text-subtle pt-1">
             380 años de tradición · León, Gto.
           </p>

@@ -1,6 +1,7 @@
 import Image from "next/image"
 import Link from "next/link"
 import { PaymentBadges } from "./PaymentBadges"
+import { SocialIcons } from "./SocialIcons"
 
 /**
  * Footer del storefront. Tres columnas + barra inferior.
@@ -30,6 +31,11 @@ export function Footer() {
             Botas premium fabricadas en León, Guanajuato. Tradición artesanal
             mexicana en cada par.
           </p>
+
+          {/* Redes sociales — iconos compactos hereda color del Footer */}
+          <div className="mt-5 text-bg-alt/80 hover:[&_a]:text-bg">
+            <SocialIcons size="md" />
+          </div>
         </div>
 
         <div>
