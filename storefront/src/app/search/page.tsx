@@ -36,20 +36,27 @@ export default function SearchPage() {
       setError(null)
       return
     }
+    // `active` evita una race: si el usuario sigue tecleando, la request en
+    // vuelo se ignora al limpiar el effect y no pisa resultados más nuevos.
+    let active = true
     const handle = setTimeout(async () => {
       setLoading(true)
       setError(null)
       try {
         const products = await searchProducts(query)
+        if (!active) return
         setResults(products)
         setSubmitted(true)
       } catch (e) {
-        setError(e instanceof Error ? e.message : "Error al buscar")
+        if (active) setError(e instanceof Error ? e.message : "Error al buscar")
       } finally {
-        setLoading(false)
+        if (active) setLoading(false)
       }
     }, DEBOUNCE_MS)
-    return () => clearTimeout(handle)
+    return () => {
+      active = false
+      clearTimeout(handle)
+    }
   }, [query])
 
   return (
