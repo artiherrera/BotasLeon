@@ -26,6 +26,12 @@ import {
 } from "./taxonomy"
 import type { Product, Collection, HeroSlide, Image, Brand, CategoryCard, PageInfo } from "./types"
 
+// Logs de diagnóstico solo en dev. En producción (Amplify) ensucian los
+// logs de build/runtime y computan trabajo inútil (ej. el droppedReport de
+// getProductsByTaxonomy) que nadie lee. Los console.error de los catch sí
+// se mantienen — esos importan en producción.
+const DEBUG = process.env.NODE_ENV !== "production"
+
 type Edge<T> = { edges: Array<{ node: T }> }
 type Connection<T> = Edge<T> & { pageInfo: PageInfo }
 
@@ -127,18 +133,25 @@ export async function getProductByHandle(handle: string): Promise<Product | null
         } & JudgemeMetafields)
       | null
   }
-  const data = await shopifyFetch<Resp>(
-    GET_PRODUCT_BY_HANDLE_QUERY,
-    { handle },
-    { tags: [`product-${handle}`] }
-  )
-  if (!data.product) return null
-  const p = data.product
-  return applyJudgeme({
-    ...p,
-    images: p.images.edges.map((e) => e.node),
-    variants: p.variants.edges.map((e) => e.node),
-  })
+  try {
+    const data = await shopifyFetch<Resp>(
+      GET_PRODUCT_BY_HANDLE_QUERY,
+      { handle },
+      { tags: [`product-${handle}`] }
+    )
+    if (!data.product) return null
+    const p = data.product
+    return applyJudgeme({
+      ...p,
+      images: p.images.edges.map((e) => e.node),
+      variants: p.variants.edges.map((e) => e.node),
+    })
+  } catch (e) {
+    // Igual que getCollectionByHandle: un fallo transitorio de Shopify
+    // devuelve null (→ el PDP dispara notFound()) en vez de tirar la página.
+    console.error(`[getProductByHandle] handle=${handle}:`, e instanceof Error ? e.message : e)
+    return null
+  }
 }
 
 // === Collections ===
@@ -212,7 +225,7 @@ export async function getBrands(): Promise<Brand[]> {
   }
 
   const nodes = data.metaobjects?.edges?.map((e) => e.node) ?? []
-  console.log(`[getBrands] nodes recibidos: ${nodes.length}`)
+  if (DEBUG) console.log(`[getBrands] nodes recibidos: ${nodes.length}`)
 
   const brands = nodes.map((node, idx) => {
     const fieldMap = new Map(node.fields.map((f) => [f.key, f] as const))
@@ -311,7 +324,7 @@ export async function getProductsByTaxonomy(
     return true
   })
 
-  if (all.length > 0 && filtered.length < all.length) {
+  if (DEBUG && all.length > 0 && filtered.length < all.length) {
     const dropped = all.filter((p) => !filtered.includes(p))
     const droppedReport = dropped.map((p) => {
       const refs = p[key]?.references?.edges ?? []
@@ -419,7 +432,7 @@ export async function getHeroSlides(): Promise<HeroSlide[]> {
   }
 
   const nodes = data.metaobjects?.edges?.map((e) => e.node) ?? []
-  console.log(`[getHeroSlides] nodes recibidos: ${nodes.length}`)
+  if (DEBUG) console.log(`[getHeroSlides] nodes recibidos: ${nodes.length}`)
 
   const slides = nodes.map((node, idx) => {
     const fieldMap = new Map(node.fields.map((f) => [f.key, f] as const))
@@ -465,7 +478,7 @@ export async function getCategoryCards(): Promise<CategoryCard[]> {
   }
 
   const nodes = data.metaobjects?.edges?.map((e) => e.node) ?? []
-  console.log(`[getCategoryCards] nodes recibidos: ${nodes.length}`)
+  if (DEBUG) console.log(`[getCategoryCards] nodes recibidos: ${nodes.length}`)
 
   const cards = nodes.map((node, idx) => {
     const fieldMap = new Map(node.fields.map((f) => [f.key, f] as const))
