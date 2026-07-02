@@ -6,6 +6,7 @@ import { CategoryShowcase } from "@/components/CategoryShowcase"
 import { BrandGrid } from "@/components/BrandGrid"
 import { FAQAccordion } from "@/components/FAQAccordion"
 import { LatestByGenderTabs } from "@/components/LatestByGenderTabs"
+import { LatestGenderGrid } from "@/components/LatestGenderGrid"
 import { AccessoriesShowcase } from "@/components/AccessoriesShowcase"
 import { NewsletterForm } from "@/components/NewsletterForm"
 import { HechoEnLeonStrip } from "@/components/HechoEnLeonStrip"
@@ -88,8 +89,30 @@ export default async function HomePage() {
 
         {/* PRODUCTOS REALES en viewport 2 (antes pos 6, ahora pos 4) */}
         <LatestByGenderTabs
-          hombreProducts={hombreProducts}
-          mujerProducts={mujerProducts}
+          hombreContent={
+            <LatestGenderGrid
+              products={hombreProducts}
+              href="/hombre"
+              label="hombre"
+              emptyHint={
+                process.env.NODE_ENV === "development"
+                  ? "Aún no hay productos de hombre. Sube alguno con el metacampo 'Sexo objetivo: Masculino'."
+                  : "Estamos cargando las primeras botas de esta categoría. Mientras tanto, explora el resto del catálogo."
+              }
+            />
+          }
+          mujerContent={
+            <LatestGenderGrid
+              products={mujerProducts}
+              href="/mujer"
+              label="mujer"
+              emptyHint={
+                process.env.NODE_ENV === "development"
+                  ? "Aún no hay productos de mujer. Sube alguno con el metacampo 'Sexo objetivo: Femenino'."
+                  : "Estamos cargando las primeras botas de esta categoría. Mientras tanto, explora el resto del catálogo."
+              }
+            />
+          }
         />
 
         <CategoryShowcase />
