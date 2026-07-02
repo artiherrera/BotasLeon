@@ -17,7 +17,7 @@ export function ProductCard({ product }: { product: Product }) {
     <Link
       href={`/products/${handle}`}
       className="group block"
-      aria-label={`Ver ${title}`}
+      aria-label={product.availableForSale ? `Ver ${title}` : `Ver ${title} (agotado)`}
     >
       <div className="relative aspect-square overflow-hidden bg-bg-alt rounded-sm mb-3">
         {featuredImage ? (

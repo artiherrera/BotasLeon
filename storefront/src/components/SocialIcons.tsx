@@ -45,7 +45,7 @@ export function SocialIcons({ size = "md", className = "" }: Props) {
             target="_blank"
             rel="noopener noreferrer"
             aria-label={`${link.label} — perfil oficial BotasLeón`}
-            className="inline-flex items-center justify-center hover:opacity-70 transition-opacity"
+            className="inline-flex items-center justify-center p-1.5 hover:opacity-70 transition-opacity"
           >
             <Icon platform={link.platform} size={px} />
           </a>

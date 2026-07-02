@@ -34,8 +34,12 @@ export function LatestByGenderTabs({ hombreProducts, mujerProducts }: Props) {
     <section className="mx-auto max-w-7xl px-6 py-20 md:py-24">
       <p className="eyebrow text-leather text-center mb-3">Catálogo</p>
 
-      {/* Tabs centrados, estilo del mockup */}
-      <div className="flex justify-center items-center gap-3 md:gap-6 mb-10 text-2xl md:text-3xl font-heading">
+      {/* Toggle de género (botones aria-pressed agrupados, no un tablist) */}
+      <div
+        role="group"
+        aria-label="Filtrar lo más nuevo por género"
+        className="flex justify-center items-center gap-3 md:gap-6 mb-10 text-2xl md:text-3xl font-heading"
+      >
         <TabButton
           label="Lo más nuevo Hombre"
           isActive={active === "hombre"}

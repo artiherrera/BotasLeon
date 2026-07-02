@@ -64,7 +64,7 @@ export function AnnouncementBar() {
           type="button"
           onClick={dismiss}
           aria-label="Cerrar promoción"
-          className="absolute right-2 md:right-4 top-1/2 -translate-y-1/2 p-1 hover:bg-bg/10 rounded transition-colors text-bg/80 hover:text-bg"
+          className="absolute right-2 md:right-4 top-1/2 -translate-y-1/2 p-2 hover:bg-bg/10 rounded transition-colors text-bg/80 hover:text-bg"
         >
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M18 6 6 18M6 6l12 12" />

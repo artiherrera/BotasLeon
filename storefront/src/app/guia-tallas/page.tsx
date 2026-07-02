@@ -29,7 +29,7 @@ export default function GuiaTallasPage() {
       <h3>Hombre</h3>
       <table className="w-full border-collapse my-4 text-sm">
         <thead className="bg-bg-alt text-text">
-          <tr><th className="border border-border p-2 text-left">MX (cm)</th><th className="border border-border p-2 text-left">US</th><th className="border border-border p-2 text-left">EU</th></tr>
+          <tr><th scope="col" className="border border-border p-2 text-left">MX (cm)</th><th scope="col" className="border border-border p-2 text-left">US</th><th scope="col" className="border border-border p-2 text-left">EU</th></tr>
         </thead>
         <tbody>
           {[
@@ -56,7 +56,7 @@ export default function GuiaTallasPage() {
       <h3>Mujer</h3>
       <table className="w-full border-collapse my-4 text-sm">
         <thead className="bg-bg-alt text-text">
-          <tr><th className="border border-border p-2 text-left">MX (cm)</th><th className="border border-border p-2 text-left">US</th><th className="border border-border p-2 text-left">EU</th></tr>
+          <tr><th scope="col" className="border border-border p-2 text-left">MX (cm)</th><th scope="col" className="border border-border p-2 text-left">US</th><th scope="col" className="border border-border p-2 text-left">EU</th></tr>
         </thead>
         <tbody>
           {[

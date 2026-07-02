@@ -43,7 +43,7 @@ export function NewsletterForm() {
 
   if (status === "success") {
     return (
-      <div className="text-center">
+      <div className="text-center" role="status">
         <p className="font-heading text-xl text-leather mb-2">
           ¡Gracias!
         </p>
@@ -69,6 +69,8 @@ export function NewsletterForm() {
           enterKeyHint="go"
           className="flex-1 px-4 py-3 border border-border bg-bg focus:outline-none focus:border-leather disabled:opacity-60"
           aria-label="Correo electrónico para newsletter con 10% de descuento"
+          aria-invalid={status === "error"}
+          aria-describedby={error ? "newsletter-error" : undefined}
         />
         <button
           type="submit"
@@ -79,7 +81,7 @@ export function NewsletterForm() {
           {status === "loading" ? "Enviando..." : "Suscribirme"}
         </button>
         {error && (
-          <p className="text-xs text-red-700 sm:w-full mt-1" role="alert">
+          <p id="newsletter-error" className="text-xs text-red-700 sm:w-full mt-1" role="alert">
             {error}
           </p>
         )}

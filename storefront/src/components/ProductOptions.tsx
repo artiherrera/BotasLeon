@@ -141,6 +141,7 @@ export function ProductOptions({ product }: Props) {
           type="button"
           onClick={handleAdd}
           disabled={!isAvailable || isPending || isUnknownCombo}
+          aria-busy={isPending}
           aria-label={ctaLabel}
           className="px-5 py-3 bg-leather text-bg text-xs uppercase tracking-wider font-medium hover:bg-text disabled:bg-text-subtle disabled:cursor-not-allowed transition-colors whitespace-nowrap"
         >
@@ -226,9 +227,11 @@ export function ProductOptions({ product }: Props) {
           )
         })}
 
-      {activeVariant && (
-        <div className="text-sm">
-          {isAvailable ? (
+      {/* Región viva: anuncia Disponible/Agotado al cambiar de variante.
+          Siempre presente en el DOM para que el lector la anuncie. */}
+      <div className="text-sm empty:hidden" role="status" aria-live="polite">
+        {activeVariant &&
+          (isAvailable ? (
             <span className="text-emerald-700 inline-flex items-center gap-2">
               <span className="w-2 h-2 bg-emerald-700 rounded-full inline-block" />
               Disponible
@@ -238,15 +241,15 @@ export function ProductOptions({ product }: Props) {
               <span className="w-2 h-2 bg-text-subtle rounded-full inline-block" />
               Agotado
             </span>
-          )}
-        </div>
-      )}
+          ))}
+      </div>
 
       <button
         ref={ctaRef}
         type="button"
         onClick={handleAdd}
         disabled={!isAvailable || isPending || isUnknownCombo}
+        aria-busy={isPending}
         className="w-full py-4 bg-leather text-bg text-sm uppercase tracking-widest hover:bg-text disabled:bg-text-subtle disabled:cursor-not-allowed transition-colors"
       >
         {ctaLabel}
