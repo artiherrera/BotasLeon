@@ -6,6 +6,7 @@
  * conectores de GraphQL devuelven todo en `.edges[].node` que es ruido).
  */
 
+import { cache } from "react"
 import { shopifyFetch } from "./client"
 import {
   GET_PRODUCTS_QUERY,
@@ -34,6 +35,16 @@ const DEBUG = process.env.NODE_ENV !== "production"
 
 type Edge<T> = { edges: Array<{ node: T }> }
 type Connection<T> = Edge<T> & { pageInfo: PageInfo }
+
+// Versiones cacheadas por-request (React.cache): deduplican cuando la misma
+// función se llama varias veces en un mismo render — PDP: page +
+// generateMetadata; /marcas/[handle]: generateStaticParams + page +
+// generateMetadata. Shopify usa POST, que Next NO memoiza, así que este cache
+// es el que colapsa esas llamadas repetidas. (Las funciones *Impl están más
+// abajo; los `function` se hoistean, así que referenciarlas aquí es válido.)
+export const getProductByHandle = cache(getProductByHandleImpl)
+export const getCollectionByHandle = cache(getCollectionByHandleImpl)
+export const getBrands = cache(getBrandsImpl)
 
 // === Judge.me parsing ===
 //
@@ -126,7 +137,7 @@ export async function getProducts(opts?: {
   }
 }
 
-export async function getProductByHandle(handle: string): Promise<Product | null> {
+async function getProductByHandleImpl(handle: string): Promise<Product | null> {
   type Resp = {
     product:
       | (Omit<Product, "images" | "variants"> & {
@@ -175,7 +186,7 @@ export type CollectionWithProducts = Collection & {
 // Devuelve la colección con sus productos, o null si la colección no
 // existe en Shopify. El caller decide qué mostrar (lista de productos
 // si hay, empty state con instrucciones si no).
-export async function getCollectionByHandle(
+async function getCollectionByHandleImpl(
   handle: string,
   first = 48
 ): Promise<CollectionWithProducts | null> {
@@ -203,7 +214,7 @@ export async function getCollectionByHandle(
 
 // === Brands (Metaobjects) ===
 
-export async function getBrands(): Promise<Brand[]> {
+async function getBrandsImpl(): Promise<Brand[]> {
   type RawNode = {
     id: string
     handle: string
