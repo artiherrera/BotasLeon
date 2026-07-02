@@ -20,6 +20,12 @@ export const metadata = {
   alternates: { canonical: absoluteUrl("/") },
 }
 
+// El home mezcla data que cambia (precios/stock vía getProductsByTaxonomy)
+// con secciones editables desde el admin. Sin request-time APIs, la página
+// se prerenderiza en build; este revalidate evita que precios/stock queden
+// congelados hasta el próximo deploy. Consistente con las rutas de catálogo.
+export const revalidate = 60
+
 /**
  * Home page (server component, Next.js 16).
  *
