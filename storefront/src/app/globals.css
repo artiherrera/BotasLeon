@@ -12,7 +12,7 @@
   --color-bg-alt: #F4E9D8;
   --color-text: #1F1814;
   --color-text-muted: #5A4F44;
-  --color-text-subtle: #8A7E6E;
+  --color-text-subtle: #6E6250; /* AA sobre cream (5.6:1) y bg-alt (4.96:1); antes #8A7E6E fallaba (3.74:1) */
   --color-leather: #4B2E1F;
   --color-leather-light: #8B5A2B;
   --color-terracotta: #8B3A24;
