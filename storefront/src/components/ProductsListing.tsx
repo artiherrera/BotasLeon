@@ -6,6 +6,7 @@ import { ProductCard } from "./ProductCard"
 import { EmptyProductsState } from "./EmptyState"
 import { loadMoreProducts } from "@/lib/search/client"
 import type { Product, PageInfo } from "@/lib/shopify/types"
+import { useFocusTrap } from "@/lib/useFocusTrap"
 
 /**
  * ProductsListing — grid con sidebar de filtros (estilo Amazon).
@@ -127,6 +128,10 @@ export function ProductsListing({ products, initialStyle, initialPageInfo }: Pro
   })
   const [sortKey, setSortKey] = useState<SortKey>("default")
   const [mobileOpen, setMobileOpen] = useState(false)
+  // En mobile el <aside> es un drawer modal: atrapa el foco, cierra con ESC y
+  // restaura el foco al botón "Filtros". En desktop mobileOpen es false, así
+  // que el hook queda inactivo y el aside es un sidebar normal.
+  const filtersRef = useFocusTrap<HTMLElement>(mobileOpen, () => setMobileOpen(false))
 
   // Sincroniza el filtro types cuando cambia el estilo activo.
   // Necesario porque al navegar /hombre/vaqueras → /hombre/clasicas Next
@@ -281,6 +286,10 @@ export function ProductsListing({ products, initialStyle, initialPageInfo }: Pro
     <div className="grid grid-cols-1 lg:grid-cols-[16rem_1fr] gap-8">
       {/* Sidebar desktop / drawer mobile */}
       <aside
+        ref={filtersRef}
+        role={mobileOpen ? "dialog" : undefined}
+        aria-modal={mobileOpen ? true : undefined}
+        aria-label={mobileOpen ? "Filtros" : undefined}
         className={`
           ${mobileOpen ? "fixed inset-0 z-50 bg-bg overflow-y-auto" : "hidden"}
           lg:block lg:static lg:bg-transparent lg:overflow-visible lg:z-auto
@@ -293,6 +302,7 @@ export function ProductsListing({ products, initialStyle, initialPageInfo }: Pro
             <button
               onClick={() => setMobileOpen(false)}
               aria-label="Cerrar filtros"
+              data-autofocus
               className="p-2 -mr-2 hover:bg-bg-alt rounded"
             >
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">

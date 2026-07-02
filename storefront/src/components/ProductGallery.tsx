@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react"
 import { createPortal } from "react-dom"
 import Image from "next/image"
 import type { Image as ShopifyImage } from "@/lib/shopify/types"
+import { useFocusTrap } from "@/lib/useFocusTrap"
 
 /**
  * Galería de imágenes del PDP.
@@ -263,9 +264,12 @@ function Lightbox({
 }) {
   const img = images[idx]
   const hasMultiple = images.length > 1
+  // Foco atrapado dentro del lightbox y restaurado a la miniatura al cerrar.
+  const dialogRef = useFocusTrap<HTMLDivElement>(true, onClose)
 
   return (
     <div
+      ref={dialogRef}
       role="dialog"
       aria-modal="true"
       aria-label={`Imagen ampliada ${idx + 1} de ${images.length}`}
@@ -280,6 +284,7 @@ function Lightbox({
           onClose()
         }}
         aria-label="Cerrar"
+        data-autofocus
         className="absolute top-4 right-4 z-10 w-10 h-10 flex items-center justify-center text-white/90 hover:text-white text-2xl bg-black/40 rounded-full"
       >
         ×
