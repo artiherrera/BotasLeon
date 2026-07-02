@@ -40,8 +40,19 @@ type Props = {
 
 export async function generateStaticParams() {
   try {
-    const { products } = await getProducts({ first: 100 })
-    return products.map((p) => ({ handle: p.handle }))
+    // Paginamos el catálogo completo (Shopify topa `first` en 250) para
+    // pre-generar TODAS las PDPs — importante porque Amplify no regenera
+    // rutas dinámicas on-demand de forma fiable. Cap de 20 páginas (5000
+    // productos) como salvaguarda anti-loop.
+    const params: { handle: string }[] = []
+    let after: string | null = null
+    for (let page = 0; page < 20; page++) {
+      const { products, pageInfo } = await getProducts({ first: 250, after })
+      params.push(...products.map((p) => ({ handle: p.handle })))
+      if (!pageInfo.hasNextPage || !pageInfo.endCursor) break
+      after = pageInfo.endCursor
+    }
+    return params
   } catch {
     return []
   }
