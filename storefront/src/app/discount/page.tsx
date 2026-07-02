@@ -53,7 +53,13 @@ function DiscountHandler() {
   const search = useSearchParams()
   const router = useRouter()
   const code = (search?.get("code") || "").trim()
-  const redirect = search?.get("redirect") || "/products"
+  // Solo aceptamos rutas internas relativas. Sin esto, ?redirect=https://evil.com
+  // sería un open redirect (el link se distribuye por email → vector de phishing).
+  const rawRedirect = search?.get("redirect") || "/products"
+  const redirect =
+    rawRedirect.startsWith("/") && !rawRedirect.startsWith("//")
+      ? rawRedirect
+      : "/products"
   const [stored, setStored] = useState(false)
 
   useEffect(() => {

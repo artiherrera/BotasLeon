@@ -13,10 +13,13 @@ import type { Product } from "@/lib/shopify/types"
  */
 
 function JsonLd({ data }: { data: object }) {
+  // Escapamos "<" a <: JSON.stringify no lo escapa, así un título de
+  // producto con "</script>" rompería el bloque JSON-LD (XSS almacenado).
+  const json = JSON.stringify(data).replace(/</g, "\\u003c")
   return (
     <script
       type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(data) }}
+      dangerouslySetInnerHTML={{ __html: json }}
     />
   )
 }
