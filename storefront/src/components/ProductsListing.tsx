@@ -553,6 +553,7 @@ export function ProductsListing({ products, initialStyle, initialPageInfo }: Pro
                 <button
                   type="button"
                   disabled={loadingMore || !pageInfo.endCursor}
+                  aria-busy={loadingMore}
                   onClick={async () => {
                     if (!pageInfo?.endCursor || loadingMore) return
                     setLoadingMore(true)
