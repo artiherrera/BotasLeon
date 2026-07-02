@@ -77,7 +77,7 @@ export function PDPTrustBlock({ product }: Props) {
             <span className="font-medium text-leather">3, 6 y 9 meses sin intereses</span>
             <span className="text-text-muted">
               {" "}
-              · o desde {formatMoney(monthly, price.currencyCode)} al mes en 9 pagos
+              · o desde {formatMoney(monthly, price.currencyCode, 2)} al mes en 9 pagos
             </span>
           </p>
         </div>

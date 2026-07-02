@@ -23,7 +23,7 @@ export function MSIBreakdown({ amount, currency }: Props) {
     <p className="text-[11px] text-text-muted">
       o desde{" "}
       <span className="font-medium text-text">
-        {formatMoney(perMonth, currency)}
+        {formatMoney(perMonth, currency, 2)}
       </span>{" "}
       al mes en {MSI_MONTHS} pagos sin intereses
     </p>
