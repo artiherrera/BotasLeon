@@ -42,14 +42,8 @@ const nextConfig: NextConfig = {
   async headers() {
     return [{ source: "/:path*", headers: SECURITY_HEADERS }];
   },
-  async redirects() {
-    // Consolidamos toda la jerarquía bajo /nino (singular) para evitar
-    // contenido duplicado SEO. /ninos y sus hijos quedan como 308 permanente.
-    return [
-      { source: "/ninos", destination: "/nino", permanent: true },
-      { source: "/ninos/:path*", destination: "/nino/:path*", permanent: true },
-    ];
-  },
+  // Sin redirect /ninos → /nino: la sección Niños no existe (páginas sin
+  // publicar), así que redirigir ahí solo mandaba a un 404.
 };
 
 export default nextConfig;
