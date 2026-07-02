@@ -8,6 +8,7 @@ import { CookiesBanner } from "@/components/CookiesBanner"
 import { GoogleAnalytics } from "@/components/GoogleAnalytics"
 import { AnnouncementBar } from "@/components/AnnouncementBar"
 import { OrganizationJsonLd, WebsiteJsonLd } from "@/components/StructuredData"
+import { WhatsAppButton } from "@/components/WhatsAppButton"
 import { SITE_URL, SITE_NAME, SITE_DESCRIPTION } from "@/lib/seo"
 import "./globals.css"
 
@@ -138,6 +139,10 @@ export default function RootLayout({
           <Toast />
         </CartProvider>
         <CookiesBanner />
+
+        {/* Botón flotante de WhatsApp — mensaje genérico aquí; en el PDP se
+            oculta y el propio producto renderiza su versión con contexto. */}
+        <WhatsAppButton />
       </body>
     </html>
   )
