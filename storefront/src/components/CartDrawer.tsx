@@ -11,6 +11,7 @@ import { formatMoney } from "@/lib/utils"
 import { getPendingDiscount, withDiscount } from "@/lib/discount/client"
 import { track } from "@/lib/klaviyo/client"
 import { FREE_SHIPPING_THRESHOLD } from "@/lib/shipping"
+import { useFocusTrap } from "@/lib/useFocusTrap"
 
 /**
  * CartDrawer — sidebar lateral derecho con líneas del cart.
@@ -39,14 +40,9 @@ export function CartDrawer() {
     }
   }, [isOpen])
 
-  useEffect(() => {
-    if (!isOpen) return
-    const handler = (e: KeyboardEvent) => {
-      if (e.key === "Escape") closeCart()
-    }
-    window.addEventListener("keydown", handler)
-    return () => window.removeEventListener("keydown", handler)
-  }, [isOpen, closeCart])
+  // Diálogo accesible: foco atrapado dentro del drawer, restaurado al
+  // disparador al cerrar, y Escape para cerrar.
+  const drawerRef = useFocusTrap<HTMLElement>(isOpen, closeCart)
 
   const lines = cart?.lines ?? []
   const isEmpty = lines.length === 0
@@ -82,8 +78,11 @@ export function CartDrawer() {
       />
 
       <aside
+        ref={drawerRef}
+        role="dialog"
+        aria-modal="true"
         aria-label="Carrito de compras"
-        aria-hidden={!isOpen}
+        inert={!isOpen}
         className={`fixed top-0 right-0 h-full w-full sm:w-[28rem] bg-bg/85 backdrop-blur-2xl backdrop-saturate-150 border-l border-border/40 z-50 shadow-2xl transition-transform duration-300 flex flex-col ${
           isOpen ? "translate-x-0" : "translate-x-full"
         }`}
@@ -101,6 +100,7 @@ export function CartDrawer() {
           <button
             onClick={closeCart}
             aria-label="Cerrar carrito"
+            data-autofocus
             className="p-2 -mr-2 hover:bg-bg-alt rounded transition-colors"
           >
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -192,7 +192,7 @@ export function CartDrawer() {
                             }
                             disabled={isPending || line.quantity <= 1}
                             aria-label="Disminuir cantidad"
-                            className="w-8 h-8 flex items-center justify-center hover:bg-bg-alt disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                            className="w-11 h-11 flex items-center justify-center hover:bg-bg-alt disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
                           >
                             −
                           </button>
@@ -204,7 +204,7 @@ export function CartDrawer() {
                             onClick={() => updateLine(line.id, line.quantity + 1)}
                             disabled={isPending}
                             aria-label="Aumentar cantidad"
-                            className="w-8 h-8 flex items-center justify-center hover:bg-bg-alt disabled:opacity-40 transition-colors"
+                            className="w-11 h-11 flex items-center justify-center hover:bg-bg-alt disabled:opacity-40 transition-colors"
                           >
                             +
                           </button>
