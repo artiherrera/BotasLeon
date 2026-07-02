@@ -69,7 +69,7 @@ export function CookiesBanner() {
 
   return (
     <div
-      role="dialog"
+      role="region"
       aria-label="Aviso de cookies"
       aria-live="polite"
       className={`fixed bottom-0 inset-x-0 z-40 bg-leather text-bg shadow-2xl transition-transform duration-500 ease-out ${
