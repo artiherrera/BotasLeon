@@ -74,7 +74,7 @@ export default async function HomePage() {
     <>
       <Header />
       <FAQJsonLd items={FAQS} />
-      <main className="flex-1">
+      <main id="contenido" tabIndex={-1} className="flex-1">
         <h1 className="sr-only">
           Botas mexicanas hechas en León — vaqueras, clásicas, exóticas y de
           rancho

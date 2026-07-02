@@ -23,7 +23,7 @@ export function ContentPage({ eyebrow, title, intro, children }: Props) {
   return (
     <>
       <Header />
-      <main className="flex-1">
+      <main id="contenido" tabIndex={-1} className="flex-1">
         <div className="mx-auto max-w-3xl px-6 py-12 md:py-20">
           <header className="mb-10 pb-8 border-b border-border">
             {eyebrow && <p className="eyebrow text-leather mb-3">{eyebrow}</p>}

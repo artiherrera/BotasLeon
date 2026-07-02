@@ -41,7 +41,7 @@ function LoadingShell() {
   return (
     <>
       <Header />
-      <main className="flex-1 flex items-center justify-center px-6 py-20">
+      <main id="contenido" tabIndex={-1} className="flex-1 flex items-center justify-center px-6 py-20">
         <p className="text-text-muted">Cargando...</p>
       </main>
       <Footer />
@@ -74,7 +74,7 @@ function DiscountHandler() {
     return (
       <>
         <Header />
-        <main className="flex-1 flex items-center justify-center px-6 py-20">
+        <main id="contenido" tabIndex={-1} className="flex-1 flex items-center justify-center px-6 py-20">
           <div className="max-w-md text-center">
             <h1 className="font-heading text-2xl text-text mb-3">
               Código no válido
@@ -98,7 +98,7 @@ function DiscountHandler() {
   return (
     <>
       <Header />
-      <main className="flex-1 flex items-center justify-center px-6 py-20">
+      <main id="contenido" tabIndex={-1} className="flex-1 flex items-center justify-center px-6 py-20">
         <div className="max-w-md text-center">
           <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-leather text-bg flex items-center justify-center">
             <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">

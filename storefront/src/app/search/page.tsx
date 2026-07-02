@@ -62,7 +62,7 @@ export default function SearchPage() {
   return (
     <>
       <Header />
-      <main className="flex-1">
+      <main id="contenido" tabIndex={-1} className="flex-1">
         <div className="mx-auto max-w-5xl px-6 py-12 md:py-16">
           <div className="mb-8 text-center">
             <p className="eyebrow text-leather mb-2">Búsqueda</p>

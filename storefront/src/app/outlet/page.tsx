@@ -7,7 +7,7 @@ export default function OutletPage() {
   return (
     <>
       <Header />
-      <main className="flex-1">
+      <main id="contenido" tabIndex={-1} className="flex-1">
         <div className="mx-auto max-w-3xl px-6 py-20 md:py-28 text-center">
           <p className="eyebrow text-terracotta mb-3">Outlet</p>
           <h1 className="font-display text-4xl md:text-5xl text-text mb-4">

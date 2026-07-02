@@ -36,6 +36,14 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* Foco de teclado visible y consistente en toda la UI (botones-ícono,
+   enlaces y demás que no definen su propio estado de foco). Solo :focus-visible
+   para no mostrar el anillo en clicks de mouse. */
+:focus-visible {
+  outline: 2px solid var(--color-leather);
+  outline-offset: 2px;
+}
+
 /* Headings con jerarquía western. H1 = Bevan display (hero only).
    H2-H4 = Zilla Slab elegante. H5-H6 = Inter caps (labels). */
 h1, .h1 {

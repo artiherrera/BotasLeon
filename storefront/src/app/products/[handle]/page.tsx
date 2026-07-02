@@ -82,7 +82,7 @@ export default async function ProductPage({ params }: Props) {
       <ProductViewedTracker product={product} />
 
       <Header />
-      <main className="flex-1">
+      <main id="contenido" tabIndex={-1} className="flex-1">
         <div className="mx-auto max-w-7xl px-6 py-8 md:py-12">
           <nav className="mb-8 text-sm text-text-muted">
             <Link href="/" className="hover:text-leather">Inicio</Link>

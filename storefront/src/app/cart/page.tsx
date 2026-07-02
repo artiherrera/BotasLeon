@@ -73,7 +73,7 @@ export default function CartPage() {
     return (
       <>
         <Header />
-        <main className="flex-1">
+        <main id="contenido" tabIndex={-1} className="flex-1">
           <div className="mx-auto max-w-3xl px-6 py-20 text-center text-text-muted">
             Cargando…
           </div>
@@ -87,7 +87,7 @@ export default function CartPage() {
     return (
       <>
         <Header />
-        <main className="flex-1">
+        <main id="contenido" tabIndex={-1} className="flex-1">
           <div className="mx-auto max-w-2xl px-6 py-20 md:py-28 text-center">
             <div className="w-20 h-20 mx-auto mb-6 text-text-subtle">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
@@ -119,7 +119,7 @@ export default function CartPage() {
   return (
     <>
       <Header />
-      <main className="flex-1">
+      <main id="contenido" tabIndex={-1} className="flex-1">
         <div className="mx-auto max-w-5xl px-6 py-12 md:py-16">
           <p className="eyebrow text-leather mb-2">Carrito</p>
           <h1 className="font-display text-3xl md:text-4xl text-text mb-10">
@@ -272,6 +272,7 @@ export default function CartPage() {
                     value={couponInput}
                     onChange={(e) => setCouponInput(e.target.value)}
                     placeholder="CÓDIGO"
+                    aria-label="Código de descuento"
                     autoCapitalize="characters"
                     autoCorrect="off"
                     spellCheck={false}

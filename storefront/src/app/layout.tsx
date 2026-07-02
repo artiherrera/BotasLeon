@@ -110,6 +110,15 @@ export default function RootLayout({
       className={`${bevan.variable} ${zilla.variable} ${inter.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-bg text-text">
+        {/* Saltar al contenido — primer tab para usuarios de teclado, salta
+            el Header repetido y aterriza en el <main id="contenido">. */}
+        <a
+          href="#contenido"
+          className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[100] focus:bg-leather focus:text-bg focus:px-4 focus:py-2 focus:rounded"
+        >
+          Saltar al contenido
+        </a>
+
         {/* Promo bar arriba de TODO — captura email/atención. Dismissible. */}
         <AnnouncementBar />
 

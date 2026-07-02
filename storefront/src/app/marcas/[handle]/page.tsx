@@ -42,7 +42,7 @@ export default async function MarcaPage({ params }: Props) {
   return (
     <>
       <Header />
-      <main className="flex-1">
+      <main id="contenido" tabIndex={-1} className="flex-1">
         <div className="mx-auto max-w-7xl px-6 py-12 md:py-16">
           {/* Breadcrumb */}
           <nav className="mb-6 text-sm text-text-muted">

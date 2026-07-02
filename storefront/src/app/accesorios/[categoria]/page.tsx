@@ -67,7 +67,7 @@ export default async function AccesorioCategoriaPage({ params }: Props) {
   return (
     <>
       <Header />
-      <main className="flex-1">
+      <main id="contenido" tabIndex={-1} className="flex-1">
         <div className="mx-auto max-w-7xl px-6 py-12 md:py-16">
           <div className="mb-8">
             <p className="eyebrow text-leather mb-2">{meta.eyebrow}</p>

@@ -17,7 +17,7 @@ export default function CuentaPage() {
   return (
     <>
       <Header />
-      <main className="flex-1">
+      <main id="contenido" tabIndex={-1} className="flex-1">
         <div className="mx-auto max-w-md px-6 py-20 md:py-28">
           <div className="text-center mb-10">
             <p className="eyebrow text-leather mb-3">Mi cuenta</p>
