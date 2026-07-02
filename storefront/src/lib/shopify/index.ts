@@ -61,7 +61,6 @@ type RawMetafield = { type: string | null; value: string | null } | null
 type JudgemeMetafields = {
   reviewsRating?: RawMetafield
   reviewsRatingCount?: RawMetafield
-  judgemeBadge?: RawMetafield
 }
 
 function parseJudgemeRating(mf: RawMetafield): number | null {

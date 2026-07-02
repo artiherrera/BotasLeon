@@ -31,7 +31,6 @@ export type ProductVariant = {
   id: string
   title: string
   availableForSale: boolean
-  quantityAvailable: number | null
   sku: string | null
   price: Money
   compareAtPrice: Money | null

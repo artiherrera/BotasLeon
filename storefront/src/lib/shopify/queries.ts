@@ -27,7 +27,6 @@ export const VARIANT_FRAGMENT = /* GraphQL */ `
     id
     title
     availableForSale
-    quantityAvailable
     sku
     price { ...MoneyFields }
     compareAtPrice { ...MoneyFields }
@@ -75,10 +74,6 @@ export const PRODUCT_CARD_FRAGMENT = /* GraphQL */ `
       type
       value
     }
-    judgemeBadge: metafield(namespace: "judgeme", key: "badge") {
-      type
-      value
-    }
   }
 `
 
@@ -118,10 +113,6 @@ export const PRODUCT_DETAIL_FRAGMENT = /* GraphQL */ `
       value
     }
     reviewsRatingCount: metafield(namespace: "reviews", key: "rating_count") {
-      type
-      value
-    }
-    judgemeBadge: metafield(namespace: "judgeme", key: "badge") {
       type
       value
     }

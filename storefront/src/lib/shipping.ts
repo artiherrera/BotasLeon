@@ -13,10 +13,6 @@
 
 export const FREE_SHIPPING_THRESHOLD = 2999
 
-// Costo flat a USA cuando el cliente NO alcanza el threshold de envío
-// gratis MX. USA siempre paga, MX gratis sobre threshold.
-export const USA_SHIPPING_FLAT = 499
-
 // Formato amigable para banners ("$2,999" no "2999"). Sin decimales —
 // si el threshold sube a algo no-redondo (ej. $2,499.50) cambiar acá.
 export const FREE_SHIPPING_THRESHOLD_LABEL = "$2,999"
