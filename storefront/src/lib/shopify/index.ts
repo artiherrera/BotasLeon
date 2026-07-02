@@ -106,6 +106,7 @@ export async function getProducts(opts?: {
   after?: string | null
   query?: string
   sortKey?: ProductSortKey
+  reverse?: boolean
 }): Promise<{ products: Product[]; pageInfo: PageInfo }> {
   type Resp = { products: Connection<Product & JudgemeMetafields> }
   const data = await shopifyFetch<Resp>(
@@ -115,6 +116,7 @@ export async function getProducts(opts?: {
       after: opts?.after ?? null,
       query: opts?.query,
       sortKey: opts?.sortKey ?? "BEST_SELLING",
+      reverse: opts?.reverse ?? false,
     },
     { tags: ["products"] }
   )
@@ -256,7 +258,15 @@ export async function getProductsByVendor(
   first = 48
 ): Promise<Product[]> {
   const escaped = vendor.replace(/"/g, '\\"')
-  const { products } = await getProducts({ first, query: `vendor:"${escaped}"` })
+  // CREATED_AT + reverse = más nuevos primero. Evitamos el default BEST_SELLING,
+  // que en una tienda sin ventas ordena mal (u omite del batch) los productos
+  // recién subidos — el mismo problema que el home ya resolvió.
+  const { products } = await getProducts({
+    first,
+    query: `vendor:"${escaped}"`,
+    sortKey: "CREATED_AT",
+    reverse: true,
+  })
   return products
 }
 

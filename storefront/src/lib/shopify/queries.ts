@@ -136,8 +136,9 @@ export const GET_PRODUCTS_QUERY = /* GraphQL */ `
     $after: String
     $query: String
     $sortKey: ProductSortKeys
+    $reverse: Boolean
   ) {
-    products(first: $first, after: $after, query: $query, sortKey: $sortKey) {
+    products(first: $first, after: $after, query: $query, sortKey: $sortKey, reverse: $reverse) {
       edges {
         node { ...ProductCardFields }
       }
