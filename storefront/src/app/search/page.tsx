@@ -28,6 +28,14 @@ export default function SearchPage() {
   const [error, setError] = useState<string | null>(null)
   const [submitted, setSubmitted] = useState(false)
 
+  // Pre-llena la búsqueda desde ?q= — el SearchAction del JSON-LD manda aquí
+  // desde el sitelinks searchbox de Google. Se lee en cliente (window) para
+  // no usar useSearchParams y mantener la ruta estática.
+  useEffect(() => {
+    const q = new URLSearchParams(window.location.search).get("q")
+    if (q) setQuery(q)
+  }, [])
+
   // Debounce: cuando cambia query, esperamos 350ms sin tipear antes de buscar.
   useEffect(() => {
     if (!query.trim()) {
