@@ -1,6 +1,6 @@
 "use client"
 
-import { Suspense, useEffect, useState } from "react"
+import { Suspense, useEffect } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import Link from "next/link"
 import { Header } from "@/components/Header"
@@ -60,12 +60,10 @@ function DiscountHandler() {
     rawRedirect.startsWith("/") && !rawRedirect.startsWith("//")
       ? rawRedirect
       : "/products"
-  const [stored, setStored] = useState(false)
 
   useEffect(() => {
     if (!code) return
     setPendingDiscount(code)
-    setStored(true)
     const timer = setTimeout(() => {
       router.replace(redirect)
     }, 1500)
@@ -116,7 +114,7 @@ function DiscountHandler() {
             guardado y se aplica al pagar.
           </p>
           <p className="text-xs text-text-subtle mb-6">
-            {stored ? "Te llevamos al catálogo..." : "Procesando..."}
+            Te llevamos al catálogo...
           </p>
           <Link
             href={redirect}
