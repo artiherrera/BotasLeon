@@ -135,7 +135,7 @@ export function ProductGallery({ images, title }: Props) {
             src={active.url}
             alt={active.altText || title}
             fill
-            priority
+            preload
             sizes="(max-width: 1024px) 100vw, 50vw"
             className="object-cover"
           />
@@ -201,7 +201,7 @@ export function ProductGallery({ images, title }: Props) {
                   src={img.url}
                   alt={img.altText || `${title} ${idx + 1}`}
                   fill
-                  priority={idx === 0}
+                  preload={idx === 0}
                   sizes="100vw"
                   className="object-cover"
                 />
@@ -297,7 +297,6 @@ function Lightbox({
         alt={img.altText || `${title} ${idx + 1}`}
         fill
         sizes="100vw"
-        priority
         onClick={(e) => e.stopPropagation()}
         className="object-contain p-4 md:p-12 cursor-default"
       />

@@ -42,7 +42,7 @@ export function Header() {
             alt="BotasLeón"
             width={800}
             height={220}
-            priority
+            loading="eager"
             className="h-10 md:h-14 w-auto"
           />
         </Link>

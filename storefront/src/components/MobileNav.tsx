@@ -176,7 +176,6 @@ export function MobileNav() {
               alt="BotasLeón"
               width={800}
               height={220}
-              priority
               className="h-9 w-auto"
             />
           </Link>

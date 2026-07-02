@@ -262,7 +262,7 @@ export function HeroCarousel({ slides }: Props) {
                 src={slide.image.url}
                 alt={slide.image.altText || slide.title}
                 fill
-                priority={idx === 0}
+                preload={idx === 0}
                 sizes="100vw"
                 className="object-cover"
               />

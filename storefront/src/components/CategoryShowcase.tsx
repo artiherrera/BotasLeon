@@ -99,7 +99,6 @@ export async function CategoryShowcase() {
                     width={card.image.width}
                     height={card.image.height}
                     sizes="(max-width: 768px) 100vw, 33vw"
-                    priority={i === 0}
                     className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.04]"
                   />
                 ) : (
