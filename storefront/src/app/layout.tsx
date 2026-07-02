@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from "next"
-import Script from "next/script"
 import { Bevan, Zilla_Slab, Inter } from "next/font/google"
+import { KlaviyoLoader } from "@/components/KlaviyoLoader"
 import { CartProvider } from "@/components/CartProvider"
 import { CartDrawer } from "@/components/CartDrawer"
 import { Toast } from "@/components/Toast"
@@ -10,8 +10,6 @@ import { AnnouncementBar } from "@/components/AnnouncementBar"
 import { OrganizationJsonLd, WebsiteJsonLd } from "@/components/StructuredData"
 import { SITE_URL, SITE_NAME, SITE_DESCRIPTION } from "@/lib/seo"
 import "./globals.css"
-
-const KLAVIYO_KEY = process.env.NEXT_PUBLIC_KLAVIYO_PUBLIC_KEY
 
 /**
  * Tipografías acordadas:
@@ -126,16 +124,9 @@ export default function RootLayout({
         <OrganizationJsonLd />
         <WebsiteJsonLd />
 
-        {/* Klaviyo Onsite tracking — carga async, expone window.klaviyo.
-            lazyOnload: difiere a browser idle. Mejora LCP en 3G/4G porque
-            no compite con el HTML/CSS/IMG críticos del above-the-fold. */}
-        {KLAVIYO_KEY && (
-          <Script
-            id="klaviyo-onsite"
-            src={`https://static.klaviyo.com/onsite/js/klaviyo.js?company_id=${KLAVIYO_KEY}`}
-            strategy="lazyOnload"
-          />
-        )}
+        {/* Klaviyo Onsite — se inyecta SOLO con consentimiento "todas"
+            (ver KlaviyoLoader). El newsletter no depende de esto. */}
+        <KlaviyoLoader />
 
         {/* GA4 con Consent Mode v2 — escucha botasleon:consent-change del
             CookiesBanner para promover analytics_storage. */}
