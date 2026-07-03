@@ -109,15 +109,16 @@ async function getBrandHandles() {
     .map((n) => n.handle)
 }
 
+// Rutas estáticas indexables. NO incluir /search, /cuenta, /discount (son
+// noindex) ni /outlet (oculta/sin inventario): meter páginas noindex en el
+// sitemap es una contradicción que Search Console reporta.
 const STATIC_ROUTES = [
   { path: "/", priority: "1.0", changefreq: "daily" },
   { path: "/products", priority: "0.9", changefreq: "daily" },
-  { path: "/hombre", priority: "0.9", changefreq: "weekly" },
-  { path: "/mujer", priority: "0.9", changefreq: "weekly" },
+  { path: "/hombre", priority: "0.9", changefreq: "daily" },
+  { path: "/mujer", priority: "0.9", changefreq: "daily" },
+  { path: "/accesorios", priority: "0.8", changefreq: "daily" },
   { path: "/marcas", priority: "0.8", changefreq: "weekly" },
-  { path: "/outlet", priority: "0.7", changefreq: "weekly" },
-  { path: "/search", priority: "0.5", changefreq: "monthly" },
-  { path: "/cuenta", priority: "0.4", changefreq: "yearly" },
   { path: "/envios", priority: "0.6", changefreq: "monthly" },
   { path: "/devoluciones", priority: "0.6", changefreq: "monthly" },
   { path: "/guia-tallas", priority: "0.7", changefreq: "monthly" },
@@ -127,6 +128,21 @@ const STATIC_ROUTES = [
   { path: "/proveedores", priority: "0.4", changefreq: "yearly" },
   { path: "/terminos", priority: "0.3", changefreq: "yearly" },
   { path: "/privacidad", priority: "0.3", changefreq: "yearly" },
+]
+
+// Sub-rutas long-tail (categorías por estilo/tipo) — valen SEO y deben ir en
+// el sitemap. Mantener en sync con VALID_STYLES (hombre/mujer/[estilo]) y
+// ACCESSORY_SLUGS (accesorios/[categoria]).
+const SUBROUTES = [
+  ...["vaqueras", "botines", "clasicas", "rancho", "exoticas"].map((s) => ({
+    path: `/hombre/${s}`, priority: "0.75", changefreq: "weekly",
+  })),
+  ...["vaqueras", "botines", "clasicas", "largas", "exoticas"].map((s) => ({
+    path: `/mujer/${s}`, priority: "0.75", changefreq: "weekly",
+  })),
+  ...["cinturones", "sombreros", "carteras", "cuidado-del-cuero"].map((s) => ({
+    path: `/accesorios/${s}`, priority: "0.7", changefreq: "weekly",
+  })),
 ]
 
 function urlEntry(loc, priority, changefreq, lastmod) {
@@ -146,11 +162,14 @@ async function main() {
   ])
 
   console.log(
-    `[sitemap] static=${STATIC_ROUTES.length} products=${productHandles.length} brands=${brandHandles.length}`
+    `[sitemap] static=${STATIC_ROUTES.length} sub=${SUBROUTES.length} products=${productHandles.length} brands=${brandHandles.length}`
   )
 
   const entries = [
     ...STATIC_ROUTES.map((r) =>
+      urlEntry(`${SITE_URL}${r.path}`, r.priority, r.changefreq, now)
+    ),
+    ...SUBROUTES.map((r) =>
       urlEntry(`${SITE_URL}${r.path}`, r.priority, r.changefreq, now)
     ),
     ...productHandles.map((h) =>
