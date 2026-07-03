@@ -32,10 +32,14 @@ export function ProductReviewBlock({ product }: { product: Product }) {
   const count = product.judgemeReviewCount ?? null
   const hasReviews = rating !== null && rating > 0
 
+  // Si aún no hay reseñas no mostramos NADA (ni el encabezado ni el mensaje
+  // "Aún sin reseñas") — evita ruido en un catálogo nuevo. El bloque aparece
+  // solo cuando llega la primera reseña.
+  if (!hasReviews) return null
+
   // shopUrl ya termina en /reviews/{subdomain} — agregar /reviews otra vez
-  // genera 404 (lo que vimos). Tampoco existe filtro ?product= público en
-  // Judge.me — el usuario aterriza en la lista completa de reseñas de la
-  // tienda y filtra desde ahí con el UI nativo de Judge.me.
+  // genera 404. Tampoco existe filtro ?product= público en Judge.me: el
+  // usuario aterriza en la lista completa y filtra con el UI nativo.
   const reviewsUrl = getJudgemeShopUrl()
 
   return (
@@ -47,54 +51,38 @@ export function ProductReviewBlock({ product }: { product: Product }) {
         Reseñas
       </h2>
 
-      {hasReviews ? (
-        <div className="flex flex-col gap-3">
-          <JudgemeStars rating={rating} count={count} size="lg" />
-          {count !== null && count > 0 && (
-            <p className="text-text-muted text-sm">
-              Basado en {count} reseña{count === 1 ? "" : "s"} verificada{count === 1 ? "" : "s"}.
-            </p>
-          )}
-          {reviewsUrl && (
-            <a
-              href={reviewsUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="self-start inline-flex items-center gap-2 mt-2 text-sm font-medium text-leather hover:text-leather-dark underline underline-offset-4"
-            >
-              Ver todas las reseñas
-              <svg
-                width="14"
-                height="14"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                aria-hidden="true"
-              >
-                <path d="M7 17 17 7" />
-                <path d="M7 7h10v10" />
-              </svg>
-            </a>
-          )}
-        </div>
-      ) : (
-        <div className="flex flex-col gap-3">
-          <p className="text-text font-medium">
-            Aún sin reseñas
-          </p>
+      <div className="flex flex-col gap-3">
+        <JudgemeStars rating={rating} count={count} size="lg" />
+        {count !== null && count > 0 && (
           <p className="text-text-muted text-sm">
-            Cuando compres esta bota, te enviaremos un correo para que
-            puedas reseñar y ayudar a otros clientes a decidir.
+            Basado en {count} reseña{count === 1 ? "" : "s"} verificada{count === 1 ? "" : "s"}.
           </p>
-          {/* CTA omitido en estado empty: judge.me/reviews/{shop} solo
-              existe cuando hay >=1 reseña publicada. Sin eso da
-              "Store Not Found" — dead-end UX. El CTA aparece automático
-              cuando llega la primera reseña (rama hasReviews arriba). */}
-        </div>
-      )}
+        )}
+        {reviewsUrl && (
+          <a
+            href={reviewsUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="self-start inline-flex items-center gap-2 mt-2 text-sm font-medium text-leather hover:text-leather-dark underline underline-offset-4"
+          >
+            Ver todas las reseñas
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden="true"
+            >
+              <path d="M7 17 17 7" />
+              <path d="M7 7h10v10" />
+            </svg>
+          </a>
+        )}
+      </div>
     </section>
   )
 }
