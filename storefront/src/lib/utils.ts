@@ -20,3 +20,22 @@ export function formatMoney(
 export function cn(...classes: Array<string | false | null | undefined>): string {
   return classes.filter(Boolean).join(" ")
 }
+
+/**
+ * Info de oferta a partir del precio + precio de comparación (compare-at) de
+ * Shopify. `onSale` solo es true si el compare-at es mayor que el precio.
+ */
+export function saleInfo(
+  priceAmount: string,
+  compareAtAmount?: string | null
+): { onSale: boolean; discountPct: number } {
+  const price = parseFloat(priceAmount)
+  const compare = compareAtAmount ? parseFloat(compareAtAmount) : 0
+  if (!Number.isFinite(price) || !Number.isFinite(compare) || compare <= price) {
+    return { onSale: false, discountPct: 0 }
+  }
+  return {
+    onSale: true,
+    discountPct: Math.round(((compare - price) / compare) * 100),
+  }
+}

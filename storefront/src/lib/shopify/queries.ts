@@ -50,6 +50,9 @@ export const PRODUCT_CARD_FRAGMENT = /* GraphQL */ `
       minVariantPrice { ...MoneyFields }
       maxVariantPrice { ...MoneyFields }
     }
+    compareAtPriceRange {
+      minVariantPrice { ...MoneyFields }
+    }
     options { id name values }
     color: metafield(namespace: "shopify", key: "color-pattern") {
       references(first: 5) {
@@ -95,6 +98,9 @@ export const PRODUCT_DETAIL_FRAGMENT = /* GraphQL */ `
     priceRange {
       minVariantPrice { ...MoneyFields }
       maxVariantPrice { ...MoneyFields }
+    }
+    compareAtPriceRange {
+      minVariantPrice { ...MoneyFields }
     }
     options { id name values }
     variants(first: 100) {

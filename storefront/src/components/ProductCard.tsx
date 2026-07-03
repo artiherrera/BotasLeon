@@ -1,7 +1,7 @@
 import Image from "next/image"
 import Link from "next/link"
 import type { Product } from "@/lib/shopify/types"
-import { formatMoney } from "@/lib/utils"
+import { formatMoney, saleInfo } from "@/lib/utils"
 import { JudgemeStars } from "./JudgemeStars"
 
 /**
@@ -12,6 +12,8 @@ import { JudgemeStars } from "./JudgemeStars"
 export function ProductCard({ product }: { product: Product }) {
   const { handle, title, vendor, featuredImage, priceRange } = product
   const minPrice = priceRange.minVariantPrice
+  const compareAt = product.compareAtPriceRange?.minVariantPrice
+  const sale = saleInfo(minPrice.amount, compareAt?.amount)
 
   return (
     <Link
@@ -54,9 +56,16 @@ export function ProductCard({ product }: { product: Product }) {
             size="sm"
           />
         </div>
-        <p className="text-text-muted text-sm">
-          {formatMoney(minPrice.amount, minPrice.currencyCode)}
-        </p>
+        <div className="flex items-baseline gap-2 text-sm">
+          <p className={sale.onSale ? "font-medium text-terracotta" : "text-text-muted"}>
+            {formatMoney(minPrice.amount, minPrice.currencyCode)}
+          </p>
+          {sale.onSale && compareAt && (
+            <span className="text-text-subtle line-through">
+              {formatMoney(compareAt.amount, compareAt.currencyCode)}
+            </span>
+          )}
+        </div>
       </div>
     </Link>
   )

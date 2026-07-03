@@ -71,6 +71,11 @@ export type Product = {
     minVariantPrice: Money
     maxVariantPrice: Money
   }
+  // "Precio de comparación" (was-price) de Shopify. minVariantPrice es "0.0"
+  // cuando ningún variant lo tiene; mostrar tachado solo si es mayor al precio.
+  compareAtPriceRange?: {
+    minVariantPrice: Money
+  }
   options: ProductOption[]
   variants: ProductVariant[]
   color?: TaxonomyMetafield
