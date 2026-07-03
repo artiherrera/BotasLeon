@@ -49,13 +49,15 @@ export function ProductCard({ product }: { product: Product }) {
         <h3 className="font-heading text-lg text-text leading-tight mb-1">
           {title}
         </h3>
-        <div className="mb-1">
-          <JudgemeStars
-            rating={product.judgemeRating ?? null}
-            count={product.judgemeReviewCount ?? null}
-            size="sm"
-          />
-        </div>
+        {product.judgemeRating != null && product.judgemeRating > 0 && (
+          <div className="mb-1">
+            <JudgemeStars
+              rating={product.judgemeRating}
+              count={product.judgemeReviewCount ?? null}
+              size="sm"
+            />
+          </div>
+        )}
         <div className="flex items-baseline gap-2 text-sm">
           <p className={sale.onSale ? "font-medium text-terracotta" : "text-text-muted"}>
             {formatMoney(minPrice.amount, minPrice.currencyCode)}

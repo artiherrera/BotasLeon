@@ -4,7 +4,8 @@ import { useId } from "react"
  * JudgemeStars — componente de rating reusable (server component).
  *
  * Render por estado:
- *   - rating null o 0 → texto "Sin reseñas aún" (color text-subtle)
+ *   - rating null o 0 → null (no renderiza nada; el caller decide si pone
+ *     algún mensaje de "sé el primero")
  *   - rating > 0      → 5 estrellas SVG (filled / half / empty) + número + (count)
  *
  * Estrellas en color cuero (#4B2E1F = brand `leather`). Las "filled" usan
@@ -14,9 +15,8 @@ import { useId } from "react"
  *
  * Tamaños: sm=14px (cards), md=18px (default), lg=22px (PDP).
  *
- * Fallback graceful: si no hay metafields de Judge.me (porque la tienda
- * aún no recibió la primera reseña), mostramos texto en vez de estrellas
- * vacías — así el UI no parece "roto" o "0/5".
+ * Sin reseñas: no renderizamos nada (ni "Sin reseñas aún" ni estrellas
+ * vacías) — en un catálogo nuevo sin reseñas ese texto solo mete ruido.
  */
 
 type Size = "sm" | "md" | "lg"
@@ -46,13 +46,7 @@ export function JudgemeStars({ rating, count, size = "md" }: Props) {
   // cuando varios JudgemeStars renderizan con mismo rating en la misma página.
   const uid = useId()
 
-  if (!rating || rating <= 0) {
-    return (
-      <p className={`text-text-subtle ${textClass}`}>
-        Sin reseñas aún
-      </p>
-    )
-  }
+  if (!rating || rating <= 0) return null
 
   // Round a 1 decimal para display, ej. 4.27 → "4.3"
   const displayRating = Math.round(rating * 10) / 10
