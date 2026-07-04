@@ -105,7 +105,7 @@ export default function CartPage() {
             </p>
             <Link
               href="/products"
-              className="inline-flex px-8 py-4 bg-leather text-bg text-sm uppercase tracking-widest hover:bg-text transition-colors"
+              className="inline-flex px-8 py-4 rounded-full bg-leather text-bg text-sm uppercase tracking-widest hover:bg-text transition-colors"
             >
               Ver catálogo
             </Link>
@@ -281,7 +281,7 @@ export default function CartPage() {
                   <button
                     type="submit"
                     disabled={!couponInput.trim()}
-                    className="px-4 py-2 bg-leather text-bg text-xs uppercase tracking-wider hover:bg-text transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                    className="px-4 py-2 rounded-full bg-leather text-bg text-xs uppercase tracking-wider hover:bg-text transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                   >
                     Aplicar
                   </button>
@@ -303,7 +303,7 @@ export default function CartPage() {
                 <a
                   href={withDiscount(cart.checkoutUrl, pendingDiscount)}
                   onClick={handleCheckoutClick}
-                  className="block w-full text-center py-4 bg-leather text-bg text-sm uppercase tracking-widest hover:bg-text transition-colors"
+                  className="block w-full text-center py-4 rounded-full bg-leather text-bg text-sm uppercase tracking-widest hover:bg-text transition-colors"
                 >
                   Proceder al pago
                 </a>

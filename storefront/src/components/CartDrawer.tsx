@@ -128,7 +128,7 @@ export function CartDrawer() {
             <Link
               href="/products"
               onClick={closeCart}
-              className="inline-flex px-6 py-3 bg-leather text-bg text-sm uppercase tracking-wider hover:bg-text transition-colors"
+              className="inline-flex px-6 py-3 rounded-full bg-leather text-bg text-sm uppercase tracking-wider hover:bg-text transition-colors"
             >
               Ver catálogo
             </Link>
@@ -268,7 +268,7 @@ export function CartDrawer() {
                 <a
                   href={withDiscount(cart.checkoutUrl, pendingDiscount)}
                   onClick={handleCheckoutClick}
-                  className="block w-full text-center py-4 bg-leather text-bg text-sm uppercase tracking-wider hover:bg-text transition-colors"
+                  className="block w-full text-center py-4 rounded-full bg-leather text-bg text-sm uppercase tracking-wider hover:bg-text transition-colors"
                 >
                   Pagar
                 </a>
