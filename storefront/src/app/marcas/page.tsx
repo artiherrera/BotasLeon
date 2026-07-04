@@ -26,9 +26,18 @@ export default async function MarcasPage() {
         .catch(() => [])
     : []
 
-  const productCountByName = new Map<string, number>()
+  // Contamos por vendor NORMALIZADO (sin acentos, minúsculas, trim): el `name`
+  // del metaobject de marca y el `vendor` del producto pueden diferir en
+  // mayúsculas/acentos (ej. marca "FORAJIDAS" vs vendor "Forajidas"), y un
+  // match exacto dejaba el contador en 0 aunque sí hubiera productos.
+  const normalizeVendor = (s: string) =>
+    s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().trim()
+
+  const productCountByVendor = new Map<string, number>()
   for (const p of products) {
-    productCountByName.set(p.vendor, (productCountByName.get(p.vendor) ?? 0) + 1)
+    if (!p.vendor) continue
+    const key = normalizeVendor(p.vendor)
+    productCountByVendor.set(key, (productCountByVendor.get(key) ?? 0) + 1)
   }
 
   return (
@@ -52,7 +61,7 @@ export default async function MarcasPage() {
           ) : (
             <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3 md:gap-4">
               {brands.map((b) => {
-                const count = productCountByName.get(b.name) ?? 0
+                const count = productCountByVendor.get(normalizeVendor(b.name)) ?? 0
                 return (
                   <Link
                     key={b.handle}
