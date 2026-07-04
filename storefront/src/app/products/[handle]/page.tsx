@@ -103,8 +103,14 @@ export default async function ProductPage({ params }: Props) {
           {/* Provider envuelve SOLO el grid Gallery+Info. RelatedProducts y
               RecentlyViewed quedan fuera y siguen siendo independientes. */}
           <PDPVariantProvider product={product}>
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16">
-              <ProductGalleryConnected />
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16">
+              {/* Galería acotada (estilo Amazon): no pasa de ~½ de la altura
+                  de pantalla y va centrada, para que el bloque de compra suba
+                  y quepa sin tanto scroll en móvil/tablet. En desktop 2-col
+                  llena su columna. */}
+              <div className="mx-auto w-full max-w-[min(90vw,50vh)] lg:mx-0 lg:max-w-none">
+                <ProductGalleryConnected />
+              </div>
 
               <div className="lg:sticky lg:top-24 lg:self-start">
                 {product.vendor && (
