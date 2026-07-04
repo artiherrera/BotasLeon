@@ -94,3 +94,26 @@ h5, .h5, h6, .h6, .eyebrow {
     animation: none;
   }
 }
+
+/* Cintillo de MARCAS — mismo keyframe (marquee-scroll: items 2× + -50%) pero
+   más lento (60s). Pausa al hover para poder hacer clic en un logo. En
+   reduced-motion se detiene y el cintillo queda scrollable a mano para no
+   ocultar marcas. */
+.brand-marquee-wrap {
+  overflow: hidden;
+}
+.brand-marquee {
+  animation: marquee-scroll 60s linear infinite;
+}
+.brand-marquee:hover {
+  animation-play-state: paused;
+}
+@media (prefers-reduced-motion: reduce) {
+  .brand-marquee {
+    animation: none;
+  }
+  .brand-marquee-wrap {
+    overflow-x: auto;
+    overflow-y: hidden;
+  }
+}

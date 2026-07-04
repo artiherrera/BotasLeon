@@ -2,25 +2,37 @@ import Link from "next/link"
 import Image from "next/image"
 import { getBrands } from "@/lib/shopify"
 
+type Brand = Awaited<ReturnType<typeof getBrands>>[number]
+
 /**
- * BrandGrid — sección "Nuestras marcas" en el home.
+ * BrandGrid — sección "Marcas que comercializamos" en el home.
  *
- * Server component. Si no hay marcas reales en Shopify Metaobject `brand`,
- * la sección se omite del home (mejor cero que demo "Próximamente",
- * que lee como sitio vacío). Cuando hay 1-3 marcas mostramos un layout
- * compacto centrado; con 4+ usamos la cuadrícula completa.
+ * Cintillo (marquee) horizontal de desplazamiento LENTO con TODAS las marcas
+ * dadas de alta en Shopify. Cada logo enlaza a /marcas/[handle] (las botas de
+ * esa marca). CSS-only, mismo patrón que MarqueeBar: items duplicados 2× y la
+ * animación va a -50% para loop perfecto; pausa al hover (para poder hacer
+ * clic) y respeta prefers-reduced-motion (ahí queda scrollable a mano).
+ *
+ * Se omite si no hay marcas (mejor cero que una sección vacía).
  */
+
+// Rellenamos cada "mitad" hasta >= MIN para que el cintillo llene pantallas
+// anchas sin dejar hueco en el punto de loop: como la animación va a -50%,
+// cada mitad debe ser al menos tan ancha como el viewport.
+const MIN_PER_HALF = 12
 
 export async function BrandGrid() {
   const brands = await getBrands()
-
   if (brands.length === 0) return null
 
-  const isCurated = brands.length < 4
+  // Una mitad = las marcas reales repetidas hasta MIN; el track son 2 mitades.
+  const half: Brand[] = []
+  while (half.length < MIN_PER_HALF) half.push(...brands)
+  const track = [...half, ...half]
 
   return (
-    <section className="mx-auto max-w-7xl px-6 py-20 md:py-28">
-      <div className="text-center mb-12">
+    <section className="py-20 md:py-28">
+      <div className="mx-auto max-w-7xl px-6 text-center mb-12">
         <p className="eyebrow text-leather mb-3">Marcas que comercializamos</p>
         <h2 className="font-heading text-3xl md:text-4xl text-text mb-3">
           Las mejores casas de León,
@@ -33,74 +45,62 @@ export async function BrandGrid() {
         </p>
       </div>
 
-      <div
-        className={
-          isCurated
-            ? "flex flex-wrap justify-center gap-4 md:gap-6 max-w-2xl mx-auto"
-            : "grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-2 md:gap-3"
-        }
-      >
-        {brands.map((b) => (
-          <RealBrandCard key={b.handle} brand={b} curated={isCurated} />
-        ))}
+      {/* Cintillo full-bleed con desvanecido en los bordes */}
+      <div className="brand-marquee-wrap relative">
+        <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-10 md:w-32 bg-gradient-to-r from-bg to-transparent" />
+        <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-10 md:w-32 bg-gradient-to-l from-bg to-transparent" />
+        <div className="brand-marquee flex w-max items-center gap-4 md:gap-6">
+          {track.map((b, idx) => (
+            <BrandLogo key={idx} brand={b} decorative={idx >= brands.length} />
+          ))}
+        </div>
       </div>
 
-      <div className="text-center mt-12">
+      <div className="mx-auto max-w-7xl px-6 text-center mt-12">
         <Link
-          href={isCurated ? "/proveedores" : "/marcas"}
+          href="/marcas"
           className="inline-flex items-center text-leather font-medium hover:text-terracotta transition-colors"
         >
-          {isCurated
-            ? "¿Eres taller en León? Trabaja con nosotros"
-            : "Ver todas las marcas"}
-          <span className="ml-2">→</span>
+          Ver todas las marcas
+          <span className="ml-2" aria-hidden>→</span>
         </Link>
       </div>
     </section>
   )
 }
 
-function RealBrandCard({
-  brand: b,
-  curated,
-}: {
-  brand: Awaited<ReturnType<typeof getBrands>>[number]
-  curated: boolean
-}) {
+/**
+ * Un logo del cintillo. `decorative` marca las copias visuales (relleno + la
+ * 2ª mitad): siguen siendo clickeables con mouse pero se ocultan a lectores
+ * de pantalla y al teclado, para que solo las marcas reales estén una vez.
+ */
+function BrandLogo({ brand: b, decorative }: { brand: Brand; decorative: boolean }) {
   return (
     <Link
       href={`/marcas/${b.handle}`}
-      aria-label={b.name}
-      className={`group relative overflow-hidden block bg-bg-alt ${
-        curated
-          ? "aspect-square w-32 sm:w-40 md:w-48"
-          : "aspect-square"
-      }`}
+      aria-label={decorative ? undefined : `Ver botas de ${b.name}`}
+      aria-hidden={decorative || undefined}
+      tabIndex={decorative ? -1 : undefined}
+      className="group relative block aspect-square w-28 shrink-0 overflow-hidden rounded-sm bg-bg-alt md:w-36"
     >
       {b.logo ? (
-        <div className="absolute inset-0">
-          <Image
-            src={b.logo.url}
-            alt={b.logo.altText || b.name}
-            fill
-            sizes={
-              curated
-                ? "(max-width: 640px) 33vw, 192px"
-                : "(max-width: 640px) 33vw, (max-width: 1024px) 25vw, 12.5vw"
-            }
-            className="object-cover transition-transform duration-500 group-hover:scale-105"
-          />
-        </div>
+        <Image
+          src={b.logo.url}
+          alt={decorative ? "" : b.logo.altText || b.name}
+          fill
+          sizes="144px"
+          className="object-cover transition-transform duration-500 group-hover:scale-105"
+        />
       ) : (
         <div className="absolute inset-0 flex items-center justify-center bg-leather p-3">
-          <h3 className="font-display text-lg md:text-xl text-bg text-center leading-tight">
+          <span className="font-display text-base md:text-lg text-bg text-center leading-tight">
             {b.name}
-          </h3>
+          </span>
         </div>
       )}
 
-      <div className="absolute inset-x-0 bottom-0 p-2 bg-gradient-to-t from-black/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
-        <p className="text-bg text-xs font-medium text-center truncate">{b.name}</p>
+      <div className="absolute inset-x-0 bottom-0 p-2 bg-gradient-to-t from-black/80 to-transparent opacity-0 transition-opacity group-hover:opacity-100">
+        <p className="truncate text-center text-xs font-medium text-bg">{b.name}</p>
       </div>
     </Link>
   )
