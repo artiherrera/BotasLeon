@@ -105,7 +105,7 @@ export function ProductGallery({ images, title }: Props) {
 
   if (images.length === 0) {
     return (
-      <div className="aspect-[4/5] bg-bg-alt flex items-center justify-center text-text-subtle">
+      <div className="aspect-square bg-bg-alt flex items-center justify-center text-text-subtle">
         <p className="text-sm">Sin imágenes disponibles</p>
       </div>
     )
@@ -128,7 +128,7 @@ export function ProductGallery({ images, title }: Props) {
           type="button"
           onClick={() => openLightbox(activeIdx)}
           aria-label="Ampliar imagen"
-          className="relative aspect-[4/5] bg-bg-alt overflow-hidden mb-3 w-full block cursor-zoom-in"
+          className="relative aspect-square bg-bg-alt overflow-hidden mb-3 w-full block cursor-zoom-in"
         >
           <Image
             key={active.url}
@@ -137,7 +137,7 @@ export function ProductGallery({ images, title }: Props) {
             fill
             preload
             sizes="(max-width: 1024px) 100vw, 50vw"
-            className="object-cover"
+            className="object-contain"
           />
         </button>
 
@@ -203,7 +203,7 @@ export function ProductGallery({ images, title }: Props) {
                   fill
                   preload={idx === 0}
                   sizes="100vw"
-                  className="object-cover"
+                  className="object-contain"
                 />
               </button>
             </div>
