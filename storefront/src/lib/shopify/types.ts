@@ -80,6 +80,9 @@ export type Product = {
   variants: ProductVariant[]
   color?: TaxonomyMetafield
   material?: TaxonomyMetafield
+  // Tallas como metacampo de categoría (shopify.shoe-size), para productos
+  // donde la talla NO se cargó como variante. Mismo shape que color/material.
+  shoeSizes?: TaxonomyMetafield
   // Sexo objetivo (Shopify target-gender). Solo el handle del metaobject,
   // sin fields — usamos handle directo para mapear MX→US sizes
   targetGender?: {
@@ -176,5 +179,7 @@ export type Cart = {
     quantity: number
     merchandise: ProductVariant & { product: Pick<Product, "handle" | "title"> }
     cost: { totalAmount: Money }
+    // Atributos custom de la línea (ej. "Talla" cuando no es variante).
+    attributes: Array<{ key: string; value: string | null }>
   }>
 }

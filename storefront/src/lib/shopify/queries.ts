@@ -111,6 +111,13 @@ export const PRODUCT_DETAIL_FRAGMENT = /* GraphQL */ `
         edges { node { ... on Metaobject { handle } } }
       }
     }
+    # Tallas como metacampo de categoría (shopify.shoe-size) — para productos
+    # donde la talla NO se cargó como variante. El PDP las muestra igual.
+    shoeSizes: metafield(namespace: "shopify", key: "shoe-size") {
+      references(first: 30) {
+        edges { node { ... on Metaobject { handle fields { key value } } } }
+      }
+    }
     # Judge.me metafields para PDP (mismos que en card; redeclarado porque
     # PDP usa fragment separado). Si Judge.me no ha sincronizado aún,
     # ProductReviewBlock muestra CTA "Sé el primero".

@@ -38,6 +38,7 @@ const CART_FRAGMENT = /* GraphQL */ `
         node {
           id
           quantity
+          attributes { key value }
           cost { totalAmount { amount currencyCode } }
           merchandise {
             ... on ProductVariant {
@@ -134,7 +135,7 @@ export async function clientGetCart(cartId: string): Promise<Cart | null> {
 }
 
 export async function clientCreateCart(
-  lines: Array<{ merchandiseId: string; quantity: number }>
+  lines: Array<{ merchandiseId: string; quantity: number; attributes?: Array<{ key: string; value: string }> }>
 ): Promise<Cart> {
   const data = await shopifyClientFetch<Mutation<"cartCreate">>(
     /* GraphQL */ `
@@ -153,7 +154,7 @@ export async function clientCreateCart(
 
 export async function clientAddLines(
   cartId: string,
-  lines: Array<{ merchandiseId: string; quantity: number }>
+  lines: Array<{ merchandiseId: string; quantity: number; attributes?: Array<{ key: string; value: string }> }>
 ): Promise<Cart> {
   const data = await shopifyClientFetch<Mutation<"cartLinesAdd">>(
     /* GraphQL */ `
