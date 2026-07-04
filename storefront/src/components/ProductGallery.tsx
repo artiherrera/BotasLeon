@@ -122,13 +122,42 @@ export function ProductGallery({ images, title }: Props) {
 
   return (
     <div>
-      {/* === DESKTOP: imagen principal grande === */}
-      <div className="hidden md:block">
+      {/* === DESKTOP: rail vertical de miniaturas (izquierda) + principal
+          (derecha), estilo Amazon. Hover en la miniatura cambia la grande. === */}
+      <div className="hidden md:flex md:gap-3">
+        {hasMultiple && (
+          <div className="flex flex-col gap-2 w-16 shrink-0">
+            {images.map((img, idx) => (
+              <button
+                key={img.url}
+                type="button"
+                onClick={() => setActiveIdx(idx)}
+                onMouseEnter={() => setActiveIdx(idx)}
+                aria-label={`Ver imagen ${idx + 1}`}
+                aria-current={idx === activeIdx}
+                className={`relative aspect-square bg-bg-alt overflow-hidden rounded-md transition-all ${
+                  idx === activeIdx
+                    ? "ring-2 ring-leather"
+                    : "opacity-60 hover:opacity-100"
+                }`}
+              >
+                <Image
+                  src={img.url}
+                  alt={img.altText || `${title} ${idx + 1}`}
+                  fill
+                  sizes="64px"
+                  className="object-cover"
+                />
+              </button>
+            ))}
+          </div>
+        )}
+
         <button
           type="button"
           onClick={() => openLightbox(activeIdx)}
           aria-label="Ampliar imagen"
-          className="relative aspect-square bg-bg-alt overflow-hidden mb-3 w-full block cursor-zoom-in"
+          className="relative aspect-square flex-1 min-w-0 bg-bg-alt overflow-hidden rounded-lg block cursor-zoom-in"
         >
           <Image
             key={active.url}
@@ -136,37 +165,10 @@ export function ProductGallery({ images, title }: Props) {
             alt={active.altText || title}
             fill
             preload
-            sizes="(max-width: 1024px) 100vw, 50vw"
+            sizes="(max-width: 1024px) 100vw, 45vw"
             className="object-contain"
           />
         </button>
-
-        {hasMultiple && (
-          <div className="grid grid-cols-5 sm:grid-cols-6 md:grid-cols-7 gap-2">
-            {images.map((img, idx) => (
-              <button
-                key={img.url}
-                type="button"
-                onClick={() => setActiveIdx(idx)}
-                aria-label={`Ver imagen ${idx + 1}`}
-                aria-current={idx === activeIdx}
-                className={`relative aspect-square bg-bg-alt overflow-hidden transition-all ${
-                  idx === activeIdx
-                    ? "ring-2 ring-leather ring-offset-2 ring-offset-bg"
-                    : "opacity-70 hover:opacity-100"
-                }`}
-              >
-                <Image
-                  src={img.url}
-                  alt={img.altText || `${title} ${idx + 1}`}
-                  fill
-                  sizes="100px"
-                  className="object-cover"
-                />
-              </button>
-            ))}
-          </div>
-        )}
       </div>
 
       {/* === MOBILE: carrusel scroll-snap + dots === */}
