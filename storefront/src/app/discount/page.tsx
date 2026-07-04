@@ -84,7 +84,7 @@ function DiscountHandler() {
             </p>
             <Link
               href="/products"
-              className="inline-flex px-6 py-3 bg-leather text-bg uppercase text-sm tracking-wider hover:bg-text"
+              className="inline-flex px-6 py-3 rounded-full bg-leather text-bg uppercase text-sm tracking-wider hover:bg-text"
             >
               Ver catálogo
             </Link>
@@ -118,7 +118,7 @@ function DiscountHandler() {
           </p>
           <Link
             href={redirect}
-            className="inline-flex px-6 py-3 bg-leather text-bg uppercase text-sm tracking-wider hover:bg-text"
+            className="inline-flex px-6 py-3 rounded-full bg-leather text-bg uppercase text-sm tracking-wider hover:bg-text"
           >
             Ver catálogo
           </Link>

@@ -75,7 +75,7 @@ export function NewsletterForm() {
         <button
           type="submit"
           disabled={status === "loading"}
-          className="px-6 py-3 bg-leather text-bg font-medium hover:bg-text transition-colors disabled:opacity-60"
+          className="px-6 py-3 rounded-full bg-leather text-bg font-medium hover:bg-text transition-colors disabled:opacity-60"
           aria-label="Suscribirme y recibir mi cupón de 10%"
         >
           {status === "loading" ? "Enviando..." : "Suscribirme"}

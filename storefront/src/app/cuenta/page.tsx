@@ -31,13 +31,13 @@ export default function CuentaPage() {
           <div className="space-y-3">
             <a
               href={`${SHOPIFY_ACCOUNT_BASE}/login`}
-              className="block w-full py-4 bg-leather text-bg text-center text-sm uppercase tracking-widest hover:bg-text transition-colors"
+              className="block w-full py-4 rounded-full bg-leather text-bg text-center text-sm uppercase tracking-widest hover:bg-text transition-colors"
             >
               Iniciar sesión
             </a>
             <a
               href={`${SHOPIFY_ACCOUNT_BASE}/register`}
-              className="block w-full py-4 border border-leather text-leather text-center text-sm uppercase tracking-widest hover:bg-leather hover:text-bg transition-colors"
+              className="block w-full py-4 rounded-full border border-leather text-leather text-center text-sm uppercase tracking-widest hover:bg-leather hover:text-bg transition-colors"
             >
               Crear cuenta
             </a>

@@ -19,7 +19,7 @@ export default function OutletPage() {
           </p>
           <Link
             href="/products"
-            className="inline-flex px-8 py-4 bg-leather text-bg text-sm uppercase tracking-widest hover:bg-text transition-colors"
+            className="inline-flex px-8 py-4 rounded-full bg-leather text-bg text-sm uppercase tracking-widest hover:bg-text transition-colors"
           >
             Ver catálogo completo
           </Link>

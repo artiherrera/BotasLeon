@@ -94,14 +94,14 @@ export function CookiesBanner() {
           <button
             type="button"
             onClick={() => accept("necessary")}
-            className="px-4 py-2 border border-bg text-bg text-xs uppercase tracking-wider hover:bg-bg/10 transition-colors"
+            className="px-4 py-2 rounded-full border border-bg text-bg text-xs uppercase tracking-wider hover:bg-bg/10 transition-colors"
           >
             Solo necesarias
           </button>
           <button
             type="button"
             onClick={() => accept("all")}
-            className="px-4 py-2 bg-bg text-leather text-xs uppercase tracking-wider font-medium hover:bg-bg/90 transition-colors"
+            className="px-4 py-2 rounded-full bg-bg text-leather text-xs uppercase tracking-wider font-medium hover:bg-bg/90 transition-colors"
           >
             Aceptar
           </button>

@@ -102,7 +102,7 @@ function EmptyState({ configHint }: { configHint: string }) {
       <div className="mt-6">
         <Link
           href="/products"
-          className="inline-flex px-6 py-3 border border-leather text-leather text-sm uppercase tracking-wider hover:bg-leather hover:text-bg transition-colors"
+          className="inline-flex px-6 py-3 rounded-full border border-leather text-leather text-sm uppercase tracking-wider hover:bg-leather hover:text-bg transition-colors"
         >
           Ver catálogo completo →
         </Link>
