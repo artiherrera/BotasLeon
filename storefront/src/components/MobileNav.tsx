@@ -157,7 +157,7 @@ export function MobileNav() {
         aria-modal="true"
         aria-label="Navegación"
         inert={!open}
-        className={`md:hidden fixed inset-y-0 left-0 w-[90%] max-w-sm bg-bg/85 backdrop-blur-2xl backdrop-saturate-200 supports-[backdrop-filter]:bg-bg/75
+        className={`md:hidden fixed inset-y-0 left-0 w-[90%] max-w-sm bg-bg/85 backdrop-blur-3xl backdrop-saturate-200 supports-[backdrop-filter]:bg-bg/70
           border-r border-leather/15 shadow-2xl
           z-50 flex flex-col transition-transform duration-300 ${
             open ? "translate-x-0" : "-translate-x-full"
