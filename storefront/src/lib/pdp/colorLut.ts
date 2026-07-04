@@ -36,6 +36,7 @@ const COLOR_LUT: Record<string, ColorEntry> = {
 
   // Tonos cálidos
   miel: { hex: "#C19A6B" },
+  camel: { hex: "#B8924A" },
   natural: { hex: "#D4B896", isLight: true },
   hueso: { hex: "#E8DCC4", isLight: true },
   arena: { hex: "#C2B280", isLight: true },
@@ -64,7 +65,9 @@ const COLOR_LUT: Record<string, ColorEntry> = {
 
   // Metálicos
   plata: { hex: "#C0C0C0", isLight: true },
+  plateado: { hex: "#D3D3D3", isLight: true },
   oro: { hex: "#D4AF37" },
+  dorado: { hex: "#D4AF37" },
   bronce: { hex: "#CD7F32" },
 }
 

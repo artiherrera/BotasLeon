@@ -64,18 +64,36 @@ const EMPTY_FILTERS: FilterState = {
 }
 
 // Extrae los handles de un metafield de taxonomía (Color, Material, etc.)
-// junto con su label legible (campo "label" del metaobject).
+// junto con su label legible (campo "label") y, si existe, su HEX nativo
+// (campo "color" de los metaobjetos shopify.color-pattern). Preferir ese HEX
+// sobre el LUT hace que CUALQUIER color nuevo cargado en Shopify se pinte
+// solo, sin caer a gris ni requerir mantener el LUT a mano.
 function extractTaxonomyValues(
   metafield?: { references?: { edges: Array<{ node: { handle: string; fields: Array<{ key: string; value: string | null }> } }> } } | null
-): Array<{ handle: string; label: string }> {
+): Array<{ handle: string; label: string; hex: string | null }> {
   const edges = metafield?.references?.edges ?? []
   return edges.map((e) => {
-    const labelField = e.node.fields.find((f) => f.key === "label")
+    const label = e.node.fields.find((f) => f.key === "label")?.value
+    const colorHex = e.node.fields.find((f) => f.key === "color")?.value ?? null
     return {
       handle: e.node.handle,
-      label: labelField?.value || e.node.handle,
+      label: label || e.node.handle,
+      hex: colorHex && /^#[0-9a-fA-F]{3,8}$/.test(colorHex) ? colorHex : null,
     }
   })
+}
+
+// Luminancia perceptual (BT.601) para decidir el borde del swatch cuando el
+// HEX viene directo de Shopify y no traemos el flag isLight del LUT. Los
+// colores muy claros necesitan un ring visible sobre el fondo crema.
+function isLightHex(hex: string): boolean {
+  const h = hex.replace("#", "")
+  const full = h.length === 3 ? h.split("").map((c) => c + c).join("") : h
+  const r = parseInt(full.slice(0, 2), 16)
+  const g = parseInt(full.slice(2, 4), 16)
+  const b = parseInt(full.slice(4, 6), 16)
+  if ([r, g, b].some(Number.isNaN)) return false
+  return (0.299 * r + 0.587 * g + 0.114 * b) / 255 > 0.7
 }
 
 type SortKey = "default" | "recientes" | "precio-asc" | "precio-desc" | "titulo"
@@ -163,8 +181,9 @@ export function ProductsListing({ products, initialStyle, initialPageInfo }: Pro
     const vendors = new Set<string>()
     const sizes = new Set<string>()
     const types = new Set<string>()
-    // Mapas handle → label para mostrar nombres legibles ("Negro" en vez de "negro")
-    const colorMap = new Map<string, string>()
+    // Mapas handle → {label, hex} para mostrar nombres legibles ("Negro" en vez
+    // de "negro") y el swatch con el HEX nativo de Shopify cuando está.
+    const colorMap = new Map<string, { label: string; hex: string | null }>()
     const materialMap = new Map<string, string>()
 
     for (const p of allProducts) {
@@ -176,7 +195,7 @@ export function ProductsListing({ products, initialStyle, initialPageInfo }: Pro
       if (sizeOpt) for (const v of sizeOpt.values) sizes.add(v)
 
       for (const c of extractTaxonomyValues(p.color)) {
-        colorMap.set(c.handle, c.label)
+        colorMap.set(c.handle, { label: c.label, hex: c.hex })
       }
       for (const m of extractTaxonomyValues(p.material)) {
         materialMap.set(m.handle, m.label)
@@ -193,7 +212,7 @@ export function ProductsListing({ products, initialStyle, initialPageInfo }: Pro
       sizes: Array.from(sizes).sort(sortNumeric),
       types: Array.from(types).sort(),
       colors: Array.from(colorMap.entries())
-        .map(([handle, label]) => ({ handle, label }))
+        .map(([handle, { label, hex }]) => ({ handle, label, hex }))
         .sort((a, b) => a.label.localeCompare(b.label)),
       materials: Array.from(materialMap.entries())
         .map(([handle, label]) => ({ handle, label }))
@@ -423,10 +442,13 @@ export function ProductsListing({ products, initialStyle, initialPageInfo }: Pro
           {facets.colors.length > 0 && (
             <FilterSection title="Color">
               <div className="space-y-2">
-                {facets.colors.map(({ handle, label }) => {
-                  // Swatch visual del color (hex del LUT); gris neutro si el
-                  // color no está mapeado — nunca rompe, solo cae a neutral.
-                  const swatch = lookupColor(label)
+                {facets.colors.map(({ handle, label, hex }) => {
+                  // Preferimos el HEX nativo del metaobject de Shopify; si no
+                  // viene, caemos al LUT por nombre; y a gris neutro como último
+                  // recurso. Nunca rompe.
+                  const lut = hex ? null : lookupColor(label)
+                  const swatchHex = hex ?? lut?.hex ?? "#B0B0B0"
+                  const light = hex ? isLightHex(hex) : lut?.isLight ?? false
                   return (
                     <label
                       key={handle}
@@ -441,11 +463,11 @@ export function ProductsListing({ products, initialStyle, initialPageInfo }: Pro
                       <span
                         aria-hidden
                         className={`h-4 w-4 shrink-0 rounded-full border ${
-                          swatch?.isLight
+                          light
                             ? "border-border-strong/40"
                             : "border-black/20"
                         }`}
-                        style={{ backgroundColor: swatch?.hex ?? "#B0B0B0" }}
+                        style={{ backgroundColor: swatchHex }}
                       />
                       <span className="flex-1">{label}</span>
                     </label>
