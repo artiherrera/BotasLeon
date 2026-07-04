@@ -47,7 +47,11 @@ type CartContextValue = {
   openCart: () => void
   closeCart: () => void
   toggleCart: () => void
-  addItem: (merchandiseId: string, quantity?: number) => void
+  addItem: (
+    merchandiseId: string,
+    quantity?: number,
+    attributes?: Array<{ key: string; value: string }>
+  ) => void
   updateLine: (lineId: string, quantity: number) => void
   removeLine: (lineId: string) => void
   itemCount: number
@@ -123,13 +127,22 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   }, [])
 
   const addItem = useCallback(
-    (merchandiseId: string, quantity = 1) => {
+    (
+      merchandiseId: string,
+      quantity = 1,
+      attributes?: Array<{ key: string; value: string }>
+    ) => {
+      // Atributos de línea (ej. Talla cuando no hay variante por talla) — se
+      // guardan en el pedido para que la tienda sepa qué talla surtir.
+      const line = attributes?.length
+        ? { merchandiseId, quantity, attributes }
+        : { merchandiseId, quantity }
       startTransition(async () => {
         try {
           const id = cartIdRef.current
           const updated = id
-            ? await clientAddLines(id, [{ merchandiseId, quantity }])
-            : await clientCreateCart([{ merchandiseId, quantity }])
+            ? await clientAddLines(id, [line])
+            : await clientCreateCart([line])
           persist(updated)
           setIsOpen(true)
           // Trigger Klaviyo event para que abandoned cart flow tenga data
@@ -152,7 +165,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
           const msg = e instanceof Error ? e.message : String(e)
           if (cartIdRef.current && /does not exist|not found/i.test(msg)) {
             try {
-              const fresh = await clientCreateCart([{ merchandiseId, quantity }])
+              const fresh = await clientCreateCart([line])
               persist(fresh)
               setIsOpen(true)
               return

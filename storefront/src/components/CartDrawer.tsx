@@ -138,10 +138,14 @@ export function CartDrawer() {
             <div className="flex-1 overflow-y-auto px-6 py-4 divide-y divide-border">
               {lines.map((line) => {
                 const v = line.merchandise
-                const subtitle = v.selectedOptions
-                  .filter((o) => o.name.toLowerCase() !== "title")
-                  .map((o) => `${o.name}: ${o.value}`)
-                  .join(" · ")
+                const subtitle = [
+                  ...v.selectedOptions
+                    .filter((o) => o.name.toLowerCase() !== "title")
+                    .map((o) => `${o.name}: ${o.value}`),
+                  ...(line.attributes ?? [])
+                    .filter((a) => a.value)
+                    .map((a) => `${a.key}: ${a.value}`),
+                ].join(" · ")
 
                 return (
                   <div key={line.id} className="py-4 flex gap-3">

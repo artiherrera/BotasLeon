@@ -44,12 +44,23 @@ export function usePDPVariant(): Ctx {
   return ctx
 }
 
-// Inicializa con la primera variante disponible, o la primera a secas.
+// ¿La opción es "talla"? (para NO pre-seleccionarla).
+function isSizeName(name: string): boolean {
+  const n = name.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().trim()
+  return n === "talla" || n === "talla del calzado" || n === "size" || n.includes("talla")
+}
+
+// Pre-selecciona todo MENOS la talla (color, etc. para que la galería muestre
+// las imágenes correctas). La talla la debe elegir el cliente activamente.
 function getInitialSelection(product: Product): Selection {
   const firstAvailable =
     product.variants.find((v) => v.availableForSale) ?? product.variants[0]
   if (!firstAvailable) return {}
-  return Object.fromEntries(firstAvailable.selectedOptions.map((o) => [o.name, o.value]))
+  return Object.fromEntries(
+    firstAvailable.selectedOptions
+      .filter((o) => !isSizeName(o.name))
+      .map((o) => [o.name, o.value])
+  )
 }
 
 export function PDPVariantProvider({

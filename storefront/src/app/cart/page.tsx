@@ -136,10 +136,14 @@ export default function CartPage() {
             <div className="divide-y divide-border border-y border-border">
               {lines.map((line) => {
                 const v = line.merchandise
-                const subtitle = v.selectedOptions
-                  .filter((o) => o.name.toLowerCase() !== "title")
-                  .map((o) => `${o.name}: ${o.value}`)
-                  .join(" · ")
+                const subtitle = [
+                  ...v.selectedOptions
+                    .filter((o) => o.name.toLowerCase() !== "title")
+                    .map((o) => `${o.name}: ${o.value}`),
+                  ...(line.attributes ?? [])
+                    .filter((a) => a.value)
+                    .map((a) => `${a.key}: ${a.value}`),
+                ].join(" · ")
 
                 return (
                   <div key={line.id} className="py-6 flex gap-4">
