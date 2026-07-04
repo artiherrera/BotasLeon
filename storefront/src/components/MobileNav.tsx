@@ -16,8 +16,10 @@ import { SocialIcons } from "./SocialIcons"
  * subcategorías visibles debajo. El usuario ve toda la navegación
  * de un vistazo sin tener que hacer tap para expandir nada.
  *
- * Liquid frost: bg-bg/80 + backdrop-blur-3xl + saturate-200
- * (mismo patrón que el Header desktop).
+ * Panel casi opaco (bg-bg/92-95) + scrim oscuro (bg-black/50) detrás:
+ * la versión translúcida se confundía con la página. Mantiene un blur
+ * sutil en los bordes pero prioriza que el menú se lea como una
+ * superficie distinta y sólida.
  *
  * No duplicamos accesos que ya viven en el Header (Buscar, Mi
  * cuenta, Carrito están como íconos a la derecha del hamburger).
@@ -157,8 +159,8 @@ export function MobileNav() {
         aria-modal="true"
         aria-label="Navegación"
         inert={!open}
-        className={`md:hidden fixed inset-y-0 left-0 w-[90%] max-w-sm bg-bg/85 backdrop-blur-3xl backdrop-saturate-200 supports-[backdrop-filter]:bg-bg/70
-          border-r border-leather/15 shadow-2xl
+        className={`md:hidden fixed inset-y-0 left-0 w-[90%] max-w-sm bg-bg/95 backdrop-blur-xl backdrop-saturate-150 supports-[backdrop-filter]:bg-bg/92
+          border-r border-leather/30 shadow-2xl
           z-50 flex flex-col transition-transform duration-300 ${
             open ? "translate-x-0" : "-translate-x-full"
           }`}
