@@ -7,6 +7,7 @@ import { EmptyProductsState } from "./EmptyState"
 import { loadMoreProducts } from "@/lib/search/client"
 import type { Product, PageInfo } from "@/lib/shopify/types"
 import { useFocusTrap } from "@/lib/useFocusTrap"
+import { lookupColor } from "@/lib/pdp/colorLut"
 
 /**
  * ProductsListing — grid con sidebar de filtros (estilo Amazon).
@@ -399,20 +400,34 @@ export function ProductsListing({ products, initialStyle, initialPageInfo }: Pro
           {facets.colors.length > 0 && (
             <FilterSection title="Color">
               <div className="space-y-2">
-                {facets.colors.map(({ handle, label }) => (
-                  <label
-                    key={handle}
-                    className="flex items-center gap-2 cursor-pointer text-sm hover:text-leather"
-                  >
-                    <input
-                      type="checkbox"
-                      checked={filters.colors.has(handle)}
-                      onChange={() => toggle("colors", handle)}
-                      className="rounded border-border accent-leather"
-                    />
-                    <span className="flex-1">{label}</span>
-                  </label>
-                ))}
+                {facets.colors.map(({ handle, label }) => {
+                  // Swatch visual del color (hex del LUT); gris neutro si el
+                  // color no está mapeado — nunca rompe, solo cae a neutral.
+                  const swatch = lookupColor(label)
+                  return (
+                    <label
+                      key={handle}
+                      className="flex items-center gap-2 cursor-pointer text-sm hover:text-leather"
+                    >
+                      <input
+                        type="checkbox"
+                        checked={filters.colors.has(handle)}
+                        onChange={() => toggle("colors", handle)}
+                        className="rounded border-border accent-leather"
+                      />
+                      <span
+                        aria-hidden
+                        className={`h-4 w-4 shrink-0 rounded-full border ${
+                          swatch?.isLight
+                            ? "border-border-strong/40"
+                            : "border-black/20"
+                        }`}
+                        style={{ backgroundColor: swatch?.hex ?? "#B0B0B0" }}
+                      />
+                      <span className="flex-1">{label}</span>
+                    </label>
+                  )
+                })}
               </div>
             </FilterSection>
           )}
