@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useMemo, useState } from "react"
+import { useEffect, useMemo, useRef, useState } from "react"
 import { useSearchParams } from "next/navigation"
 import { ProductCard } from "./ProductCard"
 import { EmptyProductsState } from "./EmptyState"
@@ -283,8 +283,31 @@ export function ProductsListing({ products, initialStyle, initialPageInfo }: Pro
     })
   }
 
+  // === Scroll anchoring al filtrar ===
+  // Al aplicar/quitar filtros la grid se encoge; el scroll (en px) se queda
+  // igual, así que si el usuario venía scrolleado hacia abajo termina mirando
+  // el footer ("como si la página lo mandara hasta abajo"). Lo regresamos al
+  // inicio de los resultados — pero SOLO si el top de la grid ya salió del
+  // viewport por arriba (venía scrolleado), y nunca en el primer render.
+  const listingTopRef = useRef<HTMLDivElement>(null)
+  const didMountRef = useRef(false)
+  useEffect(() => {
+    if (!didMountRef.current) {
+      didMountRef.current = true
+      return
+    }
+    const el = listingTopRef.current
+    if (el && el.getBoundingClientRect().top < 0) {
+      const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches
+      el.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" })
+    }
+  }, [filters])
+
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-[16rem_1fr] gap-8">
+    <div
+      ref={listingTopRef}
+      className="scroll-mt-24 grid grid-cols-1 lg:grid-cols-[16rem_1fr] gap-8"
+    >
       {/* Sidebar desktop / drawer mobile */}
       <aside
         ref={filtersRef}
