@@ -169,6 +169,9 @@ export type Cart = {
   id: string
   checkoutUrl: string
   totalQuantity: number
+  // Atributos a nivel carrito (ej. "Tax ID (aduana EE.UU.)"). Se guardan
+  // en el pedido para que la tienda los use en la factura comercial.
+  attributes: Array<{ key: string; value: string | null }>
   cost: {
     subtotalAmount: Money
     totalAmount: Money

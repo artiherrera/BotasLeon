@@ -7,6 +7,7 @@ import { useCart } from "./CartProvider"
 import { FreeShippingBar } from "./FreeShippingBar"
 import { MSIBreakdown } from "./MSIBreakdown"
 import { PaymentBadges } from "./PaymentBadges"
+import { CustomsTaxIdField } from "./CustomsTaxIdField"
 import { formatMoney } from "@/lib/utils"
 import { getPendingDiscount, withDiscount } from "@/lib/discount/client"
 import { track } from "@/lib/klaviyo/client"
@@ -263,6 +264,8 @@ export function CartDrawer() {
               <p className="text-xs text-text-muted mt-1 mb-4">
                 Envío e impuestos calculados al pagar
               </p>
+
+              <CustomsTaxIdField />
 
               <div className="mb-4">
                 <PaymentBadges />

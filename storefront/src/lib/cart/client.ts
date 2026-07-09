@@ -28,6 +28,7 @@ const CART_FRAGMENT = /* GraphQL */ `
     id
     checkoutUrl
     totalQuantity
+    attributes { key value }
     cost {
       subtotalAmount { amount currencyCode }
       totalAmount    { amount currencyCode }
@@ -207,4 +208,29 @@ export async function clientRemoveLines(
     { cartId, lineIds }
   )
   return unwrap(data, "cartLinesRemove")
+}
+
+/**
+ * Reemplaza el set completo de atributos a nivel carrito. Shopify sustituye
+ * TODO el arreglo, así que el caller debe pasar los atributos que quiera
+ * conservar (para quitar uno, omítelo del arreglo). `value` es obligatorio
+ * en AttributeInput, por eso no se pasan nulos.
+ */
+export async function clientUpdateAttributes(
+  cartId: string,
+  attributes: Array<{ key: string; value: string }>
+): Promise<Cart> {
+  const data = await shopifyClientFetch<Mutation<"cartAttributesUpdate">>(
+    /* GraphQL */ `
+      mutation ($cartId: ID!, $attributes: [AttributeInput!]!) {
+        cartAttributesUpdate(cartId: $cartId, attributes: $attributes) {
+          cart { ...CartFields }
+          userErrors { message field }
+        }
+      }
+      ${CART_FRAGMENT}
+    `,
+    { cartId, attributes }
+  )
+  return unwrap(data, "cartAttributesUpdate")
 }

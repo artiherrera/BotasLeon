@@ -14,6 +14,7 @@ import {
   clientCreateCart,
   clientGetCart,
   clientRemoveLines,
+  clientUpdateAttributes,
   clientUpdateLines,
 } from "@/lib/cart/client"
 import { track } from "@/lib/klaviyo/client"
@@ -54,6 +55,8 @@ type CartContextValue = {
   ) => void
   updateLine: (lineId: string, quantity: number) => void
   removeLine: (lineId: string) => void
+  // Reemplaza el set de atributos del carrito (ej. Tax ID de aduana).
+  updateAttributes: (attributes: Array<{ key: string; value: string }>) => void
   itemCount: number
   toast: ToastMessage | null
   showToast: (msg: string, variant?: ToastVariant) => void
@@ -213,6 +216,22 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     [persist]
   )
 
+  const updateAttributes = useCallback(
+    (attributes: Array<{ key: string; value: string }>) => {
+      const id = cartIdRef.current
+      if (!id) return
+      startTransition(async () => {
+        try {
+          const updated = await clientUpdateAttributes(id, attributes)
+          persist(updated)
+        } catch (e) {
+          console.error("[cart] updateAttributes falló:", e)
+        }
+      })
+    },
+    [persist]
+  )
+
   const itemCount = ready ? (cart?.totalQuantity ?? 0) : 0
 
   return (
@@ -228,6 +247,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         addItem,
         updateLine,
         removeLine,
+        updateAttributes,
         itemCount,
         toast,
         showToast,

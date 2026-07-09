@@ -9,6 +9,7 @@ import { useCart } from "@/components/CartProvider"
 import { FreeShippingBar } from "@/components/FreeShippingBar"
 import { MSIBreakdown } from "@/components/MSIBreakdown"
 import { PaymentBadges } from "@/components/PaymentBadges"
+import { CustomsTaxIdField } from "@/components/CustomsTaxIdField"
 import { formatMoney } from "@/lib/utils"
 import {
   getPendingDiscount,
@@ -298,6 +299,8 @@ export default function CartPage() {
                   <p className="text-bg/80 mt-0.5">{pendingDiscount}</p>
                 </div>
               )}
+
+              <CustomsTaxIdField />
 
               <div className="mb-4">
                 <PaymentBadges />
