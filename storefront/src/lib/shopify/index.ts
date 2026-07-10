@@ -301,7 +301,12 @@ type TaxonomyKey = "gender" | "age"
 export async function getProductsByTaxonomy(
   key: TaxonomyKey,
   handle: string,
-  first = 48,
+  // Bajamos y LUEGO filtramos por género en JS, así que este `first` debe
+  // cubrir TODO el catálogo o se pierden productos que quedan al fondo del
+  // orden (ej. marcas nuevas con pocas ventas en sortKey BEST_SELLING). 250
+  // es el máximo por página de la Storefront API. Si el catálogo supera 250,
+  // hay que paginar (como generateStaticParams).
+  first = 250,
   options?: { onlyBoots?: boolean; sortKey?: ProductSortKey }
 ): Promise<Product[]> {
   const onlyBoots = options?.onlyBoots ?? true
