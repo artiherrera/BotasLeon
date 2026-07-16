@@ -18,6 +18,7 @@ import {
   clientUpdateLines,
 } from "@/lib/cart/client"
 import { track } from "@/lib/klaviyo/client"
+import { pixelTrack, toContentId } from "@/lib/meta/pixel"
 import type { Cart } from "@/lib/shopify/types"
 
 /**
@@ -161,6 +162,15 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
                 ProductId: l.merchandise.product.handle,
                 Quantity: l.quantity,
               })),
+            })
+
+            // Meta AddToCart — content_ids = ID de variante (item del catálogo).
+            pixelTrack("AddToCart", {
+              content_type: "product",
+              content_ids: [toContentId(lastLine.merchandise.id)],
+              content_name: lastLine.merchandise.product.title,
+              value: parseFloat(lastLine.merchandise.price.amount),
+              currency: lastLine.merchandise.price.currencyCode,
             })
           }
         } catch (e) {

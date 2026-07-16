@@ -6,6 +6,7 @@ import { CartDrawer } from "@/components/CartDrawer"
 import { Toast } from "@/components/Toast"
 import { CookiesBanner } from "@/components/CookiesBanner"
 import { GoogleAnalytics } from "@/components/GoogleAnalytics"
+import { MetaPixel } from "@/components/MetaPixel"
 import { AnnouncementBar } from "@/components/AnnouncementBar"
 import { OrganizationJsonLd, WebsiteJsonLd } from "@/components/StructuredData"
 import { WhatsAppButton } from "@/components/WhatsAppButton"
@@ -132,6 +133,10 @@ export default function RootLayout({
         {/* GA4 con Consent Mode v2 — escucha botasleon:consent-change del
             CookiesBanner para promover analytics_storage. */}
         <GoogleAnalytics />
+
+        {/* Meta Pixel — se inyecta SOLO con consentimiento "todas" (como
+            Klaviyo). La Compra la captura el canal de Facebook de Shopify. */}
+        <MetaPixel />
 
         <CartProvider>
           {children}

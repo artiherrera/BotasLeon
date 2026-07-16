@@ -67,6 +67,8 @@ export default function CartPage() {
       })),
       CheckoutURL: cart.checkoutUrl,
     })
+    // Nota: InitiateCheckout y Purchase los dispara el canal de Facebook de
+    // Shopify (CAPI) en el checkout; no los duplicamos desde aquí.
   }
 
   // Mientras hidrata desde localStorage, mostramos un skeleton mínimo

@@ -2,6 +2,7 @@
 
 import { useEffect } from "react"
 import { track } from "@/lib/klaviyo/client"
+import { pixelTrack, toContentId } from "@/lib/meta/pixel"
 import type { Product } from "@/lib/shopify/types"
 
 /**
@@ -23,6 +24,16 @@ export function ProductViewedTracker({ product }: { product: Product }) {
       Currency: product.priceRange.minVariantPrice.currencyCode,
       ImageURL: product.featuredImage?.url,
       URL: typeof window !== "undefined" ? window.location.href : undefined,
+    })
+
+    // Meta ViewContent — content_ids = ID de producto (item_group del
+    // catálogo) para que los anuncios dinámicos / retargeting hagan match.
+    pixelTrack("ViewContent", {
+      content_type: "product_group",
+      content_ids: [toContentId(product.id)],
+      content_name: product.title,
+      value: parseFloat(product.priceRange.minVariantPrice.amount),
+      currency: product.priceRange.minVariantPrice.currencyCode,
     })
   }, [product.id, product.handle, product.title, product.vendor, product.priceRange.minVariantPrice.amount, product.priceRange.minVariantPrice.currencyCode, product.featuredImage?.url])
 

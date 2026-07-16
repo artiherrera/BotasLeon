@@ -28,6 +28,8 @@ applications:
             # Klaviyo public key (alias Company ID / Site ID) — público por
             # diseño, va al bundle JS para subscriber form + tracking onsite.
             - echo "NEXT_PUBLIC_KLAVIYO_PUBLIC_KEY=STeTJE"                >> .env.production.local
+            # Meta Pixel ID — público por diseño (va en el <head> del sitio).
+            - echo "NEXT_PUBLIC_META_PIXEL_ID=1797797374966698"           >> .env.production.local
             - echo "=== env injected ==="
             - echo "DOMAIN=$DOMAIN VERSION=$VERSION SITE_URL=$SITE_URL"
             - echo "TOKEN_length=${#TOKEN}"

@@ -66,6 +66,8 @@ export function CartDrawer() {
       })),
       CheckoutURL: cart.checkoutUrl,
     })
+    // Nota: InitiateCheckout y Purchase los dispara el canal de Facebook de
+    // Shopify (CAPI) en el checkout; no los duplicamos desde aquí.
   }
 
   return (
