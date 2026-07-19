@@ -8,6 +8,7 @@ import { loadMoreProducts } from "@/lib/search/client"
 import type { Product, PageInfo } from "@/lib/shopify/types"
 import { useFocusTrap } from "@/lib/useFocusTrap"
 import { lookupColor } from "@/lib/pdp/colorLut"
+import { bootStyleLabel } from "@/lib/shopify/taxonomy"
 
 /**
  * ProductsListing — grid con sidebar de filtros (estilo Amazon).
@@ -83,6 +84,18 @@ function extractTaxonomyValues(
   })
 }
 
+// Estilos de una bota, como etiquetas canónicas deduplicadas. Lee el metacampo
+// MULTI-VALOR shopify.boot-style (no productType), así que una bota puede caer
+// en varios estilos a la vez (ej. ["Botines", "Exóticas"]). vaquera/vaquero se
+// unifican a "Vaqueras" vía bootStyleLabel.
+function styleLabelsOf(p: Product): string[] {
+  const slugs = extractTaxonomyValues(p.bootStyle).map((v) => v.handle)
+  const labels = slugs
+    .map(bootStyleLabel)
+    .filter((l): l is string => l !== null)
+  return Array.from(new Set(labels))
+}
+
 // Luminancia perceptual (BT.601) para decidir el borde del swatch cuando el
 // HEX viene directo de Shopify y no traemos el flag isLight del LUT. Los
 // colores muy claros necesitan un ring visible sobre el fondo crema.
@@ -136,9 +149,8 @@ export function ProductsListing({ products, initialStyle, initialPageInfo }: Pro
     const target = normalize(initial)
     const matching = new Set(
       products
-        .map((p) => p.productType)
-        .filter(Boolean)
-        .filter((t) => normalize(t) === target)
+        .flatMap(styleLabelsOf)
+        .filter((label) => normalize(label) === target)
     )
     return {
       ...EMPTY_FILTERS,
@@ -165,9 +177,8 @@ export function ProductsListing({ products, initialStyle, initialPageInfo }: Pro
     const normalized = normalize(target)
     const matching = new Set(
       products
-        .map((p) => p.productType)
-        .filter(Boolean)
-        .filter((t) => normalize(t) === normalized)
+        .flatMap(styleLabelsOf)
+        .filter((label) => normalize(label) === normalized)
     )
     setFilters({
       ...EMPTY_FILTERS,
@@ -188,7 +199,7 @@ export function ProductsListing({ products, initialStyle, initialPageInfo }: Pro
 
     for (const p of allProducts) {
       if (p.vendor) vendors.add(p.vendor)
-      if (p.productType) types.add(p.productType)
+      for (const label of styleLabelsOf(p)) types.add(label)
       const sizeOpt = (p.options ?? []).find((o) =>
         SIZE_OPTION_NAMES.includes(o.name)
       )
@@ -228,7 +239,11 @@ export function ProductsListing({ products, initialStyle, initialPageInfo }: Pro
 
       if (filters.vendors.size > 0 && !filters.vendors.has(p.vendor)) return false
 
-      if (filters.types.size > 0 && !filters.types.has(p.productType)) return false
+      if (
+        filters.types.size > 0 &&
+        !styleLabelsOf(p).some((label) => filters.types.has(label))
+      )
+        return false
 
       if (filters.sizes.size > 0) {
         const sizeOpt = (p.options ?? []).find((o) =>
@@ -430,7 +445,7 @@ export function ProductsListing({ products, initialStyle, initialPageInfo }: Pro
                     />
                     <span className="flex-1">{type}</span>
                     <span className="text-xs text-text-subtle">
-                      {allProducts.filter((p) => p.productType === type).length}
+                      {allProducts.filter((p) => styleLabelsOf(p).includes(type)).length}
                     </span>
                   </label>
                 ))}

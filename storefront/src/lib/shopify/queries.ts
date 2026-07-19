@@ -64,6 +64,14 @@ export const PRODUCT_CARD_FRAGMENT = /* GraphQL */ `
         edges { node { ... on Metaobject { handle fields { key value } } } }
       }
     }
+    # Estilo de bota (shopify.boot-style) — MULTI-VALOR: una bota puede ser
+    # Vaquera Y Exótica a la vez. Fuente del filtro "Estilo" (reemplaza a
+    # productType, que es single). Mismo shape de references que color/material.
+    bootStyle: metafield(namespace: "shopify", key: "boot-style") {
+      references(first: 5) {
+        edges { node { ... on Metaobject { handle fields { key value } } } }
+      }
+    }
     # Judge.me metafields — solo existen DESPUÉS de la primera reseña recibida.
     # Mientras la tienda no tenga reseñas, todos devuelven null y el frontend
     # debe fallar graceful ("Sin reseñas aún"). Probamos ambos namespaces

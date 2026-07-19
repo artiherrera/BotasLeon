@@ -80,6 +80,9 @@ export type Product = {
   variants: ProductVariant[]
   color?: TaxonomyMetafield
   material?: TaxonomyMetafield
+  // Estilo de bota (shopify.boot-style) — MULTI-VALOR: una bota puede ser
+  // Vaquera Y Exótica. Fuente del filtro "Estilo". Mismo shape que color/material.
+  bootStyle?: TaxonomyMetafield
   // Tallas como metacampo de categoría (shopify.shoe-size), para productos
   // donde la talla NO se cargó como variante. Mismo shape que color/material.
   shoeSizes?: TaxonomyMetafield

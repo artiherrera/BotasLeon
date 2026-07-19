@@ -55,6 +55,43 @@ export const ACCESSORY_TYPE_TO_SLUG: Record<AccessoryProductType, string> = {
 
 export const ACCESSORY_SLUGS = Object.keys(ACCESSORY_SLUG_TO_TYPE)
 
+// === Estilo de bota (metacampo MULTI-VALOR shopify.boot-style) ===
+//
+// A diferencia de productType (un solo valor), una bota puede tener varios
+// estilos: un botín puede ser también exótico. Mapeamos el handle del
+// metaobjeto a la etiqueta canónica del filtro. `vaquera` y `vaquero` se
+// unifican a "Vaqueras" (son el mismo estilo escrito distinto en el catálogo).
+export const BOOT_STYLE_LABELS: Record<string, string> = {
+  vaquera: "Vaqueras",
+  vaquero: "Vaqueras",
+  vaqueras: "Vaqueras",
+  botines: "Botines",
+  botin: "Botines",
+  "botín": "Botines",
+  exoticas: "Exóticas",
+  exotica: "Exóticas",
+  clasico: "Clásicas",
+  clasica: "Clásicas",
+  clasicas: "Clásicas",
+  largas: "Largas",
+  rancho: "Rancho",
+}
+
+// Valores basura de "Estilo de bota" que NO deben salir como filtro. No se
+// pueden borrar desde el admin de Shopify, así que los omitimos en código.
+export const BOOT_STYLE_IGNORE = new Set(["bota"])
+
+/**
+ * Etiqueta canónica para un handle de boot-style, o `null` si es un valor
+ * ignorado (basura) que no debe aparecer como filtro. Los conocidos se unifican
+ * (ver BOOT_STYLE_LABELS); los desconocidos NO ignorados se capitalizan (no
+ * ocultamos estilos nuevos que el admin cargue en Shopify).
+ */
+export function bootStyleLabel(slug: string): string | null {
+  if (BOOT_STYLE_IGNORE.has(slug)) return null
+  return BOOT_STYLE_LABELS[slug] ?? slug.charAt(0).toUpperCase() + slug.slice(1)
+}
+
 export function isBoot(product: { productType?: string | null }): boolean {
   return BOOT_PRODUCT_TYPES.includes(
     (product.productType ?? "") as BootProductType
