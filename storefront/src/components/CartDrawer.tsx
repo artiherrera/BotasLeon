@@ -11,6 +11,7 @@ import { CustomsTaxIdField } from "./CustomsTaxIdField"
 import { formatMoney } from "@/lib/utils"
 import { getPendingDiscount, withDiscount } from "@/lib/discount/client"
 import { track } from "@/lib/klaviyo/client"
+import { gaEvent } from "@/lib/ga/events"
 import { FREE_SHIPPING_THRESHOLD } from "@/lib/shipping"
 import { useFocusTrap } from "@/lib/useFocusTrap"
 
@@ -65,6 +66,18 @@ export function CartDrawer() {
         ProductURL: `/products/${l.merchandise.product.handle}`,
       })),
       CheckoutURL: cart.checkoutUrl,
+    })
+
+    // GA4 begin_checkout — para el embudo en Google Analytics.
+    gaEvent("begin_checkout", {
+      currency: subtotalCurrency,
+      value: subtotalNum,
+      items: cart.lines.map((l) => ({
+        item_id: l.merchandise.product.handle,
+        item_name: l.merchandise.product.title,
+        price: parseFloat(l.merchandise.price.amount),
+        quantity: l.quantity,
+      })),
     })
     // Nota: InitiateCheckout y Purchase los dispara el canal de Facebook de
     // Shopify (CAPI) en el checkout; no los duplicamos desde aquí.

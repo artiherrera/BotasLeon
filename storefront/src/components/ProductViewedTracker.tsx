@@ -3,6 +3,7 @@
 import { useEffect } from "react"
 import { track } from "@/lib/klaviyo/client"
 import { pixelTrack, toContentId } from "@/lib/meta/pixel"
+import { gaEvent } from "@/lib/ga/events"
 import type { Product } from "@/lib/shopify/types"
 
 /**
@@ -34,6 +35,20 @@ export function ProductViewedTracker({ product }: { product: Product }) {
       content_name: product.title,
       value: parseFloat(product.priceRange.minVariantPrice.amount),
       currency: product.priceRange.minVariantPrice.currencyCode,
+    })
+
+    // GA4 view_item — para el embudo en Google Analytics.
+    gaEvent("view_item", {
+      currency: product.priceRange.minVariantPrice.currencyCode,
+      value: parseFloat(product.priceRange.minVariantPrice.amount),
+      items: [
+        {
+          item_id: product.handle,
+          item_name: product.title,
+          item_brand: product.vendor,
+          price: parseFloat(product.priceRange.minVariantPrice.amount),
+        },
+      ],
     })
   }, [product.id, product.handle, product.title, product.vendor, product.priceRange.minVariantPrice.amount, product.priceRange.minVariantPrice.currencyCode, product.featuredImage?.url])
 

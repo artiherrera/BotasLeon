@@ -19,6 +19,7 @@ import {
 } from "@/lib/cart/client"
 import { track } from "@/lib/klaviyo/client"
 import { pixelTrack, toContentId } from "@/lib/meta/pixel"
+import { gaEvent } from "@/lib/ga/events"
 import type { Cart } from "@/lib/shopify/types"
 
 /**
@@ -171,6 +172,20 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
               content_name: lastLine.merchandise.product.title,
               value: parseFloat(lastLine.merchandise.price.amount),
               currency: lastLine.merchandise.price.currencyCode,
+            })
+
+            // GA4 add_to_cart — para el embudo en Google Analytics.
+            gaEvent("add_to_cart", {
+              currency: lastLine.merchandise.price.currencyCode,
+              value: parseFloat(lastLine.merchandise.price.amount),
+              items: [
+                {
+                  item_id: lastLine.merchandise.product.handle,
+                  item_name: lastLine.merchandise.product.title,
+                  price: parseFloat(lastLine.merchandise.price.amount),
+                  quantity: 1,
+                },
+              ],
             })
           }
         } catch (e) {
