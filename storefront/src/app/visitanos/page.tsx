@@ -116,7 +116,7 @@ export default async function VisitanosPage() {
                 </a>
                 <a
                   href={whatsappHref(
-                    "¡Hola! 👋 Me gustaría visitar su tienda en León. ¿Me confirman el horario?"
+                    "¡Hola! 👋 Me gustaría agendar una visita a su tienda en León para ver y probarme sus botas. ¿Qué día y horario me recomiendan?"
                   )}
                   target="_blank"
                   rel="noopener noreferrer"
