@@ -356,6 +356,32 @@ export const GET_CATEGORY_CARDS_QUERY = /* GraphQL */ `
   ${IMAGE_FRAGMENT}
 `
 
+// Fotos de la tienda física — metaobjeto "store_photo" que el admin sube desde
+// Shopify (Configuración → Datos personalizados). Cada entrada = una foto
+// (campo de imagen + sort_order opcional). Se muestran como galería en
+// /visitanos. Vacío hasta que existan entradas.
+export const GET_STORE_PHOTOS_QUERY = /* GraphQL */ `
+  query GetStorePhotos {
+    metaobjects(type: "store_photo", first: 24) {
+      edges {
+        node {
+          handle
+          fields {
+            key
+            value
+            reference {
+              ... on MediaImage {
+                image { ...ImageFields }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  ${IMAGE_FRAGMENT}
+`
+
 // Health check — no requiere datos reales, sirve para verificar
 // que el token funciona al conectar por primera vez.
 export const SHOP_INFO_QUERY = /* GraphQL */ `

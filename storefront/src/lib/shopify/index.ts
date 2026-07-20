@@ -17,6 +17,7 @@ import {
   GET_HERO_SLIDES_QUERY,
   GET_BRANDS_QUERY,
   GET_CATEGORY_CARDS_QUERY,
+  GET_STORE_PHOTOS_QUERY,
   SHOP_INFO_QUERY,
 } from "./queries"
 import {
@@ -538,6 +539,48 @@ export async function getCategoryCards(): Promise<CategoryCard[]> {
 
   return cards
     .filter((c) => c.isActive && c.title)
+    .sort((a, b) => a.sortOrder - b.sortOrder)
+}
+
+// Fotos de la tienda física (metaobjeto "store_photo"). Toma la primera imagen
+// de cada entrada — robusto al nombre del campo que use el admin — y ordena por
+// sort_order si existe. Vacío si no hay entradas → la galería se auto-oculta.
+export type StorePhoto = { handle: string; image: Image; sortOrder: number }
+
+export async function getStorePhotos(): Promise<StorePhoto[]> {
+  type Resp = { metaobjects: Edge<MetaobjectNode> | null }
+  let data: Resp
+  try {
+    data = await shopifyFetch<Resp>(GET_STORE_PHOTOS_QUERY, undefined, {
+      revalidate: 60,
+    })
+  } catch (e) {
+    console.error("[getStorePhotos] fetch error:", e instanceof Error ? e.message : e)
+    return []
+  }
+
+  const nodes = data.metaobjects?.edges?.map((e) => e.node) ?? []
+
+  return nodes
+    .map((node, idx): StorePhoto | null => {
+      const fieldMap = new Map(node.fields.map((f) => [f.key, f] as const))
+      const raw =
+        fieldMap.get("image")?.reference?.image ??
+        node.fields.find((f) => f.reference?.image)?.reference?.image ??
+        null
+      if (!raw) return null
+      return {
+        handle: node.handle,
+        image: {
+          url: raw.url,
+          altText: raw.altText,
+          width: raw.width ?? 1200,
+          height: raw.height ?? 900,
+        },
+        sortOrder: Number(fieldMap.get("sort_order")?.value) || idx,
+      }
+    })
+    .filter((p): p is StorePhoto => p !== null)
     .sort((a, b) => a.sortOrder - b.sortOrder)
 }
 

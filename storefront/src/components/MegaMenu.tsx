@@ -94,6 +94,10 @@ const MENU: MenuItem[] = [
     href: "/outlet",
     highlight: true, // estilo terracota — resalta como sección de ofertas
   },
+  {
+    label: "Visítanos",
+    href: "/visitanos",
+  },
 ]
 
 const CLOSE_DELAY_MS = 200

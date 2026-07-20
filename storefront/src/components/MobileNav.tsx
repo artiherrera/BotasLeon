@@ -70,6 +70,7 @@ const CATEGORIES: Category[] = [
 const QUICK_LINKS: Array<{ label: string; href: string; highlight?: boolean }> = [
   { label: "Marcas", href: "/marcas" },
   { label: "Outlet", href: "/outlet", highlight: true },
+  { label: "Visítanos", href: "/visitanos" },
 ]
 
 const HELP_LINKS = [

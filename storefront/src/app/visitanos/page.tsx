@@ -1,8 +1,12 @@
 import Link from "next/link"
+import Image from "next/image"
 import { Header } from "@/components/Header"
 import { Footer } from "@/components/Footer"
 import { pageMetadata } from "@/lib/seo"
 import { whatsappHref } from "@/lib/whatsapp"
+import { getStorePhotos } from "@/lib/shopify"
+
+export const revalidate = 60
 
 /**
  * /visitanos — tienda física en León. Genera confianza ("somos reales"):
@@ -36,7 +40,11 @@ const STORE_JSONLD = JSON.stringify({
   },
 }).replace(/</g, "\\u003c")
 
-export default function VisitanosPage() {
+export default async function VisitanosPage() {
+  // Galería de fotos del local — metaobjeto "store_photo" que el admin sube
+  // desde Shopify. Vacío hasta que existan → la sección se auto-oculta.
+  const photos = await getStorePhotos()
+
   return (
     <>
       <Header />
@@ -133,6 +141,34 @@ export default function VisitanosPage() {
             </div>
           </div>
         </section>
+
+        {/* Galería del local — metaobjeto "store_photo". Se oculta si aún no
+            hay fotos subidas desde Shopify. */}
+        {photos.length > 0 && (
+          <section className="mx-auto max-w-7xl px-6 pb-16 md:pb-20">
+            <h2 className="font-heading text-2xl text-text mb-6">
+              Conócenos por dentro
+            </h2>
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4">
+              {photos.map((p) => (
+                <div
+                  key={p.handle}
+                  className="relative aspect-[4/3] overflow-hidden rounded-sm bg-bg-alt"
+                >
+                  <Image
+                    src={p.image.url}
+                    alt={
+                      p.image.altText || "Tienda BotasLeón en León, Guanajuato"
+                    }
+                    fill
+                    sizes="(max-width: 768px) 50vw, 33vw"
+                    className="object-cover"
+                  />
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
       </main>
       <Footer />
 
