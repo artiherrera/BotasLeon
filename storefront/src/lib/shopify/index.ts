@@ -251,6 +251,8 @@ async function getBrandsImpl(): Promise<Brand[]> {
       name: get("name"),
       tagline: get("tagline"),
       logo,
+      accentColor: get("accent_color") || null,
+      titleFont: get("title_font") || null,
     }
     return { brand, sortOrder: Number(get("sort_order")) || idx, active: get("is_active") !== "false" }
   })

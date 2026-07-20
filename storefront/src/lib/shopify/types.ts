@@ -137,6 +137,9 @@ export type Brand = {
   name: string   // display name, ej. "Josepha"
   tagline: string
   logo: Image | null
+  // Identidad visual propia de la marca (opcional, campos del metaobjeto):
+  accentColor: string | null // hex, campo "accent_color" (tipo Color en Shopify)
+  titleFont: string | null   // slug de fuente curada, campo "title_font" (ver brand-fonts.ts)
 }
 
 // Category card — Metaobject tipo "category_card". Maneja las tarjetas

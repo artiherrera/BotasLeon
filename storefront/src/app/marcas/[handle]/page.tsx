@@ -1,4 +1,4 @@
-import { Suspense } from "react"
+import { Suspense, type CSSProperties } from "react"
 import { notFound } from "next/navigation"
 import Link from "next/link"
 import Image from "next/image"
@@ -6,6 +6,7 @@ import { Header } from "@/components/Header"
 import { Footer } from "@/components/Footer"
 import { ProductsListing } from "@/components/ProductsListing"
 import { getBrands, getProductsByVendor } from "@/lib/shopify"
+import { brandTitleFontClass } from "@/lib/brand-fonts"
 import { pageMetadata } from "@/lib/seo"
 
 /**
@@ -39,11 +40,22 @@ export default async function MarcaPage({ params }: Props) {
   // Productos donde vendor = brand.name
   const products = await getProductsByVendor(brand.name).catch(() => [])
 
+  // Identidad visual propia de la marca (data-driven). El acento se expone como
+  // variable CSS acotada a esta página (default = cuero), así los detalles la
+  // toman sin afectar el resto del sitio. La fuente del título es opcional.
+  const titleFontClass = brandTitleFontClass(brand.titleFont)
+  const accentStyle = {
+    "--brand-accent": brand.accentColor || "var(--color-leather)",
+  } as CSSProperties
+
   return (
     <>
       <Header />
       <main id="contenido" tabIndex={-1} className="flex-1">
-        <div className="mx-auto max-w-7xl px-6 py-12 md:py-16">
+        <div
+          className="mx-auto max-w-7xl px-6 py-12 md:py-16"
+          style={accentStyle}
+        >
           {/* Breadcrumb */}
           <nav className="mb-6 text-sm text-text-muted">
             <Link href="/" className="hover:text-leather">Inicio</Link>
@@ -67,13 +79,20 @@ export default async function MarcaPage({ params }: Props) {
               </div>
             )}
             <div>
-              <p className="eyebrow text-leather mb-2">Marca</p>
-              <h1 className="font-display text-4xl md:text-5xl text-text mb-3">
+              <p className="eyebrow mb-2 text-[color:var(--brand-accent)]">Marca</p>
+              <h1
+                className={`${titleFontClass || "font-display"} text-4xl md:text-5xl text-text mb-3`}
+              >
                 {brand.name}
               </h1>
               {brand.tagline && (
                 <p className="text-text-muted max-w-xl text-lg">{brand.tagline}</p>
               )}
+              {/* Barra de acento — firma visual de la marca. */}
+              <span
+                aria-hidden
+                className="mt-5 block h-1 w-16 rounded-full bg-[color:var(--brand-accent)]"
+              />
             </div>
           </div>
 
@@ -84,13 +103,13 @@ export default async function MarcaPage({ params }: Props) {
                 Aún sin productos
               </p>
               <p className="text-text-muted mb-6">
-                No hay productos en el catálogo con vendor "{brand.name}".
-                Verifica que el campo "Proveedor" de tus productos en Shopify
-                sea exactamente "{brand.name}".
+                No hay productos en el catálogo con vendor «{brand.name}».
+                Verifica que el campo «Proveedor» de tus productos en Shopify
+                sea exactamente «{brand.name}».
               </p>
               <Link
                 href="/products"
-                className="inline-flex px-6 py-3 rounded-full border border-leather text-leather text-sm uppercase tracking-wider hover:bg-leather hover:text-bg transition-colors"
+                className="inline-flex px-6 py-3 rounded-full border border-[color:var(--brand-accent)] text-[color:var(--brand-accent)] text-sm uppercase tracking-wider hover:bg-[color:var(--brand-accent)] hover:text-bg transition-colors"
               >
                 Ver catálogo completo
               </Link>

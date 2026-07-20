@@ -1,6 +1,8 @@
+import type { CSSProperties } from "react"
 import { notFound } from "next/navigation"
 import Link from "next/link"
 import Image from "next/image"
+import { brandTitleFontClass } from "@/lib/brand-fonts"
 import { Header } from "@/components/Header"
 import { Footer } from "@/components/Footer"
 import { ProductGalleryConnected } from "@/components/ProductGalleryConnected"
@@ -75,6 +77,14 @@ export default async function ProductPage({ params }: Props) {
     ? brands.find((b) => b.name === product.vendor)
     : undefined
 
+  // Identidad de la marca en su producto: el acento tiñe el CTA del chip
+  // (default = terracota si la marca no definió color) y el nombre puede usar
+  // la fuente propia de la marca.
+  const brandTitleFont = brandTitleFontClass(brand?.titleFont)
+  const chipAccentStyle = {
+    "--brand-accent": brand?.accentColor || "var(--color-terracotta)",
+  } as CSSProperties
+
   const price = product.priceRange.minVariantPrice
   const compareAt = product.compareAtPriceRange?.minVariantPrice
   const sale = saleInfo(price.amount, compareAt?.amount)
@@ -133,6 +143,7 @@ export default async function ProductPage({ params }: Props) {
                     <Link
                       href={`/marcas/${brand.handle}`}
                       aria-label={`Ver todas las botas de ${product.vendor}`}
+                      style={chipAccentStyle}
                       className="group mb-3 inline-flex items-center gap-2.5 rounded-full border border-border bg-bg-alt py-1.5 pl-1.5 pr-3.5 transition-colors hover:border-border-strong focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cognac focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
                     >
                       {brand.logo ? (
@@ -154,8 +165,16 @@ export default async function ProductPage({ params }: Props) {
                         </span>
                       )}
                       <span className="flex flex-col leading-tight">
-                        <span className="eyebrow text-leather">{product.vendor}</span>
-                        <span className="text-xs font-medium text-terracotta">
+                        <span
+                          className={
+                            brandTitleFont
+                              ? `${brandTitleFont} text-sm leading-none text-leather`
+                              : "eyebrow text-leather"
+                          }
+                        >
+                          {product.vendor}
+                        </span>
+                        <span className="text-xs font-medium text-[color:var(--brand-accent)]">
                           Ver todas
                           <span className="ml-1 inline-block transition-transform group-hover:translate-x-0.5">
                             →
