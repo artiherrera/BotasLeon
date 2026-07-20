@@ -12,7 +12,7 @@ import { RecentlyViewed } from "@/components/RecentlyViewed"
 import { ProductJsonLd, BreadcrumbJsonLd } from "@/components/StructuredData"
 import { ProductViewedTracker } from "@/components/ProductViewedTracker"
 import { WhatsAppButton } from "@/components/WhatsAppButton"
-import { getProductByHandle, getProducts } from "@/lib/shopify"
+import { getProductByHandle, getProducts, getBrands } from "@/lib/shopify"
 import { formatMoney, saleInfo } from "@/lib/utils"
 import { absoluteUrl } from "@/lib/seo"
 
@@ -65,6 +65,15 @@ export default async function ProductPage({ params }: Props) {
 
   if (!product) notFound()
 
+  // Marca clickable: si el vendor tiene página de marca (metaobjeto "brand"
+  // con name === vendor), la etiqueta enlaza al listado de esa marca. Si no
+  // hay match, se muestra como texto (evita un link a 404). getBrands está
+  // cacheado y el PDP es estático → corre en build, sin costo en runtime.
+  const brands = await getBrands().catch(() => [])
+  const brand = product.vendor
+    ? brands.find((b) => b.name === product.vendor)
+    : undefined
+
   const price = product.priceRange.minVariantPrice
   const compareAt = product.compareAtPriceRange?.minVariantPrice
   const sale = saleInfo(price.amount, compareAt?.amount)
@@ -113,9 +122,17 @@ export default async function ProductPage({ params }: Props) {
               </div>
 
               <div className="lg:sticky lg:top-24 lg:self-start">
-                {product.vendor && (
-                  <p className="eyebrow text-leather mb-2">{product.vendor}</p>
-                )}
+                {product.vendor &&
+                  (brand ? (
+                    <Link
+                      href={`/marcas/${brand.handle}`}
+                      className="eyebrow text-leather mb-2 inline-block hover:text-terracotta transition-colors"
+                    >
+                      {product.vendor}
+                    </Link>
+                  ) : (
+                    <p className="eyebrow text-leather mb-2">{product.vendor}</p>
+                  ))}
                 <h1 className="font-heading text-3xl md:text-4xl text-text mb-4 leading-tight">
                   {product.title}
                 </h1>
