@@ -51,12 +51,15 @@ export function Header() {
       } ${scrolled ? "border-border/60 shadow-sm" : "border-border/30"}`}
     >
       <div
-        className={`px-4 md:px-6 lg:px-8 grid grid-cols-[1fr_auto_1fr] items-center gap-3 transition-all duration-300 ${
+        className={`px-4 md:px-6 lg:px-8 flex items-center justify-between gap-2 md:grid md:grid-cols-[1fr_auto_1fr] md:gap-3 transition-all duration-300 ${
           scrolled ? "py-2" : "py-4"
         }`}
       >
-        {/* Izquierda: hamburguesa (mobile) + logo */}
-        <div className="flex items-center gap-3 md:gap-4 min-w-0">
+        {/* Izquierda: hamburguesa (mobile) + logo.
+            En móvil el header es flex justify-between: este grupo va pegado a
+            la izquierda y las acciones a la derecha, con espacio real entre
+            ambos. En md+ pasa a grid de 3 columnas para centrar el MegaMenu. */}
+        <div className="flex items-center gap-2 md:gap-4 min-w-0">
           {/* Hamburger — solo mobile (md:hidden internamente) */}
           <MobileNav />
 
@@ -73,7 +76,7 @@ export function Header() {
               height={220}
               loading="eager"
               className={`w-auto transition-all duration-300 ${
-                scrolled ? "h-8 md:h-10" : "h-10 md:h-14"
+                scrolled ? "h-8 md:h-10" : "h-9 md:h-14"
               }`}
             />
           </Link>
@@ -86,7 +89,7 @@ export function Header() {
         </div>
 
         {/* Derecha: buscador + cuenta + carrito */}
-        <div className="flex items-center justify-end gap-2">
+        <div className="flex items-center justify-end gap-1 md:gap-2">
           <button
             ref={searchBtnRef}
             type="button"
