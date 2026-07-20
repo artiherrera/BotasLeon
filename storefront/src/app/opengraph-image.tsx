@@ -23,7 +23,7 @@ import { ImageResponse } from "next/og"
 
 export const size = { width: 1200, height: 630 }
 export const contentType = "image/png"
-export const alt = "BotasLeón — 380 años de experiencia. Botas hechas en León."
+export const alt = "BotasLeón — 380 años de tradición. Botas hechas en León."
 
 // Paleta cuero
 const CUERO_DARK = "#2A1A12"
@@ -77,7 +77,7 @@ export default async function OpengraphImage() {
   // Texto que aparecerá en la imagen — pasado a Google Fonts API para que
   // solo descargue glyphs necesarios (mucho más rápido al build).
   const displayText = "BotasLeón"
-  const taglineText = "380 años de experiencia. A la puerta de tu casa."
+  const taglineText = "380 años de tradición. A la puerta de tu casa."
   const footerText = "HECHO EN LEÓN, GUANAJUATO · ENVÍO A MÉXICO Y EEUU"
   const eyebrowText = "ESTABLECIDA EN LEÓN, GTO."
   // Subset de glyphs solo para texto real — los ornamentos son divs CSS,

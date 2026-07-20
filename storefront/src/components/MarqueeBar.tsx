@@ -16,10 +16,11 @@ import { FREE_SHIPPING_THRESHOLD_LABEL } from "@/lib/shipping"
 // Último item lleva a la sección de newsletter (reemplaza a la barra de anuncio
 // que antes ocupaba una fila propia arriba del header).
 const MESSAGES: Array<{ text: string; href?: string }> = [
-  { text: "380 años de experiencia" },
+  { text: "380 años de tradición" },
   { text: "León, capital mundial del cuero" },
   { text: `Envío GRATIS a partir de ${FREE_SHIPPING_THRESHOLD_LABEL}` },
   { text: "3, 6 y 9 meses sin intereses" },
+  { text: "Tienda física en León →", href: "/visitanos" },
   { text: "Suscríbete y recibe ofertas antes que nadie →", href: "/#newsletter" },
 ]
 

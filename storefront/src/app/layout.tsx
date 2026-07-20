@@ -65,7 +65,7 @@ export const metadata: Metadata = {
     locale: "es_MX",
     url: SITE_URL,
     siteName: SITE_NAME,
-    title: `${SITE_NAME} · 380 años de experiencia. A la puerta de tu casa.`,
+    title: `${SITE_NAME} · 380 años de tradición. A la puerta de tu casa.`,
     description: SITE_DESCRIPTION,
   },
   twitter: {

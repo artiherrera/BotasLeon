@@ -10,6 +10,7 @@ import { LatestGenderGrid } from "@/components/LatestGenderGrid"
 import { AccessoriesShowcase } from "@/components/AccessoriesShowcase"
 import { NewsletterForm } from "@/components/NewsletterForm"
 import { HechoEnLeonStrip } from "@/components/HechoEnLeonStrip"
+import { StoreVisitSection } from "@/components/StoreVisitSection"
 import { FAQJsonLd } from "@/components/StructuredData"
 import { FAQS } from "@/lib/faqs"
 import { absoluteUrl } from "@/lib/seo"
@@ -124,6 +125,9 @@ export default async function HomePage() {
 
         {/* Storytelling compacto — banda horizontal en lugar de sección XL */}
         <HechoEnLeonStrip />
+
+        {/* Confianza: tienda física en León (mapa + dirección → /visitanos) */}
+        <StoreVisitSection />
 
         <FAQAccordion />
 

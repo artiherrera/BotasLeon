@@ -9,7 +9,7 @@
 const BADGES = [
   {
     Icon: HeritageIcon,
-    title: "380 años de experiencia",
+    title: "380 años de tradición",
     sub: "León, capital mundial del cuero",
   },
   {
