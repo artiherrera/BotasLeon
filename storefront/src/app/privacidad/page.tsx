@@ -12,7 +12,7 @@ export default function PrivacidadPage() {
       <p>
         <strong>BotasLeón</strong>, con domicilio en León, Guanajuato,
         México, es responsable del tratamiento de tus datos personales.
-        Contacto para asuntos de privacidad: privacidad@botasleon.com.
+        Contacto para asuntos de privacidad: contacto@botasleon.com.
       </p>
 
       <h2>2. Datos que recopilamos</h2>
@@ -95,7 +95,7 @@ export default function PrivacidadPage() {
         </li>
       </ul>
       <p>
-        Para ejercerlos, escribe a privacidad@botasleon.com. Respondemos en
+        Para ejercerlos, escribe a contacto@botasleon.com. Respondemos en
         un plazo máximo de 20 días hábiles.
       </p>
 

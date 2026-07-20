@@ -94,7 +94,7 @@ export default function GuiaTallasPage() {
 
       <h2>¿Aún tienes dudas?</h2>
       <p>
-        Escríbenos a hola@botasleon.com con tu medida en cm y el modelo que te
+        Escríbenos a contacto@botasleon.com con tu medida en cm y el modelo que te
         interesa. Te asesoramos sin compromiso.
       </p>
     </ContentPage>

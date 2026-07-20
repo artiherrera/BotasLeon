@@ -40,7 +40,7 @@ export default function DevolucionesPage() {
       <h2>Cómo iniciar un cambio o devolución</h2>
       <ol>
         <li>
-          Escribe a <strong>hola@botasleon.com</strong> con tu número de pedido
+          Escribe a <strong>contacto@botasleon.com</strong> con tu número de pedido
           y motivo
         </li>
         <li>

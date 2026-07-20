@@ -68,13 +68,13 @@ export default function FaqPage() {
       <h2>¿Trabajan con distribuidores o mayoristas?</h2>
       <p>
         Sí. Si tienes una tienda física o proyecto de reventa, escríbenos a
-        mayoreo@botasleon.com con los detalles. Manejamos precios mayoristas a
+        contacto@botasleon.com con los detalles. Manejamos precios mayoristas a
         partir de cierto volumen mínimo y enviamos catálogo completo bajo NDA.
       </p>
 
       <h2>¿Mi duda no está aquí?</h2>
       <p>
-        Escríbenos a hola@botasleon.com o ve a{" "}
+        Escríbenos a contacto@botasleon.com o ve a{" "}
         <a href="/contacto">Contacto</a>. Respondemos en menos de 24 horas
         hábiles.
       </p>

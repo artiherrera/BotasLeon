@@ -44,6 +44,6 @@ export const FAQS: FAQ[] = [
   {
     question: "¿Trabajan con distribuidores o mayoristas?",
     answer:
-      "Sí. Si tienes una tienda física o un proyecto de reventa, escríbenos a hola@botasleon.com con los detalles. Manejamos precios mayoristas a partir de cierto volumen mínimo y enviamos catálogo completo bajo NDA.",
+      "Sí. Si tienes una tienda física o un proyecto de reventa, escríbenos a contacto@botasleon.com con los detalles. Manejamos precios mayoristas a partir de cierto volumen mínimo y enviamos catálogo completo bajo NDA.",
   },
 ]

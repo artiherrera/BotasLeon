@@ -11,7 +11,7 @@ export default function EnviosPage() {
       <h2>Cobertura</h2>
       <p>
         Enviamos a toda la República Mexicana y a Estados Unidos continental.
-        Para otros países, escríbenos a hola@botasleon.com y te cotizamos.
+        Para otros países, escríbenos a contacto@botasleon.com y te cotizamos.
       </p>
 
       <h2>Tiempos de entrega</h2>

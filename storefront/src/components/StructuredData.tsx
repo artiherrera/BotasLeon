@@ -49,7 +49,7 @@ export function OrganizationJsonLd() {
         },
         contactPoint: {
           "@type": "ContactPoint",
-          email: "hola@botasleon.com",
+          email: "contacto@botasleon.com",
           contactType: "Customer service",
           areaServed: ["MX", "US"],
           availableLanguage: ["Spanish", "English"],

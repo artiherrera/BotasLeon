@@ -39,7 +39,7 @@ export default function ProveedoresPage() {
 
       <h2>Cómo empezar</h2>
       <p>
-        Escribe a <strong>marcas@botasleon.com</strong> con:
+        Escribe a <strong>contacto@botasleon.com</strong> con:
       </p>
       <ol>
         <li>Nombre de tu marca / razón social</li>

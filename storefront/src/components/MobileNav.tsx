@@ -299,11 +299,11 @@ export function MobileNav() {
         {/* Footer: contacto + redes sociales + branding */}
         <div className="border-t border-border/40 bg-bg-alt/40 px-5 py-5 space-y-3">
           <a
-            href="mailto:hola@botasleon.com"
+            href="mailto:contacto@botasleon.com"
             className="flex items-center gap-3 text-sm text-text hover:text-leather transition-colors"
           >
             <MailIcon />
-            <span>hola@botasleon.com</span>
+            <span>contacto@botasleon.com</span>
           </a>
 
           {/* Redes sociales */}

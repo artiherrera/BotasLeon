@@ -58,7 +58,7 @@ export default function NosotrosPage() {
       <h2>Hablemos</h2>
       <p>
         ¿Tienes preguntas sobre cuero, sobre alguna bota, sobre cuál pedir?
-        Escríbenos a hola@botasleon.com — respondemos rápido y sin guion.
+        Escríbenos a contacto@botasleon.com — respondemos rápido y sin guion.
       </p>
     </ContentPage>
   )

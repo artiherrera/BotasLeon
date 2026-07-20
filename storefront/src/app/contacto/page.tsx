@@ -11,7 +11,7 @@ export default function ContactoPage() {
     >
       <h2>Atención a clientes</h2>
       <p>
-        <strong>Correo:</strong> hola@botasleon.com<br />
+        <strong>Correo:</strong> contacto@botasleon.com<br />
         <strong>WhatsApp:</strong>{" "}
         <a href={whatsappHref()} target="_blank" rel="noopener noreferrer">
           +52 477 760 8064
@@ -42,8 +42,7 @@ export default function ContactoPage() {
         que quiere distribuirse con nosotros, escríbenos a:
       </p>
       <p>
-        <strong>Mayoreo:</strong> mayoreo@botasleon.com<br />
-        <strong>Marcas / proveedores:</strong> marcas@botasleon.com
+        <strong>Correo:</strong> contacto@botasleon.com
       </p>
 
       <h2>Dirección</h2>
@@ -71,5 +70,5 @@ export const metadata = pageMetadata({
   path: "/contacto",
   title: "Contacto",
   description:
-    "Escríbenos a hola@botasleon.com — resolvemos talla, envíos y devoluciones.",
+    "Escríbenos a contacto@botasleon.com — resolvemos talla, envíos y devoluciones.",
 })

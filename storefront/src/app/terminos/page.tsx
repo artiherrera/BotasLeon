@@ -19,7 +19,7 @@ export default function TerminosPage() {
       <p>
         El Sitio es operado por <strong>BotasLeón</strong>, con domicilio en
         León, Guanajuato, México. Para asuntos legales o de privacidad,
-        escribe a hola@botasleon.com.
+        escribe a contacto@botasleon.com.
       </p>
 
       <h2>3. Productos y precios</h2>

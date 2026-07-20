@@ -86,7 +86,7 @@ export function FAQAccordion() {
         <p className="text-center text-sm text-text-muted mt-10">
           ¿Tu duda no está aquí?{" "}
           <a
-            href="mailto:hola@botasleon.com"
+            href="mailto:contacto@botasleon.com"
             className="text-leather hover:text-terracotta transition-colors font-medium"
           >
             Escríbenos
