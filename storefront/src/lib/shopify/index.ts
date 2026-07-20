@@ -432,6 +432,9 @@ type MetaobjectField = {
   key: string
   value: string | null
   reference: { image: Image | null } | null
+  // Campos de LISTA (ej. lista de imágenes en store_photo). Opcional: las
+  // queries que no lo piden lo dejan undefined.
+  references?: { edges: Array<{ node: { image: Image | null } | null }> } | null
 }
 
 type MetaobjectNode = {
@@ -561,27 +564,39 @@ export async function getStorePhotos(): Promise<StorePhoto[]> {
 
   const nodes = data.metaobjects?.edges?.map((e) => e.node) ?? []
 
-  return nodes
-    .map((node, idx): StorePhoto | null => {
-      const fieldMap = new Map(node.fields.map((f) => [f.key, f] as const))
-      const raw =
-        fieldMap.get("image")?.reference?.image ??
-        node.fields.find((f) => f.reference?.image)?.reference?.image ??
-        null
-      if (!raw) return null
-      return {
-        handle: node.handle,
+  // Aplana TODAS las imágenes: soporta campo LISTA (varias imágenes en una
+  // entrada, vía `references`) y campo single (una imagen, vía `reference`),
+  // así como varias entradas. Cada imagen es una foto de la galería.
+  const photos: StorePhoto[] = []
+  nodes.forEach((node, entryIdx) => {
+    const fieldMap = new Map(node.fields.map((f) => [f.key, f] as const))
+    const base = Number(fieldMap.get("sort_order")?.value) || entryIdx
+
+    const imgs: Image[] = []
+    for (const f of node.fields) {
+      if (f.reference?.image) imgs.push(f.reference.image)
+      for (const edge of f.references?.edges ?? []) {
+        if (edge.node?.image) imgs.push(edge.node.image)
+      }
+    }
+
+    imgs.forEach((raw, i) => {
+      photos.push({
+        handle: `${node.handle}-${i}`,
         image: {
           url: raw.url,
           altText: raw.altText,
           width: raw.width ?? 1200,
           height: raw.height ?? 900,
         },
-        sortOrder: Number(fieldMap.get("sort_order")?.value) || idx,
-      }
+        // base*100 mantiene el orden entre entradas y, dentro de una lista,
+        // respeta el orden en que se subieron las imágenes.
+        sortOrder: base * 100 + i,
+      })
     })
-    .filter((p): p is StorePhoto => p !== null)
-    .sort((a, b) => a.sortOrder - b.sortOrder)
+  })
+
+  return photos.sort((a, b) => a.sortOrder - b.sortOrder)
 }
 
 // === Health check ===

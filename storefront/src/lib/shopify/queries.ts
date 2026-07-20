@@ -357,9 +357,11 @@ export const GET_CATEGORY_CARDS_QUERY = /* GraphQL */ `
 `
 
 // Fotos de la tienda física — metaobjeto "store_photo" que el admin sube desde
-// Shopify (Configuración → Datos personalizados). Cada entrada = una foto
-// (campo de imagen + sort_order opcional). Se muestran como galería en
-// /visitanos. Vacío hasta que existan entradas.
+// Shopify (Configuración → Datos personalizados). Soporta DOS formas:
+//   (a) una entrada con un campo LISTA de imágenes (subes varias de golpe), o
+//   (b) varias entradas con una imagen cada una.
+// Por eso pedimos tanto `reference` (campo single) como `references` (campo
+// lista). Se muestran como galería en /visitanos. Vacío hasta que haya fotos.
 export const GET_STORE_PHOTOS_QUERY = /* GraphQL */ `
   query GetStorePhotos {
     metaobjects(type: "store_photo", first: 24) {
@@ -372,6 +374,15 @@ export const GET_STORE_PHOTOS_QUERY = /* GraphQL */ `
             reference {
               ... on MediaImage {
                 image { ...ImageFields }
+              }
+            }
+            references(first: 24) {
+              edges {
+                node {
+                  ... on MediaImage {
+                    image { ...ImageFields }
+                  }
+                }
               }
             }
           }
