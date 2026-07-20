@@ -282,21 +282,22 @@ export function HeroCarousel({ slides }: Props) {
             }}
           />
 
-          {/* Gradient inferior para contraste */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/15 to-transparent pointer-events-none" />
+          {/* Gradient inferior para contraste — fuerte abajo para que el texto
+              crema sea legible incluso sobre imágenes claras. */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent pointer-events-none" />
 
           {/* Content anclado abajo-izquierda */}
           <div className="absolute inset-x-0 bottom-0 px-8 md:px-16 lg:px-20 pb-20 md:pb-24">
             <div className="max-w-7xl mx-auto">
               {slide.eyebrow && (
-                <p className="eyebrow text-gold mb-4 text-xs md:text-sm tracking-[0.25em]">
+                <p className="eyebrow text-gold mb-4 text-sm md:text-base tracking-[0.25em] drop-shadow-[0_1px_6px_rgba(0,0,0,0.6)]">
                   {slide.eyebrow}
                 </p>
               )}
-              <h2 className="font-display text-bg text-4xl md:text-5xl lg:text-6xl leading-[1] tracking-tight">
+              <h2 className="font-display text-bg text-5xl md:text-6xl lg:text-7xl leading-[1] tracking-tight drop-shadow-[0_2px_12px_rgba(0,0,0,0.6)]">
                 {slide.title}
               </h2>
-              <span className="inline-flex items-center mt-6 text-bg/80 text-sm tracking-wide group-hover:text-bg transition-colors">
+              <span className="inline-flex items-center mt-6 text-bg/90 text-sm md:text-base tracking-wide drop-shadow-[0_1px_6px_rgba(0,0,0,0.55)] group-hover:text-bg transition-colors">
                 Explorar
                 <span className="ml-2 transition-transform group-hover:translate-x-1">
                   →
