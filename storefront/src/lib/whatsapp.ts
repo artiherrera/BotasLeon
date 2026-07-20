@@ -10,14 +10,19 @@
 export const WHATSAPP_NUMBER =
   process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ?? "524777608064"
 
-const GENERIC_MESSAGE = "¡Hola! 👋 Tengo una duda sobre las botas de BotasLeón."
+// "Me interesa" convierte más que "duda" (pasivo) o "quiero comprar" (muy
+// comprometido — espanta al que aún decide). La pregunta por talla+envío mueve
+// hacia la venta y le da al vendedor lo que necesita para cerrar.
+const GENERIC_MESSAGE =
+  "¡Hola! 👋 Me interesan sus botas. ¿Me pueden ayudar con tallas, precios y envío?"
 
 /**
  * Mensaje contextual para el PDP: incluye nombre + link de la bota para que
- * quien atiende el chat sepa de inmediato de qué producto se trata.
+ * quien atiende el chat sepa de inmediato de qué producto se trata, y cierra
+ * con la pregunta de talla+envío que empuja la conversión.
  */
 export function productWhatsappMessage(title: string, url: string): string {
-  return `¡Hola! 👋 Tengo una duda sobre estas botas: ${title}\n${url}`
+  return `¡Hola! 👋 Me interesa esta bota: ${title}\n${url}\n¿Tienen mi talla y cómo es el envío?`
 }
 
 /** Construye el link wa.me con el mensaje ya codificado. */
