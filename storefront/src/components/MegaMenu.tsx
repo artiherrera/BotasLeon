@@ -130,7 +130,7 @@ export function MegaMenu() {
   return (
     <>
       <nav
-        className="hidden md:flex items-center gap-1 text-sm font-medium"
+        className="hidden md:flex items-center gap-1 lg:gap-2 font-medium"
         onMouseLeave={scheduleClose}
       >
         {MENU.map((item, idx) => (
@@ -141,11 +141,11 @@ export function MegaMenu() {
           >
             <Link
               href={item.href}
-              className={`block px-3 py-2 transition-colors ${
+              className={`relative block px-3.5 py-2 text-[15px] uppercase tracking-[0.1em] transition-colors after:pointer-events-none after:absolute after:inset-x-3.5 after:bottom-1 after:h-[2px] after:origin-left after:scale-x-0 after:bg-leather after:transition-transform after:duration-300 hover:after:scale-x-100 ${
                 item.highlight
                   ? "text-terracotta hover:text-terracotta-dark"
                   : "hover:text-leather"
-              } ${openIdx === idx ? "text-leather" : ""}`}
+              } ${openIdx === idx ? "text-leather after:scale-x-100" : ""}`}
               aria-expanded={openIdx === idx && !!item.sections}
               aria-haspopup={item.sections ? "true" : undefined}
             >
