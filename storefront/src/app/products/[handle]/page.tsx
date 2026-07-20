@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation"
 import Link from "next/link"
+import Image from "next/image"
 import { Header } from "@/components/Header"
 import { Footer } from "@/components/Footer"
 import { ProductGalleryConnected } from "@/components/ProductGalleryConnected"
@@ -122,16 +123,48 @@ export default async function ProductPage({ params }: Props) {
               </div>
 
               <div className="lg:sticky lg:top-24 lg:self-start">
+                {/* Marca clickeable como CHIP: logo (o monograma) + nombre +
+                    "Ver todas →". La forma de pastilla con borde comunica que
+                    es tocable SIN depender del hover (funciona igual en móvil);
+                    el fallback plano (vendor sin página de marca) es texto
+                    simple, y ese contraste refuerza que el chip sí se toca. */}
                 {product.vendor &&
                   (brand ? (
                     <Link
                       href={`/marcas/${brand.handle}`}
-                      className="eyebrow text-leather mb-2 inline-block hover:text-terracotta transition-colors"
+                      aria-label={`Ver todas las botas de ${product.vendor}`}
+                      className="group mb-3 inline-flex items-center gap-2.5 rounded-full border border-border bg-bg-alt py-1.5 pl-1.5 pr-3.5 transition-colors hover:border-border-strong focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cognac focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
                     >
-                      {product.vendor}
+                      {brand.logo ? (
+                        <span className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-full border border-border bg-bg">
+                          <Image
+                            src={brand.logo.url}
+                            alt={brand.logo.altText || product.vendor}
+                            width={brand.logo.width || 36}
+                            height={brand.logo.height || 36}
+                            className="h-full w-full object-contain p-0.5"
+                          />
+                        </span>
+                      ) : (
+                        <span
+                          aria-hidden
+                          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-border-strong bg-bg font-display text-base leading-none text-leather"
+                        >
+                          {product.vendor.charAt(0)}
+                        </span>
+                      )}
+                      <span className="flex flex-col leading-tight">
+                        <span className="eyebrow text-leather">{product.vendor}</span>
+                        <span className="text-xs font-medium text-terracotta">
+                          Ver todas
+                          <span className="ml-1 inline-block transition-transform group-hover:translate-x-0.5">
+                            →
+                          </span>
+                        </span>
+                      </span>
                     </Link>
                   ) : (
-                    <p className="eyebrow text-leather mb-2">{product.vendor}</p>
+                    <p className="eyebrow text-leather mb-3">{product.vendor}</p>
                   ))}
                 <h1 className="font-heading text-3xl md:text-4xl text-text mb-4 leading-tight">
                   {product.title}
