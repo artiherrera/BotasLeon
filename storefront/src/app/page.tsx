@@ -35,7 +35,7 @@ export const revalidate = 60
  *   2. MarqueeBar — trust strip arriba del Hero (MSI · envío · cambios)
  *   3. HeroCarousel — 3 slides Metaobjects con Ken Burns (intacto)
  *   4. LatestByGenderTabs — productos reales JUSTO después del Hero
- *   5. CategoryShowcase — 3 cards Hombre/Mujer/Accesorios
+ *   5. CategoryShowcase — cards Hombre/Mujer (Accesorios oculto sin productos)
  *   6. BrandGrid — Marcas (oculto cuando 0 marcas, curado cuando 1-3)
  *   7. HechoEnLeonStrip — banda compacta 380 años · 7 de 10 · curadores
  *   8. FAQAccordion

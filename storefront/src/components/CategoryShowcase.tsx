@@ -34,13 +34,8 @@ const FALLBACK_CATEGORIES = [
     description: "Vaqueras, clásicas, largas, fashion.",
     bgClass: "bg-gradient-to-br from-terracotta-dark via-terracotta to-leather",
   },
-  {
-    href: "/accesorios",
-    eyebrow: "Categoría",
-    title: "Accesorios",
-    description: "Cinturones, sombreros, carteras y cuidado del cuero.",
-    bgClass: "bg-gradient-to-br from-cognac via-gold to-leather-light",
-  },
+  // Card de Accesorios oculta — aún sin productos dados de alta. Restaurar
+  // cuando los haya.
 ] as const
 
 // Gradients cíclicos para cards SIN imagen (cuando una entry del
@@ -57,7 +52,11 @@ export async function CategoryShowcase() {
   // devuelve []. El componente detecta el array vacío y rendera el
   // hardcode con gradients (comportamiento original) para que el home
   // nunca se rompa.
-  const cards = await getCategoryCards().catch(() => [] as CategoryCard[])
+  // Accesorios oculto mientras no haya productos dados de alta: filtramos la
+  // card aunque exista como metaobjeto "category_card" en Shopify. Restaurar
+  // quitando este filtro (o borrando la card en el admin) cuando se publiquen.
+  const cards = (await getCategoryCards().catch(() => [] as CategoryCard[]))
+    .filter((c) => c.href !== "/accesorios")
 
   return (
     <section className="mx-auto max-w-7xl px-6 py-16 md:py-20">

@@ -70,23 +70,9 @@ const MENU: MenuItem[] = [
     ctaHref: "/mujer",
     ctaLabel: "Ver todas las botas de mujer",
   },
-  {
-    label: "Accesorios",
-    href: "/accesorios",
-    sections: [
-      {
-        title: "Por categoría",
-        links: [
-          { label: "Cinturones", href: "/accesorios/cinturones", description: "Piteados, herrajes, hebillas" },
-          { label: "Sombreros", href: "/accesorios/sombreros", description: "Vaqueros tradicionales" },
-          { label: "Carteras", href: "/accesorios/carteras", description: "Piel grabada y lisa" },
-          { label: "Cuidado del cuero", href: "/accesorios/cuidado-del-cuero", description: "Cremas, ceras, betunes" },
-        ],
-      },
-    ],
-    ctaHref: "/accesorios",
-    ctaLabel: "Ver todos los accesorios",
-  },
+  // Accesorios oculto del nav — aún sin productos dados de alta. Para
+  // reactivar cuando los haya, restaurar este item (rutas /accesorios siguen
+  // existiendo, solo sin enlazar).
   {
     label: "Marcas",
     href: "/marcas",

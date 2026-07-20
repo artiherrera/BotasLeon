@@ -44,7 +44,7 @@ export function Footer() {
             <li><Link href="/hombre" className="hover:text-bg transition-colors">Hombre</Link></li>
             <li><Link href="/mujer" className="hover:text-bg transition-colors">Mujer</Link></li>
             <li><Link href="/marcas" className="hover:text-bg transition-colors">Marcas</Link></li>
-            <li><Link href="/accesorios" className="hover:text-bg transition-colors">Accesorios</Link></li>
+            {/* Accesorios oculto hasta que haya productos dados de alta. Re-enable en sync con MegaMenu/CategoryShowcase. */}
             {/* Outlet oculto hasta que haya productos con compareAtPrice. Re-enable en sync con MegaMenu/MobileNav. */}
           </ul>
         </div>
