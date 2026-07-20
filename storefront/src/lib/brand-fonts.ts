@@ -1,4 +1,4 @@
-import { Rye, Playfair_Display, Oswald } from "next/font/google"
+import { Rye, Playfair_Display, Oswald, Josefin_Sans } from "next/font/google"
 
 /**
  * Fuentes curadas para el TÍTULO de una marca — el nombre grande en su página
@@ -21,11 +21,17 @@ const oswald = Oswald({
   subsets: ["latin"],
   display: "swap",
 })
+const josefin = Josefin_Sans({
+  weight: ["400", "600"],
+  subsets: ["latin"],
+  display: "swap",
+})
 
 const FONT_CLASS: Record<string, string> = {
   rye: rye.className,
   playfair: playfair.className,
   oswald: oswald.className,
+  josefin: josefin.className,
 }
 
 /**
@@ -36,6 +42,7 @@ export const BRAND_TITLE_FONTS = [
   { slug: "rye", label: "Rye — western / vaquero" },
   { slug: "playfair", label: "Playfair Display — elegante / fashion" },
   { slug: "oswald", label: "Oswald — condensada / moderna" },
+  { slug: "josefin", label: "Josefin Sans — geométrica fina / femenina" },
 ] as const
 
 /**
