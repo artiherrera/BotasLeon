@@ -243,6 +243,16 @@ async function getBrandsImpl(): Promise<Brand[]> {
   const brands = nodes.map((node, idx) => {
     const fieldMap = new Map(node.fields.map((f) => [f.key, f] as const))
     const get = (key: string) => fieldMap.get(key)?.value ?? ""
+    // Tolera guion bajo O medio en la clave (Shopify a veces autogenera
+    // "accent-color" en vez de "accent_color"), así el admin no queda atorado
+    // por el separador exacto.
+    const getAny = (...keys: string[]) => {
+      for (const k of keys) {
+        const v = fieldMap.get(k)?.value
+        if (v) return v
+      }
+      return ""
+    }
     const logo = fieldMap.get("logo")?.reference?.image ?? null
 
     const brand: Brand = {
@@ -251,8 +261,8 @@ async function getBrandsImpl(): Promise<Brand[]> {
       name: get("name"),
       tagline: get("tagline"),
       logo,
-      accentColor: get("accent_color") || null,
-      titleFont: get("title_font") || null,
+      accentColor: getAny("accent_color", "accent-color") || null,
+      titleFont: getAny("title_font", "title-font") || null,
     }
     return { brand, sortOrder: Number(get("sort_order")) || idx, active: get("is_active") !== "false" }
   })
