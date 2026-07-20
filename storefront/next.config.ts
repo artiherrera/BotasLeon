@@ -12,7 +12,7 @@ const CSP_REPORT_ONLY = [
   "img-src 'self' data: https://cdn.shopify.com https://*.klaviyo.com https://*.google-analytics.com https://*.googletagmanager.com",
   "font-src 'self' data:",
   "connect-src 'self' https://*.myshopify.com https://a.klaviyo.com https://*.klaviyo.com https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com",
-  "frame-src https://*.klaviyo.com",
+  "frame-src https://*.klaviyo.com https://www.google.com https://maps.google.com",
   "frame-ancestors 'self'",
   "base-uri 'self'",
   "form-action 'self'",

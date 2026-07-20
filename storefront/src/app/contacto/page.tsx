@@ -49,12 +49,12 @@ export default function ContactoPage() {
       <h2>Dirección</h2>
       <p>
         BotasLeón<br />
-        León, Guanajuato<br />
-        México
+        Blvd. Hilario Medina 407, 2º piso<br />
+        Col. Josefina, 37260 León de los Aldama, Gto., México
       </p>
       <p>
-        Por ahora operamos sin tienda física al público. Si quieres ver
-        producto antes de comprar, agenda una cita por correo.
+        Te esperamos en nuestra tienda.{" "}
+        <a href="/visitanos">Ver ubicación, horarios y cómo llegar →</a>
       </p>
 
       <h2>Síguenos</h2>

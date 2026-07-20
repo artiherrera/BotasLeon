@@ -44,8 +44,8 @@ export function Footer() {
             <li><Link href="/hombre" className="hover:text-bg transition-colors">Hombre</Link></li>
             <li><Link href="/mujer" className="hover:text-bg transition-colors">Mujer</Link></li>
             <li><Link href="/marcas" className="hover:text-bg transition-colors">Marcas</Link></li>
+            <li><Link href="/outlet" className="hover:text-bg transition-colors">Outlet</Link></li>
             {/* Accesorios oculto hasta que haya productos dados de alta. Re-enable en sync con MegaMenu/CategoryShowcase. */}
-            {/* Outlet oculto hasta que haya productos con compareAtPrice. Re-enable en sync con MegaMenu/MobileNav. */}
           </ul>
         </div>
 
@@ -56,6 +56,7 @@ export function Footer() {
             <li><Link href="/devoluciones" className="hover:text-bg transition-colors">Devoluciones</Link></li>
             <li><Link href="/guia-tallas" className="hover:text-bg transition-colors">Guía de tallas</Link></li>
             <li><Link href="/contacto" className="hover:text-bg transition-colors">Contacto</Link></li>
+            <li><Link href="/visitanos" className="hover:text-bg transition-colors">Visítanos</Link></li>
             <li><Link href="/faq" className="hover:text-bg transition-colors">Preguntas frecuentes</Link></li>
           </ul>
         </div>
