@@ -73,8 +73,12 @@ export default async function ProductPage({ params }: Props) {
   // hay match, se muestra como texto (evita un link a 404). getBrands está
   // cacheado y el PDP es estático → corre en build, sin costo en runtime.
   const brands = await getBrands().catch(() => [])
-  const brand = product.vendor
-    ? brands.find((b) => b.name === product.vendor)
+  // Match insensible a mayúsculas/espacios: el `name` de la marca puede diferir
+  // del vendor solo en capitalización (ej. "FORAJIDAS" vs "Forajidas") y el chip
+  // debe salir igual. Shopify ya busca vendors sin distinguir mayúsculas.
+  const vendorKey = product.vendor?.trim().toLowerCase()
+  const brand = vendorKey
+    ? brands.find((b) => b.name.trim().toLowerCase() === vendorKey)
     : undefined
 
   // Identidad de la marca en su producto: el acento tiñe el CTA del chip
