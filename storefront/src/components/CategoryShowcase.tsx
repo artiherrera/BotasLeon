@@ -34,6 +34,7 @@ const FALLBACK_CATEGORIES = [
     description: "Vaqueras, clásicas, largas, fashion.",
     bgClass: "bg-gradient-to-br from-terracotta-dark via-terracotta to-leather",
   },
+  // Outlet se administra como metaobjeto Category Card en Shopify (con imagen).
   // Card de Accesorios oculta — aún sin productos dados de alta. Restaurar
   // cuando los haya.
 ] as const
