@@ -7,7 +7,6 @@ import { Toast } from "@/components/Toast"
 import { CookiesBanner } from "@/components/CookiesBanner"
 import { GoogleAnalytics } from "@/components/GoogleAnalytics"
 import { MetaPixel } from "@/components/MetaPixel"
-import { AnnouncementBar } from "@/components/AnnouncementBar"
 import { OrganizationJsonLd, WebsiteJsonLd } from "@/components/StructuredData"
 import { WhatsAppButton } from "@/components/WhatsAppButton"
 import { SITE_URL, SITE_NAME, SITE_DESCRIPTION } from "@/lib/seo"
@@ -119,8 +118,8 @@ export default function RootLayout({
           Saltar al contenido
         </a>
 
-        {/* Promo bar arriba de TODO — captura email/atención. Dismissible. */}
-        <AnnouncementBar />
+        {/* Barra de anuncio retirada — el CTA "Suscríbete" ahora va como item
+            del marquee (MarqueeBar) para reducir la altura del encabezado. */}
 
         {/* JSON-LD Schema.org global — Organization + WebSite con search */}
         <OrganizationJsonLd />

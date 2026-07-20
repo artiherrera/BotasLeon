@@ -295,6 +295,14 @@ export function SearchOverlay({ open, onClose }: Props) {
 }
 
 // Tarjeta compacta para resultados del overlay: thumb + nombre + precio.
+// Miniatura vía el redimensionado nativo del CDN de Shopify (?width=), servida
+// directo al navegador SIN pasar por el optimizador de Next. En Amplify, esas
+// imágenes client-side del overlay se rompían (cuadros grises); el CDN de
+// Shopify las entrega ya redimensionadas y ligeras, y evita el optimizador.
+function shopifyThumb(url: string, width: number): string {
+  return url + (url.includes("?") ? "&" : "?") + `width=${width}`
+}
+
 function SearchResultCard({
   product,
   onSelect,
@@ -312,14 +320,15 @@ function SearchResultCard({
       className="group flex items-center gap-3 p-2 hover:bg-bg-alt rounded-sm transition-colors"
       aria-label={`Ver ${title}`}
     >
-      <div className="relative w-16 h-16 flex-shrink-0 overflow-hidden bg-bg-alt rounded-sm">
+      <div className="w-16 h-16 flex-shrink-0 overflow-hidden bg-bg-alt rounded-sm">
         {featuredImage ? (
           <Image
-            src={featuredImage.url}
+            src={shopifyThumb(featuredImage.url, 128)}
             alt={featuredImage.altText || title}
-            fill
-            sizes="64px"
-            className="object-cover"
+            width={64}
+            height={64}
+            unoptimized
+            className="h-full w-full object-cover"
           />
         ) : null}
       </div>

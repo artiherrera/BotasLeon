@@ -93,7 +93,7 @@ const MENU: MenuItem[] = [
   // Para reactivarlo: descomentar aquí + en MobileNav.tsx (QUICK_LINKS).
 ]
 
-const CLOSE_DELAY_MS = 150
+const CLOSE_DELAY_MS = 200
 
 export function MegaMenu() {
   const [openIdx, setOpenIdx] = useState<number | null>(null)
@@ -170,8 +170,7 @@ export function MegaMenu() {
       {showPanel && activeItem && (
         <div
           className="absolute left-0 right-0 top-full
-            bg-bg/95 backdrop-blur-2xl backdrop-saturate-200
-            border-b border-leather/15 shadow-2xl z-30"
+            bg-bg border-b border-border shadow-2xl z-30"
           onMouseEnter={cancelClose}
           onMouseLeave={scheduleClose}
         >

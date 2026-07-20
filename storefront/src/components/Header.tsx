@@ -1,6 +1,6 @@
 "use client"
 
-import { useRef, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { useCart } from "./CartProvider"
@@ -18,6 +18,25 @@ export function Header() {
   const [searchOpen, setSearchOpen] = useState(false)
   const searchBtnRef = useRef<HTMLButtonElement>(null)
 
+  // Estado de scroll: `scrolled` compacta el header + agrega sombra; `hidden`
+  // lo oculta al bajar y lo revela al subir (auto-hide). Corre en el navegador;
+  // setState con el mismo valor no re-renderiza (bail-out de React).
+  const [scrolled, setScrolled] = useState(false)
+  const [hidden, setHidden] = useState(false)
+  const lastY = useRef(0)
+
+  useEffect(() => {
+    const onScroll = () => {
+      const y = window.scrollY
+      setScrolled(y > 4)
+      setHidden(y > lastY.current && y > 120)
+      lastY.current = y
+    }
+    window.addEventListener("scroll", onScroll, { passive: true })
+    onScroll()
+    return () => window.removeEventListener("scroll", onScroll)
+  }, [])
+
   // Al cerrar, devolvemos focus al botón que abrió el overlay
   // (a11y: keyboard users esperan que el focus vuelva al trigger).
   const closeSearch = () => {
@@ -26,8 +45,16 @@ export function Header() {
   }
 
   return (
-    <header className="sticky top-0 z-40 border-b border-border/30 bg-bg/95 backdrop-blur-2xl backdrop-saturate-200 supports-[backdrop-filter]:bg-bg/55 relative">
-      <div className="px-4 md:px-6 lg:px-8 py-4 flex items-center gap-3 md:gap-8">
+    <header
+      className={`sticky top-0 z-40 border-b bg-bg/95 backdrop-blur-md transition-transform duration-300 ${
+        hidden ? "-translate-y-full" : "translate-y-0"
+      } ${scrolled ? "border-border/60 shadow-sm" : "border-border/30"}`}
+    >
+      <div
+        className={`px-4 md:px-6 lg:px-8 flex items-center gap-3 md:gap-8 transition-all duration-300 ${
+          scrolled ? "py-2" : "py-4"
+        }`}
+      >
         {/* Hamburger — solo mobile (md:hidden internamente) */}
         <MobileNav />
 
@@ -43,7 +70,9 @@ export function Header() {
             width={800}
             height={220}
             loading="eager"
-            className="h-10 md:h-14 w-auto"
+            className={`w-auto transition-all duration-300 ${
+              scrolled ? "h-8 md:h-10" : "h-10 md:h-14"
+            }`}
           />
         </Link>
 
