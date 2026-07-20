@@ -51,39 +51,42 @@ export function Header() {
       } ${scrolled ? "border-border/60 shadow-sm" : "border-border/30"}`}
     >
       <div
-        className={`px-4 md:px-6 lg:px-8 flex items-center gap-3 md:gap-8 transition-all duration-300 ${
+        className={`px-4 md:px-6 lg:px-8 grid grid-cols-[1fr_auto_1fr] items-center gap-3 transition-all duration-300 ${
           scrolled ? "py-2" : "py-4"
         }`}
       >
-        {/* Hamburger — solo mobile (md:hidden internamente) */}
-        <MobileNav />
+        {/* Izquierda: hamburguesa (mobile) + logo */}
+        <div className="flex items-center gap-3 md:gap-4 min-w-0">
+          {/* Hamburger — solo mobile (md:hidden internamente) */}
+          <MobileNav />
 
-        {/* Logo */}
-        <Link
-          href="/"
-          aria-label="BotasLeón — Inicio"
-          className="block flex-shrink-0 transition-opacity hover:opacity-80"
-        >
-          <Image
-            src="/logo_botasleon.png"
-            alt="BotasLeón"
-            width={800}
-            height={220}
-            loading="eager"
-            className={`w-auto transition-all duration-300 ${
-              scrolled ? "h-8 md:h-10" : "h-10 md:h-14"
-            }`}
-          />
-        </Link>
+          {/* Logo */}
+          <Link
+            href="/"
+            aria-label="BotasLeón — Inicio"
+            className="block flex-shrink-0 transition-opacity hover:opacity-80"
+          >
+            <Image
+              src="/logo_botasleon.png"
+              alt="BotasLeón"
+              width={800}
+              height={220}
+              loading="eager"
+              className={`w-auto transition-all duration-300 ${
+                scrolled ? "h-8 md:h-10" : "h-10 md:h-14"
+              }`}
+            />
+          </Link>
+        </div>
 
-        {/* Mega menu — desktop. Mobile usa fallback inline (futuro hamburger) */}
-        <MegaMenu />
+        {/* Centro: mega menú desktop — columna del medio = centrado real
+            (logo y acciones son ambas 1fr, así que el nav queda al centro). */}
+        <div className="hidden md:flex justify-center">
+          <MegaMenu />
+        </div>
 
-        {/* Spacer */}
-        <div className="flex-1" />
-
-        {/* Search + Cuenta + Cart */}
-        <div className="flex items-center gap-2">
+        {/* Derecha: buscador + cuenta + carrito */}
+        <div className="flex items-center justify-end gap-2">
           <button
             ref={searchBtnRef}
             type="button"

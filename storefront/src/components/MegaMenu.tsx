@@ -89,8 +89,11 @@ const MENU: MenuItem[] = [
       },
     ],
   },
-  // Outlet oculto hasta que haya productos con compareAtPrice.
-  // Para reactivarlo: descomentar aquí + en MobileNav.tsx (QUICK_LINKS).
+  {
+    label: "Outlet",
+    href: "/outlet",
+    highlight: true, // estilo terracota — resalta como sección de ofertas
+  },
 ]
 
 const CLOSE_DELAY_MS = 200

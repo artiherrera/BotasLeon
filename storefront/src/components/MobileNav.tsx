@@ -69,8 +69,7 @@ const CATEGORIES: Category[] = [
 
 const QUICK_LINKS: Array<{ label: string; href: string; highlight?: boolean }> = [
   { label: "Marcas", href: "/marcas" },
-  // Outlet oculto hasta que haya productos con compareAtPrice.
-  // Para reactivar: { label: "Outlet", href: "/outlet", highlight: true }
+  { label: "Outlet", href: "/outlet", highlight: true },
 ]
 
 const HELP_LINKS = [
