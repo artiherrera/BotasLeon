@@ -10,9 +10,10 @@ export default function PrivacidadPage() {
     >
       <h2>1. Responsable</h2>
       <p>
-        <strong>BotasLeón</strong>, con domicilio en León, Guanajuato,
-        México, es responsable del tratamiento de tus datos personales.
-        Contacto para asuntos de privacidad: contacto@botasleon.com.
+        <strong>BotasLeón</strong>, con domicilio en Blvd. Hilario Medina 407,
+        2º piso, Col. Josefina, 37260 León de los Aldama, Guanajuato, México,
+        es responsable del tratamiento de tus datos personales. Contacto para
+        asuntos de privacidad: contacto@botasleon.com.
       </p>
 
       <h2>2. Datos que recopilamos</h2>
