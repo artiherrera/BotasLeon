@@ -6,23 +6,18 @@ import Link from "next/link"
 const STORAGE_KEY = "botasleon:cookies-accepted"
 
 /**
- * CookiesBanner — consentimiento LFPDPPP (Ley Federal de Protección de
- * Datos Personales en Posesión de los Particulares).
+ * CookiesBanner — consentimiento LFPDPPP (Ley Federal de Protección de Datos
+ * Personales en Posesión de los Particulares).
  *
- * Lógica:
- *  - Lee localStorage al montar. Si ya hay consent (cualquier valor),
- *    no muestra nada.
- *  - Si no hay consent, espera 1s antes de animar slide-up para no
- *    pelearse con el LCP.
- *  - Ambos botones persisten el valor ("all" | "necessary") y ocultan
- *    el banner.
+ * Formato MODAL bloqueante (centrado + backdrop) en vez de barra al pie: es más
+ * visible y sube la tasa de "Aceptar todas", lo que mejora la cobertura del
+ * pixel/Klaviyo (que solo cargan con consent "all") y por lo tanto la medición
+ * de AddToCart hacia Meta. "Aceptar todas" es el botón dominante; "Solo
+ * necesarias" sigue disponible (la ley mexicana exige aviso + opción, no opt-in
+ * estricto como GDPR, así que un modal con ambas opciones cumple).
  *
- * No bloqueamos scripts (Klaviyo) en base al consent porque la ley
- * mexicana solo exige aviso + opción, no opt-in estricto como GDPR.
- *
- * GA4 con Consent Mode v2: cuando el usuario acepta/declina, dispatcheamos
- * el evento `botasleon:consent-change` que GoogleAnalytics escucha para
- * promover analytics_storage a 'granted' o mantenerlo 'denied'.
+ * GA4 Consent Mode v2: al elegir, dispatcheamos `botasleon:consent-change` que
+ * GoogleAnalytics escucha para promover analytics_storage.
  */
 export function CookiesBanner() {
   // hasConsent === null mientras leemos localStorage (evita flash en SSR).
@@ -37,13 +32,24 @@ export function CookiesBanner() {
         return
       }
     } catch {
-      // localStorage puede fallar en Safari modo privado.
-      // En ese caso mostramos el banner igual.
+      // localStorage puede fallar en Safari modo privado; mostramos el modal.
     }
     setHasConsent(false)
-    const timer = window.setTimeout(() => setOpen(true), 1000)
+    // Aparece rápido para no perder la decisión, pero deja respirar el LCP.
+    const timer = window.setTimeout(() => setOpen(true), 500)
     return () => window.clearTimeout(timer)
   }, [])
+
+  // Bloquea el scroll del body mientras el modal está abierto (más invasivo:
+  // el usuario decide antes de seguir navegando).
+  useEffect(() => {
+    if (!open) return
+    const prev = document.body.style.overflow
+    document.body.style.overflow = "hidden"
+    return () => {
+      document.body.style.overflow = prev
+    }
+  }, [open])
 
   function accept(value: "all" | "necessary") {
     try {
@@ -51,9 +57,8 @@ export function CookiesBanner() {
     } catch {
       // ignorar si localStorage no disponible
     }
-    // Notifica a GoogleAnalytics + cualquier otro consumer del consent.
-    // Custom event vs storage event: storage solo dispara entre tabs,
-    // necesitamos uno que viaje en la misma pestaña.
+    // Notifica a GoogleAnalytics + cualquier otro consumer del consent. Custom
+    // event (no storage) porque necesitamos que viaje en la misma pestaña.
     try {
       window.dispatchEvent(
         new CustomEvent("botasleon:consent-change", { detail: { value } })
@@ -69,44 +74,74 @@ export function CookiesBanner() {
 
   return (
     <div
-      role="region"
+      role="dialog"
+      aria-modal="true"
       aria-label="Aviso de cookies"
-      aria-live="polite"
-      className={`fixed bottom-0 inset-x-0 z-40 bg-leather text-bg shadow-2xl transition-transform duration-500 ease-out ${
-        open ? "translate-y-0" : "translate-y-full"
+      className={`fixed inset-0 z-[60] flex items-end justify-center sm:items-center p-4 transition-opacity duration-300 ${
+        open ? "opacity-100" : "opacity-0 pointer-events-none"
       }`}
-      style={{
-        paddingBottom: "max(1rem, env(safe-area-inset-bottom))",
-      }}
     >
-      <div className="mx-auto max-w-6xl px-4 py-4 flex flex-col md:flex-row md:items-center gap-4">
-        <p className="text-sm leading-relaxed flex-1">
-          Usamos cookies para análisis y mejorar tu experiencia. Lee nuestro{" "}
+      {/* Backdrop — atenúa y bloquea la página detrás. */}
+      <div aria-hidden className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
+
+      {/* Tarjeta */}
+      <div
+        className={`relative w-full max-w-md bg-bg text-text rounded-lg shadow-2xl border border-border p-6 sm:p-8 transition-transform duration-300 ${
+          open ? "translate-y-0" : "translate-y-4"
+        }`}
+        style={{ marginBottom: "env(safe-area-inset-bottom)" }}
+      >
+        <div className="mb-5 flex items-center gap-3">
+          <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-leather text-bg">
+            <CookieIcon />
+          </span>
+          <h2 className="font-heading text-lg text-text">Usamos cookies 🍪</h2>
+        </div>
+
+        <p className="text-sm text-text-muted leading-relaxed mb-6">
+          Nos ayudan a mostrarte mejores botas, recordar tu carrito y mejorar la
+          tienda. Al aceptar todas, nos das una mano para seguir mejorando tu
+          experiencia. Lee nuestro{" "}
           <Link
             href="/privacidad"
-            className="underline underline-offset-2 hover:text-gold"
+            className="underline underline-offset-2 text-leather hover:text-terracotta"
           >
             aviso de privacidad
           </Link>
           .
         </p>
-        <div className="flex gap-2 shrink-0">
-          <button
-            type="button"
-            onClick={() => accept("necessary")}
-            className="px-4 py-2 rounded-full border border-bg text-bg text-xs uppercase tracking-wider hover:bg-bg/10 transition-colors"
-          >
-            Solo necesarias
-          </button>
-          <button
-            type="button"
-            onClick={() => accept("all")}
-            className="px-4 py-2 rounded-full bg-bg text-leather text-xs uppercase tracking-wider font-medium hover:bg-bg/90 transition-colors"
-          >
-            Aceptar
-          </button>
-        </div>
+
+        {/* "Aceptar todas" es el CTA dominante. */}
+        <button
+          type="button"
+          onClick={() => accept("all")}
+          className="block w-full py-3.5 rounded-full bg-leather text-bg text-sm uppercase tracking-wider font-medium hover:bg-text transition-colors"
+        >
+          Aceptar todas las cookies
+        </button>
+
+        {/* Opción secundaria, discreta pero presente (cumple LFPDPPP). */}
+        <button
+          type="button"
+          onClick={() => accept("necessary")}
+          className="block w-full mt-3 text-xs uppercase tracking-wider text-text-subtle hover:text-text transition-colors"
+        >
+          Solo las necesarias
+        </button>
       </div>
     </div>
+  )
+}
+
+function CookieIcon() {
+  return (
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M12 2a10 10 0 1 0 10 10 4 4 0 0 1-5-5 4 4 0 0 1-5-5" />
+      <path d="M8.5 8.5v.01" />
+      <path d="M16 15.5v.01" />
+      <path d="M12 12v.01" />
+      <path d="M11 17v.01" />
+      <path d="M7 14v.01" />
+    </svg>
   )
 }

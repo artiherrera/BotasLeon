@@ -56,6 +56,8 @@ export function CartDrawer() {
       clearPendingDiscount()
       return
     }
+    // Respeta un código que el cliente ya aplicó a mano: la promo no lo pisa.
+    if ((cart.discountCodes ?? []).some((d) => d.applicable)) return
     if (autoTriedRef.current === pend) return
     autoTriedRef.current = pend
     applyDiscount(pend)

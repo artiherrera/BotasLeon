@@ -9,6 +9,7 @@ import { GoogleAnalytics } from "@/components/GoogleAnalytics"
 import { MetaPixel } from "@/components/MetaPixel"
 import { OrganizationJsonLd, WebsiteJsonLd } from "@/components/StructuredData"
 import { WhatsAppButton } from "@/components/WhatsAppButton"
+import { PromoBar } from "@/components/PromoBar"
 import { SITE_URL, SITE_NAME, SITE_DESCRIPTION } from "@/lib/seo"
 import "./globals.css"
 
@@ -118,8 +119,9 @@ export default function RootLayout({
           Saltar al contenido
         </a>
 
-        {/* Barra de anuncio retirada — el CTA "Suscríbete" ahora va como item
-            del marquee (MarqueeBar) para reducir la altura del encabezado. */}
+        {/* Barra de promo temporal (PROMO en @/lib/promo). Anuncia el descuento
+            y lo auto-aplica a todos. Apagar con PROMO.active = false. */}
+        <PromoBar />
 
         {/* JSON-LD Schema.org global — Organization + WebSite con search */}
         <OrganizationJsonLd />
