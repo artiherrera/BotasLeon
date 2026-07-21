@@ -9,7 +9,7 @@ import { GoogleAnalytics } from "@/components/GoogleAnalytics"
 import { MetaPixel } from "@/components/MetaPixel"
 import { OrganizationJsonLd, WebsiteJsonLd } from "@/components/StructuredData"
 import { WhatsAppButton } from "@/components/WhatsAppButton"
-import { PromoBar } from "@/components/PromoBar"
+import { PromoModal } from "@/components/PromoModal"
 import { SITE_URL, SITE_NAME, SITE_DESCRIPTION } from "@/lib/seo"
 import "./globals.css"
 
@@ -119,9 +119,10 @@ export default function RootLayout({
           Saltar al contenido
         </a>
 
-        {/* Barra de promo temporal (PROMO en @/lib/promo). Anuncia el descuento
-            y lo auto-aplica a todos. Apagar con PROMO.active = false. */}
-        <PromoBar />
+        {/* Ventana de promo temporal (PROMO en @/lib/promo). Anuncia el
+            descuento y lo auto-aplica a todos. Aparece tras el aviso de cookies.
+            Apagar con PROMO.active = false. (Se renderiza como overlay fijo.) */}
+        <PromoModal />
 
         {/* JSON-LD Schema.org global — Organization + WebSite con search */}
         <OrganizationJsonLd />
