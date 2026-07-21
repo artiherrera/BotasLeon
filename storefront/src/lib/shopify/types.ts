@@ -179,6 +179,10 @@ export type Cart = {
   // Atributos a nivel carrito (ej. "Tax ID (aduana EE.UU.)"). Se guardan
   // en el pedido para que la tienda los use en la factura comercial.
   attributes: Array<{ key: string; value: string | null }>
+  // Códigos de descuento aplicados al carrito. `applicable` = Shopify lo aceptó
+  // (cumple condiciones/vigencia). El descuento ya se refleja en `cost`
+  // (subtotalAmount es ANTES del descuento; totalAmount, después).
+  discountCodes: Array<{ code: string; applicable: boolean }>
   cost: {
     subtotalAmount: Money
     totalAmount: Money

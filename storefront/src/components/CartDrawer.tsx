@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import Image from "next/image"
 import Link from "next/link"
 import { useCart } from "./CartProvider"
@@ -9,7 +9,7 @@ import { MSIBreakdown } from "./MSIBreakdown"
 import { PaymentBadges } from "./PaymentBadges"
 import { CustomsTaxIdField } from "./CustomsTaxIdField"
 import { formatMoney } from "@/lib/utils"
-import { getPendingDiscount, withDiscount } from "@/lib/discount/client"
+import { clearPendingDiscount, getPendingDiscount, withDiscount } from "@/lib/discount/client"
 import { track } from "@/lib/klaviyo/client"
 import { gaEvent } from "@/lib/ga/events"
 import { FREE_SHIPPING_THRESHOLD } from "@/lib/shipping"
@@ -24,15 +24,54 @@ import { useFocusTrap } from "@/lib/useFocusTrap"
  *   checkout. Toda la lógica de pago/envío/tax la maneja Shopify.
  */
 export function CartDrawer() {
-  const { cart, isOpen, isPending, closeCart, updateLine, removeLine } = useCart()
-  const [pendingDiscount, setPendingDiscountState] = useState<string | null>(null)
+  const {
+    cart,
+    isOpen,
+    isPending,
+    closeCart,
+    updateLine,
+    removeLine,
+    applyDiscount,
+    removeDiscount,
+  } = useCart()
+  const [codeInput, setCodeInput] = useState("")
+  const [applyingCode, setApplyingCode] = useState(false)
+  const [codeError, setCodeError] = useState<string | null>(null)
 
-  // Lee el código pendiente del localStorage solo cuando se abre el drawer
-  // (re-checa por si el cliente acaba de venir de /discount/[code])
+  // Código(s) de descuento válidos ya aplicados en el carrito.
+  const appliedCodes = (cart?.discountCodes ?? []).filter((d) => d.applicable)
+
+  // Auto-aplica un código pendiente (llegó por link mágico /discount?code=CODE)
+  // al abrir el carrito, para que también se valide y muestre aquí. Un intento
+  // por código (ref) para no repetir en loop.
+  const autoTriedRef = useRef<string | null>(null)
   useEffect(() => {
-    if (!isOpen) return
-    setPendingDiscountState(getPendingDiscount())
-  }, [isOpen])
+    if (!isOpen || !cart) return
+    const pend = getPendingDiscount()
+    if (!pend) return
+    const already = (cart.discountCodes ?? []).some(
+      (d) => d.applicable && d.code.toLowerCase() === pend.toLowerCase()
+    )
+    if (already) {
+      clearPendingDiscount()
+      return
+    }
+    if (autoTriedRef.current === pend) return
+    autoTriedRef.current = pend
+    applyDiscount(pend)
+  }, [isOpen, cart, applyDiscount])
+
+  const handleApplyCode = async (e: React.FormEvent) => {
+    e.preventDefault()
+    const c = codeInput.trim()
+    if (!c || applyingCode) return
+    setApplyingCode(true)
+    setCodeError(null)
+    const r = await applyDiscount(c)
+    setApplyingCode(false)
+    if (r.ok) setCodeInput("")
+    else setCodeError(r.message ?? "No se pudo aplicar el código.")
+  }
 
   useEffect(() => {
     if (isOpen) document.body.style.overflow = "hidden"
@@ -50,6 +89,11 @@ export function CartDrawer() {
   const isEmpty = lines.length === 0
   const subtotalNum = cart ? parseFloat(cart.cost.subtotalAmount.amount) : 0
   const subtotalCurrency = cart?.cost.subtotalAmount.currencyCode ?? "MXN"
+  const totalNum = cart ? parseFloat(cart.cost.totalAmount.amount) : 0
+  // Ahorro reflejado en el carrito: subtotal (antes del descuento) − total
+  // (después). Pre-checkout no hay envío/impuesto, así que la diferencia es el
+  // descuento de un código de orden.
+  const discountTotal = Math.max(0, subtotalNum - totalNum)
 
   const handleCheckoutClick = () => {
     if (!cart) return
@@ -252,11 +296,70 @@ export function CartDrawer() {
                 paddingBottom: "calc(1.25rem + env(safe-area-inset-bottom))",
               }}
             >
-              {pendingDiscount && (
-                <div className="mb-3 p-3 bg-leather text-bg text-xs rounded-sm">
-                  <p className="font-medium">Descuento aplicado al pagar</p>
-                  <p className="text-bg/80 mt-0.5">{pendingDiscount}</p>
+              {/* Código de descuento: chip si ya hay uno aplicado (validado por
+                  Shopify), o input para escribirlo. El descuento viaja solo al
+                  checkout hospedado porque queda en el carrito. */}
+              {appliedCodes.length > 0 ? (
+                <div className="mb-3 space-y-2">
+                  {appliedCodes.map((d) => (
+                    <div
+                      key={d.code}
+                      className="flex items-center justify-between gap-2 rounded-sm border border-leather/30 bg-leather/10 px-3 py-2"
+                    >
+                      <span className="flex items-center gap-2 text-sm font-medium text-leather">
+                        <CheckIcon />
+                        {d.code}
+                        {discountTotal > 0 && (
+                          <span className="font-normal text-text-muted">
+                            (−{formatMoney(String(discountTotal), subtotalCurrency)})
+                          </span>
+                        )}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={removeDiscount}
+                        disabled={isPending}
+                        className="text-xs uppercase tracking-wider text-text-subtle hover:text-terracotta disabled:opacity-40 transition-colors"
+                      >
+                        Quitar
+                      </button>
+                    </div>
+                  ))}
                 </div>
+              ) : (
+                <form onSubmit={handleApplyCode} className="mb-3">
+                  <label htmlFor="promo-code" className="mb-1.5 block text-xs text-text-muted">
+                    ¿Tienes un código de descuento?
+                  </label>
+                  <div className="flex gap-2">
+                    <input
+                      id="promo-code"
+                      type="text"
+                      value={codeInput}
+                      onChange={(e) => {
+                        setCodeInput(e.target.value)
+                        if (codeError) setCodeError(null)
+                      }}
+                      placeholder="Ej. BIENVENIDO10"
+                      autoComplete="off"
+                      autoCapitalize="characters"
+                      spellCheck={false}
+                      className="min-w-0 flex-1 rounded-sm border border-border bg-bg px-3 py-2 text-sm uppercase focus:border-leather focus:outline-none"
+                    />
+                    <button
+                      type="submit"
+                      disabled={applyingCode || !codeInput.trim()}
+                      className="whitespace-nowrap rounded-sm border border-leather px-4 py-2 text-sm uppercase tracking-wider text-leather hover:bg-leather hover:text-bg disabled:cursor-not-allowed disabled:opacity-40 transition-colors"
+                    >
+                      {applyingCode ? "..." : "Aplicar"}
+                    </button>
+                  </div>
+                  {codeError && (
+                    <p className="mt-1.5 text-xs text-terracotta" aria-live="polite">
+                      {codeError}
+                    </p>
+                  )}
+                </form>
               )}
 
               <FreeShippingBar
@@ -275,6 +378,14 @@ export function CartDrawer() {
                     )}
                 </span>
               </div>
+              {discountTotal > 0 && (
+                <div className="flex justify-between items-baseline mb-1">
+                  <span className="text-sm text-leather">Descuento</span>
+                  <span className="text-sm font-medium text-leather">
+                    −{formatMoney(String(discountTotal), subtotalCurrency)}
+                  </span>
+                </div>
+              )}
               <MSIBreakdown amount={subtotalNum} currency={subtotalCurrency} />
               <p className="text-xs text-text-muted mt-1 mb-4">
                 Envío e impuestos calculados al pagar
@@ -288,7 +399,7 @@ export function CartDrawer() {
 
               {cart?.checkoutUrl ? (
                 <a
-                  href={withDiscount(cart.checkoutUrl, pendingDiscount)}
+                  href={withDiscount(cart.checkoutUrl)}
                   onClick={handleCheckoutClick}
                   className="block w-full text-center py-4 rounded-full bg-leather text-bg text-sm uppercase tracking-wider hover:bg-text transition-colors"
                 >
@@ -300,5 +411,23 @@ export function CartDrawer() {
         )}
       </aside>
     </>
+  )
+}
+
+function CheckIcon() {
+  return (
+    <svg
+      width="14"
+      height="14"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="3"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <path d="M20 6 9 17l-5-5" />
+    </svg>
   )
 }

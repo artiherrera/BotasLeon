@@ -29,6 +29,7 @@ const CART_FRAGMENT = /* GraphQL */ `
     checkoutUrl
     totalQuantity
     attributes { key value }
+    discountCodes { code applicable }
     cost {
       subtotalAmount { amount currencyCode }
       totalAmount    { amount currencyCode }
@@ -233,4 +234,30 @@ export async function clientUpdateAttributes(
     { cartId, attributes }
   )
   return unwrap(data, "cartAttributesUpdate")
+}
+
+/**
+ * Reemplaza los códigos de descuento del carrito (Shopify sustituye todo el
+ * arreglo). Pasa [] para quitar todos. El cart devuelto trae discountCodes con
+ * `applicable` — si un código no es válido/no aplica, Shopify lo deja con
+ * applicable:false y NO afecta el total. El descuento válido ya se refleja en
+ * cost + discountAllocations, y viaja al checkout hospedado automáticamente.
+ */
+export async function clientUpdateDiscountCodes(
+  cartId: string,
+  discountCodes: string[]
+): Promise<Cart> {
+  const data = await shopifyClientFetch<Mutation<"cartDiscountCodesUpdate">>(
+    /* GraphQL */ `
+      mutation ($cartId: ID!, $discountCodes: [String!]) {
+        cartDiscountCodesUpdate(cartId: $cartId, discountCodes: $discountCodes) {
+          cart { ...CartFields }
+          userErrors { message field }
+        }
+      }
+      ${CART_FRAGMENT}
+    `,
+    { cartId, discountCodes }
+  )
+  return unwrap(data, "cartDiscountCodesUpdate")
 }

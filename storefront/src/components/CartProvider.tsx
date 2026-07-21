@@ -15,8 +15,10 @@ import {
   clientGetCart,
   clientRemoveLines,
   clientUpdateAttributes,
+  clientUpdateDiscountCodes,
   clientUpdateLines,
 } from "@/lib/cart/client"
+import { clearPendingDiscount } from "@/lib/discount/client"
 import { track } from "@/lib/klaviyo/client"
 import { pixelTrack, toContentId } from "@/lib/meta/pixel"
 import { gaEvent } from "@/lib/ga/events"
@@ -59,6 +61,11 @@ type CartContextValue = {
   removeLine: (lineId: string) => void
   // Reemplaza el set de atributos del carrito (ej. Tax ID de aduana).
   updateAttributes: (attributes: Array<{ key: string; value: string }>) => void
+  // Aplica un código de descuento y lo valida contra Shopify. Devuelve si se
+  // aceptó; si no, un mensaje para mostrar inline.
+  applyDiscount: (code: string) => Promise<{ ok: boolean; message?: string }>
+  // Quita el/los código(s) de descuento del carrito.
+  removeDiscount: () => void
   itemCount: number
   toast: ToastMessage | null
   showToast: (msg: string, variant?: ToastVariant) => void
@@ -257,6 +264,52 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     [persist]
   )
 
+  // Modelo de UN código a la vez (lo estándar para un promo). Reemplaza los
+  // códigos por [code]; si Shopify no lo acepta (applicable:false), lo limpia
+  // para no dejar basura en el carrito y devuelve un mensaje.
+  const applyDiscount = useCallback(
+    async (code: string): Promise<{ ok: boolean; message?: string }> => {
+      const id = cartIdRef.current
+      const trimmed = code.trim()
+      if (!id) return { ok: false, message: "Agrega productos antes de usar un código." }
+      if (!trimmed) return { ok: false, message: "Escribe un código." }
+      try {
+        const updated = await clientUpdateDiscountCodes(id, [trimmed])
+        const applied = updated.discountCodes.find(
+          (d) => d.code.toLowerCase() === trimmed.toLowerCase()
+        )
+        if (!applied || !applied.applicable) {
+          const cleared = await clientUpdateDiscountCodes(id, [])
+          persist(cleared)
+          return { ok: false, message: "Código no válido o no aplica a tu carrito." }
+        }
+        persist(updated)
+        clearPendingDiscount() // ya vive en el carrito; no necesitamos el pendiente
+        return { ok: true }
+      } catch (e) {
+        return {
+          ok: false,
+          message: e instanceof Error ? e.message : "No se pudo aplicar el código.",
+        }
+      }
+    },
+    [persist]
+  )
+
+  const removeDiscount = useCallback(() => {
+    const id = cartIdRef.current
+    if (!id) return
+    startTransition(async () => {
+      try {
+        const updated = await clientUpdateDiscountCodes(id, [])
+        persist(updated)
+        clearPendingDiscount()
+      } catch (e) {
+        console.error("[cart] removeDiscount falló:", e)
+      }
+    })
+  }, [persist])
+
   const itemCount = ready ? (cart?.totalQuantity ?? 0) : 0
 
   return (
@@ -273,6 +326,8 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         updateLine,
         removeLine,
         updateAttributes,
+        applyDiscount,
+        removeDiscount,
         itemCount,
         toast,
         showToast,
