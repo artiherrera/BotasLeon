@@ -50,14 +50,16 @@ export function SearchOverlay({ open, onClose }: Props) {
   const inputRef = useRef<HTMLInputElement | null>(null)
   const modalRef = useRef<HTMLDivElement | null>(null)
 
-  // Enter en el input lleva a /products?query=X. Sin esto la tecla
-  // "search" del soft keyboard mobile (enterKeyHint="search") es no-op.
+  // Enter en el input lleva a /search?q=X (la página de búsqueda real, que sí
+  // filtra). Antes iba a /products?query=, pero /products es estática e ignora
+  // el parámetro → mostraba TODO el catálogo. Sin esto la tecla "search" del
+  // teclado móvil (enterKeyHint="search") es no-op.
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     const q = query.trim()
     if (!q) return
     onClose()
-    router.push(`/products?query=${encodeURIComponent(q)}`)
+    router.push(`/search?q=${encodeURIComponent(q)}`)
   }
 
   // Mount gate — evita SSR mismatch al usar createPortal.
@@ -249,7 +251,7 @@ export function SearchOverlay({ open, onClose }: Props) {
               {POPULAR_SEARCHES.map((item) => (
                 <Link
                   key={item.query}
-                  href={`/products?query=${encodeURIComponent(item.query)}`}
+                  href={`/search?q=${encodeURIComponent(item.query)}`}
                   onClick={onClose}
                   className="px-4 py-2 border border-border text-sm hover:border-leather hover:text-leather transition-colors rounded-sm"
                 >
@@ -278,7 +280,7 @@ export function SearchOverlay({ open, onClose }: Props) {
             </div>
             <div className="mt-6 pt-4 border-t border-border/40 text-center">
               <Link
-                href={`/products?query=${encodeURIComponent(query.trim())}`}
+                href={`/search?q=${encodeURIComponent(query.trim())}`}
                 onClick={onClose}
                 className="inline-flex text-sm uppercase tracking-wider text-leather hover:underline"
               >

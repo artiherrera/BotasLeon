@@ -1,6 +1,7 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { Suspense, useEffect, useState } from "react"
+import { useSearchParams } from "next/navigation"
 import Link from "next/link"
 import { Header } from "@/components/Header"
 import { Footer } from "@/components/Footer"
@@ -11,30 +12,40 @@ import type { Product } from "@/lib/shopify/types"
 /**
  * /search — búsqueda de productos.
  *
- * Client component (sin searchParams para evitar volverlo dinámico).
- * Estado de query + debounce 350ms para no hammer a Shopify mientras
- * el usuario escribe. Resultados con ProductCard.
- *
- * Estado inicial: input vacío + mensaje "¿qué buscas?" con shortcuts.
- * Estado activo: spinner mientras fetch, después grid o "sin resultados".
+ * Client component (sin server searchParams → la ruta sigue siendo estática en
+ * Amplify). El término inicial se lee de ?q= con useSearchParams DENTRO de un
+ * Suspense (el patrón soportado por Next para leer query en rutas estáticas;
+ * NO la vuelve dinámica en el servidor). Usamos `key={q}` para remontar cuando
+ * cambia ?q=, así una nueva búsqueda desde el overlay —estando ya en /search—
+ * sí recarga (antes se quedaba con el término viejo). El input filtra con
+ * debounce 350ms para no golpear a Shopify en cada tecla.
  */
 
 const DEBOUNCE_MS = 350
 
 export default function SearchPage() {
-  const [query, setQuery] = useState("")
+  return (
+    <Suspense fallback={null}>
+      <SearchGate />
+    </Suspense>
+  )
+}
+
+// Lee ?q= y remonta los resultados cuando cambia (key). Así el término inicial
+// siempre refleja la URL sin necesidad de sincronizar estado en un effect.
+function SearchGate() {
+  const q = useSearchParams().get("q") ?? ""
+  return <SearchResults key={q} initialQuery={q} />
+}
+
+function SearchResults({ initialQuery }: { initialQuery: string }) {
+  const [query, setQuery] = useState(initialQuery)
   const [results, setResults] = useState<Product[]>([])
-  const [loading, setLoading] = useState(false)
+  // Si venimos con un término en la URL, arrancamos en "loading" para no
+  // parpadear los shortcuts de categoría antes de que llegue la búsqueda.
+  const [loading, setLoading] = useState(Boolean(initialQuery.trim()))
   const [error, setError] = useState<string | null>(null)
   const [submitted, setSubmitted] = useState(false)
-
-  // Pre-llena la búsqueda desde ?q= — el SearchAction del JSON-LD manda aquí
-  // desde el sitelinks searchbox de Google. Se lee en cliente (window) para
-  // no usar useSearchParams y mantener la ruta estática.
-  useEffect(() => {
-    const q = new URLSearchParams(window.location.search).get("q")
-    if (q) setQuery(q)
-  }, [])
 
   // Debounce: cuando cambia query, esperamos 350ms sin tipear antes de buscar.
   useEffect(() => {
@@ -123,6 +134,10 @@ export default function SearchPage() {
               <p className="font-medium mb-2">Error al buscar</p>
               <p className="text-sm font-mono break-all">{error}</p>
             </div>
+          ) : loading && results.length === 0 ? (
+            <div className="py-12 flex items-center justify-center" aria-live="polite">
+              <span className="w-7 h-7 border-2 border-border border-t-leather rounded-full animate-spin" />
+            </div>
           ) : !submitted ? (
             // Shortcuts mientras no ha buscado nada
             <div>
@@ -148,11 +163,11 @@ export default function SearchPage() {
           ) : results.length === 0 ? (
             <div className="text-center py-12 max-w-2xl mx-auto">
               <p className="font-heading text-xl text-text mb-2">
-                Sin resultados para "{query}"
+                Sin resultados para &ldquo;{query}&rdquo;
               </p>
               <p className="text-text-muted mb-6">
                 Intenta con menos palabras o palabras más generales (ej. solo
-                "vaquera" en lugar de "vaquera café avestruz").
+                &ldquo;vaquera&rdquo; en lugar de &ldquo;vaquera café avestruz&rdquo;).
               </p>
               <Link
                 href="/products"
@@ -165,7 +180,7 @@ export default function SearchPage() {
             <div>
               <p className="text-sm text-text-muted mb-6">
                 {results.length} resultado{results.length === 1 ? "" : "s"} para{" "}
-                <strong className="text-text">"{query}"</strong>
+                <strong className="text-text">&ldquo;{query}&rdquo;</strong>
               </p>
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-6 gap-y-10">
                 {results.map((p) => (
