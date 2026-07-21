@@ -139,6 +139,7 @@ export type Brand = {
   logo: Image | null
   // Identidad visual propia de la marca (opcional, campos del metaobjeto):
   accentColor: string | null // hex, campo "accent_color" (tipo Color en Shopify)
+  bgColor: string | null     // hex CLARO, campo "bg_color" — fondo de toda su página
   titleFont: string | null   // slug de fuente curada, campo "title_font" (ver brand-fonts.ts)
 }
 

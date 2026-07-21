@@ -30,6 +30,25 @@ export async function generateStaticParams() {
   }
 }
 
+/**
+ * Mezcla un hex con el crema del sitio para un fondo tenue y legible. `amount`
+ * es el % del color de marca (el resto es crema). Se usa como fallback del
+ * fondo cuando la marca definió acento pero no un bg_color propio.
+ */
+function softTint(hex: string, amount = 0.14): string {
+  const h = hex.replace("#", "").trim()
+  if (!/^[0-9a-fA-F]{6}$/.test(h)) return hex
+  const cr = 251,
+    cg = 248,
+    cb = 241 // #FBF8F1 (crema del sitio)
+  const r = parseInt(h.slice(0, 2), 16)
+  const g = parseInt(h.slice(2, 4), 16)
+  const b = parseInt(h.slice(4, 6), 16)
+  const mix = (c: number, cc: number) => Math.round(c * amount + cc * (1 - amount))
+  const to2 = (n: number) => n.toString(16).padStart(2, "0")
+  return `#${to2(mix(r, cr))}${to2(mix(g, cg))}${to2(mix(b, cb))}`
+}
+
 export default async function MarcaPage({ params }: Props) {
   const { handle } = await params
   const brands = await getBrands()
@@ -40,27 +59,34 @@ export default async function MarcaPage({ params }: Props) {
   // Productos donde vendor = brand.name
   const products = await getProductsByVendor(brand.name).catch(() => [])
 
-  // Identidad visual propia de la marca (data-driven). El acento se expone como
-  // variable CSS acotada a esta página (default = cuero), así los detalles la
-  // toman sin afectar el resto del sitio. La fuente del título es opcional.
+  // Identidad visual propia de la marca (data-driven), acotada a ESTA página vía
+  // variables CSS (default = cuero/crema del sitio):
+  //  - --brand-accent: acentos (eyebrow, barra, botones, hovers)
+  //  - --brand-bg: fondo de TODA la página. Usa bg_color si existe; si no, se
+  //    deriva un tinte suave del acento. La marca toma control del fondo entero.
   const titleFontClass = brandTitleFontClass(brand.titleFont)
-  const accentStyle = {
-    "--brand-accent": brand.accentColor || "var(--color-leather)",
+  const accent = brand.accentColor || null
+  const pageBg = brand.bgColor || (accent ? softTint(accent) : null)
+  const themeStyle = {
+    "--brand-accent": accent || "var(--color-leather)",
+    "--brand-bg": pageBg || "var(--color-bg)",
   } as CSSProperties
 
   return (
     <>
       <Header />
-      <main id="contenido" tabIndex={-1} className="flex-1">
-        <div
-          className="mx-auto max-w-7xl px-6 py-12 md:py-16"
-          style={accentStyle}
-        >
+      <main
+        id="contenido"
+        tabIndex={-1}
+        className="flex-1 bg-[color:var(--brand-bg)]"
+        style={themeStyle}
+      >
+        <div className="mx-auto max-w-7xl px-6 py-12 md:py-16">
           {/* Breadcrumb */}
           <nav className="mb-6 text-sm text-text-muted">
-            <Link href="/" className="hover:text-leather">Inicio</Link>
+            <Link href="/" className="hover:text-[color:var(--brand-accent)]">Inicio</Link>
             <span className="mx-2">/</span>
-            <Link href="/marcas" className="hover:text-leather">Marcas</Link>
+            <Link href="/marcas" className="hover:text-[color:var(--brand-accent)]">Marcas</Link>
             <span className="mx-2">/</span>
             <span className="text-text">{brand.name}</span>
           </nav>
