@@ -16,7 +16,7 @@ import { ProductJsonLd, BreadcrumbJsonLd } from "@/components/StructuredData"
 import { ProductViewedTracker } from "@/components/ProductViewedTracker"
 import { WhatsAppButton } from "@/components/WhatsAppButton"
 import { getProductByHandle, getProducts, getBrands } from "@/lib/shopify"
-import { formatMoney, saleInfo } from "@/lib/utils"
+import { PriceMSI } from "@/components/PriceMSI"
 import { absoluteUrl } from "@/lib/seo"
 
 /**
@@ -91,7 +91,6 @@ export default async function ProductPage({ params }: Props) {
 
   const price = product.priceRange.minVariantPrice
   const compareAt = product.compareAtPriceRange?.minVariantPrice
-  const sale = saleInfo(price.amount, compareAt?.amount)
 
   return (
     <>
@@ -193,20 +192,13 @@ export default async function ProductPage({ params }: Props) {
                   {product.title}
                 </h1>
 
-                <div className="mb-8 flex flex-wrap items-baseline gap-x-3 gap-y-1">
-                  <p className="font-display text-2xl text-text">
-                    {formatMoney(price.amount, price.currencyCode)}
-                  </p>
-                  {sale.onSale && compareAt && (
-                    <>
-                      <span className="text-lg text-text-subtle line-through">
-                        {formatMoney(compareAt.amount, compareAt.currencyCode)}
-                      </span>
-                      <span className="rounded-sm bg-terracotta px-2 py-0.5 text-xs font-semibold uppercase tracking-wide text-bg">
-                        -{sale.discountPct}%
-                      </span>
-                    </>
-                  )}
+                <div className="mb-8">
+                  <PriceMSI
+                    amount={price.amount}
+                    currency={price.currencyCode}
+                    compareAt={compareAt?.amount}
+                    size="pdp"
+                  />
                 </div>
 
                 <ProductOptions product={product} />
