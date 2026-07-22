@@ -15,5 +15,5 @@ export const PROMO = {
   title: "¡BotasLeón abre sus puertas!",
   message:
     "Para celebrar, llévate 15% de descuento en TODA la tienda. Promoción por tiempo limitado — se aplica solo al pagar, sin códigos.",
-  cta: "Ver las botas",
+  cta: "¡Genial, a comprar!",
 } as const

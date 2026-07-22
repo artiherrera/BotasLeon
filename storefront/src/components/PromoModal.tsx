@@ -1,7 +1,6 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import Link from "next/link"
 import { PROMO } from "@/lib/promo"
 import { setPendingDiscount } from "@/lib/discount/client"
 
@@ -121,19 +120,14 @@ export function PromoModal() {
             {PROMO.message}
           </p>
 
-          <Link
-            href="/products"
+          {/* Solo cierra y deja al usuario donde estaba (menos rebote). El 15%
+              ya se auto-aplicó; la ventana solo informa. */}
+          <button
+            type="button"
             onClick={close}
             className="block w-full py-3.5 rounded-full bg-leather text-bg text-sm uppercase tracking-wider font-medium hover:bg-text transition-colors"
           >
             {PROMO.cta}
-          </Link>
-          <button
-            type="button"
-            onClick={close}
-            className="block w-full mt-3 text-xs uppercase tracking-wider text-text-subtle hover:text-text transition-colors"
-          >
-            Seguir viendo
           </button>
         </div>
       </div>
