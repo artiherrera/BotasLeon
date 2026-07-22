@@ -1,4 +1,3 @@
-import Link from "next/link"
 import Image from "next/image"
 import { Header } from "@/components/Header"
 import { Footer } from "@/components/Footer"
@@ -29,7 +28,7 @@ const STORE_JSONLD = JSON.stringify({
   name: "BotasLeón",
   image: "https://botasleon.com/logo_botasleon.png",
   url: "https://botasleon.com/visitanos",
-  telephone: "+524777608064",
+  telephone: "+524793032457",
   address: {
     "@type": "PostalAddress",
     streetAddress: "Blvd. Hilario Medina 407, 2º piso",
@@ -101,7 +100,7 @@ export default async function VisitanosPage() {
                 </div>
                 <div>
                   <p className="eyebrow text-leather mb-1">Contacto</p>
-                  <p className="text-text-muted">WhatsApp: +52 477 760 8064</p>
+                  <p className="text-text-muted">WhatsApp: +52 479 303 2457</p>
                 </div>
               </div>
 

@@ -8,7 +8,7 @@
  */
 
 export const WHATSAPP_NUMBER =
-  process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ?? "524777608064"
+  process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ?? "524793032457"
 
 // "Me interesa" convierte más que "duda" (pasivo) o "quiero comprar" (muy
 // comprometido — espanta al que aún decide). La pregunta por talla+envío mueve

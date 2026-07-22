@@ -14,7 +14,7 @@ export default function ContactoPage() {
         <strong>Correo:</strong> contacto@botasleon.com<br />
         <strong>WhatsApp:</strong>{" "}
         <a href={whatsappHref()} target="_blank" rel="noopener noreferrer">
-          +52 477 760 8064
+          +52 479 303 2457
         </a><br />
         <strong>Horario:</strong> Lunes a viernes 9:00 a 18:00 (CDMX)
       </p>
