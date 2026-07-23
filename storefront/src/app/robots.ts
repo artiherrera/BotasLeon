@@ -15,7 +15,9 @@ export default function robots(): MetadataRoute.Robots {
       {
         userAgent: "*",
         allow: "/",
-        disallow: ["/cart", "/cuenta", "/api/", "/_next/"],
+        // NO bloqueamos /_next/: Google necesita el CSS/JS para renderizar y
+        // rankear bien. Solo bloqueamos rutas privadas/internas sin valor SEO.
+        disallow: ["/cart", "/cuenta", "/api/", "/cotizador"],
       },
     ],
     sitemap: `${SITE_URL}/sitemap.xml`,
