@@ -52,26 +52,30 @@ export function ReviewForm({
     if (!files.length) return
     setError("")
     setUploading(true)
-    try {
-      const room = MAX_PHOTOS - photos.length
-      const urls: string[] = []
-      for (const f of files.slice(0, room)) {
-        if (f.size > 8 * 1024 * 1024) {
-          setError("Cada foto debe pesar menos de 8 MB.")
-          continue
-        }
-        urls.push(await uploadToCloudinary(f))
+    const room = MAX_PHOTOS - photos.length
+    let failed = 0
+    let lastErr = ""
+    // Sube CADA foto de forma independiente: si una falla, no se pierden las
+    // demás (antes un solo error descartaba TODO el lote). Cada éxito se agrega
+    // al estado en el momento.
+    for (const f of files.slice(0, room)) {
+      if (f.size > 8 * 1024 * 1024) {
+        failed++
+        lastErr = "cada foto debe pesar menos de 8 MB"
+        continue
       }
-      if (urls.length) setPhotos((p) => [...p, ...urls].slice(0, MAX_PHOTOS))
-    } catch (err) {
-      console.error("[review-photo] error de subida:", err)
-      setError(
-        err instanceof Error
-          ? `No se pudo subir la foto: ${err.message}`
-          : "No se pudo subir la foto. Intenta de nuevo."
-      )
-    } finally {
-      setUploading(false)
+      try {
+        const url = await uploadToCloudinary(f)
+        setPhotos((p) => (p.length < MAX_PHOTOS && !p.includes(url) ? [...p, url] : p))
+      } catch (err) {
+        failed++
+        lastErr = err instanceof Error ? err.message : "error"
+        console.error("[review-photo] error de subida:", err)
+      }
+    }
+    setUploading(false)
+    if (failed) {
+      setError(`No se pudieron subir ${failed} foto${failed > 1 ? "s" : ""}: ${lastErr}`)
     }
   }
 
