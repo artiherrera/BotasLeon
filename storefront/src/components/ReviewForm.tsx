@@ -44,7 +44,9 @@ export function ReviewForm({
   const [error, setError] = useState("")
   const fileRef = useRef<HTMLInputElement>(null)
 
-  const MAX_PHOTOS = 5
+  // La API de Judge.me solo importa 1 foto por reseña vía picture_urls; con
+  // varias importa CERO (verificado). Por eso limitamos a 1.
+  const MAX_PHOTOS = 1
 
   const onFiles = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files ?? [])
@@ -204,7 +206,7 @@ export function ReviewForm({
       {cloudinaryEnabled() && (
         <div>
           <span className="mb-1.5 block text-xs text-text-muted">
-            Fotos (opcional) — hasta {MAX_PHOTOS}
+            Foto (opcional)
           </span>
           <div className="flex flex-wrap gap-2">
             {photos.map((url) => (
