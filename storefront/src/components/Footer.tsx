@@ -2,6 +2,7 @@ import Image from "next/image"
 import Link from "next/link"
 import { PaymentBadges } from "./PaymentBadges"
 import { SocialIcons } from "./SocialIcons"
+import { whatsappHref } from "@/lib/whatsapp"
 
 /**
  * Footer del storefront. Tres columnas + barra inferior.
@@ -31,6 +32,31 @@ export function Footer() {
             Botas premium fabricadas en León, Guanajuato. Tradición artesanal
             mexicana en cada par.
           </p>
+
+          {/* Datos de contacto visibles — transparencia de negocio (requisito
+              anti-"Misrepresentation" de Google Merchant + confianza). */}
+          <address className="mt-5 not-italic text-sm text-bg-alt/80 space-y-1.5">
+            <p className="leading-relaxed">
+              Blvd. Hilario Medina 407, 2º piso
+              <br />
+              Col. Josefina, 37260 León, Gto., México
+            </p>
+            <p>
+              <a
+                href={whatsappHref()}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:text-bg transition-colors"
+              >
+                WhatsApp: +52 479 303 2457
+              </a>
+            </p>
+            <p>
+              <a href="mailto:contacto@botasleon.com" className="hover:text-bg transition-colors">
+                contacto@botasleon.com
+              </a>
+            </p>
+          </address>
 
           {/* Redes sociales — iconos compactos hereda color del Footer */}
           <div className="mt-5 text-bg-alt/80 hover:[&_a]:text-bg">
