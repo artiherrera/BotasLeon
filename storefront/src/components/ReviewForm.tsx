@@ -1,6 +1,7 @@
 "use client"
 
-import { useState } from "react"
+import { useRef, useState } from "react"
+import { cloudinaryEnabled, uploadToCloudinary } from "@/lib/cloudinary"
 
 /**
  * ReviewForm — formulario nativo para que un cliente deje una reseña SIN salir
@@ -32,9 +33,40 @@ export function ReviewForm({
   const [email, setEmail] = useState("")
   const [title, setTitle] = useState("")
   const [body, setBody] = useState("")
+  const [photos, setPhotos] = useState<string[]>([])
+  const [uploading, setUploading] = useState(false)
   const [sending, setSending] = useState(false)
   const [sent, setSent] = useState(false)
   const [error, setError] = useState("")
+  const fileRef = useRef<HTMLInputElement>(null)
+
+  const MAX_PHOTOS = 5
+
+  const onFiles = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files ?? [])
+    e.target.value = "" // permite volver a elegir el mismo archivo
+    if (!files.length) return
+    setError("")
+    setUploading(true)
+    try {
+      const room = MAX_PHOTOS - photos.length
+      const urls: string[] = []
+      for (const f of files.slice(0, room)) {
+        if (f.size > 8 * 1024 * 1024) {
+          setError("Cada foto debe pesar menos de 8 MB.")
+          continue
+        }
+        urls.push(await uploadToCloudinary(f))
+      }
+      if (urls.length) setPhotos((p) => [...p, ...urls].slice(0, MAX_PHOTOS))
+    } catch {
+      setError("No se pudo subir la foto. Intenta de nuevo.")
+    } finally {
+      setUploading(false)
+    }
+  }
+
+  const removePhoto = (url: string) => setPhotos((p) => p.filter((u) => u !== url))
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -44,6 +76,10 @@ export function ReviewForm({
     }
     if (!name.trim() || !email.trim() || !body.trim()) {
       setError("Completa tu nombre, correo y reseña.")
+      return
+    }
+    if (uploading) {
+      setError("Espera a que terminen de subir las fotos.")
       return
     }
     setError("")
@@ -59,6 +95,9 @@ export function ReviewForm({
         title: title.trim(),
         body: body.trim(),
       })
+      // Fotos (URLs de Cloudinary) → Judge.me las importa. Convención Rails de
+      // arreglo: picture_urls[].
+      photos.forEach((u) => params.append("picture_urls[]", u))
       await fetch("https://judge.me/api/v1/reviews", {
         method: "POST",
         mode: "no-cors",
@@ -142,12 +181,63 @@ export function ReviewForm({
         onChange={(e) => setBody(e.target.value)}
       />
 
+      {/* Fotos (solo si Cloudinary está configurado) */}
+      {cloudinaryEnabled() && (
+        <div>
+          <span className="mb-1.5 block text-xs text-text-muted">
+            Fotos (opcional) — hasta {MAX_PHOTOS}
+          </span>
+          <div className="flex flex-wrap gap-2">
+            {photos.map((url) => (
+              <div
+                key={url}
+                className="relative h-16 w-16 overflow-hidden rounded-sm border border-border"
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element -- imagen de Cloudinary subida por el usuario */}
+                <img src={url} alt="Foto de la reseña" className="h-full w-full object-cover" />
+                <button
+                  type="button"
+                  onClick={() => removePhoto(url)}
+                  aria-label="Quitar foto"
+                  className="absolute right-0.5 top-0.5 flex h-5 w-5 items-center justify-center rounded-full bg-black/60 text-bg"
+                >
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18M6 6l12 12" /></svg>
+                </button>
+              </div>
+            ))}
+            {photos.length < MAX_PHOTOS && (
+              <button
+                type="button"
+                onClick={() => fileRef.current?.click()}
+                disabled={uploading}
+                className="flex h-16 w-16 items-center justify-center rounded-sm border border-dashed border-border text-text-subtle hover:border-leather hover:text-leather disabled:opacity-40 transition-colors"
+                aria-label="Agregar foto"
+              >
+                {uploading ? (
+                  <span className="h-4 w-4 animate-spin rounded-full border-2 border-border border-t-leather" />
+                ) : (
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 5v14M5 12h14" /></svg>
+                )}
+              </button>
+            )}
+          </div>
+          <input
+            ref={fileRef}
+            type="file"
+            accept="image/*"
+            multiple
+            onChange={onFiles}
+            className="hidden"
+          />
+        </div>
+      )}
+
       {error && <p className="text-xs text-terracotta">{error}</p>}
 
       <div className="flex items-center gap-2">
         <button
           type="submit"
-          disabled={sending}
+          disabled={sending || uploading}
           className="rounded-full bg-leather px-5 py-2.5 text-sm uppercase tracking-wider text-bg hover:bg-text disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
         >
           {sending ? "Enviando…" : "Publicar reseña"}
