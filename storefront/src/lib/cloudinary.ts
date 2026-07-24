@@ -7,8 +7,8 @@
  *    (Dashboard → Cloud name · Settings → Upload → unsigned preset).
  *    Mientras estén vacíos, el formulario de reseña oculta la subida de fotos.
  */
-export const CLOUDINARY_CLOUD_NAME = "" // ← tu Cloud name (ej. "dxxxx")
-export const CLOUDINARY_UPLOAD_PRESET = "" // ← tu unsigned upload preset
+export const CLOUDINARY_CLOUD_NAME = "emucbu5d"
+export const CLOUDINARY_UPLOAD_PRESET = "resenas_botasleon"
 
 export function cloudinaryEnabled(): boolean {
   return Boolean(CLOUDINARY_CLOUD_NAME && CLOUDINARY_UPLOAD_PRESET)
