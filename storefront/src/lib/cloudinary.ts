@@ -23,8 +23,12 @@ export async function uploadToCloudinary(file: File): Promise<string> {
     `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`,
     { method: "POST", body: form }
   )
-  if (!res.ok) throw new Error(`Cloudinary HTTP ${res.status}`)
-  const json = (await res.json()) as { secure_url?: string }
-  if (!json.secure_url) throw new Error("Cloudinary no devolvió URL")
+  const json = (await res.json().catch(() => null)) as
+    | { secure_url?: string; error?: { message?: string } }
+    | null
+  if (!res.ok || !json?.secure_url) {
+    const detail = json?.error?.message || `HTTP ${res.status}`
+    throw new Error(detail)
+  }
   return json.secure_url
 }

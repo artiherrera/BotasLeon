@@ -63,8 +63,13 @@ export function ReviewForm({
         urls.push(await uploadToCloudinary(f))
       }
       if (urls.length) setPhotos((p) => [...p, ...urls].slice(0, MAX_PHOTOS))
-    } catch {
-      setError("No se pudo subir la foto. Intenta de nuevo.")
+    } catch (err) {
+      console.error("[review-photo] error de subida:", err)
+      setError(
+        err instanceof Error
+          ? `No se pudo subir la foto: ${err.message}`
+          : "No se pudo subir la foto. Intenta de nuevo."
+      )
     } finally {
       setUploading(false)
     }
@@ -231,13 +236,15 @@ export function ReviewForm({
               </button>
             )}
           </div>
+          {/* sr-only en vez de hidden: display:none puede impedir que
+              fileRef.click() abra el selector en iOS Safari. */}
           <input
             ref={fileRef}
             type="file"
             accept="image/*"
             multiple
             onChange={onFiles}
-            className="hidden"
+            className="sr-only"
           />
         </div>
       )}
