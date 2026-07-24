@@ -14,7 +14,11 @@ import { cloudinaryEnabled, uploadToCloudinary } from "@/lib/cloudinary"
  * respuesta sea opaca. Por eso mostramos éxito optimista; la reseña aparece tras
  * la moderación/auto-publicación de Judge.me y sincroniza al sitio vía metafield.
  */
-const SHOP_DOMAIN = process.env.NEXT_PUBLIC_SHOPIFY_STORE_DOMAIN ?? ""
+// ⚠️ Judge.me tiene la tienda registrada bajo el dominio PERMANENTE de Shopify
+// (na4ngw-dn), NO el renombrado (botas-leon-3) que usa la Storefront API. Con el
+// dominio equivocado la API responde "Shop not found" y la reseña se pierde en
+// silencio (por el mode:"no-cors"). Verificado a mano con la API de Judge.me.
+const JUDGEME_SHOP_DOMAIN = "na4ngw-dn.myshopify.com"
 
 const inputCls =
   "w-full rounded-sm border border-border bg-bg px-3 py-2 text-sm focus:border-leather focus:outline-none"
@@ -86,7 +90,7 @@ export function ReviewForm({
     setSending(true)
     try {
       const params = new URLSearchParams({
-        shop_domain: SHOP_DOMAIN,
+        shop_domain: JUDGEME_SHOP_DOMAIN,
         platform: "shopify",
         id: productId,
         name: name.trim(),
