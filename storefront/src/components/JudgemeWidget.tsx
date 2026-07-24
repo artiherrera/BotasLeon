@@ -21,7 +21,7 @@ import { useEffect } from "react"
 const PUBLIC_TOKEN = "iIcQclYkCEcfwi_C0LCAJNDDxqU"
 const SHOP_DOMAIN = "na4ngw-dn.myshopify.com"
 
-type Jdgm = { SHOP_DOMAIN?: string; PLATFORM?: string; PUBLIC_TOKEN?: string; batchRender?: () => void }
+type Jdgm = { SHOP_DOMAIN?: string; PLATFORM?: string; PUBLIC_TOKEN?: string }
 
 export function JudgemeWidget({
   productId,
@@ -37,21 +37,17 @@ export function JudgemeWidget({
     w.jdgm.PLATFORM = "shopify"
     w.jdgm.PUBLIC_TOKEN = PUBLIC_TOKEN
 
-    if (!document.getElementById("judgeme-loader")) {
-      const s = document.createElement("script")
-      s.id = "judgeme-loader"
-      s.src = "https://cdn.judge.me/widget_preloader.js"
-      s.async = true
-      s.setAttribute("data-cfasync", "false")
-      document.body.appendChild(s)
-    } else {
-      // Navegación SPA: el loader ya existe → re-renderiza el widget nuevo.
-      try {
-        w.jdgm?.batchRender?.()
-      } catch {
-        /* noop */
-      }
-    }
+    // El loader (widget_preloader.js) escanea los .jdgm-review-widget y los
+    // pinta. Lo cargamos una sola vez; re-ejecutarlo re-escanea el DOM (cubre
+    // la navegación SPA a otro PDP).
+    const existing = document.getElementById("judgeme-loader")
+    if (existing) existing.remove()
+    const s = document.createElement("script")
+    s.id = "judgeme-loader"
+    s.src = "https://cdn.judge.me/widget_preloader.js"
+    s.async = true
+    s.setAttribute("data-cfasync", "false")
+    document.body.appendChild(s)
   }, [productId])
 
   return (
