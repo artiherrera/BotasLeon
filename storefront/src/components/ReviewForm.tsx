@@ -9,10 +9,10 @@ import { cloudinaryEnabled, uploadToCloudinary } from "@/lib/cloudinary"
  * (POST https://judge.me/api/v1/reviews) — mismo mecanismo que el formulario
  * público del widget, sin token (la tienda tiene "web reviews" habilitado).
  *
- * Usamos mode:"no-cors" para evitar bloqueos CORS del navegador: la petición SÍ
- * llega a Judge.me (es una "simple request" con form-urlencoded), aunque la
- * respuesta sea opaca. Por eso mostramos éxito optimista; la reseña aparece tras
- * la moderación/auto-publicación de Judge.me y sincroniza al sitio vía metafield.
+ * Judge.me responde con CORS abierto (access-control-allow-origin: *), así que
+ * leemos la respuesta real (201 = OK, o el mensaje de error) y mostramos éxito
+ * o error de verdad — nada de "éxito optimista". La reseña aparece tras la
+ * moderación/auto-publicación de Judge.me y sincroniza al sitio vía metafield.
  */
 // ⚠️ Judge.me tiene la tienda registrada bajo el dominio PERMANENTE de Shopify
 // (na4ngw-dn), NO el renombrado (botas-leon-3) que usa la Storefront API. Con el
@@ -102,13 +102,19 @@ export function ReviewForm({
       // Fotos (URLs de Cloudinary) → Judge.me las importa. Convención Rails de
       // arreglo: picture_urls[].
       photos.forEach((u) => params.append("picture_urls[]", u))
-      await fetch("https://judge.me/api/v1/reviews", {
+      const res = await fetch("https://judge.me/api/v1/reviews", {
         method: "POST",
-        mode: "no-cors",
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
         body: params.toString(),
       })
-      setSent(true)
+      const data = (await res.json().catch(() => null)) as { message?: string } | null
+      const message = data?.message ?? ""
+      // Éxito = 2xx y sin mensaje de error (Judge.me devuelve "…being processed…").
+      if (res.ok && !/not found|invalid|error|missing|fail/i.test(message)) {
+        setSent(true)
+      } else {
+        setError(message || `No se pudo enviar la reseña (HTTP ${res.status}).`)
+      }
     } catch {
       setError("No se pudo enviar. Revisa tu conexión e intenta de nuevo.")
     } finally {
