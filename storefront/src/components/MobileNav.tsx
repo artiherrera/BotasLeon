@@ -5,6 +5,8 @@ import { createPortal } from "react-dom"
 import Link from "next/link"
 import Image from "next/image"
 import { SocialIcons } from "./SocialIcons"
+import { LocaleToggle } from "./LocaleToggle"
+import { useT } from "@/lib/i18n/context"
 
 /**
  * MobileNav — hamburger + drawer lateral para navegación mobile.
@@ -38,55 +40,58 @@ type Category = {
   ctaLabel: string
 }
 
+// Los `label`/`description`/`ctaLabel` son LLAVES del diccionario i18n
+// (@/lib/i18n/dictionary) — se resuelven con t() al render.
 const CATEGORIES: Category[] = [
   {
-    label: "Hombre",
+    label: "nav.men",
     href: "/hombre",
     sublinks: [
-      { label: "Vaqueras", href: "/hombre/vaqueras", description: "Caña alta, silueta tradicional" },
-      { label: "Botines", href: "/hombre/botines", description: "Caña corta, tobillera" },
-      { label: "Clásicas", href: "/hombre/clasicas", description: "Caña media, lisas, sin grabado" },
-      { label: "Rancho", href: "/hombre/rancho", description: "Faena y campo" },
-      { label: "Exóticas", href: "/hombre/exoticas", description: "Avestruz, cocodrilo, pitón" },
+      { label: "style.western", href: "/hombre/vaqueras", description: "style.western.desc" },
+      { label: "style.booties", href: "/hombre/botines", description: "style.booties.desc" },
+      { label: "style.classic", href: "/hombre/clasicas", description: "style.classic.desc" },
+      { label: "style.ranch", href: "/hombre/rancho", description: "style.ranch.desc" },
+      { label: "style.exotic", href: "/hombre/exoticas", description: "style.exotic.desc" },
     ],
-    ctaLabel: "Ver todas las botas de hombre",
+    ctaLabel: "nav.cta.men",
   },
   {
-    label: "Mujer",
+    label: "nav.women",
     href: "/mujer",
     sublinks: [
-      { label: "Vaqueras", href: "/mujer/vaqueras", description: "Caña alta, silueta tradicional" },
-      { label: "Botines", href: "/mujer/botines", description: "Caña corta, tobillera" },
-      { label: "Clásicas", href: "/mujer/clasicas", description: "Caña media, lisas, sin grabado" },
-      { label: "Largas", href: "/mujer/largas", description: "Sobre la rodilla, fashion" },
-      { label: "Exóticas", href: "/mujer/exoticas", description: "Avestruz, cocodrilo, pitón" },
+      { label: "style.western", href: "/mujer/vaqueras", description: "style.western.desc" },
+      { label: "style.booties", href: "/mujer/botines", description: "style.booties.desc" },
+      { label: "style.classic", href: "/mujer/clasicas", description: "style.classic.desc" },
+      { label: "style.tall", href: "/mujer/largas", description: "style.tall.desc" },
+      { label: "style.exotic", href: "/mujer/exoticas", description: "style.exotic.desc" },
     ],
-    ctaLabel: "Ver todas las botas de mujer",
+    ctaLabel: "nav.cta.women",
   },
   // Accesorios oculto del nav móvil — aún sin productos dados de alta.
   // Restaurar cuando los haya (rutas /accesorios siguen existiendo).
 ]
 
 const QUICK_LINKS: Array<{ label: string; href: string; highlight?: boolean }> = [
-  { label: "Marcas", href: "/marcas" },
-  { label: "Outlet", href: "/outlet", highlight: true },
-  { label: "Visítanos", href: "/visitanos" },
+  { label: "nav.brands", href: "/marcas" },
+  { label: "nav.outlet", href: "/outlet", highlight: true },
+  { label: "nav.visit", href: "/visitanos" },
 ]
 
 const HELP_LINKS = [
-  { label: "Guía de tallas", href: "/guia-tallas" },
-  { label: "Envíos", href: "/envios" },
-  { label: "Devoluciones", href: "/devoluciones" },
-  { label: "Preguntas frecuentes", href: "/faq" },
-  { label: "Contacto", href: "/contacto" },
+  { label: "help.sizeGuide", href: "/guia-tallas" },
+  { label: "help.shipping", href: "/envios" },
+  { label: "help.returns", href: "/devoluciones" },
+  { label: "help.faq", href: "/faq" },
+  { label: "help.contact", href: "/contacto" },
 ]
 
 const COMPANY_LINKS = [
-  { label: "Nosotros", href: "/nosotros" },
-  { label: "Proveedores", href: "/proveedores" },
+  { label: "company.about", href: "/nosotros" },
+  { label: "company.suppliers", href: "/proveedores" },
 ]
 
 export function MobileNav() {
+  const t = useT()
   const [open, setOpen] = useState(false)
   const [mounted, setMounted] = useState(false)
   const hamburgerRef = useRef<HTMLButtonElement>(null)
@@ -148,7 +153,7 @@ export function MobileNav() {
       <aside
         role="dialog"
         aria-modal="true"
-        aria-label="Navegación"
+        aria-label={t("a11y.nav")}
         inert={!open}
         className={`md:hidden fixed inset-y-0 left-0 w-[90%] max-w-sm bg-bg/95 backdrop-blur-xl backdrop-saturate-150 supports-[backdrop-filter]:bg-bg/92
           border-r border-leather/30 shadow-2xl
@@ -161,7 +166,7 @@ export function MobileNav() {
           <Link
             href="/"
             onClick={close}
-            aria-label="BotasLeón — Inicio"
+            aria-label={t("a11y.home")}
             className="block transition-opacity hover:opacity-80"
           >
             <Image
@@ -176,7 +181,7 @@ export function MobileNav() {
             ref={closeButtonRef}
             type="button"
             onClick={close}
-            aria-label="Cerrar menú"
+            aria-label={t("a11y.closeMenu")}
             className="p-2 -mr-2 hover:bg-bg-alt/70 rounded transition-colors"
           >
             <CloseIcon />
@@ -185,8 +190,16 @@ export function MobileNav() {
 
         {/* Value prop band */}
         <div className="bg-leather text-bg px-5 py-3 text-[11px] uppercase tracking-wider leading-relaxed">
-          <p>3, 6 y 9 meses sin intereses</p>
-          <p className="text-bg/70">Envío a todo MX y USA</p>
+          <p>{t("promo.msi")}</p>
+          <p className="text-bg/70">{t("promo.shipping")}</p>
+        </div>
+
+        {/* Toggle de idioma — visible arriba para el visitante gringo */}
+        <div className="flex items-center justify-between px-5 py-3 border-b border-border/40">
+          <span className="text-[11px] uppercase tracking-wider text-text-subtle">
+            {t("a11y.language")}
+          </span>
+          <LocaleToggle />
         </div>
 
         {/* Scrollable content */}
@@ -202,7 +215,7 @@ export function MobileNav() {
                   className="block mb-3 group"
                 >
                   <h3 className="font-display text-2xl text-text group-hover:text-leather transition-colors leading-none">
-                    {cat.label}
+                    {t(cat.label)}
                   </h3>
                 </Link>
 
@@ -216,11 +229,11 @@ export function MobileNav() {
                         className="block group"
                       >
                         <span className="block text-sm font-medium text-text group-hover:text-leather transition-colors">
-                          {sub.label}
+                          {t(sub.label)}
                         </span>
                         {sub.description && (
                           <span className="block text-[11px] text-text-muted mt-0.5 leading-snug">
-                            {sub.description}
+                            {t(sub.description)}
                           </span>
                         )}
                       </Link>
@@ -234,7 +247,7 @@ export function MobileNav() {
                   onClick={close}
                   className="mt-3 ml-4 inline-flex items-center gap-1.5 text-[11px] uppercase tracking-wider text-leather hover:text-text transition-colors"
                 >
-                  <span>{cat.ctaLabel}</span>
+                  <span>{t(cat.ctaLabel)}</span>
                   <span>→</span>
                 </Link>
               </section>
@@ -254,14 +267,14 @@ export function MobileNav() {
                     : "text-text hover:text-leather"
                 }`}
               >
-                {link.label}
+                {t(link.label)}
               </Link>
             ))}
           </div>
 
           {/* Ayuda */}
           <div className="px-5 pt-6 pb-2">
-            <p className="eyebrow text-text-subtle mb-3 text-[10px]">Ayuda</p>
+            <p className="eyebrow text-text-subtle mb-3 text-[10px]">{t("nav.help")}</p>
             <ul className="space-y-0">
               {HELP_LINKS.map((link) => (
                 <li key={link.href}>
@@ -270,7 +283,7 @@ export function MobileNav() {
                     onClick={close}
                     className="block py-2.5 border-b border-border/25 text-sm text-text-muted hover:text-leather transition-colors"
                   >
-                    {link.label}
+                    {t(link.label)}
                   </Link>
                 </li>
               ))}
@@ -279,7 +292,7 @@ export function MobileNav() {
 
           {/* Empresa */}
           <div className="px-5 pt-6 pb-8">
-            <p className="eyebrow text-text-subtle mb-3 text-[10px]">Empresa</p>
+            <p className="eyebrow text-text-subtle mb-3 text-[10px]">{t("nav.company")}</p>
             <ul className="space-y-0">
               {COMPANY_LINKS.map((link) => (
                 <li key={link.href}>
@@ -288,7 +301,7 @@ export function MobileNav() {
                     onClick={close}
                     className="block py-2.5 border-b border-border/25 text-sm text-text-muted hover:text-leather transition-colors"
                   >
-                    {link.label}
+                    {t(link.label)}
                   </Link>
                 </li>
               ))}
@@ -312,7 +325,7 @@ export function MobileNav() {
           </div>
 
           <p className="text-[11px] text-text-subtle pt-1">
-            380 años de tradición · León, Gto.
+            {t("brand.taglineShort")}
           </p>
         </div>
       </aside>
@@ -325,7 +338,7 @@ export function MobileNav() {
         ref={hamburgerRef}
         type="button"
         onClick={() => setOpen(true)}
-        aria-label="Abrir menú"
+        aria-label={t("a11y.openMenu")}
         aria-expanded={open}
         className="md:hidden p-2 -ml-2 hover:bg-bg-alt rounded transition-colors"
       >

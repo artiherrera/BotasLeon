@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react"
 import Link from "next/link"
+import { useT } from "@/lib/i18n/context"
 
 /**
  * MegaMenu — navegación principal con dropdowns full-width.
@@ -33,69 +34,71 @@ type MenuItem = {
   ctaLabel?: string
 }
 
+// Los `label`/`description`/`ctaLabel` son LLAVES del diccionario i18n
+// (@/lib/i18n/dictionary), no texto literal — se resuelven con t() al render.
 const MENU: MenuItem[] = [
   {
-    label: "Hombre",
+    label: "nav.men",
     href: "/hombre",
     sections: [
       {
-        title: "Por estilo",
+        title: "nav.byStyle",
         links: [
-          { label: "Vaqueras", href: "/hombre/vaqueras", description: "Caña alta, silueta tradicional" },
-          { label: "Botines", href: "/hombre/botines", description: "Caña corta, tobillera" },
-          { label: "Clásicas", href: "/hombre/clasicas", description: "Caña media, lisas, sin grabado" },
-          { label: "Rancho", href: "/hombre/rancho", description: "Faena y campo" },
-          { label: "Exóticas", href: "/hombre/exoticas", description: "Avestruz, cocodrilo, pitón" },
+          { label: "style.western", href: "/hombre/vaqueras", description: "style.western.desc" },
+          { label: "style.booties", href: "/hombre/botines", description: "style.booties.desc" },
+          { label: "style.classic", href: "/hombre/clasicas", description: "style.classic.desc" },
+          { label: "style.ranch", href: "/hombre/rancho", description: "style.ranch.desc" },
+          { label: "style.exotic", href: "/hombre/exoticas", description: "style.exotic.desc" },
         ],
       },
     ],
     ctaHref: "/hombre",
-    ctaLabel: "Ver todas las botas de hombre",
+    ctaLabel: "nav.cta.men",
   },
   {
-    label: "Mujer",
+    label: "nav.women",
     href: "/mujer",
     sections: [
       {
-        title: "Por estilo",
+        title: "nav.byStyle",
         links: [
-          { label: "Vaqueras", href: "/mujer/vaqueras", description: "Caña alta, silueta tradicional" },
-          { label: "Botines", href: "/mujer/botines", description: "Caña corta, tobillera" },
-          { label: "Clásicas", href: "/mujer/clasicas", description: "Caña media, lisas, sin grabado" },
-          { label: "Largas", href: "/mujer/largas", description: "Sobre la rodilla, fashion" },
-          { label: "Exóticas", href: "/mujer/exoticas", description: "Avestruz, cocodrilo, pitón" },
+          { label: "style.western", href: "/mujer/vaqueras", description: "style.western.desc" },
+          { label: "style.booties", href: "/mujer/botines", description: "style.booties.desc" },
+          { label: "style.classic", href: "/mujer/clasicas", description: "style.classic.desc" },
+          { label: "style.tall", href: "/mujer/largas", description: "style.tall.desc" },
+          { label: "style.exotic", href: "/mujer/exoticas", description: "style.exotic.desc" },
         ],
       },
     ],
     ctaHref: "/mujer",
-    ctaLabel: "Ver todas las botas de mujer",
+    ctaLabel: "nav.cta.women",
   },
   // Accesorios oculto del nav — aún sin productos dados de alta. Para
   // reactivar cuando los haya, restaurar este item (rutas /accesorios siguen
   // existiendo, solo sin enlazar).
   {
-    label: "Marcas",
+    label: "nav.brands",
     href: "/marcas",
     sections: [
       {
-        title: "Curaduría",
+        title: "nav.brands",
         links: [
           {
-            label: "Ver todas las marcas",
+            label: "nav.brands.all",
             href: "/marcas",
-            description: "Casas de calzado de León que comercializamos",
+            description: "nav.brands.desc",
           },
         ],
       },
     ],
   },
   {
-    label: "Outlet",
+    label: "nav.outlet",
     href: "/outlet",
     highlight: true, // estilo terracota — resalta como sección de ofertas
   },
   {
-    label: "Visítanos",
+    label: "nav.visit",
     href: "/visitanos",
   },
 ]
@@ -103,6 +106,7 @@ const MENU: MenuItem[] = [
 const CLOSE_DELAY_MS = 200
 
 export function MegaMenu() {
+  const t = useT()
   const [openIdx, setOpenIdx] = useState<number | null>(null)
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
@@ -156,7 +160,7 @@ export function MegaMenu() {
               aria-expanded={openIdx === idx && !!item.sections}
               aria-haspopup={item.sections ? "true" : undefined}
             >
-              {item.label}
+              {t(item.label)}
             </Link>
             {openIdx === idx && item.sections && (
               <div
@@ -199,11 +203,11 @@ export function MegaMenu() {
                           className="group block"
                         >
                           <span className="text-base font-medium text-text group-hover:text-leather transition-colors">
-                            {link.label}
+                            {t(link.label)}
                           </span>
                           {link.description && (
                             <span className="block text-xs text-text-muted mt-0.5">
-                              {link.description}
+                              {t(link.description)}
                             </span>
                           )}
                         </Link>
@@ -231,14 +235,14 @@ export function MegaMenu() {
                   }}
                 />
                 <p className="eyebrow text-gold text-xs relative">
-                  {activeItem.label}
+                  {t(activeItem.label)}
                 </p>
                 <div className="relative">
                   <p className="font-display text-2xl mb-2 leading-tight">
-                    {activeItem.ctaLabel ?? "Explorar"}
+                    {activeItem.ctaLabel ? t(activeItem.ctaLabel) : t("nav.explore")}
                   </p>
                   <span className="inline-flex items-center text-bg/80 text-sm group-hover:text-bg transition-colors">
-                    Ver todo
+                    {t("nav.seeAll")}
                     <span className="ml-2 transition-transform group-hover:translate-x-1">
                       →
                     </span>

@@ -10,6 +10,7 @@ import { MetaPixel } from "@/components/MetaPixel"
 import { OrganizationJsonLd, WebsiteJsonLd } from "@/components/StructuredData"
 import { WhatsAppButton } from "@/components/WhatsAppButton"
 import { PromoModal } from "@/components/PromoModal"
+import { LocaleProvider } from "@/lib/i18n/context"
 import { SITE_URL, SITE_NAME, SITE_DESCRIPTION } from "@/lib/seo"
 import "./globals.css"
 
@@ -119,6 +120,12 @@ export default function RootLayout({
           Saltar al contenido
         </a>
 
+        {/* LocaleProvider — idioma de la interfaz (ES/EN). Envuelve TODO el
+            contenido para que cualquier componente pueda traducir con useT().
+            Es client component, pero recibe los children (server) como prop, así
+            que las rutas siguen siendo estáticas. */}
+        <LocaleProvider>
+
         {/* Ventana de promo temporal (PROMO en @/lib/promo). Anuncia el
             descuento y lo auto-aplica a todos. Aparece tras el aviso de cookies.
             Apagar con PROMO.active = false. (Se renderiza como overlay fijo.) */}
@@ -150,6 +157,7 @@ export default function RootLayout({
         {/* Botón flotante de WhatsApp — mensaje genérico aquí; en el PDP se
             oculta y el propio producto renderiza su versión con contexto. */}
         <WhatsAppButton />
+        </LocaleProvider>
       </body>
     </html>
   )

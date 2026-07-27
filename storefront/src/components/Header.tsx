@@ -7,6 +7,8 @@ import { useCart } from "./CartProvider"
 import { MegaMenu } from "./MegaMenu"
 import { MobileNav } from "./MobileNav"
 import { SearchOverlay } from "./SearchOverlay"
+import { LocaleToggle } from "./LocaleToggle"
+import { useT } from "@/lib/i18n/context"
 
 /**
  * Header del storefront. Sticky con logo, navegación principal,
@@ -15,6 +17,7 @@ import { SearchOverlay } from "./SearchOverlay"
  */
 export function Header() {
   const { itemCount, openCart } = useCart()
+  const t = useT()
   const [searchOpen, setSearchOpen] = useState(false)
   const searchBtnRef = useRef<HTMLButtonElement>(null)
 
@@ -66,7 +69,7 @@ export function Header() {
           {/* Logo */}
           <Link
             href="/"
-            aria-label="BotasLeón — Inicio"
+            aria-label={t("a11y.home")}
             className="block flex-shrink-0 transition-opacity hover:opacity-80"
           >
             <Image
@@ -88,12 +91,14 @@ export function Header() {
           <MegaMenu />
         </div>
 
-        {/* Derecha: buscador + cuenta + carrito */}
+        {/* Derecha: idioma + buscador + cuenta + carrito */}
         <div className="flex items-center justify-end gap-1 md:gap-2">
+          {/* Toggle de idioma — solo desktop; en móvil vive dentro del menú. */}
+          <LocaleToggle className="hidden md:inline-flex mr-1" />
           <button
             ref={searchBtnRef}
             type="button"
-            aria-label="Buscar"
+            aria-label={t("a11y.search")}
             onClick={() => setSearchOpen(true)}
             className="p-2 hover:bg-bg-alt rounded transition-colors cursor-pointer"
           >
@@ -101,7 +106,7 @@ export function Header() {
           </button>
           <Link
             href="/cuenta"
-            aria-label="Mi cuenta"
+            aria-label={t("a11y.account")}
             className="p-2 hover:bg-bg-alt rounded transition-colors"
           >
             <UserIcon />
@@ -109,7 +114,7 @@ export function Header() {
           <button
             type="button"
             onClick={openCart}
-            aria-label={`Carrito${itemCount > 0 ? `: ${itemCount} artículo${itemCount > 1 ? "s" : ""}` : ""}`}
+            aria-label={itemCount > 0 ? `${t("a11y.cart")}: ${itemCount}` : t("a11y.cart")}
             className="p-2 hover:bg-bg-alt rounded transition-colors relative cursor-pointer"
           >
             <BagIcon />

@@ -1,22 +1,29 @@
+"use client"
+
 import Image from "next/image"
 import Link from "next/link"
 import { PaymentBadges } from "./PaymentBadges"
 import { SocialIcons } from "./SocialIcons"
 import { whatsappHref } from "@/lib/whatsapp"
+import { useT } from "@/lib/i18n/context"
 
 /**
  * Footer del storefront. Tres columnas + barra inferior.
  * Tonos oscuros (cuero/negro) para contraste con resto del sitio,
  * actúa como "tierra" visual.
+ *
+ * Client component para traducir la interfaz (ES/EN) con useT. Los datos
+ * factuales (dirección, WhatsApp, correo) NO se traducen.
  */
 export function Footer() {
+  const t = useT()
   return (
     <footer className="mt-24 bg-leather text-bg-alt">
       <div className="mx-auto max-w-7xl px-6 py-16 grid grid-cols-2 md:grid-cols-4 gap-10">
         <div className="col-span-2 md:col-span-1">
           <Link
             href="/"
-            aria-label="BotasLeón — Inicio"
+            aria-label={t("a11y.home")}
             className="inline-block mb-3 transition-opacity hover:opacity-80"
           >
             <Image
@@ -29,8 +36,7 @@ export function Footer() {
             />
           </Link>
           <p className="text-sm text-bg-alt/80 max-w-xs leading-relaxed">
-            Botas premium fabricadas en León, Guanajuato. Tradición artesanal
-            mexicana en cada par.
+            {t("footer.blurb")}
           </p>
 
           {/* Datos de contacto visibles — transparencia de negocio (requisito
@@ -65,35 +71,35 @@ export function Footer() {
         </div>
 
         <div>
-          <h4 className="eyebrow text-bg/70 mb-4">Tienda</h4>
+          <h4 className="eyebrow text-bg/70 mb-4">{t("footer.shop")}</h4>
           <ul className="space-y-2 text-sm">
-            <li><Link href="/hombre" className="hover:text-bg transition-colors">Hombre</Link></li>
-            <li><Link href="/mujer" className="hover:text-bg transition-colors">Mujer</Link></li>
-            <li><Link href="/marcas" className="hover:text-bg transition-colors">Marcas</Link></li>
-            <li><Link href="/outlet" className="hover:text-bg transition-colors">Outlet</Link></li>
+            <li><Link href="/hombre" className="hover:text-bg transition-colors">{t("nav.men")}</Link></li>
+            <li><Link href="/mujer" className="hover:text-bg transition-colors">{t("nav.women")}</Link></li>
+            <li><Link href="/marcas" className="hover:text-bg transition-colors">{t("nav.brands")}</Link></li>
+            <li><Link href="/outlet" className="hover:text-bg transition-colors">{t("nav.outlet")}</Link></li>
             {/* Accesorios oculto hasta que haya productos dados de alta. Re-enable en sync con MegaMenu/CategoryShowcase. */}
           </ul>
         </div>
 
         <div>
-          <h4 className="eyebrow text-bg/70 mb-4">Ayuda</h4>
+          <h4 className="eyebrow text-bg/70 mb-4">{t("nav.help")}</h4>
           <ul className="space-y-2 text-sm">
-            <li><Link href="/envios" className="hover:text-bg transition-colors">Envíos</Link></li>
-            <li><Link href="/devoluciones" className="hover:text-bg transition-colors">Devoluciones</Link></li>
-            <li><Link href="/guia-tallas" className="hover:text-bg transition-colors">Guía de tallas</Link></li>
-            <li><Link href="/contacto" className="hover:text-bg transition-colors">Contacto</Link></li>
-            <li><Link href="/visitanos" className="hover:text-bg transition-colors">Visítanos</Link></li>
-            <li><Link href="/faq" className="hover:text-bg transition-colors">Preguntas frecuentes</Link></li>
+            <li><Link href="/envios" className="hover:text-bg transition-colors">{t("help.shipping")}</Link></li>
+            <li><Link href="/devoluciones" className="hover:text-bg transition-colors">{t("help.returns")}</Link></li>
+            <li><Link href="/guia-tallas" className="hover:text-bg transition-colors">{t("help.sizeGuide")}</Link></li>
+            <li><Link href="/contacto" className="hover:text-bg transition-colors">{t("help.contact")}</Link></li>
+            <li><Link href="/visitanos" className="hover:text-bg transition-colors">{t("nav.visit")}</Link></li>
+            <li><Link href="/faq" className="hover:text-bg transition-colors">{t("help.faq")}</Link></li>
           </ul>
         </div>
 
         <div>
-          <h4 className="eyebrow text-bg/70 mb-4">Empresa</h4>
+          <h4 className="eyebrow text-bg/70 mb-4">{t("nav.company")}</h4>
           <ul className="space-y-2 text-sm">
-            <li><Link href="/nosotros" className="hover:text-bg transition-colors">Nosotros</Link></li>
-            <li><Link href="/proveedores" className="hover:text-bg transition-colors">Proveedores</Link></li>
-            <li><Link href="/terminos" className="hover:text-bg transition-colors">Términos</Link></li>
-            <li><Link href="/privacidad" className="hover:text-bg transition-colors">Privacidad</Link></li>
+            <li><Link href="/nosotros" className="hover:text-bg transition-colors">{t("company.about")}</Link></li>
+            <li><Link href="/proveedores" className="hover:text-bg transition-colors">{t("company.suppliers")}</Link></li>
+            <li><Link href="/terminos" className="hover:text-bg transition-colors">{t("company.terms")}</Link></li>
+            <li><Link href="/privacidad" className="hover:text-bg transition-colors">{t("company.privacy")}</Link></li>
           </ul>
         </div>
       </div>
@@ -109,7 +115,7 @@ export function Footer() {
       <div className="border-t border-bg-alt/20">
         <div className="mx-auto max-w-7xl px-6 py-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-bg-alt/60">
           <p>© {new Date().getFullYear()} BotasLeón · León, Guanajuato, México.</p>
-          <p>Hecho con orgullo en México.</p>
+          <p>{t("footer.madeIn")}</p>
         </div>
       </div>
     </footer>
