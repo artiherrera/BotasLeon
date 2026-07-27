@@ -11,9 +11,9 @@
  *    y pega el hash resultante aquí abajo.
  */
 
-// SHA-256 de la contraseña actual (default: "mayoreo2026").
+// SHA-256 de la contraseña actual (botas123).
 export const COTIZADOR_PASSWORD_HASH =
-  "03e122429d01853d3520d526f46d882ed648925ee23401c18b8f954905c2c3ce"
+  "e6f749c7b77bb14f17734a4d8581aadade65688a1d1f29068c8a49b5d6d9f27a"
 
 export const COTIZADOR_DEFAULTS = {
   atiende: "BotasLeón",
