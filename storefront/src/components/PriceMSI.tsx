@@ -53,7 +53,7 @@ export function PriceMSI({
         className={
           isPdp
             ? "font-display text-3xl text-text leading-none"
-            : "text-lg font-semibold text-text"
+            : "text-xl font-bold text-text"
         }
       >
         {total}
