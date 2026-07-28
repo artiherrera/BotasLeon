@@ -9,7 +9,7 @@
  * 👉 PARA APAGARLA: pon `active: false`. Es una medida momentánea.
  */
 export const PROMO = {
-  active: true,
+  active: false,
   code: "VENTA15",
   eyebrow: "Inauguración",
   title: "¡BotasLeón abre sus puertas!",
