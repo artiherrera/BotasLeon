@@ -17,6 +17,10 @@ import { ProductViewedTracker } from "@/components/ProductViewedTracker"
 import { WhatsAppButton } from "@/components/WhatsAppButton"
 import { getProductByHandle, getProducts, getBrands } from "@/lib/shopify"
 import { PriceMSI } from "@/components/PriceMSI"
+import {
+  LocalizedProductTitle,
+  LocalizedProductDescription,
+} from "@/components/LocalizedProductContent"
 import { absoluteUrl } from "@/lib/seo"
 
 /**
@@ -188,9 +192,11 @@ export default async function ProductPage({ params }: Props) {
                   ) : (
                     <p className="eyebrow text-leather mb-3">{product.vendor}</p>
                   ))}
-                <h1 className="font-heading text-3xl md:text-4xl text-text mb-4 leading-tight">
-                  {product.title}
-                </h1>
+                <LocalizedProductTitle
+                  handle={product.handle}
+                  fallback={product.title}
+                  className="font-heading text-3xl md:text-4xl text-text mb-4 leading-tight"
+                />
 
                 <div className="mb-8">
                   <PriceMSI
@@ -207,15 +213,10 @@ export default async function ProductPage({ params }: Props) {
 
                 <ProductReviewBlock product={product} />
 
-                {product.descriptionHtml && (
-                  <div className="mt-12 pt-8 border-t border-border">
-                    <h2 className="eyebrow text-leather mb-4">Descripción</h2>
-                    <div
-                      className="prose prose-sm max-w-none text-text-muted leading-relaxed [&_p]:mb-3"
-                      dangerouslySetInnerHTML={{ __html: product.descriptionHtml }}
-                    />
-                  </div>
-                )}
+                <LocalizedProductDescription
+                  handle={product.handle}
+                  fallbackHtml={product.descriptionHtml ?? ""}
+                />
 
                 <div className="mt-8 pt-6 border-t border-border text-sm text-text-subtle space-y-1">
                   {product.productType && <p>Tipo: {product.productType}</p>}

@@ -62,6 +62,10 @@ export const DICTIONARY: Record<string, Entry> = {
   "company.terms": { es: "Términos", en: "Terms" },
   "company.privacy": { es: "Privacidad", en: "Privacy" },
 
+  // ── Página de producto ───────────────────────────────────────────────
+  "product.description": { es: "Descripción", en: "Description" },
+  "product.type": { es: "Tipo", en: "Type" },
+
   // ── Footer ────────────────────────────────────────────────────────────
   "footer.shop": { es: "Tienda", en: "Shop" },
   "footer.blurb": {
