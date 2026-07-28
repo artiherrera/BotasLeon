@@ -4,7 +4,7 @@ import Image from "next/image"
 import Link from "next/link"
 import type { Product } from "@/lib/shopify/types"
 import { JudgemeStars } from "./JudgemeStars"
-import { LocalizedPrice } from "./LocalizedProductContent"
+import { LocalizedPrice, useProductTranslation } from "./LocalizedProductContent"
 import { useT } from "@/lib/i18n/context"
 
 /**
@@ -15,6 +15,9 @@ import { useT } from "@/lib/i18n/context"
 export function ProductCard({ product }: { product: Product }) {
   const t = useT()
   const { handle, title, vendor, featuredImage, priceRange } = product
+  // En inglés, usa el título EN (mismo fetch cacheado que ya usa el precio).
+  const loc = useProductTranslation(handle)
+  const displayTitle = loc?.title?.trim() || title
   const minPrice = priceRange.minVariantPrice
   const compareAt = product.compareAtPriceRange?.minVariantPrice
 
@@ -24,8 +27,8 @@ export function ProductCard({ product }: { product: Product }) {
       className="group block"
       aria-label={
         product.availableForSale
-          ? `${t("card.view")} ${title}`
-          : `${t("card.view")} ${title} ${t("card.soldOutParen")}`
+          ? `${t("card.view")} ${displayTitle}`
+          : `${t("card.view")} ${displayTitle} ${t("card.soldOutParen")}`
       }
     >
       <div className="relative aspect-square overflow-hidden bg-bg-alt rounded-sm mb-3">
@@ -54,7 +57,7 @@ export function ProductCard({ product }: { product: Product }) {
           </p>
         )}
         <h3 className="font-heading text-lg text-text leading-tight mb-1">
-          {title}
+          {displayTitle}
         </h3>
         {product.judgemeRating != null && product.judgemeRating > 0 && (
           <div className="mb-1">

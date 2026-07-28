@@ -100,7 +100,7 @@ function load(handle: string): Promise<Translation | null> {
 }
 
 /** Devuelve la traducción EN del producto, o null si no estamos en inglés / no hay. */
-function useProductTranslation(handle: string): Translation | null {
+export function useProductTranslation(handle: string): Translation | null {
   const { locale } = useLocale()
   const [data, setData] = useState<Translation | null>(null)
 
