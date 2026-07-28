@@ -38,8 +38,11 @@ async function fetchTranslation(handle: string): Promise<Translation | null> {
         Accept: "application/json",
       },
       body: JSON.stringify({
+        // country: US + language: EN → el inglés está publicado en el mercado
+        // de Estados Unidos (no en el default México). Con solo language:EN
+        // Shopify cae a español. (De paso, este contexto expone precios USD.)
         query: /* GraphQL */ `
-          query ProductEN($handle: String!) @inContext(language: EN) {
+          query ProductEN($handle: String!) @inContext(country: US, language: EN) {
             product(handle: $handle) {
               title
               descriptionHtml
