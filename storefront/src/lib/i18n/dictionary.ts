@@ -23,12 +23,12 @@ export const DICTIONARY: Record<string, Entry> = {
   "pdp.chooseSize": { es: "Elige talla", en: "Choose size" },
   "pdp.comboUnavailable": { es: "Combinación no disponible", en: "Combination unavailable" },
   "pdp.selectSize": { es: "Selecciona tu talla", en: "Select your size" },
-  "pdp.shippingNote": { es: "Envío MX 3-5 días · Cambio de talla sin costo", en: "Ships to the USA · Easy size exchanges" },
+  "pdp.shippingNote": { es: "Envío MX 3-5 días · Cambio de talla sin costo", en: "Ships across the USA · Check your size first" },
   "pdp.sizeError": { es: "Por favor selecciona tu talla.", en: "Please select your size." },
   "pdp.unavailable": { es: "No disponible", en: "Unavailable" },
   "recent.eyebrow": { es: "Visto recientemente", en: "Recently viewed" },
   "recent.title": { es: "Sigue donde te quedaste", en: "Pick up where you left off" },
-  "trust.exchange30": { es: "Cambio 30 días", en: "30-day exchanges" },
+  "trust.exchange30": { es: "Cambio 30 días", en: "Ships to the USA" },
   "trust.leather100": { es: "Cuero 100%", en: "100% leather" },
   "trust.madeInLeon": { es: "Hecho en León", en: "Made in León" },
   "trust.securePayment": { es: "Pago seguro", en: "Secure payment" },
@@ -139,7 +139,7 @@ export const DICTIONARY: Record<string, Entry> = {
   "nav.explore": { es: "Explorar", en: "Explore" },
 
   // Banda de propuesta de valor (menú móvil)
-  "promo.msi": { es: "3, 6 y 9 meses sin intereses", en: "3, 6 & 9 months interest-free" },
+  "promo.msi": { es: "3, 6 y 9 meses sin intereses", en: "Handcrafted in León, Mexico" },
   "promo.shipping": { es: "Envío a todo MX y USA", en: "Shipping across MX & USA" },
 
   // Secciones de ayuda / empresa
@@ -187,10 +187,10 @@ export const DICTIONARY: Record<string, Entry> = {
   },
   "trust.shipping.title": { es: "Envío MX y USA", en: "Ships to the USA" },
   "trust.shipping.sub": { es: "Directo desde León", en: "Straight from León" },
-  "trust.exchange.title": { es: "Cambio de talla", en: "Easy size exchange" },
+  "trust.exchange.title": { es: "Cambio de talla", en: "Built to last" },
   "trust.exchange.sub": {
     es: "Sin preguntas, sin costo",
-    en: "No questions, no fees",
+    en: "Premium leather, made in León",
   },
 
   // ── Encabezados de categoría ─────────────────────────────────────────

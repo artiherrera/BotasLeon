@@ -68,58 +68,29 @@ export default function DevolucionesPage() {
         }
         en={
           <>
-            <h2>Size exchange</h2>
+            <h2>All U.S. orders are final sale</h2>
             <p>
-              You have <strong>30 calendar days</strong> from the day you receive
-              your order to request a size exchange. For international shipments,
-              including the United States, a reduced logistics fee applies.
+              Orders shipped to the United States are <strong>final sale</strong>.
+              We do not offer returns or exchanges on U.S. orders, so please make
+              sure of your size before you order.
             </p>
 
-            <h3>Requirements</h3>
-            <ul>
-              <li>The boots must be unworn, with no marks on the sole or the leather</li>
-              <li>In their original box, with all tags and accessories</li>
-              <li>Accompanied by proof of purchase</li>
-            </ul>
-
-            <h2>Returns for manufacturing defects</h2>
+            <h2>Get your size right the first time</h2>
             <p>
-              If your boots have a manufacturing defect, contact us within the first
-              7 days with photos of the issue. We&apos;ll replace them at no cost or
-              issue a full refund, and we cover return shipping.
+              Because U.S. orders can&apos;t be exchanged, review our{" "}
+              <a href="/guia-tallas">size guide</a> before ordering. Our sizes run
+              in Mexican (cm), U.S., and EU scales. If you have any doubt about
+              sizing or a specific pair, message us first at{" "}
+              <strong>contacto@botasleon.com</strong> and we&apos;ll help you choose
+              the right fit.
             </p>
 
-            <h2>Change-of-mind returns</h2>
+            <h2>A problem with your order?</h2>
             <p>
-              If you simply change your mind, you have 14 days to return the product
-              in the same condition required for a size exchange. Your refund is
-              issued to the original payment method within 5-10 business days. Return
-              shipping is the customer&apos;s responsibility.
+              If something arrives incorrect or damaged, email us at{" "}
+              <strong>contacto@botasleon.com</strong> within 7 days of delivery with
+              photos, and we&apos;ll do our best to make it right.
             </p>
-
-            <h2>How to start an exchange or return</h2>
-            <ol>
-              <li>
-                Email <strong>contacto@botasleon.com</strong> with your order number
-                and the reason
-              </li>
-              <li>
-                We reply within 24 business hours with your return instructions;
-                prepaid shipping labels apply to exchanges within Mexico
-              </li>
-              <li>Pack the boots exactly as they arrived and drop them off at the carrier location shown in your instructions</li>
-              <li>
-                Once we receive them, we inspect their condition and process your
-                exchange or refund within 3 business days
-              </li>
-            </ol>
-
-            <h2>Products NOT eligible for return</h2>
-            <ul>
-              <li>Made-to-measure or personalized boots</li>
-              <li>Outlet or final-sale items (marked on the product page)</li>
-              <li>Boots showing signs of wear, marks, or customer modifications</li>
-            </ul>
           </>
         }
       />

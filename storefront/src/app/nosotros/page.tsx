@@ -111,8 +111,8 @@ export default function NosotrosPage() {
               <li>If it's a cowboy boot, it's made in León</li>
               <li>If we say leather, it's leather (no PU, no synthetic)</li>
               <li>If we say exotic, it comes with its CITES certificate</li>
-              <li>If it doesn't fit, we'll exchange it</li>
-              <li>If it's defective, we'll replace it</li>
+              <li>Every pair is inspected before it ships</li>
+              <li>If something arrives wrong, we&apos;ll make it right</li>
             </ul>
 
             <h2>Let's talk</h2>

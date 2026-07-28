@@ -114,12 +114,13 @@ export default function FaqPage() {
               <a href="/envios">Shipping</a> page for more details.
             </p>
 
-            <h2>Can I exchange the size if it doesn't fit?</h2>
+            <h2>Can I return or exchange my order?</h2>
             <p>
-              Yes. You have 30 days from the day your boots arrive to request a
-              size exchange. The boots must be unworn, unmarked, and in their
-              original box. See our <a href="/devoluciones">Returns</a> page for
-              full details.
+              Orders shipped to the United States are final sale — we don&apos;t
+              offer returns or size exchanges. Check our{" "}
+              <a href="/guia-tallas">size guide</a> before ordering, and message us
+              if you&apos;re unsure. See our <a href="/devoluciones">Returns</a> page
+              for full details.
             </p>
 
             <h2>What payment methods do you accept?</h2>

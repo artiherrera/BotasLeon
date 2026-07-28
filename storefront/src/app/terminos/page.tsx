@@ -129,9 +129,9 @@ export default function TerminosPage() {
 
             <h2>6. Exchanges and returns</h2>
             <p>
-              Your right to exchanges and returns is described in{" "}
-              <a href="/devoluciones">Returns</a>. We comply with all applicable
-              consumer protection regulations.
+              Orders shipped to the United States are final sale. Our full exchange
+              and return terms are described in{" "}
+              <a href="/devoluciones">Returns</a>.
             </p>
 
             <h2>7. Intellectual property</h2>

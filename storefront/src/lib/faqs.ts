@@ -53,9 +53,9 @@ export const FAQS: FAQ[] = [
     question: "¿Puedo cambiar la talla si no me queda?",
     answer:
       "Sí. Tienes 30 días desde que recibes tu bota para solicitar cambio de talla sin costo, dentro de México. La bota debe estar sin uso, sin marcas, en su caja original. Para envíos internacionales aplica una tarifa logística reducida.",
-    questionEn: "Can I exchange the size if it doesn't fit?",
+    questionEn: "Can I return or exchange my order?",
     answerEn:
-      "Yes. You have 30 days from the day your boots arrive to request a size exchange. The boots must be unworn, unmarked, and in their original box. For international orders a reduced logistics fee applies.",
+      "Orders shipped to the United States are final sale — we don't offer returns or size exchanges. Please check our size guide (Mexican cm, U.S., and EU) before ordering, and message us at contacto@botasleon.com if you're unsure about your size.",
   },
   {
     question: "¿Qué métodos de pago aceptan?",
