@@ -93,10 +93,8 @@ export function Header() {
 
         {/* Derecha: idioma + buscador + cuenta + carrito */}
         <div className="flex items-center justify-end gap-1 md:gap-2">
-          {/* Toggle de idioma — solo desktop; en móvil vive dentro del menú. */}
-          <div className="hidden md:block mr-1">
-            <LocaleToggle />
-          </div>
+          {/* Toggle de idioma — visible en la navbar en todos los tamaños. */}
+          <LocaleToggle className="mr-0.5 md:mr-1" />
           <button
             ref={searchBtnRef}
             type="button"

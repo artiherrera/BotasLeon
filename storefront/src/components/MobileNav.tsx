@@ -5,7 +5,6 @@ import { createPortal } from "react-dom"
 import Link from "next/link"
 import Image from "next/image"
 import { SocialIcons } from "./SocialIcons"
-import { LocaleToggle } from "./LocaleToggle"
 import { useT } from "@/lib/i18n/context"
 
 /**
@@ -192,14 +191,6 @@ export function MobileNav() {
         <div className="bg-leather text-bg px-5 py-3 text-[11px] uppercase tracking-wider leading-relaxed">
           <p>{t("promo.msi")}</p>
           <p className="text-bg/70">{t("promo.shipping")}</p>
-        </div>
-
-        {/* Toggle de idioma — visible arriba para el visitante gringo */}
-        <div className="flex items-center justify-between px-5 py-3 border-b border-border/40">
-          <span className="text-[11px] uppercase tracking-wider text-text-subtle">
-            {t("a11y.language")}
-          </span>
-          <LocaleToggle />
         </div>
 
         {/* Scrollable content */}
