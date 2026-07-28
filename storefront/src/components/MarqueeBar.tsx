@@ -10,24 +10,35 @@
  * Pause-on-hover para que el lector pueda parar a leer un mensaje.
  */
 
+"use client"
+
 import Link from "next/link"
 import { FREE_SHIPPING_THRESHOLD_LABEL } from "@/lib/shipping"
+import { useT } from "@/lib/i18n/context"
 
-// Último item lleva a la sección de newsletter (reemplaza a la barra de anuncio
-// que antes ocupaba una fila propia arriba del header).
-const MESSAGES: Array<{ text: string; href?: string }> = [
-  { text: "380 años de tradición" },
-  { text: "León, capital mundial del cuero" },
-  { text: `Envío GRATIS a partir de ${FREE_SHIPPING_THRESHOLD_LABEL}` },
-  { text: "3, 6 y 9 meses sin intereses" },
-  { text: "Tienda física en León →", href: "/visitanos" },
-  { text: "Suscríbete y recibe ofertas antes que nadie →", href: "/#newsletter" },
+// Cada item es una LLAVE del diccionario. La versión inglesa (mercado USA) NO
+// promete envío gratis ni MSI — son beneficios solo de México; ver dictionary.
+const MESSAGE_SPECS: Array<{ key: string; href?: string; vars?: Record<string, string> }> = [
+  { key: "marquee.tradition" },
+  { key: "marquee.leather" },
+  { key: "marquee.shipping", vars: { threshold: FREE_SHIPPING_THRESHOLD_LABEL } },
+  { key: "marquee.msi" },
+  { key: "marquee.store", href: "/visitanos" },
+  { key: "marquee.newsletter", href: "/#newsletter" },
 ]
 
 const ITEM_CLS =
   "px-12 text-base md:text-lg font-medium tracking-wide whitespace-nowrap"
 
 export function MarqueeBar() {
+  const t = useT()
+  const MESSAGES = MESSAGE_SPECS.map((spec) => {
+    let text = t(spec.key)
+    if (spec.vars) {
+      for (const [k, v] of Object.entries(spec.vars)) text = text.replace(`{${k}}`, v)
+    }
+    return { text, href: spec.href }
+  })
   return (
     <div className="overflow-hidden bg-leather text-bg border-y border-leather-light/20">
       <div className="marquee-track flex w-max py-5">

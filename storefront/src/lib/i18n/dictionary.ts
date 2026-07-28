@@ -142,6 +142,28 @@ export const DICTIONARY: Record<string, Entry> = {
   "product.description": { es: "Descripción", en: "Description" },
   "product.type": { es: "Tipo", en: "Type" },
 
+  // ── Cintillo (MarqueeBar) ────────────────────────────────────────────
+  // OJO: en inglés (mercado USA) NO se promete envío gratis ni MSI —
+  // esos son beneficios solo de México. La versión EN usa otros mensajes.
+  "marquee.tradition": { es: "380 años de tradición", en: "380 years of tradition" },
+  "marquee.leather": {
+    es: "León, capital mundial del cuero",
+    en: "León, the world capital of leather",
+  },
+  "marquee.shipping": {
+    es: "Envío GRATIS a partir de {threshold}",
+    en: "Shipped to your door across the USA",
+  },
+  "marquee.msi": {
+    es: "3, 6 y 9 meses sin intereses",
+    en: "Handcrafted in León, Mexico",
+  },
+  "marquee.store": { es: "Tienda física en León →", en: "Visit our store in León →" },
+  "marquee.newsletter": {
+    es: "Suscríbete y recibe ofertas antes que nadie →",
+    en: "Subscribe for early access to deals →",
+  },
+
   // ── Footer ────────────────────────────────────────────────────────────
   "footer.shop": { es: "Tienda", en: "Shop" },
   "footer.blurb": {
