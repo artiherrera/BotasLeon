@@ -6,9 +6,9 @@ export const revalidate = 60
 export default function HombrePage() {
   return (
     <CategoryStub
-      eyebrow="Hombre"
-      title="Botas para hombre"
-      description="Vaqueras, clásicas y botas de rancho hechas en León. Cada par seleccionado por su construcción, ajuste y durabilidad."
+      eyebrow="cat.men.eyebrow"
+      title="cat.men.title"
+      description="cat.men.desc"
       taxonomyKey="gender"
       taxonomyHandle="masculino"
       configHint='el metacampo "Sexo objetivo" = Masculino'

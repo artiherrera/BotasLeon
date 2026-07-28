@@ -3,6 +3,7 @@ import Link from "next/link"
 import { Header } from "./Header"
 import { Footer } from "./Footer"
 import { ProductsListing } from "./ProductsListing"
+import { CategoryHeader } from "./CategoryHeader"
 import { getProductsByTaxonomy } from "@/lib/shopify"
 
 /**
@@ -49,13 +50,7 @@ export async function CategoryStub({
       <Header />
       <main id="contenido" tabIndex={-1} className="flex-1">
         <div className="mx-auto max-w-7xl px-6 py-12 md:py-16">
-          <div className="mb-8">
-            <p className="eyebrow text-leather mb-2">{eyebrow}</p>
-            <h1 className="font-display text-4xl md:text-5xl text-text mb-3">
-              {title}
-            </h1>
-            <p className="text-text-muted max-w-xl">{description}</p>
-          </div>
+          <CategoryHeader eyebrow={eyebrow} title={title} description={description} />
 
           {products.length === 0 ? (
             <EmptyState configHint={configHint} />

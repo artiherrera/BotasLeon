@@ -1,5 +1,8 @@
+"use client"
+
 import { formatMoney, saleInfo } from "@/lib/utils"
 import { msiMonthly, MSI_DISPLAY_MONTHS } from "@/lib/msi"
+import { useT } from "@/lib/i18n/context"
 
 /**
  * PriceMSI — la mensualidad de MSI como PROTAGONISTA, en 2 líneas limpias:
@@ -22,6 +25,7 @@ export function PriceMSI({
   compareAt?: string | null
   size?: "card" | "pdp"
 }) {
+  const t = useT()
   const monthly = msiMonthly(amount, currency)
   const sale = saleInfo(amount, compareAt)
   const isPdp = size === "pdp"
@@ -59,11 +63,11 @@ export function PriceMSI({
       {/* Mensualidad — protagonista */}
       <p className={isPdp ? "font-display text-3xl text-text leading-none" : "leading-none"}>
         <span className={isPdp ? "" : "text-lg font-semibold text-text"}>
-          Desde {formatMoney(monthly, currency)}
+          {t("price.from")} {formatMoney(monthly, currency)}
         </span>
         <span className={`font-normal text-text-muted ${isPdp ? "text-base" : "text-xs"}`}>
           {" "}
-          al mes
+          {t("price.perMonth")}
         </span>
       </p>
 
@@ -71,9 +75,11 @@ export function PriceMSI({
       <p className="mt-1 text-sm">
         {total}
         <span className="text-text-subtle">
-          {isPdp
-            ? ` · a ${MSI_DISPLAY_MONTHS} meses sin intereses · bancos participantes`
-            : ` · ${MSI_DISPLAY_MONTHS} MSI`}
+          {" · "}
+          {(isPdp ? t("price.msiPdp") : t("price.msiShort")).replace(
+            "{n}",
+            String(MSI_DISPLAY_MONTHS)
+          )}
         </span>
         {isPdp && sale.onSale && (
           <span className="ml-2 inline-block rounded-sm bg-terracotta px-2 py-0.5 align-middle text-xs font-semibold uppercase tracking-wide text-bg">

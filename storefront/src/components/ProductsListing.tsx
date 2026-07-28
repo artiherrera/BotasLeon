@@ -9,6 +9,7 @@ import type { Product, PageInfo } from "@/lib/shopify/types"
 import { useFocusTrap } from "@/lib/useFocusTrap"
 import { lookupColor } from "@/lib/pdp/colorLut"
 import { bootStyleLabel } from "@/lib/shopify/taxonomy"
+import { useT } from "@/lib/i18n/context"
 
 /**
  * ProductsListing — grid con sidebar de filtros (estilo Amazon).
@@ -111,15 +112,17 @@ function isLightHex(hex: string): boolean {
 
 type SortKey = "default" | "recientes" | "precio-asc" | "precio-desc" | "titulo"
 
+// Valores = LLAVES del diccionario i18n (se traducen con t() al render).
 const SORT_LABELS: Record<SortKey, string> = {
-  default: "Más vendidos",
-  recientes: "Más recientes",
-  "precio-asc": "Precio: menor a mayor",
-  "precio-desc": "Precio: mayor a menor",
-  titulo: "Nombre: A → Z",
+  default: "sort.bestselling",
+  recientes: "sort.newest",
+  "precio-asc": "sort.priceAsc",
+  "precio-desc": "sort.priceDesc",
+  titulo: "sort.nameAz",
 }
 
 export function ProductsListing({ products, initialStyle, initialPageInfo }: Props) {
+  const t = useT()
   // Dos fuentes de "estilo activo":
   //   1. initialStyle (server-driven, vía sub-ruta /hombre/vaqueras).
   //   2. ?estilo= legacy en query string (bookmarks viejos, links externos).
@@ -347,7 +350,7 @@ export function ProductsListing({ products, initialStyle, initialPageInfo }: Pro
         ref={filtersRef}
         role={mobileOpen ? "dialog" : undefined}
         aria-modal={mobileOpen ? true : undefined}
-        aria-label={mobileOpen ? "Filtros" : undefined}
+        aria-label={mobileOpen ? t("filters.title") : undefined}
         className={`
           ${mobileOpen ? "fixed inset-0 z-50 bg-bg overflow-y-auto" : "hidden"}
           lg:block lg:static lg:bg-transparent lg:overflow-visible lg:z-auto
@@ -356,10 +359,10 @@ export function ProductsListing({ products, initialStyle, initialPageInfo }: Pro
         {/* Header drawer mobile */}
         {mobileOpen && (
           <div className="flex items-center justify-between px-6 py-5 border-b border-border lg:hidden sticky top-0 bg-bg">
-            <h2 className="font-heading text-xl">Filtros</h2>
+            <h2 className="font-heading text-xl">{t("filters.title")}</h2>
             <button
               onClick={() => setMobileOpen(false)}
-              aria-label="Cerrar filtros"
+              aria-label={t("filters.close")}
               data-autofocus
               className="p-2 -mr-2 hover:bg-bg-alt rounded"
             >
@@ -373,20 +376,20 @@ export function ProductsListing({ products, initialStyle, initialPageInfo }: Pro
         <div className={mobileOpen ? "px-6 py-4 space-y-6" : "space-y-6 lg:sticky lg:top-24"}>
           {/* Header sidebar desktop */}
           <div className="hidden lg:flex items-center justify-between pb-3 border-b border-border">
-            <h2 className="font-heading text-base text-text">Filtros</h2>
+            <h2 className="font-heading text-base text-text">{t("filters.title")}</h2>
             {activeCount > 0 && (
               <button
                 onClick={clearAll}
                 className="text-xs uppercase tracking-wider text-leather hover:text-terracotta"
               >
-                Limpiar ({activeCount})
+                {t("filters.clear")} ({activeCount})
               </button>
             )}
           </div>
 
           {/* Talla */}
           {facets.sizes.length > 0 && (
-            <FilterSection title="Talla">
+            <FilterSection title={t("filters.size")}>
               <div className="flex flex-wrap gap-2">
                 {facets.sizes.map((size) => {
                   const active = filters.sizes.has(size)
@@ -411,7 +414,7 @@ export function ProductsListing({ products, initialStyle, initialPageInfo }: Pro
 
           {/* Marca */}
           {facets.vendors.length > 0 && (
-            <FilterSection title="Marca">
+            <FilterSection title={t("filters.brand")}>
               <div className="space-y-2">
                 {facets.vendors.map((vendor) => (
                   <label key={vendor} className="flex items-center gap-2 cursor-pointer text-sm hover:text-leather">
@@ -433,7 +436,7 @@ export function ProductsListing({ products, initialStyle, initialPageInfo }: Pro
 
           {/* Estilo */}
           {facets.types.length > 0 && (
-            <FilterSection title="Estilo">
+            <FilterSection title={t("filters.style")}>
               <div className="space-y-2">
                 {facets.types.map((type) => (
                   <label key={type} className="flex items-center gap-2 cursor-pointer text-sm hover:text-leather">
@@ -455,7 +458,7 @@ export function ProductsListing({ products, initialStyle, initialPageInfo }: Pro
 
           {/* Color — datos del metafield shopify.color-pattern */}
           {facets.colors.length > 0 && (
-            <FilterSection title="Color">
+            <FilterSection title={t("filters.color")}>
               <div className="space-y-2">
                 {facets.colors.map(({ handle, label, hex }) => {
                   // Preferimos el HEX nativo del metaobject de Shopify; si no
@@ -494,7 +497,7 @@ export function ProductsListing({ products, initialStyle, initialPageInfo }: Pro
 
           {/* Material — datos del metafield shopify.shoe-material */}
           {facets.materials.length > 0 && (
-            <FilterSection title="Material">
+            <FilterSection title={t("filters.material")}>
               <div className="space-y-2">
                 {facets.materials.map(({ handle, label }) => (
                   <label
@@ -515,7 +518,7 @@ export function ProductsListing({ products, initialStyle, initialPageInfo }: Pro
           )}
 
           {/* Disponibilidad */}
-          <FilterSection title="Disponibilidad">
+          <FilterSection title={t("filters.availability")}>
             <label className="flex items-center gap-2 cursor-pointer text-sm">
               <input
                 type="checkbox"
@@ -525,7 +528,7 @@ export function ProductsListing({ products, initialStyle, initialPageInfo }: Pro
                 }
                 className="rounded border-border accent-leather"
               />
-              Solo en stock
+              {t("filters.inStock")}
             </label>
           </FilterSection>
 
@@ -536,13 +539,13 @@ export function ProductsListing({ products, initialStyle, initialPageInfo }: Pro
                 onClick={clearAll}
                 className="flex-1 py-3 border border-border text-sm uppercase tracking-wider hover:border-leather"
               >
-                Limpiar
+                {t("filters.clear")}
               </button>
               <button
                 onClick={() => setMobileOpen(false)}
                 className="flex-1 py-3 rounded-full bg-leather text-bg text-sm uppercase tracking-wider hover:bg-text"
               >
-                Ver {filtered.length}
+                {t("filters.show")} {filtered.length}
               </button>
             </div>
           )}
@@ -554,26 +557,26 @@ export function ProductsListing({ products, initialStyle, initialPageInfo }: Pro
         {/* Toolbar — count, sort, filtros button (mobile) */}
         <div className="mb-6 pb-4 border-b border-border flex flex-wrap items-center justify-between gap-3">
           <p className="text-sm text-text-muted">
-            {sorted.length} producto{sorted.length === 1 ? "" : "s"}
+            {sorted.length} {sorted.length === 1 ? t("listing.product") : t("listing.products")}
             {activeCount > 0 && (
-              <span className="text-text-subtle"> de {allProducts.length}</span>
+              <span className="text-text-subtle"> {t("listing.of")} {allProducts.length}</span>
             )}
           </p>
 
           <div className="flex items-center gap-3">
             {/* Sort */}
             <label className="text-xs text-text-muted hidden sm:inline">
-              Ordenar
+              {t("listing.sort")}
             </label>
             <select
               value={sortKey}
               onChange={(e) => setSortKey(e.target.value as SortKey)}
-              aria-label="Ordenar productos por"
+              aria-label={t("listing.sortBy")}
               className="text-sm bg-bg border border-border px-3 py-1.5 hover:border-leather focus:outline-none focus:border-leather cursor-pointer"
             >
               {(Object.keys(SORT_LABELS) as SortKey[]).map((key) => (
                 <option key={key} value={key}>
-                  {SORT_LABELS[key]}
+                  {t(SORT_LABELS[key])}
                 </option>
               ))}
             </select>
@@ -588,7 +591,7 @@ export function ProductsListing({ products, initialStyle, initialPageInfo }: Pro
                 <line x1="7" y1="12" x2="17" y2="12" />
                 <line x1="10" y1="18" x2="14" y2="18" />
               </svg>
-              Filtros
+              {t("filters.title")}
               {activeCount > 0 && (
                 <span className="bg-leather text-bg w-5 h-5 rounded-full flex items-center justify-center text-[10px]">
                   {activeCount}
@@ -603,22 +606,22 @@ export function ProductsListing({ products, initialStyle, initialPageInfo }: Pro
           activeCount > 0 ? (
             <div className="border border-border bg-bg-alt p-10 text-center">
               <p className="font-heading text-xl text-text mb-2">
-                Sin resultados
+                {t("listing.noResults")}
               </p>
               <p className="text-text-muted mb-6">
-                Ningún producto coincide con los filtros aplicados.
+                {t("listing.noResultsDesc")}
               </p>
               <button
                 onClick={clearAll}
                 className="inline-flex px-6 py-3 rounded-full border border-leather text-leather text-sm uppercase tracking-wider hover:bg-leather hover:text-bg transition-colors"
               >
-                Limpiar filtros
+                {t("filters.clearAll")}
               </button>
             </div>
           ) : (
             <EmptyProductsState
-              title="Catálogo en construcción"
-              description="Estamos cargando las primeras botas de los talleres de León."
+              title={t("listing.emptyTitle")}
+              description={t("listing.emptyDesc")}
             />
           )
         ) : (
@@ -658,14 +661,14 @@ export function ProductsListing({ products, initialStyle, initialPageInfo }: Pro
                   }}
                   className="inline-flex items-center gap-2 px-8 py-4 rounded-full border border-leather text-leather text-sm uppercase tracking-wider hover:bg-leather hover:text-bg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {loadingMore ? "Cargando..." : "Cargar más productos"}
+                  {loadingMore ? t("listing.loading") : t("listing.loadMore")}
                 </button>
               </div>
             )}
 
             {pageInfo?.hasNextPage && activeCount > 0 && (
               <div className="text-center mt-8 text-xs text-text-subtle">
-                Limpia los filtros para ver más productos.
+                {t("listing.clearToSeeMore")}
               </div>
             )}
           </>

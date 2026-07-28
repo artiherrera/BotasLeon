@@ -1,8 +1,11 @@
+"use client"
+
 import Image from "next/image"
 import Link from "next/link"
 import type { Product } from "@/lib/shopify/types"
 import { JudgemeStars } from "./JudgemeStars"
 import { PriceMSI } from "./PriceMSI"
+import { useT } from "@/lib/i18n/context"
 
 /**
  * Tarjeta de producto para grids (home, listing, marca page).
@@ -10,6 +13,7 @@ import { PriceMSI } from "./PriceMSI"
  * Look minimalista premium — la foto manda, el texto soporta.
  */
 export function ProductCard({ product }: { product: Product }) {
+  const t = useT()
   const { handle, title, vendor, featuredImage, priceRange } = product
   const minPrice = priceRange.minVariantPrice
   const compareAt = product.compareAtPriceRange?.minVariantPrice
@@ -18,7 +22,11 @@ export function ProductCard({ product }: { product: Product }) {
     <Link
       href={`/products/${handle}`}
       className="group block"
-      aria-label={product.availableForSale ? `Ver ${title}` : `Ver ${title} (agotado)`}
+      aria-label={
+        product.availableForSale
+          ? `${t("card.view")} ${title}`
+          : `${t("card.view")} ${title} ${t("card.soldOutParen")}`
+      }
     >
       <div className="relative aspect-square overflow-hidden bg-bg-alt rounded-sm mb-3">
         {featuredImage ? (
@@ -34,7 +42,7 @@ export function ProductCard({ product }: { product: Product }) {
         )}
         {!product.availableForSale && (
           <div className="absolute top-3 left-3 bg-text/90 text-bg eyebrow text-xs px-2 py-1 rounded">
-            Agotado
+            {t("card.soldOut")}
           </div>
         )}
       </div>

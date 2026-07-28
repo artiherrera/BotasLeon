@@ -62,6 +62,82 @@ export const DICTIONARY: Record<string, Entry> = {
   "company.terms": { es: "Términos", en: "Terms" },
   "company.privacy": { es: "Privacidad", en: "Privacy" },
 
+  // ── Encabezados de categoría ─────────────────────────────────────────
+  "cat.women.eyebrow": { es: "Mujer", en: "Women" },
+  "cat.women.title": { es: "Botas para mujer", en: "Women's Boots" },
+  "cat.women.desc": {
+    es: "Vaqueras, clásicas, largas y de fashion en cuero auténtico. Tradición artesanal mexicana con silueta contemporánea.",
+    en: "Cowboy, classic, tall and fashion boots in genuine leather. Mexican artisan tradition with a contemporary silhouette.",
+  },
+  "cat.men.eyebrow": { es: "Hombre", en: "Men" },
+  "cat.men.title": { es: "Botas para hombre", en: "Men's Boots" },
+  "cat.men.desc": {
+    es: "Vaqueras, clásicas y botas de rancho hechas en León. Cada par seleccionado por su construcción, ajuste y durabilidad.",
+    en: "Cowboy, classic and ranch boots handmade in León. Every pair chosen for its construction, fit and durability.",
+  },
+  "cat.kids.eyebrow": { es: "Niños", en: "Kids" },
+  "cat.kids.title": { es: "Botas para niños", en: "Kids' Boots" },
+  "cat.kids.desc": {
+    es: "Vaqueras y clásicas miniatura, mismas marcas y misma construcción que las de adulto. Para los pies que más crecen.",
+    en: "Miniature cowboy and classic boots — same brands and build as the grown-up pairs. For the feet that grow the fastest.",
+  },
+
+  // ── Filtros (listado) ────────────────────────────────────────────────
+  "filters.title": { es: "Filtros", en: "Filters" },
+  "filters.close": { es: "Cerrar filtros", en: "Close filters" },
+  "filters.clear": { es: "Limpiar", en: "Clear" },
+  "filters.clearAll": { es: "Limpiar filtros", en: "Clear filters" },
+  "filters.size": { es: "Talla", en: "Size" },
+  "filters.brand": { es: "Marca", en: "Brand" },
+  "filters.style": { es: "Estilo", en: "Style" },
+  "filters.color": { es: "Color", en: "Color" },
+  "filters.material": { es: "Material", en: "Material" },
+  "filters.availability": { es: "Disponibilidad", en: "Availability" },
+  "filters.inStock": { es: "Solo en stock", en: "In stock only" },
+  "filters.show": { es: "Ver", en: "Show" },
+
+  // ── Listado (toolbar / estados) ──────────────────────────────────────
+  "listing.product": { es: "producto", en: "product" },
+  "listing.products": { es: "productos", en: "products" },
+  "listing.of": { es: "de", en: "of" },
+  "listing.sort": { es: "Ordenar", en: "Sort" },
+  "listing.sortBy": { es: "Ordenar productos por", en: "Sort products by" },
+  "listing.noResults": { es: "Sin resultados", en: "No results" },
+  "listing.noResultsDesc": {
+    es: "Ningún producto coincide con los filtros aplicados.",
+    en: "No products match the selected filters.",
+  },
+  "listing.emptyTitle": { es: "Catálogo en construcción", en: "Catalog under construction" },
+  "listing.emptyDesc": {
+    es: "Estamos cargando las primeras botas de los talleres de León.",
+    en: "We're loading the first boots from León's workshops.",
+  },
+  "listing.loadMore": { es: "Cargar más productos", en: "Load more products" },
+  "listing.loading": { es: "Cargando…", en: "Loading…" },
+  "listing.clearToSeeMore": {
+    es: "Limpia los filtros para ver más productos.",
+    en: "Clear the filters to see more products.",
+  },
+  "sort.bestselling": { es: "Más vendidos", en: "Best selling" },
+  "sort.newest": { es: "Más recientes", en: "Newest" },
+  "sort.priceAsc": { es: "Precio: menor a mayor", en: "Price: low to high" },
+  "sort.priceDesc": { es: "Precio: mayor a menor", en: "Price: high to low" },
+  "sort.nameAz": { es: "Nombre: A → Z", en: "Name: A → Z" },
+
+  // ── Precio (MSI) ─────────────────────────────────────────────────────
+  "price.from": { es: "Desde", en: "From" },
+  "price.perMonth": { es: "al mes", en: "/mo" },
+  "price.msiPdp": {
+    es: "a {n} meses sin intereses · bancos participantes",
+    en: "{n} months interest-free · participating banks",
+  },
+  "price.msiShort": { es: "{n} MSI", en: "{n} MSI" },
+
+  // ── Tarjeta de producto ──────────────────────────────────────────────
+  "card.view": { es: "Ver", en: "View" },
+  "card.soldOutParen": { es: "(agotado)", en: "(sold out)" },
+  "card.soldOut": { es: "Agotado", en: "Sold out" },
+
   // ── Página de producto ───────────────────────────────────────────────
   "product.description": { es: "Descripción", en: "Description" },
   "product.type": { es: "Tipo", en: "Type" },

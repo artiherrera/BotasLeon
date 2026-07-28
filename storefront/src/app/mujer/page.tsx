@@ -6,9 +6,9 @@ export const revalidate = 60
 export default function MujerPage() {
   return (
     <CategoryStub
-      eyebrow="Mujer"
-      title="Botas para mujer"
-      description="Vaqueras, clásicas, largas y de fashion en cuero auténtico. Tradición artesanal mexicana con silueta contemporánea."
+      eyebrow="cat.women.eyebrow"
+      title="cat.women.title"
+      description="cat.women.desc"
       taxonomyKey="gender"
       taxonomyHandle="femenino"
       configHint='el metacampo "Sexo objetivo" = Femenino'
