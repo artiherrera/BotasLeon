@@ -4,7 +4,63 @@ import { useCallback, useEffect, useRef, useState } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import type { HeroSlide } from "@/lib/shopify/types"
-import { useT } from "@/lib/i18n/context"
+import { useLocale, useT } from "@/lib/i18n/context"
+
+// Traducción EN de los slides del hero (metaobjects hero_slide). El render del
+// servidor trae el texto en español; en inglés pedimos la versión traducida
+// (Translate & Adapt → Metaobjects) vía @inContext y la intercambiamos por
+// handle. Reusa el token público del carrito.
+const SF_DOMAIN = process.env.NEXT_PUBLIC_SHOPIFY_STORE_DOMAIN
+const SF_TOKEN = process.env.NEXT_PUBLIC_SHOPIFY_STOREFRONT_ACCESS_TOKEN
+const SF_VERSION = process.env.NEXT_PUBLIC_SHOPIFY_API_VERSION || "2025-01"
+
+type HeroText = { eyebrow: string; title: string }
+let heroEnCache: Promise<Map<string, HeroText>> | null = null
+
+async function fetchHeroSlidesEN(): Promise<Map<string, HeroText>> {
+  const out = new Map<string, HeroText>()
+  if (!SF_DOMAIN || !SF_TOKEN) return out
+  try {
+    const res = await fetch(`https://${SF_DOMAIN}/api/${SF_VERSION}/graphql.json`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-Shopify-Storefront-Access-Token": SF_TOKEN,
+        Accept: "application/json",
+      },
+      body: JSON.stringify({
+        query: /* GraphQL */ `
+          query HeroEN @inContext(country: US, language: EN) {
+            metaobjects(type: "hero_slide", first: 20) {
+              edges { node { handle fields { key value } } }
+            }
+          }
+        `,
+      }),
+    })
+    if (!res.ok) return out
+    const json = (await res.json().catch(() => null)) as {
+      data?: { metaobjects?: { edges?: Array<{ node?: { handle?: string; fields?: Array<{ key: string; value: string }> } }> } }
+    } | null
+    for (const edge of json?.data?.metaobjects?.edges ?? []) {
+      const node = edge.node
+      if (!node?.handle) continue
+      const fields = new Map((node.fields ?? []).map((f) => [f.key, f.value]))
+      out.set(node.handle, {
+        eyebrow: fields.get("eyebrow") ?? "",
+        title: fields.get("title") ?? "",
+      })
+    }
+  } catch {
+    // silencioso — si falla, se queda el español
+  }
+  return out
+}
+
+function loadHeroEN(): Promise<Map<string, HeroText>> {
+  if (!heroEnCache) heroEnCache = fetchHeroSlidesEN()
+  return heroEnCache
+}
 
 /**
  * HeroCarousel — slideshow rotativo del home.
@@ -75,11 +131,38 @@ const SWIPE_FLICK_VELOCITY = 0.5
 
 export function HeroCarousel({ slides }: Props) {
   const t = useT()
-  // Slides de Shopify: texto real, se usa tal cual. Fallback: resolvemos las
-  // LLAVES i18n de los placeholders al idioma activo.
+  const { locale } = useLocale()
+
+  // En inglés, trae el texto EN de los slides (metaobjects) y lo intercambia
+  // por handle. Se carga una vez y se cachea a nivel módulo.
+  const [heroEn, setHeroEn] = useState<Map<string, HeroText> | null>(null)
+  useEffect(() => {
+    if (locale !== "en") {
+      setHeroEn(null)
+      return
+    }
+    let active = true
+    loadHeroEN().then((m) => {
+      if (active) setHeroEn(m)
+    })
+    return () => {
+      active = false
+    }
+  }, [locale])
+
+  // Slides de Shopify: texto real. En inglés se cambia eyebrow/title por su
+  // traducción (si existe). Fallback: placeholders con llaves i18n.
   const data =
     slides && slides.length > 0
-      ? slides
+      ? slides.map((s) => {
+          if (locale === "en" && heroEn) {
+            const tr = heroEn.get(s.handle)
+            if (tr) {
+              return { ...s, eyebrow: tr.eyebrow || s.eyebrow, title: tr.title || s.title }
+            }
+          }
+          return s
+        })
       : PLACEHOLDER_SLIDES.map((s) => ({
           ...s,
           eyebrow: s.eyebrow ? t(s.eyebrow) : s.eyebrow,
