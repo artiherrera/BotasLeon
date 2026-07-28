@@ -24,6 +24,14 @@ import { useT } from "@/lib/i18n/context"
  * - "Pagar" hace window.location = checkoutUrl → Shopify hosted
  *   checkout. Toda la lógica de pago/envío/tax la maneja Shopify.
  */
+// Nombres de opción/atributo que llegan en español desde Shopify → llave i18n
+// (para mostrar "Size" en vez de "Talla" en inglés). El valor no se traduce.
+const OPT_LABEL_KEY: Record<string, string> = {
+  talla: "filters.size",
+  color: "filters.color",
+  material: "filters.material",
+}
+
 export function CartDrawer() {
   const {
     cart,
@@ -36,6 +44,12 @@ export function CartDrawer() {
     removeDiscount,
   } = useCart()
   const t = useT()
+  // Traduce el NOMBRE de la opción/atributo (Talla/Color/Material vienen en
+  // español desde Shopify) sin tocar el valor. Si no lo conocemos, lo deja igual.
+  const optLabel = (name: string): string => {
+    const key = OPT_LABEL_KEY[name.trim().toLowerCase()]
+    return key ? t(key) : name
+  }
   const [codeInput, setCodeInput] = useState("")
   const [applyingCode, setApplyingCode] = useState(false)
   const [codeError, setCodeError] = useState<string | null>(null)
@@ -147,7 +161,7 @@ export function CartDrawer() {
         aria-modal="true"
         aria-label={t("cart.ariaLabel")}
         inert={!isOpen}
-        className={`fixed top-0 right-0 h-full w-full sm:w-[28rem] bg-bg/85 backdrop-blur-2xl backdrop-saturate-150 border-l border-border/40 z-50 shadow-2xl transition-transform duration-300 flex flex-col ${
+        className={`fixed top-0 right-0 h-full w-full sm:w-[28rem] bg-bg border-l border-border z-50 shadow-2xl transition-transform duration-300 flex flex-col ${
           isOpen ? "translate-x-0" : "translate-x-full"
         }`}
       >
@@ -205,10 +219,10 @@ export function CartDrawer() {
                 const subtitle = [
                   ...v.selectedOptions
                     .filter((o) => o.name.toLowerCase() !== "title")
-                    .map((o) => `${o.name}: ${o.value}`),
+                    .map((o) => `${optLabel(o.name)}: ${o.value}`),
                   ...(line.attributes ?? [])
                     .filter((a) => a.value)
-                    .map((a) => `${a.key}: ${a.value}`),
+                    .map((a) => `${optLabel(a.key)}: ${a.value}`),
                 ].join(" · ")
 
                 return (
