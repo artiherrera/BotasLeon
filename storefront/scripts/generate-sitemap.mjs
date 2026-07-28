@@ -55,28 +55,43 @@ const ENDPOINT = DOMAIN
   ? `https://${DOMAIN}/api/${VERSION}/graphql.json`
   : ""
 
-async function shopify(query) {
+async function shopify(query, attempt = 1) {
   if (!DOMAIN || !TOKEN) {
     console.warn("[sitemap] sin credenciales Shopify, skip product/brand fetch")
     return null
   }
-  const res = await fetch(ENDPOINT, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "X-Shopify-Storefront-Access-Token": TOKEN,
-    },
-    body: JSON.stringify({ query }),
-  })
-  if (!res.ok) {
-    console.warn(`[sitemap] Shopify HTTP ${res.status}`)
+  try {
+    const res = await fetch(ENDPOINT, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-Shopify-Storefront-Access-Token": TOKEN,
+      },
+      body: JSON.stringify({ query }),
+      // Timeout explícito para no colgar el build; falla rápido y reintenta.
+      signal: AbortSignal.timeout(15000),
+    })
+    if (!res.ok) {
+      console.warn(`[sitemap] Shopify HTTP ${res.status}`)
+      return null
+    }
+    const json = await res.json()
+    if (json.errors) {
+      console.warn("[sitemap] Shopify errors:", json.errors.map((e) => e.message).join("; "))
+    }
+    return json.data
+  } catch (err) {
+    // Timeout / error de red: reintenta hasta 3 veces. Si nunca conecta, NO
+    // tumbamos el build — devolvemos null y el sitemap sale con las rutas
+    // estáticas (las URLs de productos/marcas se agregan cuando sí conecte).
+    console.warn(`[sitemap] fetch falló (intento ${attempt}): ${err?.message || err}`)
+    if (attempt < 3) {
+      await new Promise((r) => setTimeout(r, 1000 * attempt))
+      return shopify(query, attempt + 1)
+    }
+    console.warn("[sitemap] Shopify no respondió tras 3 intentos; continúo sin productos/marcas")
     return null
   }
-  const json = await res.json()
-  if (json.errors) {
-    console.warn("[sitemap] Shopify errors:", json.errors.map((e) => e.message).join("; "))
-  }
-  return json.data
 }
 
 async function getProductHandles() {
@@ -193,6 +208,9 @@ ${entries.join("\n")}
 }
 
 main().catch((err) => {
-  console.error("[sitemap] FATAL:", err)
-  process.exit(1)
+  // El sitemap NUNCA debe tumbar el build/deploy. Un sitemap ausente o parcial
+  // es un tema menor de SEO; un deploy bloqueado es catastrófico. Log y salimos
+  // con éxito (exit 0) para que el build continúe.
+  console.error("[sitemap] error no fatal, el build continúa:", err)
+  process.exit(0)
 })
