@@ -44,10 +44,18 @@ export function PriceMSI({
     </>
   )
 
-  // Sin MSI (monto bajo el umbral o moneda ≠ MXN): solo el total.
+  // Sin MSI (monto bajo el umbral o moneda ≠ MXN, ej. USD): solo el total, pero
+  // con el MISMO peso visual que la mensualidad en MXN (que si no, en inglés el
+  // precio se veía diminuto).
   if (!monthly) {
     return (
-      <div className={isPdp ? "font-display text-2xl text-text" : "text-sm"}>
+      <div
+        className={
+          isPdp
+            ? "font-display text-3xl text-text leading-none"
+            : "text-lg font-semibold text-text"
+        }
+      >
         {total}
         {isPdp && sale.onSale && (
           <span className="ml-2 inline-block rounded-sm bg-terracotta px-2 py-0.5 align-middle text-xs font-semibold uppercase tracking-wide text-bg">
