@@ -15,9 +15,11 @@ import {
   clientGetCart,
   clientRemoveLines,
   clientUpdateAttributes,
+  clientUpdateBuyerIdentity,
   clientUpdateDiscountCodes,
   clientUpdateLines,
 } from "@/lib/cart/client"
+import { useLocale } from "@/lib/i18n/context"
 import { clearPendingDiscount } from "@/lib/discount/client"
 import { track } from "@/lib/klaviyo/client"
 import { pixelTrack, toContentId } from "@/lib/meta/pixel"
@@ -82,6 +84,15 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const cartIdRef = useRef<string | null>(null)
   const toastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
+  // Idioma → país/mercado del carrito. EN = Estados Unidos (USD), ES = México
+  // (MXN). Se usa al crear el carrito y al cambiar de idioma con carrito activo.
+  const { locale } = useLocale()
+  const countryCode = locale === "en" ? "US" : "MX"
+  const countryRef = useRef(countryCode)
+  useEffect(() => {
+    countryRef.current = countryCode
+  }, [countryCode])
+
   // Hidratación inicial — corre solo en cliente.
   useEffect(() => {
     const stored = typeof window !== "undefined" ? localStorage.getItem(STORAGE_KEY) : null
@@ -117,6 +128,18 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       // localStorage puede fallar en modo privado, no es bloqueante
     }
   }, [])
+
+  // Al cambiar de idioma (o al cargar), alinea el mercado/moneda del carrito
+  // existente con el idioma actual. Sin esto, un carrito creado en español (MXN)
+  // seguiría cobrando pesos aunque el usuario cambie a inglés.
+  useEffect(() => {
+    if (!ready) return
+    const id = cartIdRef.current
+    if (!id) return
+    clientUpdateBuyerIdentity(id, countryCode)
+      .then((c) => persist(c))
+      .catch((e) => console.warn("[cart] buyerIdentity update falló:", e))
+  }, [countryCode, ready, persist])
 
   const openCart = useCallback(() => setIsOpen(true), [])
   const closeCart = useCallback(() => setIsOpen(false), [])
@@ -154,7 +177,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
           const id = cartIdRef.current
           const updated = id
             ? await clientAddLines(id, [line])
-            : await clientCreateCart([line])
+            : await clientCreateCart([line], countryRef.current)
           persist(updated)
           setIsOpen(true)
           // Trigger Klaviyo event para que abandoned cart flow tenga data
@@ -200,7 +223,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
           const msg = e instanceof Error ? e.message : String(e)
           if (cartIdRef.current && /does not exist|not found/i.test(msg)) {
             try {
-              const fresh = await clientCreateCart([line])
+              const fresh = await clientCreateCart([line], countryRef.current)
               persist(fresh)
               setIsOpen(true)
               return

@@ -1,6 +1,8 @@
 import Image from "next/image"
 import { Header } from "@/components/Header"
 import { Footer } from "@/components/Footer"
+import { Localized } from "@/components/Localized"
+import { T } from "@/components/T"
 import { pageMetadata } from "@/lib/seo"
 import { whatsappHref } from "@/lib/whatsapp"
 import { getStorePhotos } from "@/lib/shopify"
@@ -65,14 +67,26 @@ export default async function VisitanosPage() {
           />
           <div className="relative mx-auto max-w-7xl px-6 py-20 md:py-28">
             <p className="eyebrow text-gold mb-4 drop-shadow-[0_1px_6px_rgba(0,0,0,0.5)]">
-              Visítanos
+              <T k="page.visitanos.eyebrow" />
             </p>
             <h1 className="font-display text-4xl md:text-6xl leading-[1.05] mb-4 max-w-3xl drop-shadow-[0_2px_12px_rgba(0,0,0,0.45)]">
-              Te esperamos en nuestra tienda en León
+              <T k="page.visitanos.heroTitle" />
             </h1>
             <p className="text-bg/90 text-lg max-w-xl drop-shadow-[0_1px_8px_rgba(0,0,0,0.45)]">
-              Ven a conocer y probarte nuestras botas en persona — hechas en
-              León, la capital mundial del cuero.
+              <Localized
+                es={
+                  <>
+                    Ven a conocer y probarte nuestras botas en persona — hechas en
+                    León, la capital mundial del cuero.
+                  </>
+                }
+                en={
+                  <>
+                    Come see and try on our boots in person — made in León, the
+                    world capital of leather.
+                  </>
+                }
+              />
             </p>
           </div>
         </section>
@@ -82,12 +96,14 @@ export default async function VisitanosPage() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-start">
             <div>
               <h2 className="font-heading text-2xl text-text mb-6">
-                Cómo encontrarnos
+                <T k="page.visitanos.findUs" />
               </h2>
 
               <div className="space-y-6">
                 <div>
-                  <p className="eyebrow text-leather mb-1">Dirección</p>
+                  <p className="eyebrow text-leather mb-1">
+                    <T k="page.visitanos.labelAddress" />
+                  </p>
                   <p className="text-text text-lg leading-snug">
                     {ADDRESS_LINE}
                     <br />
@@ -95,11 +111,20 @@ export default async function VisitanosPage() {
                   </p>
                 </div>
                 <div>
-                  <p className="eyebrow text-leather mb-1">Horario</p>
-                  <p className="text-text-muted">Lunes a sábado · 10:00 – 19:00</p>
+                  <p className="eyebrow text-leather mb-1">
+                    <T k="page.visitanos.labelHours" />
+                  </p>
+                  <p className="text-text-muted">
+                    <Localized
+                      es={<>Lunes a sábado · 10:00 – 19:00</>}
+                      en={<>Monday to Saturday · 10 a.m. – 7 p.m.</>}
+                    />
+                  </p>
                 </div>
                 <div>
-                  <p className="eyebrow text-leather mb-1">Contacto</p>
+                  <p className="eyebrow text-leather mb-1">
+                    <T k="page.visitanos.labelContact" />
+                  </p>
                   <p className="text-text-muted">WhatsApp: +52 479 303 2457</p>
                 </div>
               </div>
@@ -111,7 +136,7 @@ export default async function VisitanosPage() {
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-leather text-bg text-sm uppercase tracking-widest hover:bg-text transition-colors"
                 >
-                  Cómo llegar →
+                  <T k="page.visitanos.ctaDirections" /> →
                 </a>
                 <a
                   href={whatsappHref(
@@ -121,7 +146,7 @@ export default async function VisitanosPage() {
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-2 px-6 py-3 rounded-full border border-leather text-leather text-sm uppercase tracking-widest hover:bg-leather hover:text-bg transition-colors"
                 >
-                  Agenda tu visita
+                  <T k="page.visitanos.ctaSchedule" />
                 </a>
               </div>
             </div>
@@ -146,7 +171,7 @@ export default async function VisitanosPage() {
         {photos.length > 0 && (
           <section className="mx-auto max-w-7xl px-6 pb-16 md:pb-20">
             <h2 className="font-heading text-2xl text-text mb-6">
-              Conócenos por dentro
+              <T k="page.visitanos.insideTitle" />
             </h2>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4">
               {photos.map((p) => (

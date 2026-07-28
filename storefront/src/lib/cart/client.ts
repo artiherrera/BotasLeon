@@ -137,8 +137,14 @@ export async function clientGetCart(cartId: string): Promise<Cart | null> {
 }
 
 export async function clientCreateCart(
-  lines: Array<{ merchandiseId: string; quantity: number; attributes?: Array<{ key: string; value: string }> }>
+  lines: Array<{ merchandiseId: string; quantity: number; attributes?: Array<{ key: string; value: string }> }>,
+  // countryCode define el MERCADO del carrito → moneda + checkout. "US" cobra en
+  // USD (mercado Estados Unidos), "MX" en MXN (default). Sin él, Shopify usa el
+  // mercado por defecto (México/MXN).
+  countryCode?: string
 ): Promise<Cart> {
+  const input: Record<string, unknown> = { lines }
+  if (countryCode) input.buyerIdentity = { countryCode }
   const data = await shopifyClientFetch<Mutation<"cartCreate">>(
     /* GraphQL */ `
       mutation ($input: CartInput!) {
@@ -149,9 +155,32 @@ export async function clientCreateCart(
       }
       ${CART_FRAGMENT}
     `,
-    { input: { lines } }
+    { input }
   )
   return unwrap(data, "cartCreate")
+}
+
+/**
+ * Cambia el país (mercado) de un carrito existente → cambia moneda y el checkout.
+ * Se usa al cambiar de idioma (EN→US/USD, ES→MX/MXN) con un carrito ya creado.
+ */
+export async function clientUpdateBuyerIdentity(
+  cartId: string,
+  countryCode: string
+): Promise<Cart> {
+  const data = await shopifyClientFetch<Mutation<"cartBuyerIdentityUpdate">>(
+    /* GraphQL */ `
+      mutation ($cartId: ID!, $buyerIdentity: CartBuyerIdentityInput!) {
+        cartBuyerIdentityUpdate(cartId: $cartId, buyerIdentity: $buyerIdentity) {
+          cart { ...CartFields }
+          userErrors { message field }
+        }
+      }
+      ${CART_FRAGMENT}
+    `,
+    { cartId, buyerIdentity: { countryCode } }
+  )
+  return unwrap(data, "cartBuyerIdentityUpdate")
 }
 
 export async function clientAddLines(

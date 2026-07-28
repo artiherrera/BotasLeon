@@ -4,7 +4,7 @@ import Image from "next/image"
 import Link from "next/link"
 import type { Product } from "@/lib/shopify/types"
 import { JudgemeStars } from "./JudgemeStars"
-import { PriceMSI } from "./PriceMSI"
+import { LocalizedPrice } from "./LocalizedProductContent"
 import { useT } from "@/lib/i18n/context"
 
 /**
@@ -65,7 +65,8 @@ export function ProductCard({ product }: { product: Product }) {
             />
           </div>
         )}
-        <PriceMSI
+        <LocalizedPrice
+          handle={handle}
           amount={minPrice.amount}
           currency={minPrice.currencyCode}
           compareAt={compareAt?.amount}

@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import { FAQS } from "@/lib/faqs"
+import { useLocale } from "@/lib/i18n/context"
 
 // Re-export para compatibilidad con imports existentes.
 // La data canónica vive en @/lib/faqs (módulo plano sin "use client")
@@ -18,14 +19,16 @@ export type { FAQ } from "@/lib/faqs"
 
 export function FAQAccordion() {
   const [openIdx, setOpenIdx] = useState<number | null>(0)
+  const { locale, t } = useLocale()
+  const isEn = locale === "en"
 
   return (
     <section className="bg-bg-alt py-20 md:py-28">
       <div className="mx-auto max-w-3xl px-6">
         <div className="text-center mb-12">
-          <p className="eyebrow text-leather mb-3">Antes de comprar</p>
+          <p className="eyebrow text-leather mb-3">{t("faq.home.eyebrow")}</p>
           <h2 className="font-heading text-3xl md:text-4xl text-text">
-            Preguntas frecuentes
+            {t("faq.home.title")}
           </h2>
         </div>
 
@@ -42,7 +45,7 @@ export function FAQAccordion() {
                   aria-controls={`faq-answer-${idx}`}
                 >
                   <h3 className="font-heading text-lg md:text-xl text-text group-hover:text-leather transition-colors">
-                    {faq.question}
+                    {isEn ? faq.questionEn : faq.question}
                   </h3>
                   <span
                     className={`flex-shrink-0 w-6 h-6 flex items-center justify-center text-leather transition-transform ${
@@ -74,7 +77,7 @@ export function FAQAccordion() {
                 >
                   <div className="overflow-hidden">
                     <p className="text-text-muted leading-relaxed pr-8">
-                      {faq.answer}
+                      {isEn ? faq.answerEn : faq.answer}
                     </p>
                   </div>
                 </div>
@@ -84,12 +87,12 @@ export function FAQAccordion() {
         </div>
 
         <p className="text-center text-sm text-text-muted mt-10">
-          ¿Tu duda no está aquí?{" "}
+          {t("faq.home.notFound")}{" "}
           <a
             href="mailto:contacto@botasleon.com"
             className="text-leather hover:text-terracotta transition-colors font-medium"
           >
-            Escríbenos
+            {t("faq.home.writeUs")}
           </a>
         </p>
       </div>

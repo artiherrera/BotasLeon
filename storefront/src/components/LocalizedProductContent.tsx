@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { useLocale, useT } from "@/lib/i18n/context"
+import { PriceMSI } from "./PriceMSI"
 
 /**
  * Contenido de producto localizado (Fase 2).
@@ -23,7 +24,13 @@ const DOMAIN = process.env.NEXT_PUBLIC_SHOPIFY_STORE_DOMAIN
 const TOKEN = process.env.NEXT_PUBLIC_SHOPIFY_STOREFRONT_ACCESS_TOKEN
 const VERSION = process.env.NEXT_PUBLIC_SHOPIFY_API_VERSION || "2025-01"
 
-type Translation = { title: string; descriptionHtml: string }
+type Money = { amount: string; currencyCode: string }
+type Translation = {
+  title: string
+  descriptionHtml: string
+  price: Money | null
+  compareAtPrice: Money | null
+}
 
 const cache = new Map<string, Promise<Translation | null>>()
 
@@ -40,12 +47,15 @@ async function fetchTranslation(handle: string): Promise<Translation | null> {
       body: JSON.stringify({
         // country: US + language: EN → el inglés está publicado en el mercado
         // de Estados Unidos (no en el default México). Con solo language:EN
-        // Shopify cae a español. (De paso, este contexto expone precios USD.)
+        // Shopify cae a español. Este contexto TAMBIÉN devuelve precios en USD
+        // (conversión automática del mercado USA).
         query: /* GraphQL */ `
           query ProductEN($handle: String!) @inContext(country: US, language: EN) {
             product(handle: $handle) {
               title
               descriptionHtml
+              priceRange { minVariantPrice { amount currencyCode } }
+              compareAtPriceRange { minVariantPrice { amount currencyCode } }
             }
           }
         `,
@@ -54,11 +64,27 @@ async function fetchTranslation(handle: string): Promise<Translation | null> {
     })
     if (!res.ok) return null
     const json = (await res.json().catch(() => null)) as {
-      data?: { product?: { title?: string; descriptionHtml?: string } }
+      data?: {
+        product?: {
+          title?: string
+          descriptionHtml?: string
+          priceRange?: { minVariantPrice?: Money }
+          compareAtPriceRange?: { minVariantPrice?: Money }
+        }
+      }
     } | null
     const p = json?.data?.product
     if (!p) return null
-    return { title: p.title ?? "", descriptionHtml: p.descriptionHtml ?? "" }
+    const price = p.priceRange?.minVariantPrice ?? null
+    const ca = p.compareAtPriceRange?.minVariantPrice ?? null
+    // Shopify devuelve "0.0" cuando no hay precio comparado (no está en oferta).
+    const compareAtPrice = ca && parseFloat(ca.amount) > 0 ? ca : null
+    return {
+      title: p.title ?? "",
+      descriptionHtml: p.descriptionHtml ?? "",
+      price,
+      compareAtPrice,
+    }
   } catch {
     return null
   }
@@ -130,4 +156,39 @@ export function LocalizedProductDescription({
       />
     </div>
   )
+}
+
+/**
+ * Precio localizado — en inglés (mercado USA) muestra el precio en USD que
+ * devuelve Shopify vía @inContext(country: US); en español muestra el precio
+ * base en MXN (render del servidor, SSG). PriceMSI apaga solo el MSI cuando la
+ * moneda no es MXN, así que en USD sale el total limpio (sin "meses sin
+ * intereses", que no aplica a EE.UU.).
+ */
+export function LocalizedPrice({
+  handle,
+  amount,
+  currency,
+  compareAt,
+  size = "card",
+}: {
+  handle: string
+  amount: string
+  currency: string
+  compareAt?: string | null
+  size?: "card" | "pdp"
+}) {
+  const t = useProductTranslation(handle)
+  const usd = t?.price
+  if (usd) {
+    return (
+      <PriceMSI
+        amount={usd.amount}
+        currency={usd.currencyCode}
+        compareAt={t?.compareAtPrice?.amount ?? undefined}
+        size={size}
+      />
+    )
+  }
+  return <PriceMSI amount={amount} currency={currency} compareAt={compareAt ?? undefined} size={size} />
 }

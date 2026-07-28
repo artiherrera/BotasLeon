@@ -1,5 +1,6 @@
 import { Header } from "./Header"
 import { Footer } from "./Footer"
+import { T } from "./T"
 
 /**
  * ContentPage — layout compartido para páginas de contenido/política.
@@ -26,12 +27,18 @@ export function ContentPage({ eyebrow, title, intro, children }: Props) {
       <main id="contenido" tabIndex={-1} className="flex-1">
         <div className="mx-auto max-w-3xl px-6 py-12 md:py-20">
           <header className="mb-10 pb-8 border-b border-border">
-            {eyebrow && <p className="eyebrow text-leather mb-3">{eyebrow}</p>}
+            {eyebrow && (
+              <p className="eyebrow text-leather mb-3">
+                <T k={eyebrow} />
+              </p>
+            )}
             <h1 className="font-display text-4xl md:text-5xl text-text mb-4">
-              {title}
+              <T k={title} />
             </h1>
             {intro && (
-              <p className="text-lg text-text-muted leading-relaxed">{intro}</p>
+              <p className="text-lg text-text-muted leading-relaxed">
+                <T k={intro} />
+              </p>
             )}
           </header>
 

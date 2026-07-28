@@ -16,10 +16,10 @@ import { ProductJsonLd, BreadcrumbJsonLd } from "@/components/StructuredData"
 import { ProductViewedTracker } from "@/components/ProductViewedTracker"
 import { WhatsAppButton } from "@/components/WhatsAppButton"
 import { getProductByHandle, getProducts, getBrands } from "@/lib/shopify"
-import { PriceMSI } from "@/components/PriceMSI"
 import {
   LocalizedProductTitle,
   LocalizedProductDescription,
+  LocalizedPrice,
 } from "@/components/LocalizedProductContent"
 import { absoluteUrl } from "@/lib/seo"
 
@@ -199,7 +199,8 @@ export default async function ProductPage({ params }: Props) {
                 />
 
                 <div className="mb-8">
-                  <PriceMSI
+                  <LocalizedPrice
+                    handle={product.handle}
                     amount={price.amount}
                     currency={price.currencyCode}
                     compareAt={compareAt?.amount}
