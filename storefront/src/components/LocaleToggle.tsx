@@ -3,49 +3,55 @@
 import { useLocale } from "@/lib/i18n/context"
 
 /**
- * LocaleToggle — interruptor 🇲🇽 ES / 🇺🇸 EN. Control segmentado: la opción
- * activa se resalta en cuero. Cambia el idioma de la INTERFAZ al instante
- * (contexto de React) y persiste la elección.
+ * LocaleToggle — interruptor 🇲🇽 ES / 🇺🇸 EN con indicador DESLIZANTE animado.
  *
- * Se usa en el Header (desktop) y dentro del menú móvil. Acepta `className`
- * para ajustar su ubicación/tamaño en cada contexto.
+ * Estructura: un contenedor con 2 columnas iguales (grid-cols-2), una píldora
+ * de cuero posicionada en absoluto que se desliza (translate-x) entre las dos
+ * opciones, y los botones encima. Cambia el idioma de la interfaz al instante
+ * y persiste la elección.
  */
 export function LocaleToggle({ className = "" }: { className?: string }) {
   const { locale, setLocale } = useLocale()
+  const isEn = locale === "en"
 
   return (
     <div
       role="group"
       aria-label="Idioma / Language"
-      className={`inline-flex items-center rounded-full border border-border bg-bg-alt/60 p-0.5 text-xs font-medium ${className}`}
+      className={`relative inline-grid grid-cols-2 items-center rounded-full border border-border bg-bg-alt p-1 text-sm font-semibold select-none ${className}`}
     >
+      {/* Píldora deslizante */}
+      <span
+        aria-hidden
+        className={`pointer-events-none absolute top-1 bottom-1 left-1 w-[calc(50%-0.25rem)] rounded-full bg-leather shadow-sm transition-transform duration-300 ease-out ${
+          isEn ? "translate-x-full" : "translate-x-0"
+        }`}
+      />
+
       <button
         type="button"
         onClick={() => setLocale("es")}
-        aria-pressed={locale === "es"}
+        aria-pressed={!isEn}
         aria-label="Español (México)"
-        className={`flex items-center gap-1 rounded-full px-2 py-1 transition-colors cursor-pointer ${
-          locale === "es"
-            ? "bg-leather text-bg"
-            : "text-text-muted hover:text-text"
+        className={`relative z-10 flex items-center justify-center gap-1.5 rounded-full px-3.5 py-1.5 transition-colors duration-200 cursor-pointer ${
+          !isEn ? "text-bg" : "text-text-muted hover:text-text"
         }`}
       >
-        <span aria-hidden>🇲🇽</span>
-        <span>ES</span>
+        <span aria-hidden className="text-base leading-none">🇲🇽</span>
+        <span className="tracking-wide">ES</span>
       </button>
+
       <button
         type="button"
         onClick={() => setLocale("en")}
-        aria-pressed={locale === "en"}
+        aria-pressed={isEn}
         aria-label="English (USA)"
-        className={`flex items-center gap-1 rounded-full px-2 py-1 transition-colors cursor-pointer ${
-          locale === "en"
-            ? "bg-leather text-bg"
-            : "text-text-muted hover:text-text"
+        className={`relative z-10 flex items-center justify-center gap-1.5 rounded-full px-3.5 py-1.5 transition-colors duration-200 cursor-pointer ${
+          isEn ? "text-bg" : "text-text-muted hover:text-text"
         }`}
       >
-        <span aria-hidden>🇺🇸</span>
-        <span>EN</span>
+        <span aria-hidden className="text-base leading-none">🇺🇸</span>
+        <span className="tracking-wide">EN</span>
       </button>
     </div>
   )
