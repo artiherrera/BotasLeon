@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react"
 import Image from "next/image"
 import Link from "next/link"
+import { useT } from "@/lib/i18n/context"
 
 /**
  * RecentlyViewed — strip "visto recientemente" en el PDP.
@@ -36,6 +37,7 @@ type Props = {
 }
 
 export function RecentlyViewed({ currentHandle, currentTitle, currentImage }: Props) {
+  const t = useT()
   const [items, setItems] = useState<ViewedItem[]>([])
 
   useEffect(() => {
@@ -82,9 +84,9 @@ export function RecentlyViewed({ currentHandle, currentTitle, currentImage }: Pr
 
   return (
     <section className="mx-auto max-w-7xl px-6 py-12 md:py-16 border-t border-border">
-      <p className="eyebrow text-leather mb-2">Visto recientemente</p>
+      <p className="eyebrow text-leather mb-2">{t("recent.eyebrow")}</p>
       <h3 className="font-heading text-xl md:text-2xl text-text mb-6">
-        Sigue donde te quedaste
+        {t("recent.title")}
       </h3>
       <ul className="grid grid-cols-3 md:grid-cols-6 gap-4 md:gap-6">
         {others.map((item) => (
@@ -92,7 +94,7 @@ export function RecentlyViewed({ currentHandle, currentTitle, currentImage }: Pr
             <Link
               href={`/products/${item.handle}`}
               className="group block"
-              aria-label={`Ver ${item.title}`}
+              aria-label={`${t("card.view")} ${item.title}`}
             >
               <div className="relative aspect-square overflow-hidden bg-bg-alt rounded-sm mb-2">
                 {item.image ? (

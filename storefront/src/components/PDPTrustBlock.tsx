@@ -1,5 +1,8 @@
+"use client"
+
 import type { Product } from "@/lib/shopify/types"
 import { formatMoney } from "@/lib/utils"
+import { useLocale, useT } from "@/lib/i18n/context"
 
 /**
  * PDPTrustBlock — strip de confianza bajo el CTA del PDP.
@@ -21,6 +24,8 @@ type Props = {
 }
 
 export function PDPTrustBlock({ product }: Props) {
+  const t = useT()
+  const { locale } = useLocale()
   const price = product.priceRange.minVariantPrice
   const priceNum = parseFloat(price.amount)
   const showMsi = priceNum >= 999
@@ -31,7 +36,7 @@ export function PDPTrustBlock({ product }: Props) {
       {/* 1. Íconos de garantía */}
       <ul className="grid grid-cols-2 sm:grid-cols-4 divide-y sm:divide-y-0 sm:divide-x divide-border">
         <TrustItem
-          label="Cuero 100%"
+          label={t("trust.leather100")}
           icon={
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
               <path d="M20 6 9 17l-5-5" />
@@ -39,7 +44,7 @@ export function PDPTrustBlock({ product }: Props) {
           }
         />
         <TrustItem
-          label="Hecho en León"
+          label={t("trust.madeInLeon")}
           icon={
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
               <path d="M3 21h18" />
@@ -51,7 +56,7 @@ export function PDPTrustBlock({ product }: Props) {
           }
         />
         <TrustItem
-          label="Cambio 30 días"
+          label={t("trust.exchange30")}
           icon={
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
               <path d="M21 12a9 9 0 1 1-3-6.7L21 8" />
@@ -60,7 +65,7 @@ export function PDPTrustBlock({ product }: Props) {
           }
         />
         <TrustItem
-          label="Pago seguro"
+          label={t("trust.securePayment")}
           icon={
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
               <rect x="4" y="11" width="16" height="10" rx="1.5" />
@@ -70,8 +75,8 @@ export function PDPTrustBlock({ product }: Props) {
         />
       </ul>
 
-      {/* 2. Banner MSI */}
-      {showMsi && (
+      {/* 2. Banner MSI — solo MX. En inglés (mercado USA) NO se muestra MSI. */}
+      {showMsi && locale !== "en" && (
         <div className="border-t border-border px-4 py-3 bg-bg">
           <p className="text-sm text-text">
             <span className="font-medium text-leather">3, 6 y 9 meses sin intereses</span>
@@ -86,7 +91,7 @@ export function PDPTrustBlock({ product }: Props) {
       {/* 3. Hecho por: vendor */}
       {product.vendor && (
         <div className="border-t border-border px-4 py-3">
-          <p className="eyebrow text-leather text-xs mb-0.5">Taller</p>
+          <p className="eyebrow text-leather text-xs mb-0.5">{t("trust.workshop")}</p>
           <p className="font-heading text-base text-text leading-tight">
             {product.vendor}
           </p>

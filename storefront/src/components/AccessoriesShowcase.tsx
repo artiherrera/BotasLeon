@@ -1,5 +1,6 @@
 import Link from "next/link"
 import Image from "next/image"
+import { T } from "@/components/T"
 import { getAccessories } from "@/lib/shopify"
 import {
   ACCESSORY_PRODUCT_TYPES,
@@ -43,16 +44,18 @@ export async function AccessoriesShowcase() {
     <section className="mx-auto max-w-7xl px-6 py-12 md:py-16">
       <div className="flex items-end justify-between mb-6 md:mb-8">
         <div>
-          <p className="eyebrow text-leather mb-2">Accesorios</p>
+          <p className="eyebrow text-leather mb-2">
+            <T k="accessories.eyebrow" />
+          </p>
           <h2 className="font-display text-2xl md:text-3xl text-text leading-tight">
-            Para complementar tu vestir
+            <T k="accessories.title" />
           </h2>
         </div>
         <Link
           href="/accesorios"
           className="hidden sm:inline-flex items-center text-sm font-medium text-leather hover:text-terracotta transition-colors whitespace-nowrap"
         >
-          Ver todos →
+          <T k="accessories.viewAll" /> →
         </Link>
       </div>
 
@@ -101,7 +104,7 @@ export async function AccessoriesShowcase() {
                     {type}
                   </h3>
                   <span className="inline-flex items-center text-bg/85 text-xs md:text-sm mt-1 group-hover:text-bg transition-colors">
-                    Ver
+                    <T k="card.view" />
                     <span className="ml-1.5 transition-transform group-hover:translate-x-1">
                       →
                     </span>
@@ -120,7 +123,7 @@ export async function AccessoriesShowcase() {
           href="/accesorios"
           className="inline-flex items-center text-sm font-medium text-leather"
         >
-          Ver todos los accesorios →
+          <T k="accessories.viewAllLong" /> →
         </Link>
       </div>
     </section>

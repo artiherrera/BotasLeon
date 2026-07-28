@@ -1,4 +1,7 @@
+"use client"
+
 import Link from "next/link"
+import { useT } from "@/lib/i18n/context"
 
 /**
  * HechoEnLeonStrip — versión compacta del bloque storytelling "Hecho en León".
@@ -12,6 +15,7 @@ import Link from "next/link"
  * al final.
  */
 export function HechoEnLeonStrip() {
+  const t = useT()
   return (
     <section className="bg-leather text-bg relative overflow-hidden">
       {/* Texture overlay sutil — preservada del original */}
@@ -31,19 +35,19 @@ export function HechoEnLeonStrip() {
             <p className="font-display text-4xl md:text-5xl text-bg leading-none mb-2">
               380
             </p>
-            <p className="eyebrow text-gold text-[11px] mb-1">Años de tradición</p>
+            <p className="eyebrow text-gold text-[11px] mb-1">{t("trust.yearsTradition")}</p>
             <p className="text-bg-alt text-sm leading-relaxed">
-              León lleva 380 años haciendo calzado. La capital mundial del cuero.
+              {t("trust.leonDesc")}
             </p>
           </div>
 
           <div>
             <p className="font-display text-4xl md:text-5xl text-bg leading-none mb-2">
-              7 de 10
+              {t("trust.mexicanBootsStat")}
             </p>
-            <p className="eyebrow text-gold text-[11px] mb-1">Botas mexicanas</p>
+            <p className="eyebrow text-gold text-[11px] mb-1">{t("trust.mexicanBoots")}</p>
             <p className="text-bg-alt text-sm leading-relaxed">
-              Nacen aquí. El epicentro del calzado de cuero en México.
+              {t("trust.mexicanBootsDesc")}
             </p>
           </div>
 
@@ -51,9 +55,9 @@ export function HechoEnLeonStrip() {
             <p className="font-display text-4xl md:text-5xl text-bg leading-none mb-2">
               100%
             </p>
-            <p className="eyebrow text-gold text-[11px] mb-1">Piel genuina</p>
+            <p className="eyebrow text-gold text-[11px] mb-1">{t("trust.genuineLeather")}</p>
             <p className="text-bg-alt text-sm leading-relaxed">
-              Cuero verificado en cada par. CITES certificado en colecciones exóticas.
+              {t("trust.genuineLeatherDesc")}
             </p>
           </div>
         </div>
@@ -63,7 +67,7 @@ export function HechoEnLeonStrip() {
             href="/nosotros"
             className="inline-flex items-center text-bg/90 hover:text-bg text-sm uppercase tracking-wider transition-colors"
           >
-            Conoce nuestra historia
+            {t("trust.ourStory")}
             <span className="ml-2 transition-transform group-hover:translate-x-1">→</span>
           </Link>
         </div>

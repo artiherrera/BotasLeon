@@ -1,4 +1,7 @@
+"use client"
+
 import Image from "next/image"
+import { useT } from "@/lib/i18n/context"
 
 /**
  * PaymentBadges — fila de logos oficiales de tarjetas aceptadas.
@@ -24,10 +27,11 @@ const METHODS: Method[] = [
 ]
 
 export function PaymentBadges() {
+  const t = useT()
   return (
     <div className="flex flex-col items-center gap-3">
       <ul
-        aria-label="Métodos de pago aceptados"
+        aria-label={t("pay.methodsLabel")}
         role="list"
         className="flex flex-wrap items-center justify-center gap-2 list-none p-0 m-0"
       >
@@ -51,7 +55,7 @@ export function PaymentBadges() {
         ))}
       </ul>
       <p className="text-[11px] text-bg-alt/70">
-        Pago 100% seguro · Procesado por Shopify
+        {t("pay.secureNote")}
       </p>
     </div>
   )

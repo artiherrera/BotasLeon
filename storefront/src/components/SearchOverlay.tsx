@@ -9,6 +9,7 @@ import { searchProducts } from "@/lib/search/client"
 import { track } from "@/lib/klaviyo/client"
 import { formatMoney } from "@/lib/utils"
 import type { Product } from "@/lib/shopify/types"
+import { useT } from "@/lib/i18n/context"
 
 /**
  * SearchOverlay — modal predictivo de búsqueda.
@@ -32,14 +33,17 @@ type Props = {
 
 const DEBOUNCE_MS = 250
 
-const POPULAR_SEARCHES = [
-  { label: "Vaqueras", query: "vaquera" },
-  { label: "Clásicas", query: "clasica" },
-  { label: "Exóticas", query: "exotica" },
+// Labels traducibles vía LLAVE del diccionario (labelKey); "Josepha" es nombre
+// de modelo y no se traduce, así que va como literal (label).
+const POPULAR_SEARCHES: Array<{ labelKey?: string; label?: string; query: string }> = [
+  { labelKey: "style.western", query: "vaquera" },
+  { labelKey: "style.classic", query: "clasica" },
+  { labelKey: "style.exotic", query: "exotica" },
   { label: "Josepha", query: "josepha" },
 ]
 
 export function SearchOverlay({ open, onClose }: Props) {
+  const t = useT()
   const router = useRouter()
   const [mounted, setMounted] = useState(false)
   const [query, setQuery] = useState("")
@@ -176,7 +180,7 @@ export function SearchOverlay({ open, onClose }: Props) {
       {/* Backdrop */}
       <button
         type="button"
-        aria-label="Cerrar búsqueda"
+        aria-label={t("search.close")}
         onClick={onClose}
         tabIndex={-1}
         className="absolute inset-0 bg-black/60 cursor-default"
@@ -187,7 +191,7 @@ export function SearchOverlay({ open, onClose }: Props) {
         ref={modalRef}
         role="dialog"
         aria-modal="true"
-        aria-label="Buscar"
+        aria-label={t("a11y.search")}
         className="relative mx-auto mt-20 w-full max-w-2xl bg-bg rounded-sm shadow-2xl p-6 max-h-[calc(100vh-6rem)] overflow-y-auto"
       >
         {/* Header del modal: input + cerrar */}
@@ -216,24 +220,24 @@ export function SearchOverlay({ open, onClose }: Props) {
               type="search"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="Buscar botas, marcas, modelos..."
+              placeholder={t("search.placeholder")}
               autoComplete="off"
               inputMode="search"
               enterKeyHint="search"
-              aria-label="Término de búsqueda"
+              aria-label={t("search.term")}
               className="w-full pl-12 pr-4 py-3 text-base border border-border focus:border-leather focus:outline-none bg-bg transition-colors rounded-sm"
             />
             {loading && (
               <span
                 className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 border-2 border-border border-t-leather rounded-full animate-spin"
-                aria-label="Buscando"
+                aria-label={t("search.searching")}
               />
             )}
           </div>
           <button
             type="button"
             onClick={onClose}
-            aria-label="Cerrar"
+            aria-label={t("search.close")}
             className="p-2 hover:bg-bg-alt rounded transition-colors cursor-pointer"
           >
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -246,7 +250,7 @@ export function SearchOverlay({ open, onClose }: Props) {
         {/* Cuerpo: estados */}
         {!query.trim() ? (
           <div>
-            <p className="eyebrow text-text-muted text-xs mb-3">Búsquedas populares</p>
+            <p className="eyebrow text-text-muted text-xs mb-3">{t("search.popular")}</p>
             <div className="flex flex-wrap gap-2">
               {POPULAR_SEARCHES.map((item) => (
                 <Link
@@ -255,7 +259,7 @@ export function SearchOverlay({ open, onClose }: Props) {
                   onClick={onClose}
                   className="px-4 py-2 border border-border text-sm hover:border-leather hover:text-leather transition-colors rounded-sm"
                 >
-                  {item.label}
+                  {item.labelKey ? t(item.labelKey) : item.label}
                 </Link>
               ))}
             </div>
@@ -267,8 +271,8 @@ export function SearchOverlay({ open, onClose }: Props) {
         ) : submitted && results.length === 0 ? (
           <div className="py-8 text-center" aria-live="polite">
             <p className="text-text-muted">
-              No encontramos productos para{" "}
-              <strong className="text-text">&ldquo;{query}&rdquo;</strong>. Intenta otra búsqueda.
+              {t("search.noResultsPre")}{" "}
+              <strong className="text-text">&ldquo;{query}&rdquo;</strong>{t("search.noResultsPost")}
             </p>
           </div>
         ) : results.length > 0 ? (
@@ -284,7 +288,7 @@ export function SearchOverlay({ open, onClose }: Props) {
                 onClick={onClose}
                 className="inline-flex text-sm uppercase tracking-wider text-leather hover:underline"
               >
-                Ver todos los resultados
+                {t("search.viewAll")}
               </Link>
             </div>
           </div>
@@ -312,6 +316,7 @@ function SearchResultCard({
   product: Product
   onSelect: () => void
 }) {
+  const t = useT()
   const { handle, title, vendor, featuredImage, priceRange } = product
   const minPrice = priceRange.minVariantPrice
 
@@ -320,7 +325,7 @@ function SearchResultCard({
       href={`/products/${handle}`}
       onClick={onSelect}
       className="group flex items-center gap-3 p-2 hover:bg-bg-alt rounded-sm transition-colors"
-      aria-label={`Ver ${title}`}
+      aria-label={t("search.viewProduct").replace("{title}", title)}
     >
       <div className="w-16 h-16 flex-shrink-0 overflow-hidden bg-bg-alt rounded-sm">
         {featuredImage ? (

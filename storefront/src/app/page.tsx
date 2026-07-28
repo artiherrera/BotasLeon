@@ -11,6 +11,7 @@ import { AccessoriesShowcase } from "@/components/AccessoriesShowcase"
 import { NewsletterForm } from "@/components/NewsletterForm"
 import { HechoEnLeonStrip } from "@/components/HechoEnLeonStrip"
 import { StoreVisitSection } from "@/components/StoreVisitSection"
+import { T } from "@/components/T"
 import { FAQJsonLd } from "@/components/StructuredData"
 import { FAQS } from "@/lib/faqs"
 import { absoluteUrl } from "@/lib/seo"
@@ -136,11 +137,10 @@ export default async function HomePage() {
           <div className="border border-border p-10 md:p-16 text-center bg-bg-alt">
             <p className="eyebrow text-leather mb-3">Newsletter</p>
             <h3 className="font-heading text-2xl md:text-3xl text-text mb-3">
-              Suscríbete y recibe 10% en tu primera compra
+              <T k="home.newsletterTitle" />
             </h3>
             <p className="text-text-muted mb-8 max-w-md mx-auto">
-              Plus las novedades de las marcas de León antes que nadie. Sin
-              spam, prometido.
+              <T k="home.newsletterSubtitle" />
             </p>
             <NewsletterForm />
           </div>

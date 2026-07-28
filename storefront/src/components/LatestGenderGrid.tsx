@@ -1,7 +1,10 @@
+"use client"
+
 import Link from "next/link"
 import { ProductCard } from "./ProductCard"
 import { EmptyProductsState } from "./EmptyState"
 import type { Product } from "@/lib/shopify/types"
+import { useT } from "@/lib/i18n/context"
 
 /**
  * LatestGenderGrid — contenido (server-rendered) de un tab de "Lo más nuevo".
@@ -22,8 +25,9 @@ export function LatestGenderGrid({
   label: string
   emptyHint: string
 }) {
+  const t = useT()
   if (products.length === 0) {
-    return <EmptyProductsState title="Próximamente" description={emptyHint} />
+    return <EmptyProductsState title={t("latest.comingSoon")} description={emptyHint} />
   }
   return (
     <>
@@ -37,7 +41,7 @@ export function LatestGenderGrid({
           href={href}
           className="inline-flex items-center text-leather font-medium hover:text-terracotta transition-colors"
         >
-          Ver todo {label} →
+          {t("latest.viewAll").replace("{label}", t(`latest.label.${label}`))} →
         </Link>
       </div>
     </>

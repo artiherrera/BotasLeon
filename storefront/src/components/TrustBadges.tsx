@@ -1,40 +1,47 @@
+"use client"
+
+import { useT } from "@/lib/i18n/context"
+
 /**
  * TrustBadges — 4 promesas clave de BotasLeón.
  *
  * Patrón estándar de ecommerce: barra horizontal con 4 columnas,
  * cada una con icono + título + subtítulo corto. Refuerza confianza
  * sin gritar. Fondo cream para separarla de las secciones blancas.
+ *
+ * title/sub guardan LLAVES i18n; se resuelven con t() al render.
  */
 
 const BADGES = [
   {
     Icon: HeritageIcon,
-    title: "380 años de tradición",
-    sub: "León, capital mundial del cuero",
+    titleKey: "marquee.tradition",
+    subKey: "marquee.leather",
   },
   {
     Icon: CurationIcon,
-    title: "Curado y verificado",
-    sub: "Cada marca pasa nuestro filtro",
+    titleKey: "trust.curated.title",
+    subKey: "trust.curated.sub",
   },
   {
     Icon: ShippingIcon,
-    title: "Envío MX y USA",
-    sub: "Directo desde León",
+    titleKey: "trust.shipping.title",
+    subKey: "trust.shipping.sub",
   },
   {
     Icon: ExchangeIcon,
-    title: "Cambio de talla",
-    sub: "Sin preguntas, sin costo",
+    titleKey: "trust.exchange.title",
+    subKey: "trust.exchange.sub",
   },
 ]
 
 export function TrustBadges() {
+  const t = useT()
   return (
     <section className="bg-bg-alt border-y border-border">
       <div className="mx-auto max-w-7xl px-6 py-12">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-6">
-          {BADGES.map(({ Icon, title, sub }, idx) => (
+          {BADGES.map(({ Icon, titleKey, subKey }, idx) => (
             <div
               key={idx}
               className="flex flex-col items-center text-center"
@@ -43,9 +50,9 @@ export function TrustBadges() {
                 <Icon />
               </div>
               <h3 className="font-heading text-base md:text-lg text-text mb-1 leading-tight">
-                {title}
+                {t(titleKey)}
               </h3>
-              <p className="text-sm text-text-muted leading-relaxed">{sub}</p>
+              <p className="text-sm text-text-muted leading-relaxed">{t(subKey)}</p>
             </div>
           ))}
         </div>

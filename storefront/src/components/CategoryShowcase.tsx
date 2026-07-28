@@ -1,5 +1,6 @@
 import Link from "next/link"
 import Image from "next/image"
+import { T } from "@/components/T"
 import { getCategoryCards } from "@/lib/shopify"
 import type { CategoryCard } from "@/lib/shopify/types"
 
@@ -62,9 +63,11 @@ export async function CategoryShowcase() {
   return (
     <section className="mx-auto max-w-7xl px-6 py-16 md:py-20">
       <div className="mb-10 max-w-2xl">
-        <p className="eyebrow text-leather mb-2">Compra por categoría</p>
+        <p className="eyebrow text-leather mb-2">
+          <T k="category.shopBy" />
+        </p>
         <h2 className="font-display text-3xl md:text-4xl text-text">
-          Encuentra tu par
+          <T k="category.findYourPair" />
         </h2>
       </div>
 
@@ -167,7 +170,7 @@ function CardFrame({
           </p>
         ) : null}
         <span className="inline-flex items-center text-bg/90 text-xs uppercase tracking-widest group-hover:text-bg transition-colors">
-          Explorar
+          <T k="nav.explore" />
           <span className="ml-2 transition-transform group-hover:translate-x-1">
             →
           </span>

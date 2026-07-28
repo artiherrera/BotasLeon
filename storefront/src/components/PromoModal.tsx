@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react"
 import { PROMO } from "@/lib/promo"
 import { setPendingDiscount } from "@/lib/discount/client"
+import { useT } from "@/lib/i18n/context"
 
 /**
  * PromoModal — ventana emergente de la promo temporal + auto-aplicación a TODOS.
@@ -20,6 +21,7 @@ const CONSENT_KEY = "botasleon:cookies-accepted"
 const DISMISS_KEY = "botasleon:promo-seen"
 
 export function PromoModal() {
+  const t = useT()
   const [open, setOpen] = useState(false)
 
   // Siembra el código para TODOS (corre aunque la ventana no se muestre).
@@ -81,13 +83,13 @@ export function PromoModal() {
     <div
       role="dialog"
       aria-modal="true"
-      aria-label="Promoción de inauguración"
+      aria-label={t("promo.dialogLabel")}
       className="fixed inset-0 z-[55] flex items-end justify-center sm:items-center p-4"
     >
       {/* Backdrop — clic para cerrar. */}
       <button
         type="button"
-        aria-label="Cerrar promoción"
+        aria-label={t("promo.closeAria")}
         onClick={close}
         className="absolute inset-0 bg-black/60 backdrop-blur-sm cursor-default"
       />
@@ -99,7 +101,7 @@ export function PromoModal() {
           <button
             type="button"
             onClick={close}
-            aria-label="Cerrar"
+            aria-label={t("promo.close")}
             className="absolute right-2 top-2 rounded p-1.5 text-bg/90 hover:bg-black/10 transition-colors"
           >
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -109,7 +111,7 @@ export function PromoModal() {
           <p className="eyebrow text-gold mb-2">{PROMO.eyebrow}</p>
           <p className="font-display text-5xl leading-none">15%</p>
           <p className="mt-1 text-sm uppercase tracking-[0.2em] text-bg/90">
-            de descuento
+            {t("promo.off")}
           </p>
         </div>
 

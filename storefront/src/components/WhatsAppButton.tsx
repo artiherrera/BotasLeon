@@ -2,6 +2,7 @@
 
 import { usePathname } from "next/navigation"
 import { whatsappHref, productWhatsappMessage } from "@/lib/whatsapp"
+import { useT } from "@/lib/i18n/context"
 
 /**
  * WhatsAppButton — botón flotante de contacto/dudas.
@@ -21,6 +22,7 @@ type Props = {
 
 export function WhatsAppButton({ product }: Props) {
   const pathname = usePathname()
+  const t = useT()
 
   // La versión global no se muestra en el PDP (ahí manda la contextual).
   if (!product && pathname?.startsWith("/products/")) return null
@@ -40,11 +42,11 @@ export function WhatsAppButton({ product }: Props) {
       href={href}
       target="_blank"
       rel="noopener noreferrer"
-      title="¿Dudas? Escríbenos por WhatsApp"
+      title={t("whatsapp.tooltip")}
       aria-label={
         product
-          ? `Preguntar por WhatsApp sobre ${product.title}`
-          : "Contactar por WhatsApp"
+          ? t("whatsapp.askProduct").replace("{title}", product.title)
+          : t("whatsapp.contact")
       }
       className={`fixed ${position} z-40 flex h-14 w-14 items-center justify-center rounded-full bg-[#25D366] text-white shadow-lg shadow-black/20 transition-transform hover:scale-105 active:scale-95 motion-reduce:transition-none`}
     >

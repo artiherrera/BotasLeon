@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { useT } from "@/lib/i18n/context"
 
 /**
  * LatestByGenderTabs — sección "Lo más nuevo" con toggle Hombre / Mujer.
@@ -20,26 +21,27 @@ type Props = {
 }
 
 export function LatestByGenderTabs({ hombreContent, mujerContent }: Props) {
+  const t = useT()
   const [active, setActive] = useState<Tab>("hombre")
 
   return (
     <section className="mx-auto max-w-7xl px-6 py-20 md:py-24">
-      <p className="eyebrow text-leather text-center mb-3">Catálogo</p>
+      <p className="eyebrow text-leather text-center mb-3">{t("latest.eyebrow")}</p>
 
       {/* Toggle de género (botones aria-pressed agrupados, no un tablist) */}
       <div
         role="group"
-        aria-label="Filtrar lo más nuevo por género"
+        aria-label={t("latest.filterAria")}
         className="flex justify-center items-center gap-3 md:gap-6 mb-10 text-2xl md:text-3xl font-heading"
       >
         <TabButton
-          label="Lo más nuevo Hombre"
+          label={t("latest.tabMen")}
           isActive={active === "hombre"}
           onClick={() => setActive("hombre")}
         />
         <span aria-hidden className="text-text-subtle text-xl md:text-2xl">/</span>
         <TabButton
-          label="Lo más nuevo Mujer"
+          label={t("latest.tabWomen")}
           isActive={active === "mujer"}
           onClick={() => setActive("mujer")}
         />

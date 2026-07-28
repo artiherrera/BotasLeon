@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react"
 import Link from "next/link"
+import { useT } from "@/lib/i18n/context"
 
 const STORAGE_KEY = "botasleon:cookies-accepted"
 
@@ -20,6 +21,7 @@ const STORAGE_KEY = "botasleon:cookies-accepted"
  * GoogleAnalytics escucha para promover analytics_storage.
  */
 export function CookiesBanner() {
+  const t = useT()
   // hasConsent === null mientras leemos localStorage (evita flash en SSR).
   const [hasConsent, setHasConsent] = useState<boolean | null>(null)
   const [open, setOpen] = useState(false)
@@ -76,7 +78,7 @@ export function CookiesBanner() {
     <div
       role="dialog"
       aria-modal="true"
-      aria-label="Aviso de cookies"
+      aria-label={t("cookies.dialogLabel")}
       className={`fixed inset-0 z-[60] flex items-end justify-center sm:items-center p-4 transition-opacity duration-300 ${
         open ? "opacity-100" : "opacity-0 pointer-events-none"
       }`}
@@ -95,18 +97,16 @@ export function CookiesBanner() {
           <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-leather text-bg">
             <CookieIcon />
           </span>
-          <h2 className="font-heading text-lg text-text">Usamos cookies 🍪</h2>
+          <h2 className="font-heading text-lg text-text">{t("cookies.title")}</h2>
         </div>
 
         <p className="text-sm text-text-muted leading-relaxed mb-6">
-          Nos ayudan a mostrarte mejores botas, recordar tu carrito y mejorar la
-          tienda. Al aceptar todas, nos das una mano para seguir mejorando tu
-          experiencia. Lee nuestro{" "}
+          {t("cookies.body")}{" "}
           <Link
             href="/privacidad"
             className="underline underline-offset-2 text-leather hover:text-terracotta"
           >
-            aviso de privacidad
+            {t("cookies.privacyLink")}
           </Link>
           .
         </p>
@@ -117,7 +117,7 @@ export function CookiesBanner() {
           onClick={() => accept("all")}
           className="block w-full py-3.5 rounded-full bg-leather text-bg text-sm uppercase tracking-wider font-medium hover:bg-text transition-colors"
         >
-          Aceptar todas las cookies
+          {t("cookies.acceptAll")}
         </button>
 
         {/* Opción secundaria, discreta pero presente (cumple LFPDPPP). */}
@@ -126,7 +126,7 @@ export function CookiesBanner() {
           onClick={() => accept("necessary")}
           className="block w-full mt-3 text-xs uppercase tracking-wider text-text-subtle hover:text-text transition-colors"
         >
-          Solo las necesarias
+          {t("cookies.necessary")}
         </button>
       </div>
     </div>

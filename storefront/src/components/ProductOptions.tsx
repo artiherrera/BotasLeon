@@ -10,6 +10,7 @@ import { formatSizeWithUs } from "@/lib/sizes"
 import { formatMoney } from "@/lib/utils"
 import { COLOR_OPTION_NAMES, findVariantBySelection } from "@/lib/pdp/variants"
 import type { Product } from "@/lib/shopify/types"
+import { useT } from "@/lib/i18n/context"
 
 const SIZE_OPTION_NAMES = ["Talla", "Talla del calzado", "Size"]
 
@@ -47,6 +48,7 @@ function isSizeOption(name: string): boolean {
 }
 
 export function ProductOptions({ product }: Props) {
+  const t = useT()
   const { addItem, isPending } = useCart()
   const { selection, setOption, activeVariant } = usePDPVariant()
 
@@ -142,24 +144,24 @@ export function ProductOptions({ product }: Props) {
   }
 
   const ctaLabel = isPending
-    ? "Agregando..."
+    ? t("pdp.adding")
     : needsSize
-      ? "Selecciona tu talla"
+      ? t("pdp.selectSize")
       : isUnknownCombo
-        ? "Combinación no disponible"
+        ? t("pdp.comboUnavailable")
         : !isAvailable
-          ? "Agotado"
-          : "Agregar al carrito"
+          ? t("card.soldOut")
+          : t("pdp.addToCart")
 
   const stickyCtaLabel = isPending
     ? "..."
     : needsSize
-      ? "Elige talla"
+      ? t("pdp.chooseSize")
       : isUnknownCombo
-        ? "No disponible"
+        ? t("pdp.unavailable")
         : !isAvailable
-          ? "Agotado"
-          : "Agregar"
+          ? t("card.soldOut")
+          : t("pdp.add")
 
   // El botón se deshabilita solo cuando NO falta talla y aun así no se puede
   // comprar (agotado / combinación inexistente). Si falta talla lo dejamos
@@ -197,7 +199,7 @@ export function ProductOptions({ product }: Props) {
   const stickyBar = (
     <div
       role="region"
-      aria-label="Acciones del producto"
+      aria-label={t("pdp.actionsLabel")}
       className={`md:hidden fixed inset-x-0 bottom-0 z-40 bg-bg/95 backdrop-blur-xl backdrop-saturate-200 border-t border-border/60 shadow-[0_-8px_24px_rgba(0,0,0,0.06)] transition-transform duration-300 ${
         showSticky ? "translate-y-0" : "translate-y-full pointer-events-none"
       }`}
@@ -242,7 +244,7 @@ export function ProductOptions({ product }: Props) {
       {/* Opciones de variante que NO son talla (color, etc.) */}
       {variantOptions.map((option) => {
         const isColor = isColorOption(option.name)
-        const labelTitle = isColor ? "Color" : option.name
+        const labelTitle = isColor ? t("filters.color") : option.name
         const currentValue = selection[option.name]
 
         return (
@@ -286,7 +288,7 @@ export function ProductOptions({ product }: Props) {
       {hasSizes && (
         <div ref={sizeRef} className="scroll-mt-24">
           <p className="eyebrow text-text-muted text-xs mb-3">
-            Talla
+            {t("filters.size")}
             {sizeOption && selection[sizeOption.name] && (
               <span className="ml-2 text-text normal-case tracking-normal font-medium">
                 {formatSizeWithUs(selection[sizeOption.name], genderHandle)}
@@ -320,13 +322,13 @@ export function ProductOptions({ product }: Props) {
             <p className="text-xs text-text-subtle mt-2">
               MX · US ·{" "}
               <a href="/guia-tallas" className="underline hover:text-leather">
-                Guía de tallas
+                {t("help.sizeGuide")}
               </a>
             </p>
           )}
           {showSizeError && needsSize && (
             <p className="text-sm text-terracotta font-medium mt-2" role="alert">
-              Por favor selecciona tu talla.
+              {t("pdp.sizeError")}
             </p>
           )}
         </div>
@@ -338,12 +340,12 @@ export function ProductOptions({ product }: Props) {
           (isAvailable ? (
             <span className="text-emerald-700 inline-flex items-center gap-2">
               <span className="w-2 h-2 bg-emerald-700 rounded-full inline-block" />
-              Disponible
+              {t("pdp.available")}
             </span>
           ) : (
             <span className="text-text-subtle inline-flex items-center gap-2">
               <span className="w-2 h-2 bg-text-subtle rounded-full inline-block" />
-              Agotado
+              {t("card.soldOut")}
             </span>
           ))}
       </div>
@@ -360,7 +362,7 @@ export function ProductOptions({ product }: Props) {
       </button>
 
       <p className="text-xs text-text-muted text-center">
-        Envío MX 3-5 días · Cambio de talla sin costo
+        {t("pdp.shippingNote")}
       </p>
 
       {mounted ? createPortal(stickyBar, document.body) : null}

@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
+import { useLocale, useT } from "@/lib/i18n/context"
 
 /**
  * ProductReviews — muestra las reseñas (con fotos) de UNA bota, nativas en el
@@ -29,13 +30,16 @@ type Review = {
   verified: boolean
 }
 
-function fmtDate(s: string): string {
+function fmtDate(s: string, dateLocale: string): string {
   const d = new Date(s.replace(" UTC", "").replace(" ", "T") + "Z")
   if (Number.isNaN(d.getTime())) return s.slice(0, 10)
-  return d.toLocaleDateString("es-MX", { day: "numeric", month: "short", year: "numeric" })
+  return d.toLocaleDateString(dateLocale, { day: "numeric", month: "short", year: "numeric" })
 }
 
 export function ProductReviews({ handle }: { handle: string }) {
+  const t = useT()
+  const { locale } = useLocale()
+  const dateLocale = locale === "en" ? "en-US" : "es-MX"
   const [reviews, setReviews] = useState<Review[] | null>(null)
 
   useEffect(() => {
@@ -66,7 +70,7 @@ export function ProductReviews({ handle }: { handle: string }) {
           out.push({
             id: el.getAttribute("data-review-id") ?? String(out.length),
             rating: parseInt(el.querySelector(".jdgm-rev__rating")?.getAttribute("data-score") ?? "0", 10) || 0,
-            author: el.querySelector(".jdgm-rev__author")?.textContent?.trim() || "Cliente",
+            author: el.querySelector(".jdgm-rev__author")?.textContent?.trim() || "",
             date: el.querySelector(".jdgm-rev__timestamp")?.getAttribute("data-content") ?? "",
             title: el.querySelector(".jdgm-rev__title")?.textContent?.trim() ?? "",
             body: el.querySelector(".jdgm-rev__body")?.textContent?.trim() ?? "",
@@ -94,14 +98,14 @@ export function ProductReviews({ handle }: { handle: string }) {
             <Stars n={r.rating} />
             {r.verified && (
               <span className="text-[10px] uppercase tracking-wider text-leather">
-                Compra verificada
+                {t("review.verified")}
               </span>
             )}
           </div>
           <p className="text-sm font-medium text-text">
-            {r.author}
+            {r.author || t("review.anonymous")}
             {r.date && (
-              <span className="font-normal text-text-subtle"> · {fmtDate(r.date)}</span>
+              <span className="font-normal text-text-subtle"> · {fmtDate(r.date, dateLocale)}</span>
             )}
           </p>
           {r.title && <p className="font-heading text-text mt-1">{r.title}</p>}
@@ -119,7 +123,7 @@ export function ProductReviews({ handle }: { handle: string }) {
                   className="block h-16 w-16 overflow-hidden rounded-sm border border-border transition-opacity hover:opacity-80"
                 >
                   {/* eslint-disable-next-line @next/next/no-img-element -- imagen servida por Judge.me */}
-                  <img src={src} alt="Foto de la reseña" className="h-full w-full object-cover" />
+                  <img src={src} alt={t("review.photoAlt")} className="h-full w-full object-cover" />
                 </a>
               ))}
             </div>
@@ -131,8 +135,9 @@ export function ProductReviews({ handle }: { handle: string }) {
 }
 
 function Stars({ n }: { n: number }) {
+  const t = useT()
   return (
-    <span className="text-gold" aria-label={`${n} de 5 estrellas`}>
+    <span className="text-gold" aria-label={t("review.starsAria").replace("{n}", String(n))}>
       {"★★★★★".slice(0, n)}
       <span className="text-border">{"★★★★★".slice(n)}</span>
     </span>

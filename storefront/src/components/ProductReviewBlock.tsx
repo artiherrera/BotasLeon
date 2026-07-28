@@ -1,4 +1,7 @@
+"use client"
+
 import type { Product } from "@/lib/shopify/types"
+import { useT } from "@/lib/i18n/context"
 import { JudgemeStars } from "./JudgemeStars"
 import { ProductReviews } from "./ProductReviews"
 import { ReviewForm } from "./ReviewForm"
@@ -14,6 +17,7 @@ import { ReviewForm } from "./ReviewForm"
  *    con subida de fotos vía Cloudinary.
  */
 export function ProductReviewBlock({ product }: { product: Product }) {
+  const t = useT()
   const rating = product.judgemeRating ?? null
   const count = product.judgemeReviewCount ?? null
   const hasReviews = rating !== null && rating > 0
@@ -25,7 +29,7 @@ export function ProductReviewBlock({ product }: { product: Product }) {
       className="mt-12 pt-8 border-t border-border"
     >
       <h2 id="reviews-heading" className="eyebrow text-leather mb-4">
-        Reseñas
+        {t("review.heading")}
       </h2>
 
       {hasReviews ? (
@@ -33,9 +37,7 @@ export function ProductReviewBlock({ product }: { product: Product }) {
           <JudgemeStars rating={rating} count={count} size="lg" />
         </div>
       ) : (
-        <p className="mb-4 text-sm text-text-muted">
-          Aún no hay reseñas de esta bota. ¡Sé el primero en dejar la tuya!
-        </p>
+        <p className="mb-4 text-sm text-text-muted">{t("review.empty")}</p>
       )}
 
       <ProductReviews handle={product.handle} />

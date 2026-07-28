@@ -1,5 +1,6 @@
 import Link from "next/link"
 import Image from "next/image"
+import { T } from "@/components/T"
 import { getBrands } from "@/lib/shopify"
 
 type Brand = Awaited<ReturnType<typeof getBrands>>[number]
@@ -33,15 +34,14 @@ export async function BrandGrid() {
   return (
     <section className="py-20 md:py-28">
       <div className="mx-auto max-w-7xl px-6 text-center mb-12">
-        <p className="eyebrow text-leather mb-3">Marcas que comercializamos</p>
-        <h2 className="font-heading text-3xl md:text-4xl text-text mb-3">
-          Las mejores casas de León,
-          <br />
-          bajo un mismo techo.
+        <p className="eyebrow text-leather mb-3">
+          <T k="brand.eyebrow" />
+        </p>
+        <h2 className="font-heading text-3xl md:text-4xl text-text mb-3 whitespace-pre-line">
+          <T k="brand.headline" />
         </h2>
         <p className="text-text-muted max-w-2xl mx-auto">
-          Trabajamos directamente con los talleres más respetados de la capital
-          mundial del cuero. Cada marca pasa nuestro filtro.
+          <T k="brand.subtitle" />
         </p>
       </div>
 
@@ -61,7 +61,7 @@ export async function BrandGrid() {
           href="/marcas"
           className="inline-flex items-center text-leather font-medium hover:text-terracotta transition-colors"
         >
-          Ver todas las marcas
+          <T k="nav.brands.all" />
           <span className="ml-2" aria-hidden>→</span>
         </Link>
       </div>

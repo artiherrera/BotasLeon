@@ -1,4 +1,7 @@
+"use client"
+
 import { formatMoney } from "@/lib/utils"
+import { useLocale } from "@/lib/i18n/context"
 
 /**
  * FreeShippingBar — barra compacta con progreso hacia envío gratis.
@@ -7,6 +10,9 @@ import { formatMoney } from "@/lib/utils"
  * un mensaje de confirmación si ya se alcanzó. Visualmente vive en el
  * footer del CartDrawer y en el aside del /cart, justo arriba del
  * subtotal — el incentivo más fuerte para subir AOV.
+ *
+ * Mercado USA (locale "en"): NO prometemos envío gratis, así que el
+ * componente entero no renderiza nada. El beneficio es solo de México.
  */
 
 type Props = {
@@ -16,6 +22,10 @@ type Props = {
 }
 
 export function FreeShippingBar({ subtotal, threshold, currency }: Props) {
+  const { locale } = useLocale()
+  // Envío gratis es un beneficio solo de México — no lo mostramos en inglés.
+  if (locale === "en") return null
+
   const reached = subtotal >= threshold
   const diff = Math.max(0, threshold - subtotal)
   const progress = Math.min(100, Math.max(0, (subtotal / threshold) * 100))

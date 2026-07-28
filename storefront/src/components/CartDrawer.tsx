@@ -14,6 +14,7 @@ import { track } from "@/lib/klaviyo/client"
 import { gaEvent } from "@/lib/ga/events"
 import { FREE_SHIPPING_THRESHOLD } from "@/lib/shipping"
 import { useFocusTrap } from "@/lib/useFocusTrap"
+import { useT } from "@/lib/i18n/context"
 
 /**
  * CartDrawer — sidebar lateral derecho con líneas del cart.
@@ -34,6 +35,7 @@ export function CartDrawer() {
     applyDiscount,
     removeDiscount,
   } = useCart()
+  const t = useT()
   const [codeInput, setCodeInput] = useState("")
   const [applyingCode, setApplyingCode] = useState(false)
   const [codeError, setCodeError] = useState<string | null>(null)
@@ -72,7 +74,7 @@ export function CartDrawer() {
     const r = await applyDiscount(c)
     setApplyingCode(false)
     if (r.ok) setCodeInput("")
-    else setCodeError(r.message ?? "No se pudo aplicar el código.")
+    else setCodeError(r.message ?? t("cart.codeError"))
   }
 
   useEffect(() => {
@@ -143,7 +145,7 @@ export function CartDrawer() {
         ref={drawerRef}
         role="dialog"
         aria-modal="true"
-        aria-label="Carrito de compras"
+        aria-label={t("cart.ariaLabel")}
         inert={!isOpen}
         className={`fixed top-0 right-0 h-full w-full sm:w-[28rem] bg-bg/85 backdrop-blur-2xl backdrop-saturate-150 border-l border-border/40 z-50 shadow-2xl transition-transform duration-300 flex flex-col ${
           isOpen ? "translate-x-0" : "translate-x-full"
@@ -152,7 +154,7 @@ export function CartDrawer() {
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-5 border-b border-border">
           <h2 className="font-heading text-xl text-text">
-            Tu carrito
+            {t("cart.title")}
             {cart && cart.totalQuantity > 0 && (
               <span className="text-text-muted font-normal ml-2">
                 ({cart.totalQuantity})
@@ -161,7 +163,7 @@ export function CartDrawer() {
           </h2>
           <button
             onClick={closeCart}
-            aria-label="Cerrar carrito"
+            aria-label={t("cart.close")}
             data-autofocus
             className="p-2 -mr-2 hover:bg-bg-alt rounded transition-colors"
           >
@@ -182,17 +184,17 @@ export function CartDrawer() {
               </svg>
             </div>
             <p className="font-heading text-lg text-text mb-2">
-              Tu carrito está vacío
+              {t("cart.empty")}
             </p>
             <p className="text-sm text-text-muted mb-6 max-w-xs">
-              Cuando agregues botas las verás aquí.
+              {t("cart.emptyDesc")}
             </p>
             <Link
               href="/products"
               onClick={closeCart}
               className="inline-flex px-6 py-3 rounded-full bg-leather text-bg text-sm uppercase tracking-wider hover:bg-text transition-colors"
             >
-              Ver catálogo
+              {t("cart.viewCatalog")}
             </Link>
           </div>
         ) : (
@@ -257,7 +259,7 @@ export function CartDrawer() {
                               updateLine(line.id, Math.max(1, line.quantity - 1))
                             }
                             disabled={isPending || line.quantity <= 1}
-                            aria-label="Disminuir cantidad"
+                            aria-label={t("cart.decrease")}
                             className="w-11 h-11 flex items-center justify-center hover:bg-bg-alt disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
                           >
                             −
@@ -269,7 +271,7 @@ export function CartDrawer() {
                             type="button"
                             onClick={() => updateLine(line.id, line.quantity + 1)}
                             disabled={isPending}
-                            aria-label="Aumentar cantidad"
+                            aria-label={t("cart.increase")}
                             className="w-11 h-11 flex items-center justify-center hover:bg-bg-alt disabled:opacity-40 transition-colors"
                           >
                             +
@@ -282,7 +284,7 @@ export function CartDrawer() {
                           disabled={isPending}
                           className="text-xs text-text-subtle hover:text-terracotta uppercase tracking-wider transition-colors"
                         >
-                          Quitar
+                          {t("cart.remove")}
                         </button>
                       </div>
                     </div>
@@ -323,7 +325,7 @@ export function CartDrawer() {
                         disabled={isPending}
                         className="text-xs uppercase tracking-wider text-text-subtle hover:text-terracotta disabled:opacity-40 transition-colors"
                       >
-                        Quitar
+                        {t("cart.remove")}
                       </button>
                     </div>
                   ))}
@@ -331,7 +333,7 @@ export function CartDrawer() {
               ) : (
                 <form onSubmit={handleApplyCode} className="mb-3">
                   <label htmlFor="promo-code" className="mb-1.5 block text-xs text-text-muted">
-                    ¿Tienes un código de descuento?
+                    {t("cart.promoLabel")}
                   </label>
                   <div className="flex gap-2">
                     <input
@@ -342,7 +344,7 @@ export function CartDrawer() {
                         setCodeInput(e.target.value)
                         if (codeError) setCodeError(null)
                       }}
-                      placeholder="Ej. BIENVENIDO10"
+                      placeholder={t("cart.promoPlaceholder")}
                       autoComplete="off"
                       autoCapitalize="characters"
                       spellCheck={false}
@@ -353,7 +355,7 @@ export function CartDrawer() {
                       disabled={applyingCode || !codeInput.trim()}
                       className="whitespace-nowrap rounded-sm border border-leather px-4 py-2 text-sm uppercase tracking-wider text-leather hover:bg-leather hover:text-bg disabled:cursor-not-allowed disabled:opacity-40 transition-colors"
                     >
-                      {applyingCode ? "..." : "Aplicar"}
+                      {applyingCode ? "..." : t("cart.apply")}
                     </button>
                   </div>
                   {codeError && (
@@ -371,7 +373,7 @@ export function CartDrawer() {
               />
 
               <div className="flex justify-between items-baseline mt-2 mb-1">
-                <span className="text-sm text-text-muted">Subtotal</span>
+                <span className="text-sm text-text-muted">{t("cart.subtotal")}</span>
                 <span className="font-heading text-lg text-text">
                   {cart &&
                     formatMoney(
@@ -382,7 +384,7 @@ export function CartDrawer() {
               </div>
               {discountTotal > 0 && (
                 <div className="flex justify-between items-baseline mb-1">
-                  <span className="text-sm text-leather">Descuento</span>
+                  <span className="text-sm text-leather">{t("cart.discount")}</span>
                   <span className="text-sm font-medium text-leather">
                     −{formatMoney(String(discountTotal), subtotalCurrency)}
                   </span>
@@ -390,7 +392,7 @@ export function CartDrawer() {
               )}
               <MSIBreakdown amount={subtotalNum} currency={subtotalCurrency} />
               <p className="text-xs text-text-muted mt-1 mb-4">
-                Envío e impuestos calculados al pagar
+                {t("cart.shippingTax")}
               </p>
 
               <CustomsTaxIdField />
@@ -405,7 +407,7 @@ export function CartDrawer() {
                   onClick={handleCheckoutClick}
                   className="block w-full text-center py-4 rounded-full bg-leather text-bg text-sm uppercase tracking-wider hover:bg-text transition-colors"
                 >
-                  Pagar
+                  {t("cart.checkout")}
                 </a>
               ) : null}
             </div>

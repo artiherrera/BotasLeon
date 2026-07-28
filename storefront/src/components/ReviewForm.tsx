@@ -2,6 +2,7 @@
 
 import { useRef, useState } from "react"
 import { cloudinaryEnabled, uploadToCloudinary } from "@/lib/cloudinary"
+import { useT } from "@/lib/i18n/context"
 
 /**
  * ReviewForm — formulario nativo para que un cliente deje una reseña SIN salir
@@ -30,6 +31,7 @@ export function ReviewForm({
   productId: string
   productTitle: string
 }) {
+  const t = useT()
   const [open, setOpen] = useState(false)
   const [rating, setRating] = useState(0)
   const [hover, setHover] = useState(0)
@@ -63,7 +65,7 @@ export function ReviewForm({
     for (const f of files.slice(0, room)) {
       if (f.size > 8 * 1024 * 1024) {
         failed++
-        lastErr = "cada foto debe pesar menos de 8 MB"
+        lastErr = t("review.errPhotoSize")
         continue
       }
       try {
@@ -77,7 +79,12 @@ export function ReviewForm({
     }
     setUploading(false)
     if (failed) {
-      setError(`No se pudieron subir ${failed} foto${failed > 1 ? "s" : ""}: ${lastErr}`)
+      setError(
+        t("review.errUpload")
+          .replace("{n}", String(failed))
+          .replace("{s}", failed > 1 ? "s" : "")
+          .replace("{err}", lastErr)
+      )
     }
   }
 
@@ -86,15 +93,15 @@ export function ReviewForm({
   const submit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (rating < 1) {
-      setError("Elige una calificación con las estrellas.")
+      setError(t("review.errRating"))
       return
     }
     if (!name.trim() || !email.trim() || !body.trim()) {
-      setError("Completa tu nombre, correo y reseña.")
+      setError(t("review.errRequired"))
       return
     }
     if (uploading) {
-      setError("Espera a que terminen de subir las fotos.")
+      setError(t("review.errWaitUpload"))
       return
     }
     setError("")
@@ -124,10 +131,10 @@ export function ReviewForm({
       if (res.ok && !/not found|invalid|error|missing|fail/i.test(message)) {
         setSent(true)
       } else {
-        setError(message || `No se pudo enviar la reseña (HTTP ${res.status}).`)
+        setError(message || t("review.errSubmitHttp").replace("{n}", String(res.status)))
       }
     } catch {
-      setError("No se pudo enviar. Revisa tu conexión e intenta de nuevo.")
+      setError(t("review.errNetwork"))
     } finally {
       setSending(false)
     }
@@ -136,7 +143,7 @@ export function ReviewForm({
   if (sent) {
     return (
       <div className="mt-4 rounded-sm border border-leather/30 bg-leather/5 p-4 text-sm text-text">
-        ¡Gracias por tu reseña! 🎉 Se publicará en breve.
+        {t("review.thanks")}
       </div>
     )
   }
@@ -148,7 +155,7 @@ export function ReviewForm({
         onClick={() => setOpen(true)}
         className="mt-2 inline-flex self-start rounded-full border border-leather px-5 py-2.5 text-sm uppercase tracking-wider text-leather hover:bg-leather hover:text-bg transition-colors"
       >
-        Escribir una reseña
+        {t("review.write")}
       </button>
     )
   }
@@ -156,7 +163,7 @@ export function ReviewForm({
   return (
     <form onSubmit={submit} className="mt-4 space-y-3 rounded-sm border border-border p-4">
       <div>
-        <span className="mb-1 block text-xs text-text-muted">Tu calificación</span>
+        <span className="mb-1 block text-xs text-text-muted">{t("review.yourRating")}</span>
         <div className="flex gap-1" onMouseLeave={() => setHover(0)}>
           {[1, 2, 3, 4, 5].map((n) => (
             <button
@@ -164,7 +171,9 @@ export function ReviewForm({
               type="button"
               onClick={() => setRating(n)}
               onMouseEnter={() => setHover(n)}
-              aria-label={`${n} estrella${n > 1 ? "s" : ""}`}
+              aria-label={t("review.starAria")
+                .replace("{n}", String(n))
+                .replace("{s}", n > 1 ? "s" : "")}
               className="text-2xl leading-none"
             >
               <span className={(hover || rating) >= n ? "text-gold" : "text-border"}>★</span>
@@ -176,28 +185,28 @@ export function ReviewForm({
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         <input
           className={inputCls}
-          placeholder="Tu nombre"
+          placeholder={t("review.phName")}
           value={name}
           onChange={(e) => setName(e.target.value)}
         />
         <input
           className={inputCls}
           type="email"
-          placeholder="Tu correo (no se publica)"
+          placeholder={t("review.phEmail")}
           value={email}
           onChange={(e) => setEmail(e.target.value)}
         />
       </div>
       <input
         className={inputCls}
-        placeholder="Título (opcional)"
+        placeholder={t("review.phTitle")}
         value={title}
         onChange={(e) => setTitle(e.target.value)}
       />
       <textarea
         className={`${inputCls} resize-none`}
         rows={4}
-        placeholder={`¿Qué te parecieron las ${productTitle}?`}
+        placeholder={t("review.phBody").replace("{title}", productTitle)}
         value={body}
         onChange={(e) => setBody(e.target.value)}
       />
@@ -206,7 +215,7 @@ export function ReviewForm({
       {cloudinaryEnabled() && (
         <div>
           <span className="mb-1.5 block text-xs text-text-muted">
-            Foto (opcional)
+            {t("review.photoOptional")}
           </span>
           <div className="flex flex-wrap gap-2">
             {photos.map((url) => (
@@ -215,11 +224,11 @@ export function ReviewForm({
                 className="relative h-16 w-16 overflow-hidden rounded-sm border border-border"
               >
                 {/* eslint-disable-next-line @next/next/no-img-element -- imagen de Cloudinary subida por el usuario */}
-                <img src={url} alt="Foto de la reseña" className="h-full w-full object-cover" />
+                <img src={url} alt={t("review.photoAlt")} className="h-full w-full object-cover" />
                 <button
                   type="button"
                   onClick={() => removePhoto(url)}
-                  aria-label="Quitar foto"
+                  aria-label={t("review.removePhoto")}
                   className="absolute right-0.5 top-0.5 flex h-5 w-5 items-center justify-center rounded-full bg-black/60 text-bg"
                 >
                   <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18M6 6l12 12" /></svg>
@@ -232,7 +241,7 @@ export function ReviewForm({
                 onClick={() => fileRef.current?.click()}
                 disabled={uploading}
                 className="flex h-16 w-16 items-center justify-center rounded-sm border border-dashed border-border text-text-subtle hover:border-leather hover:text-leather disabled:opacity-40 transition-colors"
-                aria-label="Agregar foto"
+                aria-label={t("review.addPhoto")}
               >
                 {uploading ? (
                   <span className="h-4 w-4 animate-spin rounded-full border-2 border-border border-t-leather" />
@@ -263,19 +272,17 @@ export function ReviewForm({
           disabled={sending || uploading}
           className="rounded-full bg-leather px-5 py-2.5 text-sm uppercase tracking-wider text-bg hover:bg-text disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
         >
-          {sending ? "Enviando…" : "Publicar reseña"}
+          {sending ? t("review.sending") : t("review.submit")}
         </button>
         <button
           type="button"
           onClick={() => setOpen(false)}
           className="rounded-full px-4 py-2.5 text-sm text-text-muted hover:text-text transition-colors"
         >
-          Cancelar
+          {t("review.cancel")}
         </button>
       </div>
-      <p className="text-[11px] text-text-subtle">
-        Tu correo no se publica. Tu reseña puede tardar un poco en aparecer tras revisión.
-      </p>
+      <p className="text-[11px] text-text-subtle">{t("review.disclaimer")}</p>
     </form>
   )
 }

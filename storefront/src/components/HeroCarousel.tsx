@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import type { HeroSlide } from "@/lib/shopify/types"
+import { useT } from "@/lib/i18n/context"
 
 /**
  * HeroCarousel — slideshow rotativo del home.
@@ -30,12 +31,14 @@ type Props = {
 // La estructura imita el HeroSlide pero sin imagen — usa los gradients
 // de cuero como background. Mismo orden de gradients que HERO_FALLBACK_GRADIENTS
 // en lib/shopify/index.ts para que el look se mantenga al ir migrando uno a uno.
+// eyebrow/title guardan LLAVES i18n (los slides de Shopify traen texto real y
+// NO se traducen); se resuelven con t() solo para este fallback, al render.
 const PLACEHOLDER_SLIDES: HeroSlide[] = [
   {
     id: "placeholder-1",
     handle: "placeholder-1",
-    eyebrow: "Colección · Otoño",
-    title: "Hecho en León.",
+    eyebrow: "hero.slide1.eyebrow",
+    title: "hero.slide1.title",
     href: "/products",
     image: null,
     bgClass: "bg-gradient-to-br from-leather via-leather-light to-leather-dark",
@@ -43,8 +46,8 @@ const PLACEHOLDER_SLIDES: HeroSlide[] = [
   {
     id: "placeholder-2",
     handle: "placeholder-2",
-    eyebrow: "Hombre · Vaqueras",
-    title: "Para décadas.",
+    eyebrow: "hero.slide2.eyebrow",
+    title: "hero.slide2.title",
     href: "/hombre",
     image: null,
     bgClass: "bg-gradient-to-br from-terracotta-dark via-terracotta to-leather",
@@ -52,8 +55,8 @@ const PLACEHOLDER_SLIDES: HeroSlide[] = [
   {
     id: "placeholder-3",
     handle: "placeholder-3",
-    eyebrow: "Mujer · Nueva colección",
-    title: "Cuero auténtico.",
+    eyebrow: "hero.slide3.eyebrow",
+    title: "hero.slide3.title",
     href: "/mujer",
     image: null,
     bgClass: "bg-gradient-to-br from-cognac via-gold to-leather-light",
@@ -71,7 +74,17 @@ const SWIPE_FLICK_DELTA = 30
 const SWIPE_FLICK_VELOCITY = 0.5
 
 export function HeroCarousel({ slides }: Props) {
-  const data = slides && slides.length > 0 ? slides : PLACEHOLDER_SLIDES
+  const t = useT()
+  // Slides de Shopify: texto real, se usa tal cual. Fallback: resolvemos las
+  // LLAVES i18n de los placeholders al idioma activo.
+  const data =
+    slides && slides.length > 0
+      ? slides
+      : PLACEHOLDER_SLIDES.map((s) => ({
+          ...s,
+          eyebrow: s.eyebrow ? t(s.eyebrow) : s.eyebrow,
+          title: t(s.title),
+        }))
   const [active, setActive] = useState(0)
   // touched: el usuario interactuó (click en dot, touchstart, keydown nav).
   // Una vez true queda permanente — el usuario tomó control, no le re-
@@ -298,7 +311,7 @@ export function HeroCarousel({ slides }: Props) {
                 {slide.title}
               </h2>
               <span className="inline-flex items-center mt-6 text-bg/90 text-sm md:text-base tracking-wide drop-shadow-[0_1px_6px_rgba(0,0,0,0.55)] group-hover:text-bg transition-colors">
-                Explorar
+                {t("nav.explore")}
                 <span className="ml-2 transition-transform group-hover:translate-x-1">
                   →
                 </span>
@@ -316,7 +329,7 @@ export function HeroCarousel({ slides }: Props) {
               key={idx}
               type="button"
               onClick={() => goTo(idx)}
-              aria-label={`Ir al slide ${idx + 1}`}
+              aria-label={t("hero.goToSlide").replace("{n}", String(idx + 1))}
               aria-current={idx === active ? "true" : "false"}
               className="group p-3 cursor-pointer"
             >

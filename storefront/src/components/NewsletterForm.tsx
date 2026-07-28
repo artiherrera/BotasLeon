@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import { identify, subscribe, track } from "@/lib/klaviyo/client"
+import { useT } from "@/lib/i18n/context"
 
 /**
  * NewsletterForm — captura email vía Klaviyo Client Subscriptions API.
@@ -20,6 +21,7 @@ import { identify, subscribe, track } from "@/lib/klaviyo/client"
 type Status = "idle" | "loading" | "success" | "error"
 
 export function NewsletterForm() {
+  const t = useT()
   const [email, setEmail] = useState("")
   const [status, setStatus] = useState<Status>("idle")
   const [error, setError] = useState<string | null>(null)
@@ -36,7 +38,7 @@ export function NewsletterForm() {
       setStatus("success")
     } catch (e) {
       console.error("[newsletter] subscribe error:", e)
-      setError(e instanceof Error ? e.message : "Error al suscribir")
+      setError(e instanceof Error ? e.message : t("newsletter.error"))
       setStatus("error")
     }
   }
@@ -45,10 +47,10 @@ export function NewsletterForm() {
     return (
       <div className="text-center" role="status">
         <p className="font-heading text-xl text-leather mb-2">
-          ¡Gracias!
+          {t("newsletter.thanks")}
         </p>
         <p className="text-text-muted text-sm">
-          Pronto recibirás un correo de bienvenida con tu primer descuento.
+          {t("newsletter.successDesc")}
         </p>
       </div>
     )
@@ -61,14 +63,14 @@ export function NewsletterForm() {
           type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          placeholder="tu@correo.com"
+          placeholder={t("newsletter.emailPlaceholder")}
           required
           disabled={status === "loading"}
           autoComplete="email"
           inputMode="email"
           enterKeyHint="go"
           className="flex-1 px-4 py-3 border border-border bg-bg focus:outline-none focus:border-leather disabled:opacity-60"
-          aria-label="Correo electrónico para newsletter con 10% de descuento"
+          aria-label={t("newsletter.emailAria")}
           aria-invalid={status === "error"}
           aria-describedby={error ? "newsletter-error" : undefined}
         />
@@ -76,9 +78,9 @@ export function NewsletterForm() {
           type="submit"
           disabled={status === "loading"}
           className="px-6 py-3 rounded-full bg-leather text-bg font-medium hover:bg-text transition-colors disabled:opacity-60"
-          aria-label="Suscribirme y recibir mi cupón de 10%"
+          aria-label={t("newsletter.subscribeAria")}
         >
-          {status === "loading" ? "Enviando..." : "Suscribirme"}
+          {status === "loading" ? t("newsletter.sending") : t("newsletter.subscribe")}
         </button>
         {error && (
           <p id="newsletter-error" className="text-xs text-red-700 sm:w-full mt-1" role="alert">
@@ -87,7 +89,7 @@ export function NewsletterForm() {
         )}
       </form>
       <p className="text-xs text-text-subtle mt-3 text-center">
-        El descuento llega a tu correo al confirmar.
+        {t("newsletter.footnote")}
       </p>
     </div>
   )
