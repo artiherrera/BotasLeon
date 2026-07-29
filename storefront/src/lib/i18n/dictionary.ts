@@ -358,7 +358,7 @@ export const DICTIONARY: Record<string, Entry> = {
     en: "León, the world capital of leather",
   },
   "marquee.shipping": {
-    es: "Envío GRATIS a partir de {threshold}",
+    es: "Envío GRATIS a todo México",
     en: "Shipped to your door across the USA",
   },
   "marquee.msi": {
