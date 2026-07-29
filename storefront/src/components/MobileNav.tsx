@@ -5,7 +5,7 @@ import { createPortal } from "react-dom"
 import Link from "next/link"
 import Image from "next/image"
 import { SocialIcons } from "./SocialIcons"
-import { useT } from "@/lib/i18n/context"
+import { useLocale } from "@/lib/i18n/context"
 
 /**
  * MobileNav — hamburger + drawer lateral para navegación mobile.
@@ -90,7 +90,7 @@ const COMPANY_LINKS = [
 ]
 
 export function MobileNav() {
-  const t = useT()
+  const { locale, t } = useLocale()
   const [open, setOpen] = useState(false)
   const [mounted, setMounted] = useState(false)
   const hamburgerRef = useRef<HTMLButtonElement>(null)
@@ -261,6 +261,16 @@ export function MobileNav() {
                 {t(link.label)}
               </Link>
             ))}
+            {/* Catálogo PDF — abre en pestaña nueva */}
+            <a
+              href={locale === "en" ? "/catalogo-en.pdf" : "/catalogo-es.pdf"}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={close}
+              className="block py-3.5 font-display text-xl border-b border-border/30 text-text hover:text-leather transition-colors"
+            >
+              {t("catalog.nav")}
+            </a>
           </div>
 
           {/* Ayuda */}

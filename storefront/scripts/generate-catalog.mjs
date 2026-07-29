@@ -54,7 +54,7 @@ const SITE = (process.env.NEXT_PUBLIC_SITE_URL || "https://botasleon.com").repla
 const ENDPOINT = DOMAIN ? `https://${DOMAIN}/api/${VERSION}/graphql.json` : ""
 
 // anchos objetivo (px) por tipo de imagen
-const W = { main: 760, thumb: 240, cover: 1000, logo: 260 }
+const W = { photo: 480, cover: 1100, logo: 280 }
 
 const C = {
   leather: "#3B2A20", brown: "#8B5A2B", gold: "#C9A227", text: "#1F1814",
@@ -81,7 +81,7 @@ async function fetchJpeg(url, w) {
 // Procesa una lista de {url, w} en paralelo (batches) → llena imgCache.
 async function prepareImages(jobs) {
   const uniq = [...new Map(jobs.filter((j) => j.url).map((j) => [`${j.url}|${j.w}`, j])).values()]
-  const BATCH = 10
+  const BATCH = 20
   for (let i = 0; i < uniq.length; i += BATCH) {
     const slice = uniq.slice(i, i + BATCH)
     const out = await Promise.all(slice.map((j) => fetchJpeg(j.url, j.w)))
@@ -135,24 +135,53 @@ const PRODUCTS_QUERY = /* GraphQL */ `
       edges { node {
         handle title vendor description productType
         featuredImage { url }
-        images(first: 3) { edges { node { url } } }
+        images(first: 6) { edges { node { url } } }
         priceRange { minVariantPrice { amount currencyCode } }
+        compareAtPriceRange { minVariantPrice { amount currencyCode } }
         gender: metafield(namespace: "shopify", key: "target-gender") {
           references(first: 5) { edges { node { ... on Metaobject { handle } } } }
+        }
+        material: metafield(namespace: "shopify", key: "footwear-material") {
+          references(first: 5) { edges { node { ... on Metaobject { fields { key value } } } } }
+        }
+        toe: metafield(namespace: "shopify", key: "toe-style") {
+          references(first: 5) { edges { node { ... on Metaobject { fields { key value } } } } }
+        }
+        style: metafield(namespace: "shopify", key: "boot-style") {
+          references(first: 5) { edges { node { ... on Metaobject { fields { key value } } } } }
         }
       } }
     }
   }
 `
+function refLabels(mf) {
+  return (mf?.references?.edges ?? [])
+    .map((e) => {
+      const f = e.node.fields || []
+      return (
+        f.find((x) => x.key === "label")?.value ||
+        f.find((x) => x.key === "name")?.value ||
+        f.find((x) => x.key === "value")?.value ||
+        ""
+      )
+    })
+    .filter(Boolean)
+}
 function mapProduct(node) {
   const imgs = []
   if (node.featuredImage?.url) imgs.push(node.featuredImage.url)
   for (const e of node.images?.edges ?? []) if (e.node?.url && !imgs.includes(e.node.url)) imgs.push(e.node.url)
+  const price = node.priceRange?.minVariantPrice ?? null
+  const ca = node.compareAtPriceRange?.minVariantPrice
+  const compareAt = ca && parseFloat(ca.amount) > parseFloat(price?.amount ?? "0") ? ca : null
   return {
     handle: node.handle, title: node.title, vendor: node.vendor || "",
-    description: stripHtml(node.description).slice(0, 300),
-    images: imgs.slice(0, 3),
-    price: node.priceRange?.minVariantPrice ?? null,
+    description: stripHtml(node.description).slice(0, 480),
+    images: imgs.slice(0, 6),
+    price, compareAt,
+    material: refLabels(node.material),
+    horma: refLabels(node.toe),
+    styles: refLabels(node.style),
     genders: (node.gender?.references?.edges ?? []).map((e) => e.node.handle),
   }
 }
@@ -185,6 +214,7 @@ async function getCovers() {
     if (link.includes("/hombre")) covers.hombre = im
     else if (link.includes("/mujer")) covers.mujer = im
   }
+  console.log(`[catalog] portadas de categoría → hombre:${covers.hombre ? "OK" : "FALTA"} mujer:${covers.mujer ? "OK" : "FALTA"}`)
   return covers
 }
 
@@ -218,29 +248,56 @@ function Divider({ label, cover, dest }) {
         h(Text, { style: { color: C.cream, fontSize: 36, letterSpacing: 8, fontFamily: "Helvetica-Bold" } }, label))))
 }
 
+function Chip(label) {
+  return h(View, { key: label, style: { backgroundColor: C.cream, borderRadius: 10, paddingVertical: 3, paddingHorizontal: 9, marginRight: 6, marginBottom: 6 } },
+    h(Text, { style: { color: C.leather, fontSize: 8.5, letterSpacing: 0.4 } }, label))
+}
+
+// Tile de foto: SIEMPRE contain (la bota completa, nunca recortada) sobre crema.
+function photoTile(src, style) {
+  return h(View, { style: { backgroundColor: C.creamSoft, borderRadius: 4, alignItems: "center", justifyContent: "center", padding: 6, ...style } },
+    src ? h(Image, { src, style: { width: "100%", height: "100%", objectFit: "contain" } }) : null)
+}
+
 function BootPage({ p, tr, locale, currency, brandLogos, qrMap }) {
-  const main = img(p.images[0], W.main)
-  const thumbs = p.images.slice(1, 3).map((u) => img(u, W.thumb)).filter(Boolean)
+  const photos = p.images.map((u) => img(u, W.photo)).filter(Boolean)
   const logo = img(brandLogos.get((p.vendor || "").trim().toLowerCase()), W.logo)
   const url = `${SITE}/products/${p.handle}`
   const price = p.price ? money(p.price.amount, p.price.currencyCode || currency, locale) : ""
+  const compareAt = p.compareAt ? money(p.compareAt.amount, p.compareAt.currencyCode || currency, locale) : ""
   const qrImg = qrMap.get(p.handle)
-  return h(Page, { size: "A4", style: { padding: 0, backgroundColor: C.white } },
-    h(View, { style: { height: "52%", position: "relative", backgroundColor: C.creamSoft } },
-      main ? h(Image, { src: main, style: { position: "absolute", top: 0, left: 0, width: "100%", height: "100%", objectFit: "cover" } }) : null),
-    h(View, { style: { flex: 1, paddingHorizontal: 40, paddingTop: 22, paddingBottom: 26 } },
-      logo ? h(Image, { src: logo, style: { height: 26, width: 92, objectFit: "contain", marginBottom: 8 } })
-           : h(Text, { style: { color: C.brown, fontSize: 11, letterSpacing: 2, marginBottom: 8, fontFamily: "Helvetica-Bold" } }, (p.vendor || "").toUpperCase()),
-      h(Text, { style: { color: C.text, fontSize: 19, fontFamily: "Helvetica-Bold", marginBottom: 6 } }, p.title),
-      price ? h(Text, { style: { color: C.leather, fontSize: 16, fontFamily: "Helvetica-Bold", marginBottom: 10 } }, price) : null,
-      p.description ? h(Text, { style: { color: C.muted, fontSize: 10.5, lineHeight: 1.5, marginBottom: 12 } }, p.description) : null,
-      h(View, { style: { flexDirection: "row", alignItems: "flex-end", justifyContent: "space-between", marginTop: "auto" } },
-        h(View, { style: { flexDirection: "row", gap: 8 } },
-          ...thumbs.map((j, i) => h(Image, { key: i, src: j, style: { width: 64, height: 64, objectFit: "cover", borderRadius: 3, border: `1px solid ${C.border}` } }))),
-        h(Link, { src: url, style: { flexDirection: "row", alignItems: "center", gap: 8, textDecoration: "none" } },
-          qrImg ? h(Image, { src: qrImg, style: { width: 60, height: 60 } }) : null,
-          h(Text, { style: { color: C.brown, fontSize: 9, fontFamily: "Helvetica-Bold", maxWidth: 62 } }, tr.buy))))
-  )
+  const specs = [...new Set([...p.styles, ...p.material, ...p.horma])].slice(0, 6)
+
+  // Collage — todas las fotos, sin recortar. 1 foto = grande; 2+ = grid 2 col.
+  const tileH = photos.length <= 2 ? 372 : photos.length <= 4 ? 182 : 120
+  const collage =
+    photos.length <= 1
+      ? photoTile(photos[0], { flex: 1 })
+      : h(View, { style: { flexDirection: "row", flexWrap: "wrap", gap: 8, alignContent: "flex-start" } },
+          ...photos.map((ph, i) => photoTile(ph, { width: "48.5%", height: tileH })))
+
+  return h(Page, { size: "A4", style: { padding: 30, backgroundColor: C.white, flexDirection: "column" } },
+    // Encabezado: marca + nombre · precio
+    h(View, { style: { flexDirection: "row", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 12 } },
+      h(View, { style: { flex: 1, paddingRight: 12 } },
+        logo ? h(Image, { src: logo, style: { height: 22, width: 88, objectFit: "contain", marginBottom: 6 } })
+             : h(Text, { style: { color: C.brown, fontSize: 10, letterSpacing: 2, marginBottom: 6, fontFamily: "Helvetica-Bold" } }, (p.vendor || "").toUpperCase()),
+        h(Text, { style: { color: C.text, fontSize: 18, fontFamily: "Helvetica-Bold", lineHeight: 1.15 } }, p.title)),
+      h(View, { style: { alignItems: "flex-end" } },
+        price ? h(Text, { style: { color: C.leather, fontSize: 17, fontFamily: "Helvetica-Bold" } }, price) : null,
+        compareAt ? h(Text, { style: { color: C.subtle, fontSize: 10, textDecoration: "line-through", marginTop: 2 } }, compareAt) : null)),
+    // Collage (zona central de altura fija → nada se corta)
+    h(View, { style: { height: 384, marginBottom: 12 } }, collage),
+    // Specs (chips)
+    specs.length ? h(View, { style: { flexDirection: "row", flexWrap: "wrap", marginBottom: 8 } }, ...specs.map((s) => Chip(s))) : null,
+    // Descripción completa
+    p.description ? h(Text, { style: { color: C.muted, fontSize: 10, lineHeight: 1.5 } }, p.description) : null,
+    // Pie: web + QR/enlace
+    h(View, { style: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginTop: "auto", borderTop: `1px solid ${C.border}`, paddingTop: 10 } },
+      h(Text, { style: { color: C.subtle, fontSize: 9 } }, "botasleon.com"),
+      h(Link, { src: url, style: { flexDirection: "row", alignItems: "center", gap: 8, textDecoration: "none" } },
+        h(Text, { style: { color: C.brown, fontSize: 10, fontFamily: "Helvetica-Bold" } }, tr.buy),
+        qrImg ? h(Image, { src: qrImg, style: { width: 54, height: 54 } }) : null)))
 }
 
 function BackCover({ tr }) {
@@ -288,8 +345,7 @@ async function main() {
   const src = es || en
   const jobs = []
   for (const p of [...src.hombre, ...src.mujer]) {
-    if (p.images[0]) jobs.push({ url: p.images[0], w: W.main })
-    for (const u of p.images.slice(1, 3)) jobs.push({ url: u, w: W.thumb })
+    for (const u of p.images) jobs.push({ url: u, w: W.photo })
   }
   jobs.push({ url: covers.hombre, w: W.cover }, { url: covers.mujer, w: W.cover })
   for (const logo of brandLogos.values()) jobs.push({ url: logo, w: W.logo })

@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react"
 import Link from "next/link"
-import { useT } from "@/lib/i18n/context"
+import { useLocale } from "@/lib/i18n/context"
 
 /**
  * MegaMenu — navegación principal con dropdowns full-width.
@@ -106,7 +106,7 @@ const MENU: MenuItem[] = [
 const CLOSE_DELAY_MS = 200
 
 export function MegaMenu() {
-  const t = useT()
+  const { locale, t } = useLocale()
   const [openIdx, setOpenIdx] = useState<number | null>(null)
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
@@ -170,6 +170,14 @@ export function MegaMenu() {
             )}
           </div>
         ))}
+        <a
+          href={locale === "en" ? "/catalogo-en.pdf" : "/catalogo-es.pdf"}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="relative block px-3.5 py-2 text-[15px] uppercase tracking-[0.1em] transition-colors hover:text-leather"
+        >
+          {t("catalog.nav")}
+        </a>
       </nav>
 
       {/* Panel desplegable — full-width debajo del header.

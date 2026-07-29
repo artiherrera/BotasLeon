@@ -42,7 +42,3 @@ next-env.d.ts
 
 # generado por scripts/generate-sitemap.mjs en cada build
 /public/sitemap.xml
-
-# catálogo PDF generado por scripts/generate-catalog.mjs en cada build
-/public/catalogo-es.pdf
-/public/catalogo-en.pdf
