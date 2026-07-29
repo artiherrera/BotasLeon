@@ -223,29 +223,32 @@ function Wordmark({ size = 26, color = C.cream }) {
   return h(Text, { style: { fontFamily: "Helvetica-Bold", fontSize: size, letterSpacing: 1, color } }, "BOTAS", h(Text, { style: { color: C.gold } }, "LEÓN"))
 }
 
+// LETTER = 612 × 792 pt. Alturas EXPLÍCITAS (flex:1 no le daba alto a las fotos).
+const COVER_TILE_H = 640
 function CoverMenu({ tr, covers }) {
   const tile = (label, cover, dest) =>
-    h(Link, { src: `#${dest}`, style: { flex: 1, textDecoration: "none" } },
-      h(View, { style: { flex: 1, position: "relative", backgroundColor: C.brown } },
-        img(cover, W.cover) ? h(Image, { src: img(cover, W.cover), style: { position: "absolute", top: 0, left: 0, width: "100%", height: "100%", objectFit: "cover" } }) : null,
-        h(View, { style: { position: "absolute", bottom: 0, left: 0, right: 0, backgroundColor: "rgba(59,42,32,0.75)", paddingVertical: 16, alignItems: "center" } },
-          h(Text, { style: { color: C.cream, fontSize: 22, letterSpacing: 4, fontFamily: "Helvetica-Bold" } }, label),
+    h(Link, { src: `#${dest}`, style: { width: "50%", height: COVER_TILE_H, textDecoration: "none" } },
+      h(View, { style: { width: "100%", height: "100%", position: "relative", backgroundColor: C.brown } },
+        img(cover, W.cover) ? h(Image, { src: img(cover, W.cover), style: { width: "100%", height: "100%", objectFit: "cover" } }) : null,
+        h(View, { style: { position: "absolute", bottom: 0, left: 0, right: 0, backgroundColor: "rgba(59,42,32,0.78)", paddingVertical: 18, alignItems: "center" } },
+          h(Text, { style: { color: C.cream, fontSize: 24, letterSpacing: 5, fontFamily: "Helvetica-Bold" } }, label),
           h(Text, { style: { color: C.gold, fontSize: 8, letterSpacing: 2, marginTop: 4 } }, tr.tapToSee))))
-  return h(Page, { size: "A4", wrap: false, style: { backgroundColor: C.leather, padding: 0 } },
-    h(View, { style: { paddingTop: 48, paddingBottom: 24, alignItems: "center" } },
+  return h(Page, { size: "LETTER", wrap: false, style: { backgroundColor: C.leather, padding: 0 } },
+    h(View, { style: { height: 120, alignItems: "center", justifyContent: "center" } },
       h(Wordmark, { size: 30 }),
-      h(Text, { style: { color: C.gold, fontSize: 11, letterSpacing: 4, marginTop: 16 } }, tr.coverEyebrow),
+      h(Text, { style: { color: C.gold, fontSize: 11, letterSpacing: 4, marginTop: 14 } }, tr.coverEyebrow),
       h(Text, { style: { color: C.cream, fontSize: 13, marginTop: 6 } }, tr.coverTitle)),
-    h(View, { style: { flexDirection: "row", flex: 1 } }, tile(tr.men, covers.hombre, "sec-hombre"), tile(tr.women, covers.mujer, "sec-mujer")),
-    h(Text, { style: { color: C.subtle, fontSize: 9, textAlign: "center", paddingVertical: 12 } }, "botasleon.com"))
+    h(View, { style: { flexDirection: "row", height: COVER_TILE_H } }, tile(tr.men, covers.hombre, "sec-hombre"), tile(tr.women, covers.mujer, "sec-mujer")),
+    h(View, { style: { height: 32, alignItems: "center", justifyContent: "center" } },
+      h(Text, { style: { color: C.subtle, fontSize: 9 } }, "botasleon.com")))
 }
 
 function Divider({ label, cover, dest }) {
-  return h(Page, { size: "A4", wrap: false, style: { padding: 0, backgroundColor: C.leather }, bookmark: { title: label } },
-    h(View, { id: dest, style: { flex: 1, position: "relative", backgroundColor: C.brown } },
-      img(cover, W.cover) ? h(Image, { src: img(cover, W.cover), style: { position: "absolute", top: 0, left: 0, width: "100%", height: "100%", objectFit: "cover" } }) : null,
-      h(View, { style: { position: "absolute", bottom: 70, left: 0, right: 0, alignItems: "center", backgroundColor: "rgba(59,42,32,0.55)", paddingVertical: 24 } },
-        h(Text, { style: { color: C.cream, fontSize: 36, letterSpacing: 8, fontFamily: "Helvetica-Bold" } }, label))))
+  return h(Page, { size: "LETTER", wrap: false, style: { padding: 0, backgroundColor: C.leather }, bookmark: { title: label } },
+    h(View, { id: dest, style: { width: "100%", height: 792, position: "relative", backgroundColor: C.brown } },
+      img(cover, W.cover) ? h(Image, { src: img(cover, W.cover), style: { width: "100%", height: "100%", objectFit: "cover" } }) : null,
+      h(View, { style: { position: "absolute", bottom: 90, left: 0, right: 0, alignItems: "center", backgroundColor: "rgba(59,42,32,0.55)", paddingVertical: 28 } },
+        h(Text, { style: { color: C.cream, fontSize: 40, letterSpacing: 8, fontFamily: "Helvetica-Bold" } }, label))))
 }
 
 function Chip(label) {
@@ -269,14 +272,14 @@ function BootPage({ p, tr, locale, currency, brandLogos, qrMap }) {
   const specs = [...new Set([...p.styles, ...p.material, ...p.horma])].slice(0, 6)
 
   // Collage — todas las fotos, sin recortar. 1 foto = grande; 2+ = grid 2 col.
-  const tileH = photos.length <= 2 ? 372 : photos.length <= 4 ? 182 : 120
+  const tileH = photos.length <= 2 ? 462 : photos.length <= 4 ? 226 : 148
   const collage =
     photos.length <= 1
       ? photoTile(photos[0], { flex: 1 })
       : h(View, { style: { flexDirection: "row", flexWrap: "wrap", gap: 8, alignContent: "flex-start" } },
           ...photos.map((ph, i) => photoTile(ph, { width: "48.5%", height: tileH })))
 
-  return h(Page, { size: "A4", style: { padding: 30, backgroundColor: C.white, flexDirection: "column" } },
+  return h(Page, { size: "LETTER", style: { padding: 30, backgroundColor: C.white, flexDirection: "column" } },
     // Encabezado: marca + nombre · precio
     h(View, { style: { flexDirection: "row", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 12 } },
       h(View, { style: { flex: 1, paddingRight: 12 } },
@@ -287,7 +290,7 @@ function BootPage({ p, tr, locale, currency, brandLogos, qrMap }) {
         price ? h(Text, { style: { color: C.leather, fontSize: 17, fontFamily: "Helvetica-Bold" } }, price) : null,
         compareAt ? h(Text, { style: { color: C.subtle, fontSize: 10, textDecoration: "line-through", marginTop: 2 } }, compareAt) : null)),
     // Collage (zona central de altura fija → nada se corta)
-    h(View, { style: { height: 384, marginBottom: 12 } }, collage),
+    h(View, { style: { height: 470, marginBottom: 12 } }, collage),
     // Specs (chips)
     specs.length ? h(View, { style: { flexDirection: "row", flexWrap: "wrap", marginBottom: 8 } }, ...specs.map((s) => Chip(s))) : null,
     // Descripción completa
@@ -301,7 +304,7 @@ function BootPage({ p, tr, locale, currency, brandLogos, qrMap }) {
 }
 
 function BackCover({ tr }) {
-  return h(Page, { size: "A4", style: { backgroundColor: C.leather, padding: 50, justifyContent: "center", alignItems: "center" } },
+  return h(Page, { size: "LETTER", style: { backgroundColor: C.leather, padding: 50, justifyContent: "center", alignItems: "center" } },
     h(Wordmark, { size: 30 }),
     h(Text, { style: { color: C.cream, fontSize: 15, marginTop: 24, marginBottom: 16, textAlign: "center" } }, tr.shopOnline),
     h(Text, { style: { color: C.gold, fontSize: 20, letterSpacing: 1, marginBottom: 26, fontFamily: "Helvetica-Bold" } }, "botasleon.com"),
