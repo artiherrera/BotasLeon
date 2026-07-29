@@ -2,6 +2,7 @@ import { Suspense } from "react"
 import { Header } from "@/components/Header"
 import { Footer } from "@/components/Footer"
 import { ProductsListing } from "@/components/ProductsListing"
+import { CatalogButton } from "@/components/CatalogButton"
 import { getProducts } from "@/lib/shopify"
 import type { Product, PageInfo } from "@/lib/shopify/types"
 import { pageMetadata } from "@/lib/seo"
@@ -42,6 +43,9 @@ export default async function ProductsPage() {
               Curadas directamente de los talleres de León. Cada par verificado
               en cuero, costuras y construcción antes de llegar a tu puerta.
             </p>
+            <div className="mt-6">
+              <CatalogButton />
+            </div>
           </div>
 
           {fetchError ? (

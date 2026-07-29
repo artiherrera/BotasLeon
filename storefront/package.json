@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "prebuild": "node scripts/generate-sitemap.mjs",
+    "prebuild": "node scripts/generate-sitemap.mjs && node scripts/generate-catalog.mjs",
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
@@ -13,8 +13,10 @@
   "dependencies": {
     "@react-pdf/renderer": "^4.5.1",
     "next": "16.2.6",
+    "qrcode": "^1.5.4",
     "react": "19.2.4",
-    "react-dom": "19.2.4"
+    "react-dom": "19.2.4",
+    "sharp": "^0.35.3"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",

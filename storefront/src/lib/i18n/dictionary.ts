@@ -237,6 +237,7 @@ export const DICTIONARY: Record<string, Entry> = {
   "filters.color": { es: "Color", en: "Color" },
   "filters.material": { es: "Material", en: "Material" },
   "filters.horma": { es: "Horma", en: "Toe shape" },
+  "catalog.download": { es: "Descargar catálogo", en: "Download catalog" },
   "filters.availability": { es: "Disponibilidad", en: "Availability" },
   "filters.inStock": { es: "Solo en stock", en: "In stock only" },
   "filters.show": { es: "Ver", en: "Show" },
