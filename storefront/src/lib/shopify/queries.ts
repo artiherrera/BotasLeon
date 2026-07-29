@@ -72,6 +72,13 @@ export const PRODUCT_CARD_FRAGMENT = /* GraphQL */ `
         edges { node { ... on Metaobject { handle fields { key value } } } }
       }
     }
+    # Horma / estilo de punta (shopify.toe-style) — fuente del filtro "Horma".
+    # Mismo shape de references que color/material/boot-style.
+    toeStyle: metafield(namespace: "shopify", key: "toe-style") {
+      references(first: 5) {
+        edges { node { ... on Metaobject { handle fields { key value } } } }
+      }
+    }
     # Judge.me metafields — solo existen DESPUÉS de la primera reseña recibida.
     # Mientras la tienda no tenga reseñas, todos devuelven null y el frontend
     # debe fallar graceful ("Sin reseñas aún"). Probamos ambos namespaces

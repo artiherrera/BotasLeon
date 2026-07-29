@@ -1,7 +1,7 @@
 "use client"
 
-import { useEffect, useMemo, useRef, useState } from "react"
-import { useSearchParams } from "next/navigation"
+import { useCallback, useEffect, useMemo, useRef, useState } from "react"
+import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { ProductCard } from "./ProductCard"
 import { EmptyProductsState } from "./EmptyState"
 import { loadMoreProducts } from "@/lib/search/client"
@@ -53,16 +53,25 @@ type FilterState = {
   types: Set<string>
   colors: Set<string>
   materials: Set<string>
+  hormas: Set<string>
   onlyAvailable: boolean
 }
 
-const EMPTY_FILTERS: FilterState = {
-  vendors: new Set(),
-  sizes: new Set(),
-  types: new Set(),
-  colors: new Set(),
-  materials: new Set(),
-  onlyAvailable: false,
+// Filtro (set) → nombre del parámetro en la URL. Así los filtros son
+// compartibles: /mujer?marca=cabrera&horma=cuadrado&color=negro
+const PARAM: Record<"vendors" | "sizes" | "types" | "colors" | "materials" | "hormas", string> = {
+  vendors: "marca",
+  sizes: "talla",
+  types: "estilo",
+  colors: "color",
+  materials: "material",
+  hormas: "horma",
+}
+
+// Lee un parámetro multi-valor (coma-separado) de la URL como Set.
+function paramSet(sp: URLSearchParams | ReturnType<typeof useSearchParams>, key: string): Set<string> {
+  const raw = sp.get(key) ?? ""
+  return new Set(raw.split(",").map((s) => s.trim()).filter(Boolean))
 }
 
 // Extrae los handles de un metafield de taxonomía (Color, Material, etc.)
@@ -129,6 +138,8 @@ export function ProductsListing({ products, initialStyle, initialPageInfo }: Pro
   // Precedencia: initialStyle > ?estilo=. searchParams se mantiene como
   // fallback y para detectar cambios dentro del mismo segmento padre.
   const searchParams = useSearchParams()
+  const router = useRouter()
+  const pathname = usePathname()
 
   // Estado paginación — `allProducts` arranca con el batch SSG y crece
   // cuando el usuario hace "Cargar más". `pageInfo` controla si seguimos
@@ -146,48 +157,58 @@ export function ProductsListing({ products, initialStyle, initialPageInfo }: Pro
     setPageInfo(initialPageInfo)
   }, [products, initialPageInfo])
 
-  const [filters, setFilters] = useState<FilterState>(() => {
-    const initial = initialStyle ?? searchParams?.get("estilo")?.trim() ?? ""
-    if (!initial) return EMPTY_FILTERS
-    const target = normalize(initial)
-    const matching = new Set(
-      products
-        .flatMap(styleLabelsOf)
-        .filter((label) => normalize(label) === target)
-    )
-    return {
-      ...EMPTY_FILTERS,
-      types: matching.size > 0 ? matching : new Set([initial]),
+  // Filtros DERIVADOS de la URL — fuente única de verdad, así son compartibles
+  // (/mujer?horma=cuadrado&marca=cabrera) y no hay estado que se desincronice.
+  // initialStyle (sub-ruta /hombre/vaqueras) fuerza el estilo sobre el query.
+  const filters = useMemo<FilterState>(() => {
+    let types: Set<string>
+    if (initialStyle) {
+      const target = normalize(initialStyle)
+      const matching = products.flatMap(styleLabelsOf).filter((l) => normalize(l) === target)
+      types = matching.length > 0 ? new Set(matching) : new Set([initialStyle])
+    } else {
+      const raw = paramSet(searchParams, "estilo")
+      if (raw.size === 0) {
+        types = new Set()
+      } else {
+        // El query guarda labels ("Vaqueras"); links viejos guardan slug
+        // ("vaqueras"). Resolvemos ambos por comparación normalizada.
+        const allLabels = Array.from(new Set(products.flatMap(styleLabelsOf)))
+        types = new Set(
+          Array.from(raw).map((r) => allLabels.find((l) => normalize(l) === normalize(r)) ?? r)
+        )
+      }
     }
-  })
+    return {
+      vendors: paramSet(searchParams, "marca"),
+      sizes: paramSet(searchParams, "talla"),
+      types,
+      colors: paramSet(searchParams, "color"),
+      materials: paramSet(searchParams, "material"),
+      hormas: paramSet(searchParams, "horma"),
+      onlyAvailable: searchParams.get("stock") === "1",
+    }
+  }, [searchParams, initialStyle, products])
+
+  // Escribe cambios de filtro en la URL (router.replace, sin recargar ni
+  // scrollear). Como los filtros se DERIVAN de la URL, esto re-renderiza con el
+  // nuevo estado — no hay setState de filtros.
+  const updateParams = useCallback(
+    (mutate: (p: URLSearchParams) => void) => {
+      const params = new URLSearchParams(searchParams.toString())
+      mutate(params)
+      const qs = params.toString()
+      router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false })
+    },
+    [router, pathname, searchParams]
+  )
+
   const [sortKey, setSortKey] = useState<SortKey>("default")
   const [mobileOpen, setMobileOpen] = useState(false)
   // En mobile el <aside> es un drawer modal: atrapa el foco, cierra con ESC y
   // restaura el foco al botón "Filtros". En desktop mobileOpen es false, así
   // que el hook queda inactivo y el aside es un sidebar normal.
   const filtersRef = useFocusTrap<HTMLElement>(mobileOpen, () => setMobileOpen(false))
-
-  // Sincroniza el filtro types cuando cambia el estilo activo.
-  // Necesario porque al navegar /hombre/vaqueras → /hombre/clasicas Next
-  // PUEDE preservar el segmento padre y no remontar este client component,
-  // entonces el lazy-init de useState no se vuelve a ejecutar. Lo mismo
-  // aplica al cambio de ?estilo= en navegación dentro del mismo segmento.
-  // - Estilo vacío: no tocamos nada (preservamos filtros manuales).
-  // - Sin match para el estilo: sentinela con el raw → empty state.
-  useEffect(() => {
-    const target = initialStyle ?? searchParams?.get("estilo")?.trim() ?? ""
-    if (!target) return
-    const normalized = normalize(target)
-    const matching = new Set(
-      products
-        .flatMap(styleLabelsOf)
-        .filter((label) => normalize(label) === normalized)
-    )
-    setFilters({
-      ...EMPTY_FILTERS,
-      types: matching.size > 0 ? matching : new Set([target]),
-    })
-  }, [initialStyle, searchParams, products])
 
   // === Facetas — qué opciones mostrar en sidebar ===
 
@@ -199,6 +220,7 @@ export function ProductsListing({ products, initialStyle, initialPageInfo }: Pro
     // de "negro") y el swatch con el HEX nativo de Shopify cuando está.
     const colorMap = new Map<string, { label: string; hex: string | null }>()
     const materialMap = new Map<string, string>()
+    const hormaMap = new Map<string, string>()
 
     for (const p of allProducts) {
       if (p.vendor) vendors.add(p.vendor)
@@ -213,6 +235,9 @@ export function ProductsListing({ products, initialStyle, initialPageInfo }: Pro
       }
       for (const m of extractTaxonomyValues(p.material)) {
         materialMap.set(m.handle, m.label)
+      }
+      for (const h of extractTaxonomyValues(p.toeStyle)) {
+        hormaMap.set(h.handle, h.label)
       }
     }
     const sortNumeric = (a: string, b: string) => {
@@ -229,6 +254,9 @@ export function ProductsListing({ products, initialStyle, initialPageInfo }: Pro
         .map(([handle, { label, hex }]) => ({ handle, label, hex }))
         .sort((a, b) => a.label.localeCompare(b.label)),
       materials: Array.from(materialMap.entries())
+        .map(([handle, label]) => ({ handle, label }))
+        .sort((a, b) => a.label.localeCompare(b.label)),
+      hormas: Array.from(hormaMap.entries())
         .map(([handle, label]) => ({ handle, label }))
         .sort((a, b) => a.label.localeCompare(b.label)),
     }
@@ -265,6 +293,11 @@ export function ProductsListing({ products, initialStyle, initialPageInfo }: Pro
       if (filters.materials.size > 0) {
         const materials = extractTaxonomyValues(p.material)
         if (!materials.some((m) => filters.materials.has(m.handle))) return false
+      }
+
+      if (filters.hormas.size > 0) {
+        const hormas = extractTaxonomyValues(p.toeStyle)
+        if (!hormas.some((h) => filters.hormas.has(h.handle))) return false
       }
 
       return true
@@ -304,21 +337,36 @@ export function ProductsListing({ products, initialStyle, initialPageInfo }: Pro
     filters.types.size +
     filters.colors.size +
     filters.materials.size +
+    filters.hormas.size +
     (filters.onlyAvailable ? 1 : 0)
 
-  const clearAll = () => setFilters(EMPTY_FILTERS)
+  // Limpia TODOS los filtros de la URL (conserva la ruta, ej. /hombre/vaqueras
+  // mantiene su estilo por la sub-ruta).
+  const clearAll = () =>
+    updateParams((params) => {
+      for (const k of Object.values(PARAM)) params.delete(k)
+      params.delete("stock")
+    })
 
   const toggle = (
-    key: "vendors" | "sizes" | "types" | "colors" | "materials",
+    key: "vendors" | "sizes" | "types" | "colors" | "materials" | "hormas",
     value: string
   ) => {
-    setFilters((prev) => {
-      const next = new Set(prev[key])
-      if (next.has(value)) next.delete(value)
-      else next.add(value)
-      return { ...prev, [key]: next }
+    updateParams((params) => {
+      const pk = PARAM[key]
+      const current = paramSet(params, pk)
+      if (current.has(value)) current.delete(value)
+      else current.add(value)
+      if (current.size > 0) params.set(pk, Array.from(current).join(","))
+      else params.delete(pk)
     })
   }
+
+  const setOnlyAvailable = (checked: boolean) =>
+    updateParams((params) => {
+      if (checked) params.set("stock", "1")
+      else params.delete("stock")
+    })
 
   // === Scroll anchoring al filtrar ===
   // Al aplicar/quitar filtros la grid se encoge; el scroll (en px) se queda
@@ -517,15 +565,36 @@ export function ProductsListing({ products, initialStyle, initialPageInfo }: Pro
             </FilterSection>
           )}
 
+          {/* Horma — datos del metafield shopify.toe-style (En punta, Dubai,
+              Redondo, Cuadrado). */}
+          {facets.hormas.length > 0 && (
+            <FilterSection title={t("filters.horma")}>
+              <div className="space-y-2">
+                {facets.hormas.map(({ handle, label }) => (
+                  <label
+                    key={handle}
+                    className="flex items-center gap-2 cursor-pointer text-sm hover:text-leather"
+                  >
+                    <input
+                      type="checkbox"
+                      checked={filters.hormas.has(handle)}
+                      onChange={() => toggle("hormas", handle)}
+                      className="rounded border-border accent-leather"
+                    />
+                    <span className="flex-1">{label}</span>
+                  </label>
+                ))}
+              </div>
+            </FilterSection>
+          )}
+
           {/* Disponibilidad */}
           <FilterSection title={t("filters.availability")}>
             <label className="flex items-center gap-2 cursor-pointer text-sm">
               <input
                 type="checkbox"
                 checked={filters.onlyAvailable}
-                onChange={(e) =>
-                  setFilters((prev) => ({ ...prev, onlyAvailable: e.target.checked }))
-                }
+                onChange={(e) => setOnlyAvailable(e.target.checked)}
                 className="rounded border-border accent-leather"
               />
               {t("filters.inStock")}
