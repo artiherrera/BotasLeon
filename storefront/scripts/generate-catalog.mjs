@@ -23,11 +23,24 @@ import pdfPkg from "@react-pdf/renderer"
 import QRCode from "qrcode"
 import sharp from "sharp"
 
-const { Document, Page, View, Text, Image, Link } = pdfPkg
+const { Document, Page, View, Text, Image, Link, Font } = pdfPkg
 const h = React.createElement
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const ROOT = join(__dirname, "..")
+
+// Tipografías de marca (mismas del sitio): Bevan (display western) + Zilla Slab.
+Font.register({ family: "Bevan", src: join(__dirname, "fonts", "Bevan-Regular.ttf") })
+Font.register({
+  family: "Zilla",
+  fonts: [
+    { src: join(__dirname, "fonts", "ZillaSlab-Regular.ttf"), fontWeight: 400 },
+    { src: join(__dirname, "fonts", "ZillaSlab-SemiBold.ttf"), fontWeight: 600 },
+    { src: join(__dirname, "fonts", "ZillaSlab-Bold.ttf"), fontWeight: 700 },
+  ],
+})
+// Evita que react-pdf intente cortar palabras con guiones (mejor para títulos).
+Font.registerHyphenationCallback((word) => [word])
 
 // ── env ────────────────────────────────────────────────────────────────
 async function loadEnvFile(path) {
@@ -54,12 +67,18 @@ const SITE = (process.env.NEXT_PUBLIC_SITE_URL || "https://botasleon.com").repla
 const ENDPOINT = DOMAIN ? `https://${DOMAIN}/api/${VERSION}/graphql.json` : ""
 
 // anchos objetivo (px) por tipo de imagen
-const W = { photo: 480, cover: 1100, logo: 280 }
+const W = { photo: 480, cover: 1100, logo: 460 }
 
+// Logo real de BotasLeón (public/logo_botasleon.png = 800×220), versión BLANCA
+// para los fondos oscuros. Se carga en main(); cae a wordmark si falla.
+let LOGO_WHITE = null
+const LOGO_RATIO = 220 / 800
+
+// Colores OFICIALES (globals.css @theme).
 const C = {
-  leather: "#3B2A20", brown: "#8B5A2B", gold: "#C9A227", text: "#1F1814",
-  muted: "#5A4F44", subtle: "#9B8E7C", cream: "#F4E9D8", creamSoft: "#FBF5EA",
-  border: "#D8D0C2", white: "#FFFFFF",
+  leather: "#4B2E1F", brown: "#8B5A2B", gold: "#B8924A", text: "#1F1814",
+  muted: "#5A4F44", subtle: "#6E6250", cream: "#F4E9D8", creamSoft: "#FBF8F1",
+  border: "#D4CCBE", terracotta: "#8B3A24", white: "#FFFFFF",
 }
 
 // ── helpers de imagen (sharp → JPEG data-uri, con caché + paralelo) ───────
@@ -90,6 +109,19 @@ async function prepareImages(jobs) {
 }
 function img(url, w) {
   return url ? imgCache.get(`${url}|${w}`) ?? null : null
+}
+// Convierte el logo (oscuro sobre transparente) a BLANCO respetando el alfa
+// (equivale al `brightness(0) invert(1)` que usa el sitio en los fondos oscuros).
+async function loadWhiteLogo() {
+  try {
+    const p = join(ROOT, "public", "logo_botasleon.png")
+    if (!existsSync(p)) return null
+    const buf = await readFile(p)
+    const white = await sharp(buf).ensureAlpha().linear([0, 0, 0, 1], [255, 255, 255, 0]).png().toBuffer()
+    return "data:image/png;base64," + white.toString("base64")
+  } catch {
+    return null
+  }
 }
 
 function stripHtml(s) {
@@ -219,8 +251,10 @@ async function getCovers() {
 }
 
 // ── componentes del PDF ───────────────────────────────────────────────────
-function Wordmark({ size = 26, color = C.cream }) {
-  return h(Text, { style: { fontFamily: "Helvetica-Bold", fontSize: size, letterSpacing: 1, color } }, "BOTAS", h(Text, { style: { color: C.gold } }, "LEÓN"))
+// Logo real de BotasLeón (blanco). Si no se pudo cargar, cae al wordmark de texto.
+function Logo({ w = 220 }) {
+  if (LOGO_WHITE) return h(Image, { src: LOGO_WHITE, style: { width: w, height: Math.round(w * LOGO_RATIO), objectFit: "contain" } })
+  return h(Text, { style: { fontFamily: "Bevan", fontSize: Math.round(w * 0.14), letterSpacing: 1, color: C.cream } }, "BOTAS", h(Text, { style: { color: C.gold } }, "LEÓN"))
 }
 
 // LETTER = 612 × 792 pt. Alturas EXPLÍCITAS (flex:1 no le daba alto a las fotos).
@@ -231,11 +265,11 @@ function CoverMenu({ tr, covers }) {
       h(View, { style: { width: "100%", height: "100%", position: "relative", backgroundColor: C.brown } },
         img(cover, W.cover) ? h(Image, { src: img(cover, W.cover), style: { width: "100%", height: "100%", objectFit: "cover" } }) : null,
         h(View, { style: { position: "absolute", bottom: 0, left: 0, right: 0, backgroundColor: "rgba(59,42,32,0.78)", paddingVertical: 18, alignItems: "center" } },
-          h(Text, { style: { color: C.cream, fontSize: 24, letterSpacing: 5, fontFamily: "Helvetica-Bold" } }, label),
-          h(Text, { style: { color: C.gold, fontSize: 8, letterSpacing: 2, marginTop: 4 } }, tr.tapToSee))))
-  return h(Page, { size: "LETTER", wrap: false, style: { backgroundColor: C.leather, padding: 0 } },
+          h(Text, { style: { color: C.cream, fontSize: 18, letterSpacing: 2, fontFamily: "Bevan" } }, label),
+          h(Text, { style: { color: C.gold, fontSize: 8, letterSpacing: 2, marginTop: 5, fontFamily: "Zilla" } }, tr.tapToSee))))
+  return h(Page, { size: "LETTER", wrap: false, style: { backgroundColor: C.leather, padding: 0, fontFamily: "Zilla" } },
     h(View, { style: { height: 120, alignItems: "center", justifyContent: "center" } },
-      h(Wordmark, { size: 30 }),
+      h(Logo, { w: 250 }),
       h(Text, { style: { color: C.gold, fontSize: 11, letterSpacing: 4, marginTop: 14 } }, tr.coverEyebrow),
       h(Text, { style: { color: C.cream, fontSize: 13, marginTop: 6 } }, tr.coverTitle)),
     h(View, { style: { flexDirection: "row", height: COVER_TILE_H } }, tile(tr.men, covers.hombre, "sec-hombre"), tile(tr.women, covers.mujer, "sec-mujer")),
@@ -248,7 +282,7 @@ function Divider({ label, cover, dest }) {
     h(View, { id: dest, style: { width: "100%", height: 792, position: "relative", backgroundColor: C.brown } },
       img(cover, W.cover) ? h(Image, { src: img(cover, W.cover), style: { width: "100%", height: "100%", objectFit: "cover" } }) : null,
       h(View, { style: { position: "absolute", bottom: 90, left: 0, right: 0, alignItems: "center", backgroundColor: "rgba(59,42,32,0.55)", paddingVertical: 28 } },
-        h(Text, { style: { color: C.cream, fontSize: 40, letterSpacing: 8, fontFamily: "Helvetica-Bold" } }, label))))
+        h(Text, { style: { color: C.cream, fontSize: 34, letterSpacing: 3, fontFamily: "Bevan" } }, label))))
 }
 
 function Chip(label) {
@@ -279,15 +313,16 @@ function BootPage({ p, tr, locale, currency, brandLogos, qrMap }) {
       : h(View, { style: { flexDirection: "row", flexWrap: "wrap", gap: 8, alignContent: "flex-start" } },
           ...photos.map((ph, i) => photoTile(ph, { width: "48.5%", height: tileH })))
 
-  return h(Page, { size: "LETTER", style: { padding: 30, backgroundColor: C.white, flexDirection: "column" } },
+  return h(Page, { size: "LETTER", style: { padding: 30, backgroundColor: C.white, flexDirection: "column", fontFamily: "Zilla" } },
     // Encabezado: marca + nombre · precio
     h(View, { style: { flexDirection: "row", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 12 } },
       h(View, { style: { flex: 1, paddingRight: 12 } },
-        logo ? h(Image, { src: logo, style: { height: 22, width: 88, objectFit: "contain", marginBottom: 6 } })
-             : h(Text, { style: { color: C.brown, fontSize: 10, letterSpacing: 2, marginBottom: 6, fontFamily: "Helvetica-Bold" } }, (p.vendor || "").toUpperCase()),
-        h(Text, { style: { color: C.text, fontSize: 18, fontFamily: "Helvetica-Bold", lineHeight: 1.15 } }, p.title)),
+        logo ? h(View, { style: { alignItems: "flex-start", marginBottom: 10 } },
+                 h(Image, { src: logo, style: { height: 42, width: 170, objectFit: "contain" } }))
+             : h(Text, { style: { color: C.brown, fontSize: 12, letterSpacing: 2, marginBottom: 8, fontFamily: "Bevan" } }, (p.vendor || "").toUpperCase()),
+        h(Text, { style: { color: C.text, fontSize: 19, fontFamily: "Zilla", fontWeight: 700, lineHeight: 1.15 } }, p.title)),
       h(View, { style: { alignItems: "flex-end" } },
-        price ? h(Text, { style: { color: C.leather, fontSize: 17, fontFamily: "Helvetica-Bold" } }, price) : null,
+        price ? h(Text, { style: { color: C.leather, fontSize: 17, fontFamily: "Zilla", fontWeight: 700 } }, price) : null,
         compareAt ? h(Text, { style: { color: C.subtle, fontSize: 10, textDecoration: "line-through", marginTop: 2 } }, compareAt) : null)),
     // Collage (zona central de altura fija → nada se corta)
     h(View, { style: { height: 470, marginBottom: 12 } }, collage),
@@ -299,15 +334,15 @@ function BootPage({ p, tr, locale, currency, brandLogos, qrMap }) {
     h(View, { style: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginTop: "auto", borderTop: `1px solid ${C.border}`, paddingTop: 10 } },
       h(Text, { style: { color: C.subtle, fontSize: 9 } }, "botasleon.com"),
       h(Link, { src: url, style: { flexDirection: "row", alignItems: "center", gap: 8, textDecoration: "none" } },
-        h(Text, { style: { color: C.brown, fontSize: 10, fontFamily: "Helvetica-Bold" } }, tr.buy),
+        h(Text, { style: { color: C.brown, fontSize: 10, fontFamily: "Zilla", fontWeight: 700 } }, tr.buy),
         qrImg ? h(Image, { src: qrImg, style: { width: 54, height: 54 } }) : null)))
 }
 
 function BackCover({ tr }) {
-  return h(Page, { size: "LETTER", style: { backgroundColor: C.leather, padding: 50, justifyContent: "center", alignItems: "center" } },
-    h(Wordmark, { size: 30 }),
+  return h(Page, { size: "LETTER", style: { backgroundColor: C.leather, padding: 50, justifyContent: "center", alignItems: "center", fontFamily: "Zilla" } },
+    h(Logo, { w: 260 }),
     h(Text, { style: { color: C.cream, fontSize: 15, marginTop: 24, marginBottom: 16, textAlign: "center" } }, tr.shopOnline),
-    h(Text, { style: { color: C.gold, fontSize: 20, letterSpacing: 1, marginBottom: 26, fontFamily: "Helvetica-Bold" } }, "botasleon.com"),
+    h(Text, { style: { color: C.gold, fontSize: 20, letterSpacing: 1, marginBottom: 26, fontFamily: "Zilla", fontWeight: 700 } }, "botasleon.com"),
     h(Text, { style: { color: C.cream, fontSize: 11, lineHeight: 1.8, textAlign: "center" } }, "WhatsApp: +52 479 303 2457"),
     h(Text, { style: { color: C.cream, fontSize: 11, lineHeight: 1.8, textAlign: "center" } }, "contacto@botasleon.com"),
     h(Text, { style: { color: C.subtle, fontSize: 10, textAlign: "center", marginTop: 6 } }, "Blvd. Hilario Medina 407, 2º piso · León, Gto."),
@@ -343,6 +378,8 @@ async function main() {
   const es = esData ? splitByGender(esData) : null
   const en = enData ? splitByGender(enData) : null
   const [brandLogos, covers] = await Promise.all([getBrandLogos(), getCovers()])
+  LOGO_WHITE = await loadWhiteLogo()
+  console.log(`[catalog] logo BotasLeón (blanco): ${LOGO_WHITE ? "OK" : "no encontrado → wordmark"}`)
 
   // Reunir TODAS las imágenes (compartidas entre ES/EN) y procesarlas 1 vez.
   const src = es || en
