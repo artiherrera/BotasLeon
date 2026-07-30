@@ -261,9 +261,9 @@ export function MobileNav() {
                 {t(link.label)}
               </Link>
             ))}
-            {/* Catálogo PDF — abre en pestaña nueva */}
+            {/* Catálogo — visor HTML (abre en todos los navegadores, no descarga) */}
             <a
-              href={locale === "en" ? "/catalogo-en.pdf" : "/catalogo-es.pdf"}
+              href={locale === "en" ? "/catalogo-en.html" : "/catalogo-es.html"}
               target="_blank"
               rel="noopener noreferrer"
               onClick={close}

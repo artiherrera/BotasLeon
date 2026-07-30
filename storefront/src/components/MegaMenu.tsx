@@ -171,7 +171,7 @@ export function MegaMenu() {
           </div>
         ))}
         <a
-          href={locale === "en" ? "/catalogo-en.pdf" : "/catalogo-es.pdf"}
+          href={locale === "en" ? "/catalogo-en.html" : "/catalogo-es.html"}
           target="_blank"
           rel="noopener noreferrer"
           className="relative block px-3.5 py-2 text-[15px] uppercase tracking-[0.1em] transition-colors hover:text-leather"

@@ -14,14 +14,18 @@
  * RESILIENTE: si algo falla NO tumba el build — loguea y sale con 0.
  */
 
-import { readFile, writeFile, mkdir } from "node:fs/promises"
+import { readFile, writeFile, mkdir, rm, readdir } from "node:fs/promises"
 import { existsSync } from "node:fs"
 import { join, dirname } from "node:path"
 import { fileURLToPath } from "node:url"
+import { execFile } from "node:child_process"
+import { promisify } from "node:util"
 import React from "react"
 import pdfPkg from "@react-pdf/renderer"
 import QRCode from "qrcode"
 import sharp from "sharp"
+
+const execFileP = promisify(execFile)
 
 const { Document, Page, View, Text, Image, Link, Font } = pdfPkg
 const h = React.createElement
@@ -360,8 +364,97 @@ function buildCatalog({ hombre, mujer, brandLogos, covers, qrMap, tr, locale, cu
 }
 
 const STR = {
-  es: { coverEyebrow: "CATÁLOGO", coverTitle: "Botas hechas en León, Guanajuato", men: "HOMBRE", women: "MUJER", tapToSee: "TOCA PARA VER", buy: "Comprar →", shopOnline: "Compra en línea · Envío a todo México", madeIn: "Hecho con orgullo en México", docTitle: "Catálogo BotasLeón" },
-  en: { coverEyebrow: "CATALOG", coverTitle: "Boots handcrafted in León, Mexico", men: "MEN", women: "WOMEN", tapToSee: "TAP TO VIEW", buy: "Shop →", shopOnline: "Shop online · Shipped across the USA", madeIn: "Proudly made in Mexico", docTitle: "BotasLeón Catalog" },
+  es: { coverEyebrow: "CATÁLOGO", coverTitle: "Botas hechas en León, Guanajuato", men: "HOMBRE", women: "MUJER", tapToSee: "TOCA PARA VER", buy: "Comprar →", shopOnline: "Compra en línea · Envío a todo México", madeIn: "Hecho con orgullo en México", docTitle: "Catálogo BotasLeón", pageAlt: "Página", downloadPdf: "Descargar PDF", backToStore: "Ir a la tienda", langHref: "/catalogo-en.html", langLabel: "EN", htmlLang: "es" },
+  en: { coverEyebrow: "CATALOG", coverTitle: "Boots handcrafted in León, Mexico", men: "MEN", women: "WOMEN", tapToSee: "TAP TO VIEW", buy: "Shop →", shopOnline: "Shop online · Shipped across the USA", madeIn: "Proudly made in Mexico", docTitle: "BotasLeón Catalog", pageAlt: "Page", downloadPdf: "Download PDF", backToStore: "Go to store", langHref: "/catalogo-es.html", langLabel: "ES", htmlLang: "en" },
+}
+
+// ── visor HTML (para móvil: SIEMPRE abre, nunca descarga) ─────────────────
+// Chrome/Android y los navegadores dentro de IG/FB no tienen visor de PDF y lo
+// descargan. Una página HTML con las páginas del PDF como imágenes se abre en
+// todos. Necesita `pdftoppm` (poppler) — si no está, se omite (el PDF sigue).
+async function hasPdftoppm() {
+  try { await execFileP("pdftoppm", ["-v"]); return true } catch { return false }
+}
+
+// Renderiza cada página del PDF a WebP (~40KB) en outDir → p-001.webp… Devuelve nº de páginas.
+async function pdfToWebp(pdfPath, outDir) {
+  await rm(outDir, { recursive: true, force: true })
+  await mkdir(outDir, { recursive: true })
+  await execFileP("pdftoppm", ["-jpeg", "-r", "96", pdfPath, join(outDir, "raw")], { maxBuffer: 1 << 30 })
+  const raws = (await readdir(outDir)).filter((f) => f.startsWith("raw") && f.endsWith(".jpg")).sort()
+  let n = 0
+  for (const f of raws) {
+    n++
+    const num = String(n).padStart(3, "0")
+    const buf = await readFile(join(outDir, f))
+    await sharp(buf).webp({ quality: 72 }).toFile(join(outDir, `p-${num}.webp`))
+    await rm(join(outDir, f))
+  }
+  return n
+}
+
+function esc(s) { return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;") }
+
+// Página HTML del catálogo (mobile-first, marca BotasLeón).
+function viewerHtml({ lang, tr, count, hombreDivider, mujerDivider, pdfHref }) {
+  const pages = []
+  for (let i = 1; i <= count; i++) {
+    const num = String(i).padStart(3, "0")
+    const id = i === hombreDivider ? ' id="hombre"' : i === mujerDivider ? ' id="mujer"' : ""
+    pages.push(`<img${id} class="pg" src="/catalogo/${lang}/p-${num}.webp" width="816" height="1056" alt="${esc(tr.pageAlt)} ${i}" loading="lazy" decoding="async">`)
+  }
+  return `<!doctype html>
+<html lang="${tr.htmlLang}">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#4B2E1F">
+<meta name="robots" content="noindex">
+<title>${esc(tr.docTitle)}</title>
+<style>
+  :root { --leather:#4B2E1F; --cream:#FBF8F1; --creamAlt:#F4E9D8; --gold:#B8924A; --text:#1F1814; }
+  * { box-sizing:border-box; }
+  html,body { margin:0; padding:0; }
+  body { background:var(--creamAlt); color:var(--text); font-family:'Zilla Slab',Georgia,'Times New Roman',serif; -webkit-text-size-adjust:100%; }
+  .bar { position:sticky; top:0; z-index:10; background:var(--leather); color:var(--cream);
+    display:flex; align-items:center; justify-content:space-between; gap:8px;
+    padding:calc(9px + env(safe-area-inset-top)) 12px 9px; box-shadow:0 2px 10px rgba(0,0,0,.25); }
+  .bar a { color:var(--cream); text-decoration:none; font-size:13px; }
+  .brand { font-weight:700; letter-spacing:.3px; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .brand b { color:var(--gold); }
+  .actions { display:flex; align-items:center; gap:7px; flex-shrink:0; }
+  .chip { border:1px solid rgba(251,248,241,.45); border-radius:999px; padding:6px 11px; font-size:12px; white-space:nowrap; }
+  .chip.gold { background:var(--gold); border-color:var(--gold); color:#3a2a12; font-weight:700; }
+  .nav { position:sticky; top:0; z-index:9; display:flex; gap:8px; justify-content:center;
+    background:var(--leather); padding:0 14px 10px; }
+  .nav a { color:var(--cream); border:1px solid rgba(251,248,241,.35); border-radius:999px;
+    padding:5px 16px; font-size:13px; letter-spacing:1px; text-decoration:none; }
+  main { max-width:820px; margin:0 auto; padding:14px 12px 40px; }
+  .pg { display:block; width:100%; height:auto; margin:0 auto 12px; border-radius:6px;
+    box-shadow:0 4px 16px rgba(31,24,20,.14); background:#fff; }
+  footer { text-align:center; color:#6E6250; font-size:13px; padding:8px 14px 34px; }
+  footer a { color:var(--leather); font-weight:700; text-decoration:none; }
+</style>
+</head>
+<body>
+<div class="bar">
+  <a class="brand" href="/">← BOTAS<b>LEÓN</b></a>
+  <div class="actions">
+    <a class="chip" href="${tr.langHref}">${tr.langLabel}</a>
+    <a class="chip gold" href="${pdfHref}" download title="${esc(tr.downloadPdf)}" aria-label="${esc(tr.downloadPdf)}">&#8595;&nbsp;PDF</a>
+  </div>
+</div>
+<div class="nav">
+  <a href="#hombre">${esc(tr.men)}</a>
+  <a href="#mujer">${esc(tr.women)}</a>
+</div>
+<main>
+${pages.join("\n")}
+</main>
+<footer>${esc(tr.shopOnline)} · <a href="/">botasleon.com</a></footer>
+</body>
+</html>
+`
 }
 
 // ── main ─────────────────────────────────────────────────────────────────
@@ -404,6 +497,24 @@ async function main() {
     await pdfPkg.renderToFile(buildCatalog({ ...en, brandLogos, covers, qrMap, tr: STR.en, locale: "en-US", currency: "USD" }), join(ROOT, "public", "catalogo-en.pdf"))
     console.log(`[catalog] catalogo-en.pdf: ${en.hombre.length} hombre + ${en.mujer.length} mujer`)
   }
+
+  // Visor HTML (móvil): páginas del PDF como imágenes → abre en TODOS los navegadores.
+  if (await hasPdftoppm()) {
+    for (const [lang, data] of [["es", es], ["en", en]]) {
+      if (!data) continue
+      const count = await pdfToWebp(join(ROOT, "public", `catalogo-${lang}.pdf`), join(ROOT, "public", "catalogo", lang))
+      const html = viewerHtml({
+        lang, tr: STR[lang], count,
+        hombreDivider: 2, mujerDivider: 2 + data.hombre.length + 1,
+        pdfHref: `/catalogo-${lang}.pdf`,
+      })
+      await writeFile(join(ROOT, "public", `catalogo-${lang}.html`), html)
+      console.log(`[catalog] catalogo-${lang}.html: ${count} páginas`)
+    }
+  } else {
+    console.warn("[catalog] pdftoppm (poppler) no encontrado → omito el visor HTML (instala con `brew install poppler`)")
+  }
+
   console.log(`[catalog] listo en ${((Date.now() - t0) / 1000).toFixed(1)}s`)
 }
 

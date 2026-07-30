@@ -3,14 +3,16 @@
 import { useLocale, useT } from "@/lib/i18n/context"
 
 /**
- * Botón "Descargar catálogo". Enlaza al PDF pre-generado que corresponde al
- * idioma activo (catalogo-es.pdf / catalogo-en.pdf en /public, generados en el
- * build por scripts/generate-catalog.mjs). Descarga instantánea.
+ * Botón "Ver catálogo". Abre el VISOR HTML del catálogo (catalogo-es.html /
+ * catalogo-en.html en /public, generado por scripts/generate-catalog.mjs).
+ * Usamos HTML y no el PDF directo porque Chrome/Android y los navegadores de
+ * IG/FB descargan el PDF en vez de abrirlo; el HTML abre en todos. El visor
+ * tiene su propio botón "Descargar PDF".
  */
 export function CatalogButton({ className = "" }: { className?: string }) {
   const { locale } = useLocale()
   const t = useT()
-  const href = locale === "en" ? "/catalogo-en.pdf" : "/catalogo-es.pdf"
+  const href = locale === "en" ? "/catalogo-en.html" : "/catalogo-es.html"
 
   return (
     <a
@@ -30,9 +32,8 @@ export function CatalogButton({ className = "" }: { className?: string }) {
         strokeLinejoin="round"
         aria-hidden="true"
       >
-        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-        <polyline points="7 10 12 15 17 10" />
-        <line x1="12" y1="15" x2="12" y2="3" />
+        <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
+        <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
       </svg>
       {t("catalog.view")}
     </a>
