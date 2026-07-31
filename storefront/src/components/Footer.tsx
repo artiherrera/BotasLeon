@@ -1,7 +1,7 @@
 "use client"
 
 import Image from "next/image"
-import Link from "next/link"
+import { LocalizedLink as Link } from "@/components/LocalizedLink"
 import { PaymentBadges } from "./PaymentBadges"
 import { SocialIcons } from "./SocialIcons"
 import { whatsappHref } from "@/lib/whatsapp"

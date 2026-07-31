@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react"
 import { createPortal } from "react-dom"
-import Link from "next/link"
+import { LocalizedLink as Link } from "@/components/LocalizedLink"
 import Image from "next/image"
 import { SocialIcons } from "./SocialIcons"
 import { useLocale } from "@/lib/i18n/context"

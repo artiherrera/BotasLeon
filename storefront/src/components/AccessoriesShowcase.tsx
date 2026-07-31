@@ -1,4 +1,4 @@
-import Link from "next/link"
+import { LocalizedLink as Link } from "@/components/LocalizedLink"
 import Image from "next/image"
 import { T } from "@/components/T"
 import { getAccessories } from "@/lib/shopify"

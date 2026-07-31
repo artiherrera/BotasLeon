@@ -1,20 +1,8 @@
 "use client"
 
-import {
-  createContext,
-  useCallback,
-  useContext,
-  useEffect,
-  useMemo,
-  useState,
-} from "react"
-import {
-  DEFAULT_LOCALE,
-  detectBrowserLocale,
-  isLocale,
-  STORAGE_KEY,
-  type Locale,
-} from "./config"
+import { createContext, useCallback, useContext, useEffect, useMemo } from "react"
+import { useRouter, usePathname } from "next/navigation"
+import { DEFAULT_LOCALE, STORAGE_KEY, type Locale } from "./config"
 import { DICTIONARY } from "./dictionary"
 
 type LocaleContextValue = {
@@ -26,38 +14,49 @@ type LocaleContextValue = {
 
 const LocaleContext = createContext<LocaleContextValue | null>(null)
 
-export function LocaleProvider({ children }: { children: React.ReactNode }) {
-  // Arranca SIEMPRE en el idioma por defecto para que el primer render del
-  // cliente coincida con el del servidor (sin mismatch de hidratación). Tras
-  // montar, se ajusta a la preferencia guardada o a la del navegador.
-  const [locale, setLocaleState] = useState<Locale>(DEFAULT_LOCALE)
+/**
+ * El idioma lo manda la URL: /es/… o /en/… (segmento [lang]). El layout pasa ese
+ * idioma como `initialLocale`, así que ES la fuente de verdad — el SSR ya sale en
+ * el idioma correcto (sin parpadeo). Cambiar de idioma = navegar a la MISMA ruta
+ * con el otro prefijo; además se guarda una cookie para recordar la preferencia
+ * en futuras primeras visitas (la lee el proxy).
+ */
+export function LocaleProvider({
+  initialLocale,
+  children,
+}: {
+  initialLocale: Locale
+  children: React.ReactNode
+}) {
+  const router = useRouter()
+  const pathname = usePathname()
+  const locale = initialLocale
 
-  useEffect(() => {
-    let initial: Locale | null = null
-    try {
-      const stored = localStorage.getItem(STORAGE_KEY)
-      if (isLocale(stored)) initial = stored
-    } catch {
-      // localStorage bloqueado (modo privado, etc.) — se ignora.
-    }
-    if (!initial) initial = detectBrowserLocale()
-    if (initial !== DEFAULT_LOCALE) setLocaleState(initial)
-  }, [])
-
-  // Refleja el idioma en <html lang> — señal de accesibilidad y para el
-  // navegador/lectores de pantalla.
+  // Refleja el idioma en <html lang> también en navegación cliente.
   useEffect(() => {
     document.documentElement.lang = locale
   }, [locale])
 
-  const setLocale = useCallback((next: Locale) => {
-    setLocaleState(next)
-    try {
-      localStorage.setItem(STORAGE_KEY, next)
-    } catch {
-      // sin persistencia — el cambio vale para esta sesión igual.
-    }
-  }, [])
+  const setLocale = useCallback(
+    (next: Locale) => {
+      if (next === locale) return
+      // Recuerda la preferencia manual (el proxy la respeta sobre el idioma del
+      // navegador en futuras visitas).
+      try {
+        document.cookie = `${STORAGE_KEY}=${next};path=/;max-age=31536000;samesite=lax`
+      } catch {
+        // cookies bloqueadas — la navegación de abajo igual cambia el idioma.
+      }
+      // Misma ruta, otro prefijo de idioma. Conserva query/hash (p.ej. filtros).
+      const stripped = pathname.replace(/^\/(es|en)(?=\/|$)/, "")
+      const search =
+        typeof window !== "undefined"
+          ? window.location.search + window.location.hash
+          : ""
+      router.push(`/${next}${stripped}${search}`)
+    },
+    [locale, pathname, router]
+  )
 
   const t = useCallback(
     (key: string) => {
@@ -68,10 +67,7 @@ export function LocaleProvider({ children }: { children: React.ReactNode }) {
     [locale]
   )
 
-  const value = useMemo(
-    () => ({ locale, setLocale, t }),
-    [locale, setLocale, t]
-  )
+  const value = useMemo(() => ({ locale, setLocale, t }), [locale, setLocale, t])
 
   return <LocaleContext.Provider value={value}>{children}</LocaleContext.Provider>
 }

@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useRef, useState } from "react"
-import Link from "next/link"
+import { LocalizedLink as Link } from "@/components/LocalizedLink"
 import Image from "next/image"
 import { useCart } from "./CartProvider"
 import { MegaMenu } from "./MegaMenu"

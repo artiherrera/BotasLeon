@@ -73,7 +73,7 @@ export function WebsiteJsonLd() {
           "@type": "SearchAction",
           target: {
             "@type": "EntryPoint",
-            urlTemplate: `${SITE_URL}/search?q={search_term_string}`,
+            urlTemplate: `${SITE_URL}/es/search?q={search_term_string}`,
           },
           "query-input": "required name=search_term_string",
         },
@@ -83,7 +83,13 @@ export function WebsiteJsonLd() {
 }
 
 // === Product — emitir en /products/[handle]/page.tsx ===
-export function ProductJsonLd({ product }: { product: Product }) {
+export function ProductJsonLd({
+  product,
+  lang = "es",
+}: {
+  product: Product
+  lang?: string
+}) {
   const images = product.images.length > 0
     ? product.images.map((i) => i.url)
     : product.featuredImage
@@ -129,7 +135,7 @@ export function ProductJsonLd({ product }: { product: Product }) {
           availability: product.availableForSale
             ? "https://schema.org/InStock"
             : "https://schema.org/OutOfStock",
-          url: absoluteUrl(`/products/${product.handle}`),
+          url: absoluteUrl(`/${lang}/products/${product.handle}`),
           shippingDetails: {
             "@type": "OfferShippingDetails",
             shippingRate: {

@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useRef, useState } from "react"
-import Link from "next/link"
+import { LocalizedLink as Link } from "@/components/LocalizedLink"
 import { useLocale } from "@/lib/i18n/context"
 
 /**

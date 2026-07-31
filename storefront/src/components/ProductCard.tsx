@@ -1,7 +1,7 @@
 "use client"
 
 import Image from "next/image"
-import Link from "next/link"
+import { LocalizedLink as Link } from "@/components/LocalizedLink"
 import type { Product } from "@/lib/shopify/types"
 import { JudgemeStars } from "./JudgemeStars"
 import { LocalizedPrice, useProductTranslation } from "./LocalizedProductContent"

@@ -11,6 +11,7 @@ import { formatMoney } from "@/lib/utils"
 import { COLOR_OPTION_NAMES, findVariantBySelection } from "@/lib/pdp/variants"
 import type { Product } from "@/lib/shopify/types"
 import { useT } from "@/lib/i18n/context"
+import { LocalizedLink as Link } from "@/components/LocalizedLink"
 
 const SIZE_OPTION_NAMES = ["Talla", "Talla del calzado", "Size"]
 
@@ -321,9 +322,9 @@ export function ProductOptions({ product }: Props) {
           {genderHandle && (
             <p className="text-xs text-text-subtle mt-2">
               MX · US ·{" "}
-              <a href="/guia-tallas" className="underline hover:text-leather">
+              <Link href="/guia-tallas" className="underline hover:text-leather">
                 {t("help.sizeGuide")}
-              </a>
+              </Link>
             </p>
           )}
           {showSizeError && needsSize && (

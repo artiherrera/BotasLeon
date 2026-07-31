@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react"
 import Image from "next/image"
-import Link from "next/link"
+import { LocalizedLink as Link } from "@/components/LocalizedLink"
 import { useCart } from "./CartProvider"
 import { FreeShippingBar } from "./FreeShippingBar"
 import { MSIBreakdown } from "./MSIBreakdown"

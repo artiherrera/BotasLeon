@@ -1,0 +1,168 @@
+import { Header } from "@/components/Header"
+import { Footer } from "@/components/Footer"
+import { HeroCarousel } from "@/components/HeroCarousel"
+import { MarqueeBar } from "@/components/MarqueeBar"
+import { CategoryShowcase } from "@/components/CategoryShowcase"
+import { BrandGrid } from "@/components/BrandGrid"
+import { FAQAccordion } from "@/components/FAQAccordion"
+import { LatestByGenderTabs } from "@/components/LatestByGenderTabs"
+import { LatestGenderGrid } from "@/components/LatestGenderGrid"
+import { AccessoriesShowcase } from "@/components/AccessoriesShowcase"
+import { NewsletterForm } from "@/components/NewsletterForm"
+import { HechoEnLeonStrip } from "@/components/HechoEnLeonStrip"
+import { StoreVisitSection } from "@/components/StoreVisitSection"
+import { T } from "@/components/T"
+import { FAQJsonLd } from "@/components/StructuredData"
+import { FAQS } from "@/lib/faqs"
+import { absoluteUrl } from "@/lib/seo"
+import { getHeroSlides, getProductsByTaxonomy } from "@/lib/shopify"
+
+// Canonical + hreflang del home POR IDIOMA (las hijas lo hacen vía pageMetadata).
+// El title/description los hereda del layout (ya localizados) — no los reescribimos.
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ lang: string }>
+}) {
+  const { lang } = await params
+  const path = lang === "en" ? "/en" : "/es"
+  return {
+    alternates: {
+      canonical: absoluteUrl(path),
+      languages: {
+        "es-MX": absoluteUrl("/es"),
+        "en-US": absoluteUrl("/en"),
+        "x-default": absoluteUrl("/es"),
+      },
+    },
+    openGraph: { url: absoluteUrl(path) },
+  }
+}
+
+// El home mezcla data que cambia (precios/stock vía getProductsByTaxonomy)
+// con secciones editables desde el admin. Sin request-time APIs, la página
+// se prerenderiza en build; este revalidate evita que precios/stock queden
+// congelados hasta el próximo deploy. Consistente con las rutas de catálogo.
+export const revalidate = 60
+
+/**
+ * Home page (server component, Next.js 16).
+ *
+ * Orden re-jerarquizado para conversión (productos visibles en viewport 2):
+ *   1. Header sticky
+ *   2. MarqueeBar — trust strip arriba del Hero (MSI · envío · cambios)
+ *   3. HeroCarousel — 3 slides Metaobjects con Ken Burns (intacto)
+ *   4. LatestByGenderTabs — productos reales JUSTO después del Hero
+ *   5. CategoryShowcase — cards Hombre/Mujer (Accesorios oculto sin productos)
+ *   6. BrandGrid — Marcas (oculto cuando 0 marcas, curado cuando 1-3)
+ *   7. HechoEnLeonStrip — banda compacta 380 años · 7 de 10 · curadores
+ *   8. FAQAccordion
+ *   9. Newsletter
+ *  10. Footer
+ *
+ * Por qué este orden:
+ *  - MarqueeBar arriba del Hero = trust signals visibles en scroll 0 (patrón Zara/H&M).
+ *  - LatestByGenderTabs justo tras Hero = el usuario ve botas reales en viewport 2,
+ *    no después de 4-5 scrolls (antes la 1ª bota aparecía en pos 6).
+ *  - Storytelling 380 años pasa de sección XL (~700px) a strip horizontal (~250px) =
+ *    libera 1 viewport completo en mobile manteniendo la narrativa.
+ *
+ * La sección storytelling completa antigua se mantiene en git history; si en
+ * el futuro se quiere recuperar como "Acerca de" en /nosotros, restaurar desde
+ * commit anterior.
+ */
+export default async function HomePage() {
+  // Parallel fetch — hero + 2 grids por género en una pasada.
+  //
+  // sortKey: CREATED_AT + reverse=true (lo más nuevo arriba) hace honor
+  // al título "Lo más nuevo Hombre/Mujer". Antes era BEST_SELLING —
+  // productos recién subidos sin ventas no aparecían.
+  //
+  // first: 50 (no 4). Razón crítica: el filtro por género ocurre en JS
+  // DESPUÉS del fetch. Si pedimos solo 8 productos a Shopify, y los 8
+  // más nuevos son del mismo género, el otro queda con 0. Pedimos 50
+  // para garantizar cobertura de ambos géneros mientras crece el
+  // catálogo. LatestByGenderTabs solo renderiza los primeros 4.
+  const [hombreProducts, mujerProducts, heroSlides] = await Promise.all([
+    getProductsByTaxonomy("gender", "masculino", 50, { sortKey: "CREATED_AT" }).catch(() => []),
+    getProductsByTaxonomy("gender", "femenino", 50, { sortKey: "CREATED_AT" }).catch(() => []),
+    getHeroSlides().catch(() => []),
+  ])
+
+  return (
+    <>
+      <Header />
+      <FAQJsonLd items={FAQS} />
+      <main id="contenido" tabIndex={-1} className="flex-1">
+        <h1 className="sr-only">
+          Botas mexicanas hechas en León — vaqueras, clásicas, exóticas y de
+          rancho
+        </h1>
+
+        {/* Trust strip ARRIBA del Hero — patrón Zara/H&M/Liverpool */}
+        <MarqueeBar />
+
+        {/* Hero — intacto */}
+        <HeroCarousel slides={heroSlides} />
+
+        {/* PRODUCTOS REALES en viewport 2 (antes pos 6, ahora pos 4) */}
+        <LatestByGenderTabs
+          hombreContent={
+            <LatestGenderGrid
+              products={hombreProducts}
+              href="/hombre"
+              label="hombre"
+              emptyHint={
+                process.env.NODE_ENV === "development"
+                  ? "Aún no hay productos de hombre. Sube alguno con el metacampo 'Sexo objetivo: Masculino'."
+                  : "Estamos cargando las primeras botas de esta categoría. Mientras tanto, explora el resto del catálogo."
+              }
+            />
+          }
+          mujerContent={
+            <LatestGenderGrid
+              products={mujerProducts}
+              href="/mujer"
+              label="mujer"
+              emptyHint={
+                process.env.NODE_ENV === "development"
+                  ? "Aún no hay productos de mujer. Sube alguno con el metacampo 'Sexo objetivo: Femenino'."
+                  : "Estamos cargando las primeras botas de esta categoría. Mientras tanto, explora el resto del catálogo."
+              }
+            />
+          }
+        />
+
+        <CategoryShowcase />
+
+        {/* Accesorios — banda compacta, oculto si no hay productos. */}
+        <AccessoriesShowcase />
+
+        <BrandGrid />
+
+        {/* Storytelling compacto — banda horizontal en lugar de sección XL */}
+        <HechoEnLeonStrip />
+
+        {/* Confianza: tienda física en León (mapa + dirección → /visitanos) */}
+        <StoreVisitSection />
+
+        <FAQAccordion />
+
+        {/* Newsletter — id newsletter para scroll-target del AnnouncementBar */}
+        <section id="newsletter" className="mx-auto max-w-7xl px-6 py-20 scroll-mt-24">
+          <div className="border border-border p-10 md:p-16 text-center bg-bg-alt">
+            <p className="eyebrow text-leather mb-3">Newsletter</p>
+            <h3 className="font-heading text-2xl md:text-3xl text-text mb-3">
+              <T k="home.newsletterTitle" />
+            </h3>
+            <p className="text-text-muted mb-8 max-w-md mx-auto">
+              <T k="home.newsletterSubtitle" />
+            </p>
+            <NewsletterForm />
+          </div>
+        </section>
+      </main>
+      <Footer />
+    </>
+  )
+}

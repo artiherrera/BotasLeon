@@ -17,7 +17,15 @@ export default function robots(): MetadataRoute.Robots {
         allow: "/",
         // NO bloqueamos /_next/: Google necesita el CSS/JS para renderizar y
         // rankear bien. Solo bloqueamos rutas privadas/internas sin valor SEO.
-        disallow: ["/cart", "/cuenta", "/api/", "/cotizador"],
+        // Rutas privadas en ambos idiomas (/es/… y /en/…) — comodín por prefijo.
+        disallow: [
+          "/*/cart",
+          "/*/cuenta",
+          "/*/cotizador",
+          "/*/discount",
+          "/*/search",
+          "/api/",
+        ],
       },
     ],
     sitemap: `${SITE_URL}/sitemap.xml`,

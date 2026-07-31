@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import Link from "next/link"
+import { LocalizedLink as Link } from "@/components/LocalizedLink"
 import { useT } from "@/lib/i18n/context"
 
 const STORAGE_KEY = "botasleon:cookies-accepted"

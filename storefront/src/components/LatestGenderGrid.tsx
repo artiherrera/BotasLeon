@@ -1,6 +1,6 @@
 "use client"
 
-import Link from "next/link"
+import { LocalizedLink as Link } from "@/components/LocalizedLink"
 import { ProductCard } from "./ProductCard"
 import { EmptyProductsState } from "./EmptyState"
 import type { Product } from "@/lib/shopify/types"

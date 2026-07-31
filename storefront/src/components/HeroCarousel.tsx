@@ -1,7 +1,7 @@
 "use client"
 
 import { useCallback, useEffect, useRef, useState } from "react"
-import Link from "next/link"
+import { LocalizedLink as Link } from "@/components/LocalizedLink"
 import Image from "next/image"
 import type { HeroSlide } from "@/lib/shopify/types"
 import { useLocale, useT } from "@/lib/i18n/context"

@@ -1,5 +1,5 @@
 import { Suspense } from "react"
-import Link from "next/link"
+import { LocalizedLink as Link } from "@/components/LocalizedLink"
 import { Header } from "./Header"
 import { Footer } from "./Footer"
 import { ProductsListing } from "./ProductsListing"

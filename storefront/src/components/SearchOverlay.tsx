@@ -4,12 +4,12 @@ import { useEffect, useRef, useState } from "react"
 import { createPortal } from "react-dom"
 import { useRouter } from "next/navigation"
 import Image from "next/image"
-import Link from "next/link"
+import { LocalizedLink as Link } from "@/components/LocalizedLink"
 import { searchProducts } from "@/lib/search/client"
 import { track } from "@/lib/klaviyo/client"
 import { formatMoney } from "@/lib/utils"
 import type { Product } from "@/lib/shopify/types"
-import { useT } from "@/lib/i18n/context"
+import { useLocale, useT } from "@/lib/i18n/context"
 
 /**
  * SearchOverlay — modal predictivo de búsqueda.
@@ -43,7 +43,7 @@ const POPULAR_SEARCHES: Array<{ labelKey?: string; label?: string; query: string
 ]
 
 export function SearchOverlay({ open, onClose }: Props) {
-  const t = useT()
+  const { locale, t } = useLocale()
   const router = useRouter()
   const [mounted, setMounted] = useState(false)
   const [query, setQuery] = useState("")
@@ -63,7 +63,7 @@ export function SearchOverlay({ open, onClose }: Props) {
     const q = query.trim()
     if (!q) return
     onClose()
-    router.push(`/search?q=${encodeURIComponent(q)}`)
+    router.push(`/${locale}/search?q=${encodeURIComponent(q)}`)
   }
 
   // Mount gate — evita SSR mismatch al usar createPortal.

@@ -19,8 +19,10 @@ export function absoluteUrl(path: string): string {
 }
 
 type PageMetadataInput = {
-  /** Ruta de la página (e.g. "/hombre"). Se usa para el canonical y og:url. */
+  /** Ruta de la página SIN prefijo de idioma (e.g. "/hombre"). Se usa para el canonical y og:url. */
   path: string
+  /** Idioma de la página ("es" | "en"). Prefija el canonical/og:url y emite hreflang. */
+  locale?: string
   /**
    * Título sin sufijo de marca. El template del layout agrega " · BotasLeón"
    * automáticamente. NO incluyas " — BotasLeón" aquí (causaría duplicado).
@@ -49,13 +51,23 @@ export function pageMetadata({
   description,
   ogImage,
   noindex,
+  locale,
 }: PageMetadataInput): Metadata {
-  const url = absoluteUrl(path)
+  const lang = locale === "en" ? "en" : locale === "es" ? "es" : null
+  const suffix = path === "/" ? "" : path
+  // Canonical = la URL con prefijo de idioma (la que responde 200, no la que redirige).
+  const url = absoluteUrl(lang ? `/${lang}${suffix}` : path)
+  const esUrl = absoluteUrl(`/es${suffix}`)
+  const enUrl = absoluteUrl(`/en${suffix}`)
   return {
     title,
     description,
     alternates: {
       canonical: url,
+      // hreflang — le dice a Google qué versión servir por idioma/región.
+      ...(lang
+        ? { languages: { "es-MX": esUrl, "en-US": enUrl, "x-default": esUrl } }
+        : {}),
     },
     openGraph: {
       title,
@@ -63,7 +75,7 @@ export function pageMetadata({
       url,
       type: "website",
       siteName: SITE_NAME,
-      locale: "es_MX",
+      locale: lang === "en" ? "en_US" : "es_MX",
       ...(ogImage ? { images: [{ url: ogImage }] } : {}),
     },
     twitter: {

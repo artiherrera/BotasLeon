@@ -160,13 +160,24 @@ const SUBROUTES = [
   })),
 ]
 
-function urlEntry(loc, priority, changefreq, lastmod) {
-  return `  <url>
+// i18n por URL: cada ruta existe en /es y /en. Emitimos AMBAS entradas, cada una
+// con los <xhtml:link hreflang> apuntando a las dos versiones + x-default (es).
+function localizedEntries(path, priority, changefreq, lastmod) {
+  const suffix = path === "/" ? "" : path
+  const es = `${SITE_URL}/es${suffix}`
+  const en = `${SITE_URL}/en${suffix}`
+  const links =
+    `    <xhtml:link rel="alternate" hreflang="es-MX" href="${es}"/>\n` +
+    `    <xhtml:link rel="alternate" hreflang="en-US" href="${en}"/>\n` +
+    `    <xhtml:link rel="alternate" hreflang="x-default" href="${es}"/>`
+  const one = (loc) => `  <url>
     <loc>${loc}</loc>
     <lastmod>${lastmod}</lastmod>
     <changefreq>${changefreq}</changefreq>
     <priority>${priority}</priority>
+${links}
   </url>`
+  return [one(es), one(en)]
 }
 
 async function main() {
@@ -181,22 +192,22 @@ async function main() {
   )
 
   const entries = [
-    ...STATIC_ROUTES.map((r) =>
-      urlEntry(`${SITE_URL}${r.path}`, r.priority, r.changefreq, now)
+    ...STATIC_ROUTES.flatMap((r) =>
+      localizedEntries(r.path, r.priority, r.changefreq, now)
     ),
-    ...SUBROUTES.map((r) =>
-      urlEntry(`${SITE_URL}${r.path}`, r.priority, r.changefreq, now)
+    ...SUBROUTES.flatMap((r) =>
+      localizedEntries(r.path, r.priority, r.changefreq, now)
     ),
-    ...productHandles.map((h) =>
-      urlEntry(`${SITE_URL}/products/${h}`, "0.8", "weekly", now)
+    ...productHandles.flatMap((h) =>
+      localizedEntries(`/products/${h}`, "0.8", "weekly", now)
     ),
-    ...brandHandles.map((h) =>
-      urlEntry(`${SITE_URL}/marcas/${h}`, "0.7", "weekly", now)
+    ...brandHandles.flatMap((h) =>
+      localizedEntries(`/marcas/${h}`, "0.7", "weekly", now)
     ),
   ]
 
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
 ${entries.join("\n")}
 </urlset>
 `

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react"
 import Image from "next/image"
-import Link from "next/link"
+import { LocalizedLink as Link } from "@/components/LocalizedLink"
 import { useT } from "@/lib/i18n/context"
 import { useProductTranslation } from "./LocalizedProductContent"
 
