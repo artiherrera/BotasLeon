@@ -291,6 +291,17 @@ export const DICTIONARY: Record<string, Entry> = {
 
   // ── Reseñas (PDP) ────────────────────────────────────────────────────
   "review.heading": { es: "Reseñas", en: "Reviews" },
+  // Carrusel de reseñas general del home (HomeReviewsCarousel)
+  "reviews.eyebrow": { es: "RESEÑAS", en: "REVIEWS" },
+  "reviews.title": {
+    es: "Lo que dicen nuestros clientes",
+    en: "What our customers say",
+  },
+  "reviews.count": { es: "{n} reseñas", en: "{n} reviews" },
+  "reviews.seeBoot": { es: "Ver la bota →", en: "See the boot →" },
+  "reviews.aria": { es: "Reseñas de clientes", en: "Customer reviews" },
+  "reviews.prev": { es: "Reseñas anteriores", en: "Previous reviews" },
+  "reviews.next": { es: "Más reseñas", en: "More reviews" },
   "review.empty": {
     es: "Aún no hay reseñas de esta bota. ¡Sé el primero en dejar la tuya!",
     en: "No reviews for this boot yet. Be the first to leave one!",

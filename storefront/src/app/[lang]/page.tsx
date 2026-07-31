@@ -10,6 +10,7 @@ import { LatestGenderGrid } from "@/components/LatestGenderGrid"
 import { AccessoriesShowcase } from "@/components/AccessoriesShowcase"
 import { NewsletterForm } from "@/components/NewsletterForm"
 import { HechoEnLeonStrip } from "@/components/HechoEnLeonStrip"
+import { HomeReviewsCarousel } from "@/components/HomeReviewsCarousel"
 import { StoreVisitSection } from "@/components/StoreVisitSection"
 import { T } from "@/components/T"
 import { FAQJsonLd } from "@/components/StructuredData"
@@ -142,6 +143,10 @@ export default async function HomePage() {
 
         {/* Storytelling compacto — banda horizontal en lugar de sección XL */}
         <HechoEnLeonStrip />
+
+        {/* Prueba social general: carrusel con las mejores reseñas reales de
+            toda la tienda (Judge.me). Se rellena en cliente; si no hay, no se ve. */}
+        <HomeReviewsCarousel />
 
         {/* Confianza: tienda física en León (mapa + dirección → /visitanos) */}
         <StoreVisitSection />

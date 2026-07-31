@@ -2,40 +2,17 @@
 
 import { useEffect, useState } from "react"
 import { useLocale, useT } from "@/lib/i18n/context"
+import {
+  fetchAllReviews,
+  formatReviewDate as fmtDate,
+  type JudgemeReview as Review,
+} from "@/lib/judgeme/reviews"
 
 /**
  * ProductReviews — muestra las reseñas (con fotos) de UNA bota, nativas en el
- * sitio (headless).
- *
- * El widget por-producto de Judge.me no genera caché para tiendas headless
- * (devuelve vacío). En cambio el widget "all_reviews_page" SÍ trae todas las
- * reseñas publicadas con su producto y fotos. Traemos ese HTML con el token
- * PÚBLICO (solo lectura), lo parseamos con DOMParser, filtramos por el handle
- * de esta bota y lo renderizamos con el diseño de la marca.
- *
- * Nota: trae la primera página de reseñas de la tienda; con catálogos de muchas
- * reseñas habrá que paginar. Para el volumen actual es de sobra.
+ * sitio (headless). Trae TODAS las reseñas de la tienda (widget all_reviews_page,
+ * token público) vía lib/judgeme/reviews y filtra por el handle de esta bota.
  */
-const PUBLIC_TOKEN = "iIcQclYkCEcfwi_C0LCAJNDDxqU"
-const SHOP = "na4ngw-dn.myshopify.com"
-
-type Review = {
-  id: string
-  rating: number
-  author: string
-  date: string
-  title: string
-  body: string
-  photos: string[]
-  verified: boolean
-}
-
-function fmtDate(s: string, dateLocale: string): string {
-  const d = new Date(s.replace(" UTC", "").replace(" ", "T") + "Z")
-  if (Number.isNaN(d.getTime())) return s.slice(0, 10)
-  return d.toLocaleDateString(dateLocale, { day: "numeric", month: "short", year: "numeric" })
-}
-
 export function ProductReviews({ handle }: { handle: string }) {
   const t = useT()
   const { locale } = useLocale()
@@ -44,41 +21,9 @@ export function ProductReviews({ handle }: { handle: string }) {
 
   useEffect(() => {
     let active = true
-    fetch(
-      `https://judge.me/api/v1/widgets/all_reviews_page?api_token=${PUBLIC_TOKEN}&shop_domain=${SHOP}&platform=shopify`
-    )
-      .then((r) => r.json())
-      .then((d: { all_reviews?: string }) => {
-        if (!active) return
-        const doc = new DOMParser().parseFromString(d.all_reviews ?? "", "text/html")
-        const out: Review[] = []
-        doc.querySelectorAll(".jdgm-rev").forEach((el) => {
-          const href =
-            el.querySelector(".jdgm-rev__prod-link")?.getAttribute("href") ?? ""
-          const m = href.match(/\/products\/([^#?/]+)/)
-          if (!m || m[1] !== handle) return
-          const seen = new Set<string>()
-          const photos = Array.from(el.querySelectorAll("img"))
-            .map((img) => img.getAttribute("data-src") || img.getAttribute("src") || "")
-            .filter((s) => s.includes("review-images"))
-            .filter((s) => {
-              const base = s.split("?")[0]
-              if (seen.has(base)) return false
-              seen.add(base)
-              return true
-            })
-          out.push({
-            id: el.getAttribute("data-review-id") ?? String(out.length),
-            rating: parseInt(el.querySelector(".jdgm-rev__rating")?.getAttribute("data-score") ?? "0", 10) || 0,
-            author: el.querySelector(".jdgm-rev__author")?.textContent?.trim() || "",
-            date: el.querySelector(".jdgm-rev__timestamp")?.getAttribute("data-content") ?? "",
-            title: el.querySelector(".jdgm-rev__title")?.textContent?.trim() ?? "",
-            body: el.querySelector(".jdgm-rev__body")?.textContent?.trim() ?? "",
-            verified: el.getAttribute("data-verified-buyer") === "true",
-            photos,
-          })
-        })
-        setReviews(out)
+    fetchAllReviews()
+      .then((all) => {
+        if (active) setReviews(all.filter((r) => r.handle === handle))
       })
       .catch(() => {
         if (active) setReviews([])
