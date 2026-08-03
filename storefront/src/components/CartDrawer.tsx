@@ -7,7 +7,7 @@ import { useCart } from "./CartProvider"
 import { FreeShippingBar } from "./FreeShippingBar"
 import { MSIBreakdown } from "./MSIBreakdown"
 import { PaymentBadges } from "./PaymentBadges"
-import { CustomsTaxIdField } from "./CustomsTaxIdField"
+import { CustomsTaxIdField, useCustomsGate } from "./CustomsTaxIdField"
 import { formatMoney } from "@/lib/utils"
 import { clearPendingDiscount, getPendingDiscount, withDiscount } from "@/lib/discount/client"
 import { track } from "@/lib/klaviyo/client"
@@ -44,6 +44,7 @@ export function CartDrawer() {
     removeDiscount,
   } = useCart()
   const t = useT()
+  const { blocked: taxIdBlocked } = useCustomsGate() // bloquea "Pagar" si falta Tax ID (EE.UU. ≥ $800)
   // Traduce el NOMBRE de la opción/atributo (Talla/Color/Material vienen en
   // español desde Shopify) sin tocar el valor. Si no lo conocemos, lo deja igual.
   const optLabel = (name: string): string => {
@@ -416,13 +417,27 @@ export function CartDrawer() {
               </div>
 
               {cart?.checkoutUrl ? (
-                <a
-                  href={withDiscount(cart.checkoutUrl)}
-                  onClick={handleCheckoutClick}
-                  className="block w-full text-center py-4 rounded-full bg-leather text-bg text-sm uppercase tracking-wider hover:bg-text transition-colors"
-                >
-                  {t("cart.checkout")}
-                </a>
+                taxIdBlocked ? (
+                  <>
+                    <button
+                      type="button"
+                      disabled
+                      aria-disabled
+                      className="block w-full text-center py-4 rounded-full bg-border text-text-muted text-sm uppercase tracking-wider cursor-not-allowed"
+                    >
+                      {t("cart.checkout")}
+                    </button>
+                    <p className="text-xs text-terracotta text-center mt-2">{t("cart.taxIdBlocked")}</p>
+                  </>
+                ) : (
+                  <a
+                    href={withDiscount(cart.checkoutUrl)}
+                    onClick={handleCheckoutClick}
+                    className="block w-full text-center py-4 rounded-full bg-leather text-bg text-sm uppercase tracking-wider hover:bg-text transition-colors"
+                  >
+                    {t("cart.checkout")}
+                  </a>
+                )
               ) : null}
             </div>
           </>

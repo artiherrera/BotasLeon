@@ -485,6 +485,10 @@ export const DICTIONARY: Record<string, Entry> = {
     en: "Shipping & taxes calculated at checkout",
   },
   "cart.checkout": { es: "Pagar", en: "Checkout" },
+  "cart.taxIdBlocked": {
+    es: "Ingresa tu Tax ID arriba para continuar (envíos a EE.UU. ≥ $800).",
+    en: "Enter your Tax ID above to continue (U.S. orders ≥ $800).",
+  },
   "cart.codeError": {
     es: "No se pudo aplicar el código.",
     en: "Couldn't apply the code.",

@@ -9,7 +9,8 @@ import { useCart } from "@/components/CartProvider"
 import { FreeShippingBar } from "@/components/FreeShippingBar"
 import { MSIBreakdown } from "@/components/MSIBreakdown"
 import { PaymentBadges } from "@/components/PaymentBadges"
-import { CustomsTaxIdField } from "@/components/CustomsTaxIdField"
+import { CustomsTaxIdField, useCustomsGate } from "@/components/CustomsTaxIdField"
+import { useLocale } from "@/lib/i18n/context"
 import { formatMoney } from "@/lib/utils"
 import {
   getPendingDiscount,
@@ -31,6 +32,8 @@ import { FREE_SHIPPING_THRESHOLD } from "@/lib/shipping"
 
 export default function CartPage() {
   const { cart, ready, isPending, updateLine, removeLine, showToast } = useCart()
+  const { locale } = useLocale()
+  const { blocked: taxIdBlocked } = useCustomsGate() // bloquea el pago si falta Tax ID (EE.UU. ≥ $800)
   const [pendingDiscount, setPendingDiscount] = useState<string | null>(null)
   const [couponInput, setCouponInput] = useState("")
   const lines = cart?.lines ?? []
@@ -322,13 +325,31 @@ export default function CartPage() {
               </div>
 
               {cart?.checkoutUrl ? (
-                <a
-                  href={withDiscount(cart.checkoutUrl, pendingDiscount)}
-                  onClick={handleCheckoutClick}
-                  className="block w-full text-center py-4 rounded-full bg-leather text-bg text-sm uppercase tracking-widest hover:bg-text transition-colors"
-                >
-                  Proceder al pago
-                </a>
+                taxIdBlocked ? (
+                  <>
+                    <button
+                      type="button"
+                      disabled
+                      aria-disabled
+                      className="block w-full text-center py-4 rounded-full bg-border text-text-muted text-sm uppercase tracking-widest cursor-not-allowed"
+                    >
+                      {locale === "en" ? "Checkout" : "Proceder al pago"}
+                    </button>
+                    <p className="text-xs text-terracotta text-center mt-2">
+                      {locale === "en"
+                        ? "Enter your Tax ID above to continue (U.S. orders ≥ $800)."
+                        : "Ingresa tu Tax ID arriba para continuar (envíos a EE.UU. ≥ $800)."}
+                    </p>
+                  </>
+                ) : (
+                  <a
+                    href={withDiscount(cart.checkoutUrl, pendingDiscount)}
+                    onClick={handleCheckoutClick}
+                    className="block w-full text-center py-4 rounded-full bg-leather text-bg text-sm uppercase tracking-widest hover:bg-text transition-colors"
+                  >
+                    {locale === "en" ? "Checkout" : "Proceder al pago"}
+                  </a>
+                )
               ) : null}
 
               <p className="text-xs text-text-muted text-center mt-3">
