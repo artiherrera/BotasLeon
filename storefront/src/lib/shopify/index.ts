@@ -91,9 +91,16 @@ function parseJudgemeCount(mf: RawMetafield): number | null {
   }
 }
 
-function applyJudgeme<T extends JudgemeMetafields>(node: T): T & { judgemeRating: number | null; judgemeReviewCount: number | null } {
+function applyJudgeme<T extends JudgemeMetafields>(node: T): T & { images: Image[]; judgemeRating: number | null; judgemeReviewCount: number | null } {
+  // Aplana images.edges → Image[] si viene como conexión (fragment de tarjeta).
+  // Si ya es arreglo (PDP, que aplana antes) o no viene, lo respeta.
+  const raw = node as unknown as { images?: Image[] | { edges: { node: Image }[] } }
+  const images: Image[] = Array.isArray(raw.images)
+    ? raw.images
+    : raw.images?.edges?.map((e) => e.node) ?? []
   return {
     ...node,
+    images,
     judgemeRating: parseJudgemeRating(node.reviewsRating ?? null),
     judgemeReviewCount: parseJudgemeCount(node.reviewsRatingCount ?? null),
   }

@@ -46,6 +46,8 @@ export const PRODUCT_CARD_FRAGMENT = /* GraphQL */ `
     availableForSale
     createdAt
     featuredImage { ...ImageFields }
+    # Galería en la tarjeta (swipe/flechas). first:6 = suficiente, payload chico.
+    images(first: 6) { edges { node { ...ImageFields } } }
     priceRange {
       minVariantPrice { ...MoneyFields }
       maxVariantPrice { ...MoneyFields }
