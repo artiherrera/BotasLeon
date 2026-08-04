@@ -15,6 +15,14 @@ import {
   DEFAULT_NOTAS,
   defaultNotas,
 } from "@/lib/cotizacion/types"
+import {
+  quotesEnabled,
+  listQuotes,
+  insertQuote,
+  updateQuote,
+  deleteQuote,
+  type SavedQuote,
+} from "@/lib/cotizacion/store"
 import type { Product } from "@/lib/shopify/types"
 
 const uid = () =>
@@ -54,6 +62,13 @@ export function QuoteBuilder() {
   const [results, setResults] = useState<Product[]>([])
   const [searching, setSearching] = useState(false)
   const [generating, setGenerating] = useState(false)
+  // Guardado compartido (Supabase)
+  const [savedId, setSavedId] = useState<string | null>(null)
+  const [saving, setSaving] = useState(false)
+  const [saveMsg, setSaveMsg] = useState("")
+  const [showSaved, setShowSaved] = useState(false)
+  const [savedList, setSavedList] = useState<SavedQuote[] | null>(null)
+  const [savedSearch, setSavedSearch] = useState("")
 
   // Búsqueda de catálogo (debounce 300ms).
   useEffect(() => {
@@ -183,6 +198,57 @@ export function QuoteBuilder() {
     }
   }
 
+  // ── guardado compartido (Supabase) ──
+  const saveQuote = async () => {
+    if (!quotesEnabled() || saving || quote.items.length === 0) return
+    setSaving(true)
+    try {
+      const row = savedId ? await updateQuote(savedId, quote) : await insertQuote(quote)
+      setSavedId(row.id)
+      setSaveMsg("Guardada ✓")
+      setTimeout(() => setSaveMsg(""), 2500)
+    } catch (e) {
+      console.error("[cotizador] guardar:", e)
+      alert("No se pudo guardar la cotización. Revisa la conexión.")
+    } finally {
+      setSaving(false)
+    }
+  }
+  const openSavedPanel = async () => {
+    setShowSaved(true)
+    setSavedList(null)
+    try {
+      setSavedList(await listQuotes())
+    } catch (e) {
+      console.error("[cotizador] listar:", e)
+      setSavedList([])
+    }
+  }
+  const openSaved = (sq: SavedQuote) => {
+    setQuote(sq.data)
+    setSavedId(sq.id)
+    setShowSaved(false)
+  }
+  const duplicateSaved = (sq: SavedQuote) => {
+    setQuote({ ...sq.data, folio: `${sq.data.folio}-copia` })
+    setSavedId(null)
+    setShowSaved(false)
+  }
+  const removeSaved = async (id: string) => {
+    if (!confirm("¿Eliminar esta cotización guardada?")) return
+    try {
+      await deleteQuote(id)
+      setSavedList((l) => (l ? l.filter((x) => x.id !== id) : l))
+      if (savedId === id) setSavedId(null)
+    } catch (e) {
+      console.error("[cotizador] eliminar:", e)
+    }
+  }
+  const newQuote = () => {
+    setQuote(initialQuote())
+    setSavedId(null)
+  }
+
   const pares = totalPares(quote.items)
   const importe = importeTotal(quote.items)
 
@@ -194,6 +260,23 @@ export function QuoteBuilder() {
         <p className="text-text-muted mt-1 text-sm">
           Arma la cotización desde el catálogo, asigna precios y descarga el PDF con la marca.
         </p>
+        {quotesEnabled() && (
+          <div className="mt-4 flex flex-wrap items-center gap-3">
+            <button
+              type="button"
+              onClick={openSavedPanel}
+              className="rounded-full border border-leather px-4 py-2 text-sm text-leather hover:bg-leather hover:text-bg transition-colors"
+            >
+              Cotizaciones guardadas
+            </button>
+            <button type="button" onClick={newQuote} className="text-sm text-text-muted hover:text-text transition-colors">
+              + Nueva
+            </button>
+            {savedId && (
+              <span className="text-xs text-text-subtle">Editando · {quote.folio}</span>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Datos de la cotización */}
@@ -457,16 +540,116 @@ export function QuoteBuilder() {
             <span className="text-text-muted">Total:</span>{" "}
             <strong className="font-heading text-lg text-text">{money(importe)}</strong>
           </div>
-          <button
-            type="button"
-            onClick={download}
-            disabled={quote.items.length === 0 || generating}
-            className="rounded-full bg-leather px-6 py-3 text-sm uppercase tracking-wider text-bg hover:bg-text disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
-          >
-            {generating ? "Generando…" : "Descargar PDF"}
-          </button>
+          <div className="flex items-center gap-3">
+            {saveMsg && <span className="text-xs font-medium text-leather">{saveMsg}</span>}
+            {quotesEnabled() && (
+              <button
+                type="button"
+                onClick={saveQuote}
+                disabled={quote.items.length === 0 || saving}
+                className="rounded-full border border-leather px-5 py-3 text-sm uppercase tracking-wider text-leather hover:bg-leather hover:text-bg disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+              >
+                {saving ? "Guardando…" : savedId ? "Guardar cambios" : "Guardar"}
+              </button>
+            )}
+            <button
+              type="button"
+              onClick={download}
+              disabled={quote.items.length === 0 || generating}
+              className="rounded-full bg-leather px-6 py-3 text-sm uppercase tracking-wider text-bg hover:bg-text disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+            >
+              {generating ? "Generando…" : "Descargar PDF"}
+            </button>
+          </div>
         </div>
       </div>
+
+      {/* Panel de cotizaciones guardadas (compartidas) */}
+      {showSaved && (
+        <div
+          className="fixed inset-0 z-40 flex items-start justify-center bg-black/50 p-4 sm:p-8"
+          onClick={() => setShowSaved(false)}
+        >
+          <div
+            className="mt-4 w-full max-w-2xl rounded-sm bg-bg shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between border-b border-border p-4">
+              <h2 className="font-heading text-lg text-text">Cotizaciones guardadas</h2>
+              <button
+                type="button"
+                onClick={() => setShowSaved(false)}
+                aria-label="Cerrar"
+                className="h-8 w-8 rounded-full text-text-subtle hover:bg-bg-alt hover:text-text transition-colors"
+              >
+                ✕
+              </button>
+            </div>
+            <div className="p-4">
+              <input
+                className={inputCls}
+                placeholder="Buscar por cliente o folio…"
+                value={savedSearch}
+                onChange={(e) => setSavedSearch(e.target.value)}
+              />
+              <div className="mt-3 max-h-[60vh] divide-y divide-border/60 overflow-y-auto">
+                {savedList === null ? (
+                  <p className="py-6 text-center text-sm text-text-muted">Cargando…</p>
+                ) : (
+                  (() => {
+                    const q = savedSearch.trim().toLowerCase()
+                    const filtered = q
+                      ? savedList.filter((s) => `${s.cliente} ${s.folio}`.toLowerCase().includes(q))
+                      : savedList
+                    if (filtered.length === 0)
+                      return <p className="py-6 text-center text-sm text-text-muted">Sin cotizaciones.</p>
+                    return filtered.map((s) => (
+                      <div key={s.id} className="flex items-center gap-3 py-3">
+                        <div className="min-w-0 flex-1">
+                          <p className="truncate text-sm font-medium text-text">
+                            {s.cliente || "(sin cliente)"}
+                          </p>
+                          <p className="text-xs text-text-muted">
+                            {s.folio} · {s.pares} pares ·{" "}
+                            {new Intl.NumberFormat(s.moneda === "USD" ? "en-US" : "es-MX", {
+                              style: "currency",
+                              currency: s.moneda || "MXN",
+                              maximumFractionDigits: 0,
+                            }).format(s.total || 0)}{" "}
+                            · {new Date(s.updated_at).toLocaleDateString("es-MX")}
+                          </p>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => openSaved(s)}
+                          className="text-xs uppercase tracking-wider text-leather hover:text-terracotta transition-colors"
+                        >
+                          Abrir
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => duplicateSaved(s)}
+                          className="text-xs text-text-muted hover:text-text transition-colors"
+                        >
+                          Duplicar
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => removeSaved(s.id)}
+                          aria-label="Eliminar"
+                          className="h-7 w-7 rounded-full text-text-subtle hover:bg-bg-alt hover:text-terracotta transition-colors"
+                        >
+                          ✕
+                        </button>
+                      </div>
+                    ))
+                  })()
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
