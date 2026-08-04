@@ -66,7 +66,7 @@ export function QuoteBuilder() {
     setSearching(true)
     const t = setTimeout(async () => {
       try {
-        const r = await searchProducts(q, 6)
+        const r = await searchProducts(q, 6, "ES") // interno: siempre en español (fuente)
         if (active) setResults(r)
       } catch {
         if (active) setResults([])

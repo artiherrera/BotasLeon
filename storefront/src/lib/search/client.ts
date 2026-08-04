@@ -21,28 +21,31 @@ const VERSION = process.env.NEXT_PUBLIC_SHOPIFY_API_VERSION || "2025-01"
 // pega en la descripción. Con un catálogo chico traemos todo UNA vez (memoizado)
 // y filtramos en el navegador plegando acentos + minúsculas, sobre título,
 // marca, tipo, tags y descripción. Da control total y búsqueda acento-insensible.
-const CATALOG_QUERY = /* GraphQL */ `
-  query SearchCatalog($first: Int!) {
+const CATALOG_FIELDS = /* GraphQL */ `
+  id
+  handle
+  title
+  description
+  vendor
+  productType
+  tags
+  availableForSale
+  createdAt
+  featuredImage { url altText width height }
+  priceRange {
+    minVariantPrice { amount currencyCode }
+    maxVariantPrice { amount currencyCode }
+  }
+  options { id name values }
+`
+
+// Con `lang` fija el idioma vía @inContext (p.ej. el cotizador siempre en ES,
+// sin importar el idioma del navegador). Sin `lang`, Shopify usa el
+// Accept-Language del navegador (comportamiento de la búsqueda del sitio).
+const catalogQuery = (lang?: "ES" | "EN") => /* GraphQL */ `
+  query SearchCatalog($first: Int!)${lang ? ` @inContext(language: ${lang})` : ""} {
     products(first: $first) {
-      edges {
-        node {
-          id
-          handle
-          title
-          description
-          vendor
-          productType
-          tags
-          availableForSale
-          createdAt
-          featuredImage { url altText width height }
-          priceRange {
-            minVariantPrice { amount currencyCode }
-            maxVariantPrice { amount currencyCode }
-          }
-          options { id name values }
-        }
-      }
+      edges { node { ${CATALOG_FIELDS} } }
       pageInfo { hasNextPage }
     }
   }
@@ -59,9 +62,10 @@ function fold(s: string): string {
 // Memoiza el catálogo por sesión de página. Se resetea si la carga falla, para
 // permitir reintento en la siguiente búsqueda. 250 es el máximo por página de la
 // Storefront API; el catálogo actual (~72) cabe de sobra.
-let catalogPromise: Promise<Product[]> | null = null
+// Caché por idioma ("" = idioma del navegador; "ES"/"EN" = forzado).
+const catalogCache = new Map<string, Promise<Product[]>>()
 
-async function fetchCatalog(): Promise<Product[]> {
+async function fetchCatalog(lang?: "ES" | "EN"): Promise<Product[]> {
   if (!DOMAIN || !TOKEN) {
     throw new Error("Faltan NEXT_PUBLIC_SHOPIFY env vars")
   }
@@ -72,7 +76,7 @@ async function fetchCatalog(): Promise<Product[]> {
       "X-Shopify-Storefront-Access-Token": TOKEN,
       Accept: "application/json",
     },
-    body: JSON.stringify({ query: CATALOG_QUERY, variables: { first: 250 } }),
+    body: JSON.stringify({ query: catalogQuery(lang), variables: { first: 250 } }),
   })
   if (!res.ok) throw new Error(`Shopify HTTP ${res.status}`)
   const json = await res.json()
@@ -85,14 +89,17 @@ async function fetchCatalog(): Promise<Product[]> {
   return json.data.products.edges.map((e: { node: Product }) => e.node)
 }
 
-function getSearchCatalog(): Promise<Product[]> {
-  if (!catalogPromise) {
-    catalogPromise = fetchCatalog().catch((e) => {
-      catalogPromise = null // permite reintentar
+function getSearchCatalog(lang?: "ES" | "EN"): Promise<Product[]> {
+  const key = lang ?? ""
+  let p = catalogCache.get(key)
+  if (!p) {
+    p = fetchCatalog(lang).catch((e) => {
+      catalogCache.delete(key) // permite reintentar
       throw e
     })
+    catalogCache.set(key, p)
   }
-  return catalogPromise
+  return p
 }
 
 /**
@@ -102,12 +109,13 @@ function getSearchCatalog(): Promise<Product[]> {
  */
 export async function searchProducts(
   query: string,
-  first = 24
+  first = 24,
+  lang?: "ES" | "EN"
 ): Promise<Product[]> {
   const trimmed = query.trim()
   if (!trimmed) return []
 
-  const catalog = await getSearchCatalog()
+  const catalog = await getSearchCatalog(lang)
   const qFull = fold(trimmed).replace(/\s+/g, " ").trim()
   const words = qFull.split(" ").filter(Boolean)
   if (words.length === 0) return []
