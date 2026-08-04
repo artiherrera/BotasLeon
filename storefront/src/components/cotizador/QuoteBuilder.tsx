@@ -62,6 +62,7 @@ export function QuoteBuilder() {
   const [results, setResults] = useState<Product[]>([])
   const [searching, setSearching] = useState(false)
   const [generating, setGenerating] = useState(false)
+  const [flashId, setFlashId] = useState<string | null>(null) // resalta la ficha recién agregada
   // Guardado compartido (Supabase)
   const [savedId, setSavedId] = useState<string | null>(null)
   const [saving, setSaving] = useState(false)
@@ -118,8 +119,9 @@ export function QuoteBuilder() {
   // Ítem MANUAL (para productos descatalogados que ya no salen en la búsqueda).
   // Queda en blanco y editable: nombre, descripción, precio, tallas — todo a mano.
   const addManualItem = () => {
+    const id = uid()
     const item: QuoteItem = {
-      id: uid(),
+      id,
       productHandle: "",
       title: "",
       descripcion: "",
@@ -128,6 +130,14 @@ export function QuoteBuilder() {
       lines: [{ id: uid(), talla: "", cantidad: 1, precioUnitario: 0 }],
     }
     setQuote((q) => ({ ...q, items: [...q.items, item] }))
+    setFlashId(id)
+    setTimeout(() => setFlashId((f) => (f === id ? null : f)), 1500)
+    // Feedback: baja a la ficha nueva y enfoca el nombre.
+    setTimeout(() => {
+      const el = document.getElementById(`ci-title-${id}`)
+      el?.scrollIntoView({ behavior: "smooth", block: "center" })
+      ;(el as HTMLInputElement | null)?.focus()
+    }, 60)
   }
 
   const updateItem = (id: string, patch: Partial<QuoteItem>) =>
@@ -388,9 +398,9 @@ export function QuoteBuilder() {
         <button
           type="button"
           onClick={addManualItem}
-          className="mt-3 inline-flex items-center gap-1.5 text-sm text-leather hover:text-text transition-colors"
+          className="mt-4 inline-flex items-center gap-2 rounded-full border-2 border-dashed border-leather px-5 py-2.5 text-sm font-medium text-leather transition-all hover:bg-leather hover:text-bg active:scale-95"
         >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 5v14M5 12h14" /></svg>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 5v14M5 12h14" /></svg>
           Agregar producto manual (descatalogado)
         </button>
       </section>
@@ -403,7 +413,12 @@ export function QuoteBuilder() {
           </div>
         ) : (
           quote.items.map((item) => (
-            <div key={item.id} className="rounded-sm border border-border p-4">
+            <div
+              key={item.id}
+              className={`rounded-sm border p-4 transition-all ${
+                flashId === item.id ? "border-leather ring-2 ring-leather/60" : "border-border"
+              }`}
+            >
               <div className="flex gap-4">
                 <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-sm bg-bg-alt">
                   {item.imageUrl && (
@@ -412,6 +427,7 @@ export function QuoteBuilder() {
                 </div>
                 <div className="min-w-0 flex-1 space-y-2">
                   <input
+                    id={`ci-title-${item.id}`}
                     className={inputCls}
                     value={item.title}
                     onChange={(e) => updateItem(item.id, { title: e.target.value })}

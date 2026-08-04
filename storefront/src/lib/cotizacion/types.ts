@@ -65,10 +65,12 @@ export function bothSizes(talla: string, sexo: string): string {
 export const DEFAULT_NOTAS_ES = [
   "Cotización sujeta a disponibilidad de inventario y tallas.",
   "Los precios no incluyen gastos de envío. Tiempos de entrega a confirmar según volumen.",
+  "Los impuestos, aranceles y gastos de importación que se generen en aduana corren por cuenta del cliente.",
 ].join("\n")
 export const DEFAULT_NOTAS_EN = [
   "Quote subject to inventory and size availability.",
   "Prices do not include shipping. Delivery times to be confirmed based on volume.",
+  "Any import duties, tariffs and customs charges are the sole responsibility of the client.",
 ].join("\n")
 export const defaultNotas = (idioma: Idioma): string =>
   idioma === "en" ? DEFAULT_NOTAS_EN : DEFAULT_NOTAS_ES
