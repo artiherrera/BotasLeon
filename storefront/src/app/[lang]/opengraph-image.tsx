@@ -3,52 +3,122 @@ import { join } from "node:path"
 import { ImageResponse } from "next/og"
 
 /**
- * Open Graph image — la miniatura editorial que aparece al compartir el
- * link en WhatsApp, Twitter, Facebook, iMessage, Slack, etc.
+ * Open Graph image — la miniatura que aparece al compartir el link en
+ * WhatsApp, Twitter, Facebook, iMessage, Slack, etc.
  *
- * Diseño: composición editorial sobre fondo cuero con tipografía cargada
- * desde Google Fonts (Zilla Slab + Inter). Ornamentos western centrados,
- * cartouche con tagline, footer con value props. Sin requerir fotografía
- * externa — todo composable vía Satori al build.
+ * Diseño DÍPTICO: dos fotos editoriales reales de la tienda (hombre · mujer,
+ * las mismas portadas de categoría del sitio) flanqueando una banda de cuero
+ * central con el wordmark blanco de BotasLeón, ornamento western y tagline.
+ * Muestra PRODUCTO real — mucho más atractivo que un degradado con logo.
+ *
+ * Las fotos se jalan de Shopify al build (metaobjects category_card) para
+ * mantenerse en sync con el sitio; si eso falla, cae a URLs conocidas; si las
+ * fotos no cargan del todo, cae a una banda de cuero a todo lo ancho (nunca
+ * rompe el build ni sale sin imagen).
  *
  * Crítico para Satori:
  *  - Cada div con múltiples hijos requiere display: flex/grid explícito
  *  - Solo subset CSS soportado (no transform 3D, no animation)
  *  - Fonts cargadas vía fetch + ArrayBuffer al ImageResponse
- *
- * Fallback graceful: si la fuente falla de cargar (red lenta en build),
- * cae a serif default — la imagen sigue saliendo, solo con tipografía
- * sistémica. Mejor que romper el build.
  */
 
 export const size = { width: 1200, height: 630 }
 export const contentType = "image/png"
-export const alt = "BotasLeón — 380 años de tradición. Botas hechas en León."
+export const alt =
+  "BotasLeón — 380 años de tradición. Botas hechas en León, para México y EE.UU."
 
-// Paleta cuero
+// Genera la OG para ambos idiomas (es/en) en el build estático.
+export function generateStaticParams() {
+  return [{ lang: "es" }, { lang: "en" }]
+}
+
+// Paleta cuero (globals.css @theme)
 const CUERO_DARK = "#2A1A12"
-const CUERO = "#4B2E1F"
-const CUERO_LIGHT = "#6B4423"
-const GOLD = "#D4AF37"
+const CUERO = "#3A2317"
+const CUERO_2 = "#4B2E1F"
+const GOLD = "#C9A24A"
 const CREAM = "#FBF8F1"
 const CREAM_SOFT = "#EFE5D0"
 
-/**
- * Carga logo_botasleon.png desde /public como data URL base64.
- * Lectura al build (no runtime) — pasa el binary inline a Satori vía
- * <img src="data:image/png;base64,..."> que sí renderiza.
- *
- * Si el archivo no existe (caso edge en build CI), regresa null y el
- * componente cae al wordmark tipográfico.
- */
-async function loadLogoAsDataUrl(): Promise<string | null> {
+// Geometría del díptico (1200 de ancho). Anchos EXPLÍCITOS — Satori no expande
+// bien `flex:1`, así que sumamos a mano: 384 + 432 + 384 = 1200.
+const PHOTO_W = 384
+const CENTER_W = size.width - PHOTO_W * 2 // 432
+const LOGO_W = 292
+const LOGO_H = Math.round(LOGO_W * (220 / 800))
+const SEAM_X_L = PHOTO_W // 384
+const SEAM_X_R = size.width - PHOTO_W // 816
+
+// URLs de respaldo (portadas de categoría) por si el fetch a Shopify falla.
+const FALLBACK_HOMBRE =
+  "https://cdn.shopify.com/s/files/1/0729/4618/8470/files/DSC09698.jpg"
+const FALLBACK_MUJER =
+  "https://cdn.shopify.com/s/files/1/0729/4618/8470/files/DSC09729.jpg"
+
+/** Lee un archivo de /public y lo devuelve como data URL (o null si falla). */
+async function loadPublicImage(file: string): Promise<string | null> {
   try {
-    const path = join(process.cwd(), "public", "logo_botasleon.png")
+    const path = join(process.cwd(), "public", file)
     const buffer = await readFile(path)
-    return `data:image/png;base64,${buffer.toString("base64")}`
+    const ext = file.endsWith(".png") ? "png" : "jpeg"
+    return `data:image/${ext};base64,${buffer.toString("base64")}`
   } catch {
     return null
   }
+}
+
+/** Descarga una imagen remota (CDN Shopify) y la inyecta como data URL. */
+async function fetchImageDataUrl(
+  url: string,
+  width = 760
+): Promise<string | null> {
+  try {
+    const u = url + (url.includes("?") ? "&" : "?") + `width=${width}`
+    const res = await fetch(u)
+    if (!res.ok) return null
+    const buffer = Buffer.from(await res.arrayBuffer())
+    const type = res.headers.get("content-type") || "image/jpeg"
+    return `data:${type};base64,${buffer.toString("base64")}`
+  } catch {
+    return null
+  }
+}
+
+/** Portadas de categoría (hombre/mujer) desde Shopify; cae a URLs conocidas. */
+async function getCoverUrls(): Promise<{ hombre: string; mujer: string }> {
+  const out = { hombre: FALLBACK_HOMBRE, mujer: FALLBACK_MUJER }
+  const domain = process.env.NEXT_PUBLIC_SHOPIFY_STORE_DOMAIN
+  const token = process.env.NEXT_PUBLIC_SHOPIFY_STOREFRONT_ACCESS_TOKEN
+  const version = process.env.NEXT_PUBLIC_SHOPIFY_API_VERSION || "2025-01"
+  if (!domain || !token) return out
+  try {
+    const res = await fetch(`https://${domain}/api/${version}/graphql.json`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-Shopify-Storefront-Access-Token": token,
+      },
+      body: JSON.stringify({
+        query: `{ metaobjects(type:"category_card", first:20){ edges{ node{ fields{ key value reference{ ... on MediaImage { image { url } } } } } } } }`,
+      }),
+    })
+    const json = await res.json()
+    for (const e of json?.data?.metaobjects?.edges ?? []) {
+      const f = e.node.fields as Array<{
+        key: string
+        value?: string
+        reference?: { image?: { url?: string } }
+      }>
+      const link = (f.find((x) => x.key === "link_url")?.value || "").toLowerCase()
+      const im = f.find((x) => x.key === "image")?.reference?.image?.url
+      if (!im) continue
+      if (link.includes("/hombre")) out.hombre = im
+      else if (link.includes("/mujer")) out.mujer = im
+    }
+  } catch {
+    // se queda con los fallback
+  }
+  return out
 }
 
 async function loadGoogleFont(family: string, weight: number, text: string) {
@@ -58,36 +128,223 @@ async function loadGoogleFont(family: string, weight: number, text: string) {
     )}:wght@${weight}&text=${encodeURIComponent(text)}`
     const css = await fetch(url, {
       headers: {
-        // user-agent específico fuerza WOFF en lugar de WOFF2 que Satori
-        // no procesa bien en algunos casos.
         "User-Agent":
           "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
       },
     }).then((r) => r.text())
-    const fontUrlMatch = css.match(/src: url\(([^)]+)\) format\('(opentype|truetype)'\)/)
+    const fontUrlMatch = css.match(
+      /src: url\(([^)]+)\) format\('(opentype|truetype)'\)/
+    )
     if (!fontUrlMatch) return null
-    const data = await fetch(fontUrlMatch[1]).then((r) => r.arrayBuffer())
-    return data
+    return await fetch(fontUrlMatch[1]).then((r) => r.arrayBuffer())
   } catch {
     return null
   }
 }
 
-export default async function OpengraphImage() {
-  // Texto que aparecerá en la imagen — pasado a Google Fonts API para que
-  // solo descargue glyphs necesarios (mucho más rápido al build).
-  const displayText = "BotasLeón"
-  const taglineText = "380 años de tradición. A la puerta de tu casa."
-  const footerText = "HECHO EN LEÓN, GUANAJUATO · ENVÍO A MÉXICO Y EEUU"
-  const eyebrowText = "ESTABLECIDA EN LEÓN, GTO."
-  // Subset de glyphs solo para texto real — los ornamentos son divs CSS,
-  // no necesitan estar en la fuente.
-  const allText = displayText + taglineText + footerText + eyebrowText
+/** Ornamento western: línea — rombo — línea (divs, sin glyphs de fuente). */
+function Ornament({ width = 78 }: { width?: number }) {
+  return (
+    <div
+      style={{
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        gap: 14,
+      }}
+    >
+      <div style={{ display: "flex", width, height: 1.5, backgroundColor: GOLD }} />
+      <div
+        style={{
+          display: "flex",
+          width: 10,
+          height: 10,
+          backgroundColor: GOLD,
+          transform: "rotate(45deg)",
+        }}
+      />
+      <div style={{ display: "flex", width, height: 1.5, backgroundColor: GOLD }} />
+    </div>
+  )
+}
 
-  const [zillaBold, interMedium, logoDataUrl] = await Promise.all([
+/** Banda de cuero central con el wordmark + tagline (reusada en el fallback). */
+function CenterBand({
+  logo,
+  fullWidth,
+  displayFont,
+  bodyFont,
+  texts,
+}: {
+  logo: string | null
+  fullWidth: boolean
+  displayFont: string
+  bodyFont: string
+  texts: { eyebrow: string; taglineA: string; taglineB: string; ship: string }
+}) {
+  return (
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        width: fullWidth ? size.width : CENTER_W,
+        height: size.height,
+        padding: "0 44px",
+        position: "relative",
+        backgroundColor: CUERO,
+        backgroundImage: `linear-gradient(180deg, ${CUERO_2} 0%, ${CUERO} 52%, ${CUERO_DARK} 100%)`,
+      }}
+    >
+      {/* Highlight superior sutil para profundidad */}
+      <div
+        style={{
+          position: "absolute",
+          inset: 0,
+          display: "flex",
+          backgroundImage: `radial-gradient(ellipse at 50% 12%, rgba(255,255,255,0.10) 0%, transparent 55%)`,
+        }}
+      />
+
+      {/* Eyebrow */}
+      <div
+        style={{
+          fontFamily: bodyFont,
+          fontSize: 15,
+          color: GOLD,
+          letterSpacing: "0.26em",
+          fontWeight: 500,
+          marginBottom: 22,
+          textAlign: "center",
+        }}
+      >
+        {texts.eyebrow}
+      </div>
+
+      <div style={{ display: "flex", marginBottom: 26, opacity: 0.9 }}>
+        <Ornament />
+      </div>
+
+      {/* Wordmark blanco (imagen). Fallback: texto Zilla. */}
+      {logo ? (
+        <img
+          src={logo}
+          width={LOGO_W}
+          height={LOGO_H}
+          alt="BotasLeón"
+          style={{ display: "block", width: LOGO_W, height: LOGO_H }}
+        />
+      ) : (
+        <div
+          style={{
+            fontFamily: displayFont,
+            fontSize: 66,
+            color: CREAM,
+            fontWeight: 700,
+            letterSpacing: "-0.01em",
+            lineHeight: 1,
+          }}
+        >
+          BotasLeón
+        </div>
+      )}
+
+      <div style={{ display: "flex", marginTop: 26, marginBottom: 26, opacity: 0.9 }}>
+        <Ornament />
+      </div>
+
+      {/* Tagline */}
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          fontFamily: displayFont,
+          fontSize: 26,
+          fontWeight: 700,
+          color: CREAM_SOFT,
+          textAlign: "center",
+          lineHeight: 1.28,
+        }}
+      >
+        <div style={{ display: "flex" }}>{texts.taglineA}</div>
+        <div style={{ display: "flex" }}>{texts.taglineB}</div>
+      </div>
+
+      {/* Envío */}
+      <div
+        style={{
+          fontFamily: bodyFont,
+          fontSize: 13,
+          color: GOLD,
+          letterSpacing: "0.22em",
+          fontWeight: 500,
+          marginTop: 28,
+          textAlign: "center",
+        }}
+      >
+        {texts.ship}
+      </div>
+    </div>
+  )
+}
+
+/** Panel de foto (recorte cover, alto completo). */
+function Photo({ src }: { src: string }) {
+  return (
+    <div
+      style={{
+        display: "flex",
+        width: PHOTO_W,
+        height: size.height,
+        overflow: "hidden",
+      }}
+    >
+      <img
+        src={src}
+        width={PHOTO_W}
+        height={size.height}
+        style={{ width: PHOTO_W, height: size.height, objectFit: "cover" }}
+        alt=""
+      />
+    </div>
+  )
+}
+
+const TEXTS = {
+  es: {
+    eyebrow: "ESTABLECIDA EN LEÓN · GTO.",
+    taglineA: "380 años de tradición.",
+    taglineB: "A la puerta de tu casa.",
+    ship: "ENVÍO A MÉXICO Y EE.UU.",
+  },
+  en: {
+    eyebrow: "ESTABLISHED IN LEÓN · MEXICO",
+    taglineA: "380 years of tradition.",
+    taglineB: "Right to your doorstep.",
+    ship: "SHIPPING TO MEXICO & THE U.S.",
+  },
+}
+
+export default async function OpengraphImage({
+  params,
+}: {
+  params?: Promise<{ lang?: string }> | { lang?: string }
+}) {
+  const resolved = params ? await params : undefined
+  const texts = resolved?.lang === "en" ? TEXTS.en : TEXTS.es
+  const wordmarkFallback = "BotasLeón"
+  const allText =
+    texts.eyebrow + texts.taglineA + texts.taglineB + texts.ship + wordmarkFallback
+
+  const covers = await getCoverUrls()
+  const [zillaBold, interMedium, logo, hombre, mujer] = await Promise.all([
     loadGoogleFont("Zilla Slab", 700, allText),
     loadGoogleFont("Inter", 500, allText),
-    loadLogoAsDataUrl(),
+    loadPublicImage("logo_botasleon_white.png"),
+    fetchImageDataUrl(covers.hombre),
+    fetchImageDataUrl(covers.mujer),
   ])
 
   const fonts: Array<{
@@ -96,242 +353,73 @@ export default async function OpengraphImage() {
     weight: 400 | 500 | 700
     style: "normal"
   }> = []
-  if (zillaBold) {
+  if (zillaBold)
     fonts.push({ name: "Zilla Slab", data: zillaBold, weight: 700, style: "normal" })
-  }
-  if (interMedium) {
+  if (interMedium)
     fonts.push({ name: "Inter", data: interMedium, weight: 500, style: "normal" })
-  }
 
   const displayFont = zillaBold ? "Zilla Slab" : "serif"
   const bodyFont = interMedium ? "Inter" : "sans-serif"
+
+  // Díptico solo si AMBAS fotos cargaron; si no, banda de cuero a todo lo ancho.
+  const diptico = Boolean(hombre && mujer)
 
   return new ImageResponse(
     (
       <div
         style={{
-          width: "100%",
-          height: "100%",
+          width: size.width,
+          height: size.height,
           display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          justifyContent: "center",
+          flexDirection: "row",
           position: "relative",
-          // Gradient cuero — radial para profundidad + linear de fondo
-          backgroundImage: `
-            radial-gradient(ellipse at center, ${CUERO_LIGHT} 0%, ${CUERO} 45%, ${CUERO_DARK} 100%)
-          `,
           backgroundColor: CUERO,
         }}
       >
-        {/* Texture overlay — radial sutil para feel "estudio" */}
-        <div
-          style={{
-            position: "absolute",
-            inset: 0,
-            display: "flex",
-            backgroundImage: `
-              radial-gradient(circle at 25% 20%, rgba(255,255,255,0.10) 0%, transparent 40%),
-              radial-gradient(circle at 75% 80%, rgba(0,0,0,0.35) 0%, transparent 50%)
-            `,
-            mixBlendMode: "overlay",
-          }}
-        />
-
-        {/* Marco interior — espacio editorial */}
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            justifyContent: "center",
-            padding: "60px 80px",
-            position: "relative",
-            zIndex: 1,
-          }}
-        >
-          {/* Eyebrow */}
-          <div
-            style={{
-              fontFamily: bodyFont,
-              fontSize: 18,
-              color: GOLD,
-              letterSpacing: "0.35em",
-              fontWeight: 500,
-              marginBottom: 24,
-            }}
-          >
-            {eyebrowText}
-          </div>
-
-          {/* Divider con ornamento */}
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              gap: 18,
-              marginBottom: 28,
-              opacity: 0.85,
-            }}
-          >
+        {diptico ? (
+          <>
+            <Photo src={hombre as string} />
+            <CenterBand
+              logo={logo}
+              fullWidth={false}
+              displayFont={displayFont}
+              bodyFont={bodyFont}
+              texts={texts}
+            />
+            <Photo src={mujer as string} />
+            {/* Hairlines doradas en las costuras */}
             <div
               style={{
+                position: "absolute",
+                top: 0,
+                height: size.height,
+                left: SEAM_X_L - 1.5,
+                width: 3,
                 display: "flex",
-                width: 120,
-                height: 1,
                 backgroundColor: GOLD,
               }}
             />
-            {/* Rombo dorado — div rotado 45° (Satori friendly, no requiere
-                unicode/font con el glyph ✦). */}
             <div
               style={{
+                position: "absolute",
+                top: 0,
+                height: size.height,
+                left: SEAM_X_R - 1.5,
+                width: 3,
                 display: "flex",
-                width: 14,
-                height: 14,
-                backgroundColor: GOLD,
-                transform: "rotate(45deg)",
-              }}
-            />
-            <div
-              style={{
-                display: "flex",
-                width: 120,
-                height: 1,
                 backgroundColor: GOLD,
               }}
             />
-          </div>
-
-          {/* Logo real sobre placa cream — siente "sello grabado en cuero".
-              Fallback: si readFile falla en build, cae a wordmark tipográfico
-              para que la imagen siga saliendo. */}
-          {logoDataUrl ? (
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                backgroundColor: CREAM,
-                padding: "40px 70px",
-                marginBottom: 28,
-                // Sombra sutil para flotar sobre el cuero — feel de placa
-                boxShadow: "0 8px 24px rgba(0,0,0,0.35)",
-                borderTop: `2px solid ${GOLD}`,
-                borderBottom: `2px solid ${GOLD}`,
-              }}
-            >
-              <img
-                src={logoDataUrl}
-                width={620}
-                height={170}
-                alt="BotasLeón"
-                style={{ display: "block" }}
-              />
-            </div>
-          ) : (
-            <div
-              style={{
-                fontFamily: displayFont,
-                fontSize: 152,
-                color: CREAM,
-                fontWeight: 700,
-                lineHeight: 0.95,
-                letterSpacing: "-0.02em",
-                marginBottom: 28,
-                textShadow: "0 2px 0 rgba(0,0,0,0.25)",
-              }}
-            >
-              {displayText}
-            </div>
-          )}
-
-          {/* Divider inferior con ornamento — mirror del superior */}
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              gap: 18,
-              marginBottom: 32,
-              opacity: 0.85,
-            }}
-          >
-            <div
-              style={{
-                display: "flex",
-                width: 120,
-                height: 1,
-                backgroundColor: GOLD,
-              }}
-            />
-            {/* Rombo dorado — div rotado 45° (Satori friendly, no requiere
-                unicode/font con el glyph ✦). */}
-            <div
-              style={{
-                display: "flex",
-                width: 14,
-                height: 14,
-                backgroundColor: GOLD,
-                transform: "rotate(45deg)",
-              }}
-            />
-            <div
-              style={{
-                display: "flex",
-                width: 120,
-                height: 1,
-                backgroundColor: GOLD,
-              }}
-            />
-          </div>
-
-          {/* Tagline */}
-          <div
-            style={{
-              display: "flex",
-              fontFamily: displayFont,
-              fontSize: 38,
-              color: CREAM_SOFT,
-              textAlign: "center",
-              lineHeight: 1.25,
-              maxWidth: 920,
-              fontStyle: "normal",
-              fontWeight: 700,
-            }}
-          >
-            {taglineText}
-          </div>
-        </div>
-
-        {/* Footer banda cream con value props */}
-        <div
-          style={{
-            position: "absolute",
-            bottom: 0,
-            left: 0,
-            right: 0,
-            height: 64,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            backgroundColor: CREAM,
-            borderTop: `3px solid ${GOLD}`,
-          }}
-        >
-          <div
-            style={{
-              fontFamily: bodyFont,
-              fontSize: 18,
-              color: CUERO,
-              letterSpacing: "0.25em",
-              fontWeight: 500,
-            }}
-          >
-            {footerText}
-          </div>
-        </div>
+          </>
+        ) : (
+          <CenterBand
+            logo={logo}
+            fullWidth
+            displayFont={displayFont}
+            bodyFont={bodyFont}
+            texts={texts}
+          />
+        )}
       </div>
     ),
     {

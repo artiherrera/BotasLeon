@@ -87,12 +87,16 @@ export async function generateMetadata({
     locale: isEn ? "en_US" : "es_MX",
     url: SITE_URL,
     siteName: SITE_NAME,
-    title: `${SITE_NAME} · 380 años de tradición. A la puerta de tu casa.`,
+    title: isEn
+      ? `${SITE_NAME} · 380 years of tradition. Right to your doorstep.`
+      : `${SITE_NAME} · 380 años de tradición. A la puerta de tu casa.`,
     description: SITE_DESCRIPTION,
   },
   twitter: {
     card: "summary_large_image",
-    title: `${SITE_NAME} · Botas hechas en León`,
+    title: isEn
+      ? `${SITE_NAME} · Boots handcrafted in León`
+      : `${SITE_NAME} · Botas hechas en León`,
     description: SITE_DESCRIPTION,
   },
   robots: {
