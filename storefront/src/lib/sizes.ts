@@ -1,71 +1,52 @@
 /**
  * Conversión de talla mexicana (cm) → US para botas.
  *
- * Tablas industria estándar. La conversión varía por género porque
- * el sistema US tiene escalas separadas para hombre vs mujer (diferente
- * punto de referencia).
+ * La conversión varía por SEXO porque el sistema US tiene escalas separadas
+ * para hombre y mujer (distinto punto de referencia). Según los fabricantes
+ * de BotasLeón:
  *
- * Para niños no incluimos conversión porque el sistema US infantil
- * tiene 3 sub-escalas (toddler, little kids, big kids) y la conversión
- * exacta depende de la marca. Mejor mostrar solo MX para niños.
+ *   Hombre: US = MX − 19   (p.ej. MX 29 = US 10)
+ *   Mujer:  US = MX − 17   (p.ej. MX 23 = US 6)
  *
- * Match contra handle de metaobject Sexo objetivo (shopify.target-gender):
- *   "masculino" → tabla hombre
- *   "femenino"  → tabla mujer
- *   otros / null → no convertir (mostrar solo MX)
+ * Es un corrimiento parejo, así que cubre medias tallas (25.5 → US 6.5, etc.)
+ * sin necesidad de tabla. Para niños NO convertimos: el sistema US infantil
+ * tiene 3 sub-escalas (toddler/little/big) y depende de la marca — mostramos
+ * solo MX.
+ *
+ * Match contra el handle del metaobject Sexo objetivo (shopify.target-gender):
+ *   "masculino" → hombre · "femenino" → mujer · otros/null → solo MX.
  */
 
-const MEN_MX_TO_US: Record<string, string> = {
-  "22": "4",
-  "22.5": "4.5",
-  "23": "5",
-  "23.5": "5.5",
-  "24": "6",
-  "24.5": "6.5",
-  "25": "7",
-  "25.5": "7.5",
-  "26": "8",
-  "26.5": "8.5",
-  "27": "9",
-  "27.5": "9.5",
-  "28": "10",
-  "28.5": "10.5",
-  "29": "11",
-  "29.5": "11.5",
-  "30": "12",
-  "30.5": "12.5",
-  "31": "13",
-}
+export type GenderHandle =
+  | "masculino"
+  | "femenino"
+  | "unisex"
+  | string
+  | null
+  | undefined
 
-const WOMEN_MX_TO_US: Record<string, string> = {
-  "21": "4",
-  "21.5": "4.5",
-  "22": "5",
-  "22.5": "5.5",
-  "23": "6",
-  "23.5": "6.5",
-  "24": "7",
-  "24.5": "7.5",
-  "25": "8",
-  "25.5": "8.5",
-  "26": "9",
-  "26.5": "9.5",
-  "27": "10",
-}
-
-export type GenderHandle = "masculino" | "femenino" | "unisex" | string | null | undefined
-
-export function mxToUs(mxSize: string, gender: GenderHandle): string | null {
-  const normalized = mxSize.trim()
-  if (gender === "masculino") return MEN_MX_TO_US[normalized] ?? null
-  if (gender === "femenino") return WOMEN_MX_TO_US[normalized] ?? null
+/** Corrimiento MX→US por sexo, o null si no aplica (niños/unisex/desconocido). */
+export function usOffset(gender: GenderHandle): number | null {
+  if (gender === "masculino") return 19
+  if (gender === "femenino") return 17
   return null
 }
 
+/** Talla US para una talla MX y un sexo, o null si no hay conversión válida. */
+export function mxToUs(mxSize: string | number, gender: GenderHandle): string | null {
+  const offset = usOffset(gender)
+  if (offset == null) return null
+  const mx = parseFloat(String(mxSize).replace(",", "."))
+  if (!Number.isFinite(mx)) return null
+  const us = mx - offset
+  if (us < 1) return null // talla US inexistente (MX demasiado chica para el sexo)
+  return Number.isInteger(us) ? String(us) : us.toFixed(1)
+}
+
 /**
- * Formato corto para mostrar en buttons de talla:
- *   "24 · US 7"  (si tenemos conversión)
- *   "24"          (si no — niños o género desconocido)
+ * Formato corto para los botones de talla:
+ *   "24 · US 7"  (con conversión)
+ *   "24"          (sin conversión — niños o sexo desconocido)
  */
 export function formatSizeWithUs(mxSize: string, gender: GenderHandle): string {
   const us = mxToUs(mxSize, gender)

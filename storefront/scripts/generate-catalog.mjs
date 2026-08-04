@@ -421,7 +421,7 @@ const STR = {
     ],
     sizesEyebrow: "TALLAS Y CUIDADO", sizesTitle: "Tu talla y el cuidado del cuero",
     sizesIntro: "Equivalencias de tallas mexicanas a US. Ante la duda, consulta la guía completa.",
-    sizesMx: "MX", sizesUs: "US", careTitle: "Cuidado",
+    sizesMx: "MX", sizesUsMen: "US Hombre", sizesUsWomen: "US Mujer", careTitle: "Cuidado",
     careTips: [
       "Limpia con paño seco; evita agua directa en pieles exóticas.",
       "Nutre el cuero con crema o grasa neutra.",
@@ -460,7 +460,7 @@ const STR = {
     ],
     sizesEyebrow: "SIZING & CARE", sizesTitle: "Your size & leather care",
     sizesIntro: "Mexican-to-US size equivalents. When in doubt, check the full guide.",
-    sizesMx: "MX", sizesUs: "US", careTitle: "Care",
+    sizesMx: "MX", sizesUsMen: "US Men", sizesUsWomen: "US Women", careTitle: "Care",
     careTips: [
       "Wipe with a dry cloth; avoid direct water on exotic skins.",
       "Nourish the leather with neutral cream or conditioner.",
@@ -849,8 +849,11 @@ function tagsFor(p, gender) {
 function sizesLabel(p, locale) {
   const T = locale?.startsWith("en") ? "Sizes" : "Tallas"
   const nums = (p.sizes || []).map((s) => parseFloat(s)).filter((n) => Number.isFinite(n) && n >= 20 && n <= 35)
-  if (!nums.length) return `${T} 25–30 MX · US 7–12`
-  return `${T} ${Math.min(...nums)}–${Math.max(...nums)} MX · US 7–12`
+  if (!nums.length) return `${T} 25–30 MX`
+  const gender = (p.genders || []).includes("femenino") ? "femenino" : (p.genders || []).includes("masculino") ? "masculino" : null
+  const lo = Math.min(...nums), hi = Math.max(...nums)
+  const usLo = usFor(lo, gender), usHi = usFor(hi, gender)
+  return `${T} ${lo}–${hi} MX${usLo && usHi ? ` · US ${usLo}–${usHi}` : ""}`
 }
 function qrCampaignUrl(handle, lang = "es") {
   return `${SITE}/${lang}/products/${handle}?utm_source=catalogo&utm_medium=qr&utm_campaign=catalogo-${EDITION_YEAR}`
@@ -1082,7 +1085,15 @@ const chapterCopyL = (gender, chapter, locale) =>
   locale?.startsWith("en") ? (CHAPTER_COPY_EN[`${gender}-${chapter}`] || "") : chapterCopy(gender, chapter)
 
 // Equivalencia de tallas MX → US (aprox. mexicano estándar).
-const MX_US = { 22: "4", 23: "5", 24: "6", 25: "7", 26: "8", 27: "9", 28: "10", 29: "11", 30: "12" }
+// Talla US por sexo (fabricantes BotasLeón): hombre US = MX − 19, mujer US = MX − 17.
+const usFor = (mx, gender) => {
+  const n = parseFloat(mx)
+  if (!Number.isFinite(n)) return null
+  const off = gender === "femenino" || gender === "mujer" ? 17 : gender === "masculino" || gender === "hombre" ? 19 : null
+  if (off == null) return null
+  const us = n - off
+  return us < 1 ? null : Number.isInteger(us) ? String(us) : us.toFixed(1)
+}
 
 // ── páginas nuevas ──
 function InfoBg({ photo }) {
@@ -1162,18 +1173,19 @@ function GuiaPage({ tr }) {
       h(Text, { style: { color: C.cream, fontSize: 11, opacity: 0.85, flex: 1 } }, x.desc))))
 }
 function TallasPage({ tr, sizes }) {
-  const nums = (sizes || []).map(Number).filter((n) => MX_US[n]).sort((a, b) => a - b)
-  const rows = (nums.length ? nums : [25, 26, 27, 28, 29, 30])
+  // Solo tallas ENTERAS en la guía (las medias son interpolación obvia) → cabe en 1 página.
+  const nums = (sizes || []).map(Number).filter((n) => Number.isInteger(n) && n >= 20 && n <= 35).sort((a, b) => a - b)
+  const rows = nums.length ? nums : [25, 26, 27, 28, 29, 30]
+  const th = (label, w) => h(Text, { style: { width: w, color: C.leather, fontWeight: 700, fontFamily: "Zilla", fontSize: 12 } }, label)
+  const td = (label, w) => h(Text, { style: { width: w, color: C.text, fontSize: 12 } }, label)
   return h(Page, { size: "LETTER", style: { backgroundColor: C.creamSoft, padding: 60, fontFamily: "Zilla" } },
     h(Text, { style: { color: C.gold, fontSize: 12, letterSpacing: 5, marginBottom: 12 } }, tr.sizesEyebrow),
     h(Text, { style: { color: C.text, fontFamily: "Bevan", fontSize: 28, marginBottom: 16 } }, tr.sizesTitle),
     h(Text, { style: { color: C.muted, fontSize: 11.5, lineHeight: 1.6, marginBottom: 22, maxWidth: 440 } }, tr.sizesIntro),
     h(View, { style: { flexDirection: "row", borderBottom: `2px solid ${C.leather}`, paddingBottom: 6, marginBottom: 4 } },
-      h(Text, { style: { width: 90, color: C.leather, fontWeight: 700, fontFamily: "Zilla", fontSize: 12 } }, tr.sizesMx),
-      h(Text, { style: { color: C.leather, fontWeight: 700, fontFamily: "Zilla", fontSize: 12 } }, tr.sizesUs)),
+      th(tr.sizesMx, 110), th(tr.sizesUsMen, 150), th(tr.sizesUsWomen, 150)),
     ...rows.map((n, i) => h(View, { key: i, style: { flexDirection: "row", borderBottom: `1px solid ${C.border}`, paddingVertical: 6 } },
-      h(Text, { style: { width: 90, color: C.text, fontSize: 12 } }, String(n)),
-      h(Text, { style: { color: C.text, fontSize: 12 } }, MX_US[n]))),
+      td(String(n), 110), td(usFor(n, "masculino") ?? "—", 150), td(usFor(n, "femenino") ?? "—", 150))),
     h(Text, { style: { color: C.gold, fontSize: 12, letterSpacing: 3, marginTop: 28, marginBottom: 10 } }, tr.careTitle),
     ...tr.careTips.map((t, i) => h(Text, { key: "c" + i, style: { color: C.muted, fontSize: 11, lineHeight: 1.55, marginBottom: 5 } }, `· ${t}`)),
     h(Text, { style: { color: C.subtle, fontSize: 9, marginTop: 20 } }, tr.sizesLink))
