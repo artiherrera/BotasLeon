@@ -7,8 +7,8 @@ import {
   StyleSheet,
   pdf,
 } from "@react-pdf/renderer"
-import type { Quote, QuoteItem } from "./types"
-import { totalPares, importeTotal } from "./types"
+import type { Quote, QuoteItem, Idioma } from "./types"
+import { totalPares, importeTotal, fmtMoney, bothSizes } from "./types"
 
 /**
  * Generación del PDF de cotización de mayoreo con la identidad de BotasLeón.
@@ -28,15 +28,14 @@ const C = {
 }
 
 // Anchos de columna (A4 útil ≈ 531pt con padding 32).
-const W = { foto: 60, desc: 179, sexo: 52, talla: 52, cant: 40, punit: 72, importe: 76 }
+const W = { foto: 60, desc: 161, sexo: 50, talla: 72, cant: 40, punit: 72, importe: 76 }
 
-const money = (n: number) =>
-  new Intl.NumberFormat("es-MX", {
-    style: "currency",
-    currency: "MXN",
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  }).format(n)
+// Etiquetas del PDF por idioma (elegible por cotización).
+const STR = {
+  es: { subtitle: "COTIZACIÓN DE MAYOREO", folio: "Folio", fecha: "Fecha", vigencia: "Vigencia", cliente: "Cliente", atiende: "Atiende", contacto: "Contacto", foto: "FOTO", desc: "DESCRIPCIÓN", sexo: "SEXO", talla: "TALLA", cant: "CANT.", punit: "P. UNITARIO", importe: "IMPORTE", totalPares: "Total de pares", importeTotal: "IMPORTE TOTAL", Hombre: "Hombre", Mujer: "Mujer", Unisex: "Unisex" },
+  en: { subtitle: "WHOLESALE QUOTE", folio: "No.", fecha: "Date", vigencia: "Valid until", cliente: "Client", atiende: "Rep", contacto: "Contact", foto: "PHOTO", desc: "DESCRIPTION", sexo: "GENDER", talla: "SIZE", cant: "QTY", punit: "UNIT PRICE", importe: "AMOUNT", totalPares: "Total pairs", importeTotal: "TOTAL", Hombre: "Men", Mujer: "Women", Unisex: "Unisex" },
+}
+const sexoLabel = (sexo: string, L: Record<string, string>) => L[sexo] || sexo
 
 const s = StyleSheet.create({
   page: {
@@ -147,7 +146,15 @@ const s = StyleSheet.create({
   },
 })
 
-function ItemRows({ item }: { item: QuoteItem }) {
+function ItemRows({
+  item,
+  money,
+  L,
+}: {
+  item: QuoteItem
+  money: (n: number) => string
+  L: (typeof STR)[Idioma]
+}) {
   const lines = item.lines.length ? item.lines : [{ id: "x", talla: "", cantidad: 0, precioUnitario: 0 }]
   return (
     <View style={s.item} wrap={false}>
@@ -164,12 +171,12 @@ function ItemRows({ item }: { item: QuoteItem }) {
         {item.descripcion ? <Text style={s.descText}>{item.descripcion}</Text> : null}
       </View>
       <View style={s.sexoCell}>
-        <Text>{item.sexo}</Text>
+        <Text>{sexoLabel(item.sexo, L)}</Text>
       </View>
       <View style={s.linesCol}>
         {lines.map((l) => (
           <View key={l.id} style={s.lineRow}>
-            <Text style={s.cTalla}>{l.talla}</Text>
+            <Text style={s.cTalla}>{bothSizes(l.talla, item.sexo)}</Text>
             <Text style={s.cCant}>{l.cantidad || ""}</Text>
             <Text style={s.cPunit}>{l.precioUnitario ? money(l.precioUnitario) : ""}</Text>
             <Text style={s.cImporte}>
@@ -185,6 +192,8 @@ function ItemRows({ item }: { item: QuoteItem }) {
 function QuoteDoc({ quote }: { quote: Quote }) {
   const pares = totalPares(quote.items)
   const importe = importeTotal(quote.items)
+  const L = STR[quote.idioma] ?? STR.es
+  const money = (n: number) => fmtMoney(n, quote.moneda)
 
   return (
     <Document title={quote.folio}>
@@ -192,47 +201,47 @@ function QuoteDoc({ quote }: { quote: Quote }) {
         {/* Marca */}
         <View style={s.headerRule} />
         <Text style={s.brand}>BOTAS LEÓN</Text>
-        <Text style={s.brandSub}>COTIZACIÓN DE MAYOREO</Text>
+        <Text style={s.brandSub}>{L.subtitle}</Text>
         <View style={s.headerRule} />
 
         {/* Meta */}
         <View style={s.metaRow}>
           <View style={s.metaCol}>
-            <MetaLine label="Folio" value={quote.folio} />
-            <MetaLine label="Fecha" value={quote.fecha} />
-            <MetaLine label="Vigencia" value={quote.vigencia} />
+            <MetaLine label={L.folio} value={quote.folio} />
+            <MetaLine label={L.fecha} value={quote.fecha} />
+            <MetaLine label={L.vigencia} value={quote.vigencia} />
           </View>
           <View style={s.metaCol}>
-            <MetaLine label="Cliente" value={quote.cliente} />
-            <MetaLine label="Atiende" value={quote.atiende} />
-            <MetaLine label="Contacto" value={quote.contacto} />
+            <MetaLine label={L.cliente} value={quote.cliente} />
+            <MetaLine label={L.atiende} value={quote.atiende} />
+            <MetaLine label={L.contacto} value={quote.contacto} />
           </View>
         </View>
 
         {/* Tabla */}
         <View style={s.thead} fixed>
-          <Text style={[s.th, { width: W.foto, textAlign: "center" }]}>FOTO</Text>
-          <Text style={[s.th, { width: W.desc, paddingHorizontal: 6 }]}>DESCRIPCIÓN</Text>
-          <Text style={[s.th, { width: W.sexo }]}>SEXO</Text>
-          <Text style={[s.th, { width: W.talla, textAlign: "center" }]}>TALLA MX</Text>
-          <Text style={[s.th, { width: W.cant, textAlign: "center" }]}>CANT.</Text>
-          <Text style={[s.th, { width: W.punit, textAlign: "right", paddingRight: 6 }]}>P. UNITARIO</Text>
-          <Text style={[s.th, { width: W.importe, textAlign: "right" }]}>IMPORTE</Text>
+          <Text style={[s.th, { width: W.foto, textAlign: "center" }]}>{L.foto}</Text>
+          <Text style={[s.th, { width: W.desc, paddingHorizontal: 6 }]}>{L.desc}</Text>
+          <Text style={[s.th, { width: W.sexo }]}>{L.sexo}</Text>
+          <Text style={[s.th, { width: W.talla, textAlign: "center" }]}>{L.talla}</Text>
+          <Text style={[s.th, { width: W.cant, textAlign: "center" }]}>{L.cant}</Text>
+          <Text style={[s.th, { width: W.punit, textAlign: "right", paddingRight: 6 }]}>{L.punit}</Text>
+          <Text style={[s.th, { width: W.importe, textAlign: "right" }]}>{L.importe}</Text>
         </View>
 
         {quote.items.map((item) => (
-          <ItemRows key={item.id} item={item} />
+          <ItemRows key={item.id} item={item} money={money} L={L} />
         ))}
 
         {/* Totales */}
         <View style={s.totalsWrap}>
           <View style={s.totalsBox}>
             <View style={s.totalPares}>
-              <Text style={s.totalLabel}>Total de pares</Text>
+              <Text style={s.totalLabel}>{L.totalPares}</Text>
               <Text style={s.totalValue}>{pares}</Text>
             </View>
             <View style={s.totalImporte}>
-              <Text style={s.totalImporteLabel}>IMPORTE TOTAL (MXN)</Text>
+              <Text style={s.totalImporteLabel}>{`${L.importeTotal} (${quote.moneda})`}</Text>
               <Text style={s.totalImporteValue}>{money(importe)}</Text>
             </View>
           </View>

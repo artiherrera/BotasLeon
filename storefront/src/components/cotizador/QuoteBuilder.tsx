@@ -10,7 +10,10 @@ import {
   type QuoteLine,
   totalPares,
   importeTotal,
+  fmtMoney,
+  usFromSexo,
   DEFAULT_NOTAS,
+  defaultNotas,
 } from "@/lib/cotizacion/types"
 import type { Product } from "@/lib/shopify/types"
 
@@ -18,14 +21,6 @@ const uid = () =>
   typeof crypto !== "undefined" && crypto.randomUUID
     ? crypto.randomUUID()
     : Math.random().toString(36).slice(2)
-
-const money = (n: number) =>
-  new Intl.NumberFormat("es-MX", {
-    style: "currency",
-    currency: "MXN",
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  }).format(n || 0)
 
 function initialQuote(): Quote {
   const now = new Date()
@@ -43,6 +38,8 @@ function initialQuote(): Quote {
     cliente: "",
     atiende: COTIZADOR_DEFAULTS.atiende,
     contacto: COTIZADOR_DEFAULTS.contacto,
+    moneda: "MXN",
+    idioma: "es",
     notas: DEFAULT_NOTAS,
     items: [],
   }
@@ -84,6 +81,7 @@ export function QuoteBuilder() {
   }, [query])
 
   const setField = (patch: Partial<Quote>) => setQuote((q) => ({ ...q, ...patch }))
+  const money = (n: number) => fmtMoney(n, quote.moneda)
 
   const addItem = (p: Product) => {
     const price = parseFloat(p.priceRange?.minVariantPrice?.amount || "0") || 0
@@ -210,6 +208,36 @@ export function QuoteBuilder() {
               onChange={(e) => setField({ cliente: e.target.value })}
               placeholder="Nombre del cliente"
             />
+          </label>
+          <label className="block">
+            <span className="mb-1 block text-xs text-text-muted">Moneda</span>
+            <select
+              className={inputCls}
+              value={quote.moneda}
+              onChange={(e) => setField({ moneda: e.target.value === "USD" ? "USD" : "MXN" })}
+            >
+              <option value="MXN">Pesos (MXN)</option>
+              <option value="USD">Dólares (USD)</option>
+            </select>
+          </label>
+          <label className="block">
+            <span className="mb-1 block text-xs text-text-muted">Idioma del PDF</span>
+            <select
+              className={inputCls}
+              value={quote.idioma}
+              onChange={(e) => {
+                const next = e.target.value === "en" ? "en" : "es"
+                // Cambia las notas al idioma nuevo SOLO si no las han personalizado.
+                setQuote((q) => ({
+                  ...q,
+                  idioma: next,
+                  notas: q.notas === defaultNotas(q.idioma) ? defaultNotas(next) : q.notas,
+                }))
+              }}
+            >
+              <option value="es">Español</option>
+              <option value="en">Inglés</option>
+            </select>
           </label>
           <label className="block">
             <span className="mb-1 block text-xs text-text-muted">Folio</span>
@@ -345,13 +373,20 @@ export function QuoteBuilder() {
                 </div>
                 <div className="space-y-2">
                   {item.lines.map((l) => (
-                    <div key={l.id} className="grid grid-cols-[1fr_1fr_1.2fr_1.2fr_auto] gap-2 items-center">
-                      <input
-                        className={inputCls}
-                        value={l.talla}
-                        onChange={(e) => updateLine(item.id, l.id, { talla: e.target.value })}
-                        placeholder="26"
-                      />
+                    <div key={l.id} className="grid grid-cols-[1fr_1fr_1.2fr_1.2fr_auto] gap-2 items-start">
+                      <div>
+                        <input
+                          className={inputCls}
+                          value={l.talla}
+                          onChange={(e) => updateLine(item.id, l.id, { talla: e.target.value })}
+                          placeholder="26"
+                        />
+                        {usFromSexo(l.talla, item.sexo) && (
+                          <span className="mt-0.5 block text-[11px] text-text-subtle">
+                            US {usFromSexo(l.talla, item.sexo)}
+                          </span>
+                        )}
+                      </div>
                       <input
                         type="number"
                         min={0}
