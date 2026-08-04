@@ -44,7 +44,7 @@ export function CartDrawer() {
     removeDiscount,
   } = useCart()
   const t = useT()
-  const { blocked: taxIdBlocked } = useCustomsGate() // bloquea "Pagar" si falta Tax ID (EE.UU. ≥ $800)
+  const { blocked: taxIdBlocked, blockReason } = useCustomsGate() // bloquea "Pagar": aceptación aduana (todo EE.UU.) o Tax ID (≥ $800)
   // Traduce el NOMBRE de la opción/atributo (Talla/Color/Material vienen en
   // español desde Shopify) sin tocar el valor. Si no lo conocemos, lo deja igual.
   const optLabel = (name: string): string => {
@@ -427,7 +427,7 @@ export function CartDrawer() {
                     >
                       {t("cart.checkout")}
                     </button>
-                    <p className="text-xs text-terracotta text-center mt-2">{t("cart.taxIdBlocked")}</p>
+                    <p className="text-xs text-terracotta text-center mt-2">{t(blockReason === "ack" ? "cart.customsAckBlocked" : "cart.taxIdBlocked")}</p>
                   </>
                 ) : (
                   <a

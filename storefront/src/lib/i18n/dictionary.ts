@@ -489,6 +489,10 @@ export const DICTIONARY: Record<string, Entry> = {
     es: "Ingresa tu Tax ID arriba para continuar (envíos a EE.UU. ≥ $800).",
     en: "Enter your Tax ID above to continue (U.S. orders ≥ $800).",
   },
+  "cart.customsAckBlocked": {
+    es: "Acepta arriba que los aranceles de aduana corren por tu cuenta para continuar al pago.",
+    en: "Please accept above that customs duties are your responsibility to continue to payment.",
+  },
   "cart.codeError": {
     es: "No se pudo aplicar el código.",
     en: "Couldn't apply the code.",

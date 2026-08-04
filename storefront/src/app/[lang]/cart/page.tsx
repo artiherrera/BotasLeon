@@ -33,7 +33,7 @@ import { FREE_SHIPPING_THRESHOLD } from "@/lib/shipping"
 export default function CartPage() {
   const { cart, ready, isPending, updateLine, removeLine, showToast } = useCart()
   const { locale } = useLocale()
-  const { blocked: taxIdBlocked } = useCustomsGate() // bloquea el pago si falta Tax ID (EE.UU. ≥ $800)
+  const { blocked: taxIdBlocked, blockReason } = useCustomsGate() // bloquea el pago: aceptación aduana (todo EE.UU.) o Tax ID (≥ $800)
   const [pendingDiscount, setPendingDiscount] = useState<string | null>(null)
   const [couponInput, setCouponInput] = useState("")
   const lines = cart?.lines ?? []
@@ -336,9 +336,13 @@ export default function CartPage() {
                       {locale === "en" ? "Checkout" : "Proceder al pago"}
                     </button>
                     <p className="text-xs text-terracotta text-center mt-2">
-                      {locale === "en"
-                        ? "Enter your Tax ID above to continue (U.S. orders ≥ $800)."
-                        : "Ingresa tu Tax ID arriba para continuar (envíos a EE.UU. ≥ $800)."}
+                      {blockReason === "ack"
+                        ? locale === "en"
+                          ? "Please accept above that customs duties are your responsibility to continue."
+                          : "Acepta arriba que los aranceles de aduana corren por tu cuenta para continuar."
+                        : locale === "en"
+                          ? "Enter your Tax ID above to continue (U.S. orders ≥ $800)."
+                          : "Ingresa tu Tax ID arriba para continuar (envíos a EE.UU. ≥ $800)."}
                     </p>
                   </>
                 ) : (
