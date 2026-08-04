@@ -24,8 +24,16 @@ export type Quote = {
   cliente: string
   atiende: string
   contacto: string
+  notas: string // condiciones editables (una por línea) que salen al pie del PDF
   items: QuoteItem[]
 }
+
+/** Notas/condiciones por defecto (editables por el vendedor). */
+export const DEFAULT_NOTAS = [
+  "Precios de mayoreo expresados en pesos mexicanos (MXN).",
+  "Cotización sujeta a disponibilidad de inventario y tallas.",
+  "Los precios no incluyen gastos de envío. Tiempos de entrega a confirmar según volumen.",
+].join("\n")
 
 /** Total de pares (suma de cantidades). */
 export function totalPares(items: QuoteItem[]): number {

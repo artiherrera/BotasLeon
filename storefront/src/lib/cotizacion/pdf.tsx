@@ -238,16 +238,18 @@ function QuoteDoc({ quote }: { quote: Quote }) {
           </View>
         </View>
 
-        {/* Notas */}
-        <View style={s.notes}>
-          <Text style={s.note}>Precios de mayoreo expresados en pesos mexicanos (MXN).</Text>
-          <Text style={s.note}>
-            Cotización vigente {quote.vigencia}, sujeta a disponibilidad de inventario y tallas.
-          </Text>
-          <Text style={s.note}>
-            Los precios no incluyen gastos de envío. Tiempos de entrega a confirmar según volumen.
-          </Text>
-        </View>
+        {/* Notas — editables por el vendedor (una por línea) */}
+        {quote.notas?.trim() ? (
+          <View style={s.notes}>
+            {quote.notas.split("\n").map((line, i) =>
+              line.trim() ? (
+                <Text key={i} style={s.note}>
+                  {line.trim()}
+                </Text>
+              ) : null
+            )}
+          </View>
+        ) : null}
 
         <Text style={s.footer} fixed>
           BOTAS LEÓN · www.botasleon.com

@@ -10,6 +10,7 @@ import {
   type QuoteLine,
   totalPares,
   importeTotal,
+  DEFAULT_NOTAS,
 } from "@/lib/cotizacion/types"
 import type { Product } from "@/lib/shopify/types"
 
@@ -42,6 +43,7 @@ function initialQuote(): Quote {
     cliente: "",
     atiende: COTIZADOR_DEFAULTS.atiende,
     contacto: COTIZADOR_DEFAULTS.contacto,
+    notas: DEFAULT_NOTAS,
     items: [],
   }
 }
@@ -98,6 +100,21 @@ export function QuoteBuilder() {
     setQuote((q) => ({ ...q, items: [...q.items, item] }))
     setQuery("")
     setResults([])
+  }
+
+  // Ítem MANUAL (para productos descatalogados que ya no salen en la búsqueda).
+  // Queda en blanco y editable: nombre, descripción, precio, tallas — todo a mano.
+  const addManualItem = () => {
+    const item: QuoteItem = {
+      id: uid(),
+      productHandle: "",
+      title: "",
+      descripcion: "",
+      sexo: "",
+      imageUrl: null,
+      lines: [{ id: uid(), talla: "", cantidad: 1, precioUnitario: 0 }],
+    }
+    setQuote((q) => ({ ...q, items: [...q.items, item] }))
   }
 
   const updateItem = (id: string, patch: Partial<QuoteItem>) =>
@@ -255,6 +272,16 @@ export function QuoteBuilder() {
             </div>
           )}
         </div>
+
+        {/* Producto manual — para descatalogados que ya no salen en la búsqueda */}
+        <button
+          type="button"
+          onClick={addManualItem}
+          className="mt-3 inline-flex items-center gap-1.5 text-sm text-leather hover:text-text transition-colors"
+        >
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 5v14M5 12h14" /></svg>
+          Agregar producto manual (descatalogado)
+        </button>
       </section>
 
       {/* Productos agregados */}
@@ -368,6 +395,21 @@ export function QuoteBuilder() {
             </div>
           ))
         )}
+      </section>
+
+      {/* Notas / condiciones editables (salen al pie del PDF) */}
+      <section className="mt-8 rounded-sm border border-border bg-bg-alt/40 p-5">
+        <h2 className="font-heading text-lg text-text mb-1">Notas y condiciones</h2>
+        <p className="mb-3 text-xs text-text-muted">
+          Salen al pie del PDF. Una condición por línea — edítalas libremente.
+        </p>
+        <textarea
+          className={`${inputCls} resize-y`}
+          rows={4}
+          value={quote.notas}
+          onChange={(e) => setField({ notas: e.target.value })}
+          placeholder="Una condición por línea…"
+        />
       </section>
 
       {/* Barra fija de totales + descarga */}
