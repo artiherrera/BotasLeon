@@ -3,13 +3,14 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { ProductCard } from "./ProductCard"
+import { PrintSelectionButton } from "./PrintSelectionButton"
 import { EmptyProductsState } from "./EmptyState"
 import { loadMoreProducts } from "@/lib/search/client"
 import type { Product, PageInfo } from "@/lib/shopify/types"
 import { useFocusTrap } from "@/lib/useFocusTrap"
 import { lookupColor } from "@/lib/pdp/colorLut"
 import { bootStyleLabel } from "@/lib/shopify/taxonomy"
-import { useT } from "@/lib/i18n/context"
+import { useT, useLocale } from "@/lib/i18n/context"
 
 /**
  * ProductsListing — grid con sidebar de filtros (estilo Amazon).
@@ -132,6 +133,7 @@ const SORT_LABELS: Record<SortKey, string> = {
 
 export function ProductsListing({ products, initialStyle, initialPageInfo }: Props) {
   const t = useT()
+  const { locale } = useLocale()
   // Dos fuentes de "estilo activo":
   //   1. initialStyle (server-driven, vía sub-ruta /hombre/vaqueras).
   //   2. ?estilo= legacy en query string (bookmarks viejos, links externos).
@@ -339,6 +341,38 @@ export function ProductsListing({ products, initialStyle, initialPageInfo }: Pro
     filters.materials.size +
     filters.hormas.size +
     (filters.onlyAvailable ? 1 : 0)
+
+  // Contexto legible para el encabezado del PDF: la sección (de la ruta) + los
+  // filtros activos, ej. "Hombre · Exóticas · Marca: Cabrera · En stock".
+  const pdfContext = useMemo(() => {
+    const en = locale === "en"
+    const cap = (h: string) =>
+      h.charAt(0).toUpperCase() + h.slice(1).replace(/-/g, " ")
+    const labelsFrom = (
+      set: Set<string>,
+      arr: { handle: string; label: string }[]
+    ) => [...set].map((h) => arr.find((f) => f.handle === h)?.label || h)
+
+    const seg = pathname.replace(/^\/(es|en)/, "").split("/").filter(Boolean)
+    const base = seg[0]
+    const parts: string[] = []
+    if (base === "hombre") parts.push(en ? "Men" : "Hombre")
+    else if (base === "mujer") parts.push(en ? "Women" : "Mujer")
+    else if (base === "outlet") parts.push("Outlet")
+    else if (base === "marcas" && seg[1]) parts.push(`${en ? "Brand" : "Marca"}: ${cap(seg[1])}`)
+    else if (base === "accesorios") parts.push(en ? "Accessories" : "Accesorios")
+    else parts.push(en ? "Catalog" : "Catálogo")
+
+    if (filters.vendors.size) parts.push(`${en ? "Brand" : "Marca"}: ${[...filters.vendors].join(", ")}`)
+    if (filters.types.size) parts.push([...filters.types].join(", "))
+    if (filters.sizes.size) parts.push(`${en ? "Size" : "Talla"}: ${[...filters.sizes].join(", ")}`)
+    if (filters.colors.size) parts.push(labelsFrom(filters.colors, facets.colors).join(", "))
+    if (filters.materials.size) parts.push(labelsFrom(filters.materials, facets.materials).join(", "))
+    if (filters.hormas.size) parts.push(labelsFrom(filters.hormas, facets.hormas).join(", "))
+    if (filters.onlyAvailable) parts.push(en ? "In stock" : "En stock")
+
+    return parts.join("  ·  ")
+  }, [pathname, locale, filters, facets])
 
   // Limpia TODOS los filtros de la URL (conserva la ruta, ej. /hombre/vaqueras
   // mantiene su estilo por la sub-ruta).
@@ -633,6 +667,11 @@ export function ProductsListing({ products, initialStyle, initialPageInfo }: Pro
           </p>
 
           <div className="flex items-center gap-3">
+            {/* Descargar la selección actual (búsqueda/filtros) en PDF */}
+            {sorted.length > 0 && (
+              <PrintSelectionButton products={sorted} contexto={pdfContext} />
+            )}
+
             {/* Sort */}
             <label className="text-xs text-text-muted hidden sm:inline">
               {t("listing.sort")}

@@ -99,6 +99,15 @@ function load(handle: string): Promise<Translation | null> {
   return cached
 }
 
+/**
+ * Traducción EN (título + precio USD) de un producto, fuera del árbol de React
+ * (p.ej. al generar el PDF de selección). Comparte el mismo cache por módulo,
+ * así lo ya visto es instantáneo.
+ */
+export function loadProductTranslation(handle: string): Promise<Translation | null> {
+  return load(handle)
+}
+
 /** Devuelve la traducción EN del producto, o null si no estamos en inglés / no hay. */
 export function useProductTranslation(handle: string): Translation | null {
   const { locale } = useLocale()

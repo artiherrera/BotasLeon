@@ -6,7 +6,9 @@ import { LocalizedLink as Link } from "@/components/LocalizedLink"
 import { Header } from "@/components/Header"
 import { Footer } from "@/components/Footer"
 import { ProductCard } from "@/components/ProductCard"
+import { PrintSelectionButton } from "@/components/PrintSelectionButton"
 import { searchProducts } from "@/lib/search/client"
+import { useLocale } from "@/lib/i18n/context"
 import type { Product } from "@/lib/shopify/types"
 
 /**
@@ -39,6 +41,7 @@ function SearchGate() {
 }
 
 function SearchResults({ initialQuery }: { initialQuery: string }) {
+  const { locale } = useLocale()
   const [query, setQuery] = useState(initialQuery)
   const [results, setResults] = useState<Product[]>([])
   // Si venimos con un término en la URL, arrancamos en "loading" para no
@@ -178,10 +181,16 @@ function SearchResults({ initialQuery }: { initialQuery: string }) {
             </div>
           ) : (
             <div>
-              <p className="text-sm text-text-muted mb-6">
-                {results.length} resultado{results.length === 1 ? "" : "s"} para{" "}
-                <strong className="text-text">&ldquo;{query}&rdquo;</strong>
-              </p>
+              <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
+                <p className="text-sm text-text-muted">
+                  {results.length} resultado{results.length === 1 ? "" : "s"} para{" "}
+                  <strong className="text-text">&ldquo;{query}&rdquo;</strong>
+                </p>
+                <PrintSelectionButton
+                  products={results}
+                  contexto={`${locale === "en" ? "Search" : "Búsqueda"}: "${query}"`}
+                />
+              </div>
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-6 gap-y-10">
                 {results.map((p) => (
                   <ProductCard key={p.id} product={p} />
