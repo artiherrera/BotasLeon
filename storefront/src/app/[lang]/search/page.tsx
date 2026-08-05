@@ -65,7 +65,7 @@ function SearchResults({ initialQuery }: { initialQuery: string }) {
       setLoading(true)
       setError(null)
       try {
-        const products = await searchProducts(query)
+        const products = await searchProducts(query, 24, locale === "en" ? "EN" : "ES")
         if (!active) return
         setResults(products)
         setSubmitted(true)
@@ -79,7 +79,7 @@ function SearchResults({ initialQuery }: { initialQuery: string }) {
       active = false
       clearTimeout(handle)
     }
-  }, [query])
+  }, [query, locale])
 
   return (
     <>

@@ -127,7 +127,7 @@ export function SearchOverlay({ open, onClose }: Props) {
     setLoading(true)
     const handle = window.setTimeout(async () => {
       try {
-        const products = await searchProducts(trimmed, 8)
+        const products = await searchProducts(trimmed, 8, locale === "en" ? "EN" : "ES")
         setResults(products)
         setSubmitted(true)
         // Klaviyo on-site event — útil para flows tipo "Searched but no buy".
@@ -142,7 +142,7 @@ export function SearchOverlay({ open, onClose }: Props) {
       }
     }, DEBOUNCE_MS)
     return () => window.clearTimeout(handle)
-  }, [query, open])
+  }, [query, open, locale])
 
   // Focus trap simple — Tab/Shift+Tab hace loop dentro del modal.
   useEffect(() => {
