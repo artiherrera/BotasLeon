@@ -6,6 +6,7 @@ import Image from "next/image"
 import { useCart } from "./CartProvider"
 import { usePDPVariant } from "./PDPVariantContext"
 import { ColorSwatch } from "./ColorSwatch"
+import { FitScanSizeFinder } from "./FitScanSizeFinder"
 import { formatSizeWithUs } from "@/lib/sizes"
 import { formatMoney } from "@/lib/utils"
 import { COLOR_OPTION_NAMES, findVariantBySelection } from "@/lib/pdp/variants"
@@ -327,6 +328,13 @@ export function ProductOptions({ product }: Props) {
               </Link>
             </p>
           )}
+
+          {/* Buscador de talla FitScan (solo si NEXT_PUBLIC_FITSCAN_KEY está configurada) */}
+          <FitScanSizeFinder
+            productId={product.handle}
+            brand={product.vendor}
+            genderHandle={genderHandle}
+          />
           {showSizeError && needsSize && (
             <p className="text-sm text-terracotta font-medium mt-2" role="alert">
               {t("pdp.sizeError")}
