@@ -7,12 +7,12 @@ import type { NextConfig } from "next";
 // nonces y pasar a `Content-Security-Policy` a secas.
 const CSP_REPORT_ONLY = [
   "default-src 'self'",
-  "script-src 'self' 'unsafe-inline' https://static.klaviyo.com https://www.googletagmanager.com https://*.google-analytics.com",
+  "script-src 'self' 'unsafe-inline' https://static.klaviyo.com https://www.googletagmanager.com https://*.google-analytics.com https://js.volumental.com https://*.volumental.com",
   "style-src 'self' 'unsafe-inline'",
-  "img-src 'self' data: https://cdn.shopify.com https://*.klaviyo.com https://*.google-analytics.com https://*.googletagmanager.com https://res.cloudinary.com https://review-images.judgeme.com",
+  "img-src 'self' data: blob: https://cdn.shopify.com https://*.klaviyo.com https://*.google-analytics.com https://*.googletagmanager.com https://res.cloudinary.com https://review-images.judgeme.com https://*.volumental.com",
   "font-src 'self' data:",
-  "connect-src 'self' https://*.myshopify.com https://a.klaviyo.com https://*.klaviyo.com https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com https://api.cloudinary.com https://judge.me https://api.judge.me",
-  "frame-src https://*.klaviyo.com https://www.google.com https://maps.google.com",
+  "connect-src 'self' https://*.myshopify.com https://a.klaviyo.com https://*.klaviyo.com https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com https://api.cloudinary.com https://judge.me https://api.judge.me https://*.volumental.com",
+  "frame-src https://*.klaviyo.com https://www.google.com https://maps.google.com https://*.volumental.com",
   "frame-ancestors 'self'",
   "base-uri 'self'",
   "form-action 'self'",
@@ -25,7 +25,10 @@ const SECURITY_HEADERS = [
   { key: "X-Frame-Options", value: "SAMEORIGIN" }, // anti-clickjacking (+ frame-ancestors)
   { key: "X-Content-Type-Options", value: "nosniff" },
   { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
-  { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=()" },
+  // Cámara habilitada para el escaneo de talla (Volumental). El SDK abre la
+  // cámara desde su propio origen/iframe, por eso `camera=*` (cualquier origen
+  // embebido de confianza); se puede acotar a orígenes específicos más adelante.
+  { key: "Permissions-Policy", value: "camera=*, microphone=(), geolocation=()" },
   { key: "Content-Security-Policy-Report-Only", value: CSP_REPORT_ONLY },
 ];
 
