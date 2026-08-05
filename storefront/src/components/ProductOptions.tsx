@@ -6,7 +6,7 @@ import Image from "next/image"
 import { useCart } from "./CartProvider"
 import { usePDPVariant } from "./PDPVariantContext"
 import { ColorSwatch } from "./ColorSwatch"
-import { FitScanSizeFinder } from "./FitScanSizeFinder"
+import { SizeFinder } from "./SizeFinder"
 import { formatSizeWithUs } from "@/lib/sizes"
 import { formatMoney } from "@/lib/utils"
 import { COLOR_OPTION_NAMES, findVariantBySelection } from "@/lib/pdp/variants"
@@ -329,8 +329,8 @@ export function ProductOptions({ product }: Props) {
             </p>
           )}
 
-          {/* Buscador de talla FitScan (solo si NEXT_PUBLIC_FITSCAN_KEY está configurada) */}
-          <FitScanSizeFinder productId={product.handle} genderHandle={genderHandle} />
+          {/* Buscador de talla propio (marca / medir / cámara) */}
+          <SizeFinder genderHandle={genderHandle} />
           {showSizeError && needsSize && (
             <p className="text-sm text-terracotta font-medium mt-2" role="alert">
               {t("pdp.sizeError")}
