@@ -28,7 +28,15 @@ import { usOffset, type GenderHandle } from "@/lib/sizes"
  */
 
 const FITSCAN_KEY = process.env.NEXT_PUBLIC_FITSCAN_KEY
-const FITSCAN_SRC = "https://fitscan.io/widget.js"
+// Marca de REFERENCIA que FitScan sí conoce (la que elegiste en el onboarding,
+// ej. "Timberland"). NO usamos el vendor real (Cabrera/Armenta/Josepha…) porque
+// FitScan no lo conoce → caería a una fórmula genérica. La talla US resultante
+// la convertimos a MX abajo. Si se deja vacío, FitScan usa la marca por defecto
+// de tu cuenta.
+const FITSCAN_BRAND = process.env.NEXT_PUBLIC_FITSCAN_BRAND
+// El SDK se sirve en /sdk/fitscan.js (/widget.js da 404 pese al comentario del
+// propio SDK). Es el mismo src que trae el snippet del panel de FitScan.
+const FITSCAN_SRC = "https://fitscan.io/sdk/fitscan.js"
 
 type FitScanResult = {
   us?: string | number
@@ -88,11 +96,9 @@ function usToMx(us: string | number | undefined, genderHandle?: string | null): 
 
 export function FitScanSizeFinder({
   productId,
-  brand,
   genderHandle,
 }: {
   productId: string
-  brand?: string | null
   genderHandle?: string | null
 }) {
   const { locale } = useLocale()
@@ -110,14 +116,15 @@ export function FitScanSizeFinder({
       .then(() => {
         if (cancelled || !window.FitScan?.init) return
         initedRef.current = true
-        window.FitScan.init({
+        const config: Record<string, unknown> = {
           apiKey: FITSCAN_KEY,
           container: "#fitscan-widget",
-          brand: brand || "",
           productId,
           gender: fsGender(genderHandle),
           locale: en ? "en" : "es", // el SDK cae a inglés si no hay 'es'
-        })
+        }
+        if (FITSCAN_BRAND) config.brand = FITSCAN_BRAND
+        window.FitScan.init(config)
         window.FitScan.on("result", (payload: unknown) => {
           const r = (payload || {}) as FitScanResult
           const us = r.us ?? r.size_us
@@ -134,7 +141,7 @@ export function FitScanSizeFinder({
     return () => {
       cancelled = true
     }
-  }, [open, brand, productId, genderHandle, en])
+  }, [open, productId, genderHandle, en])
 
   // Sin API key configurada → no renderizamos nada (sitio intacto).
   if (!FITSCAN_KEY) return null
