@@ -268,7 +268,8 @@ function CameraTab({ gender, T, onResult }: { gender: Gender; T: typeof ES; onRe
   const drag = useRef<{ seg: "card" | "foot"; idx: 0 | 1 } | null>(null)
 
   const [phase, setPhase] = useState<"idle" | "live" | "frozen">("idle")
-  const [camError, setCamError] = useState<null | "denied" | "nocam" | "generic">(null)
+  const [camError, setCamError] = useState<null | "denied" | "nocam" | "busy" | "insecure" | "generic">(null)
+  const [camDetail, setCamDetail] = useState<string | null>(null)
   const [detecting, setDetecting] = useState(false) // OpenCV cargando/activo
   const [cardSeen, setCardSeen] = useState(false)
   const [footSeen, setFootSeen] = useState(false)
@@ -324,11 +325,31 @@ function CameraTab({ gender, T, onResult }: { gender: Gender; T: typeof ES; onRe
   }
 
   const openCamera = async () => {
-    setCamError(null)
+    setCamError(null); setCamDetail(null)
+    if (typeof navigator === "undefined" || !navigator.mediaDevices?.getUserMedia) {
+      setCamError("insecure") // http, o navegador dentro de otra app (in-app browser)
+      return
+    }
+    let stream: MediaStream
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: { ideal: "environment" } }, audio: false,
-      })
+      try {
+        stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: "environment" } }, audio: false })
+      } catch {
+        stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false }) // reintento simple
+      }
+    } catch (e) {
+      const err = e as { name?: string; message?: string }
+      setCamDetail(`${err?.name || "Error"}: ${err?.message || ""}`.slice(0, 140))
+      const n = err?.name
+      setCamError(
+        n === "NotAllowedError" || n === "SecurityError" ? "denied"
+          : n === "NotFoundError" || n === "OverconstrainedError" ? "nocam"
+            : n === "NotReadableError" || n === "AbortError" ? "busy"
+              : "generic"
+      )
+      return
+    }
+    try {
       streamRef.current = stream
       const v = videoRef.current!
       v.srcObject = stream
@@ -342,8 +363,9 @@ function CameraTab({ gender, T, onResult }: { gender: Gender; T: typeof ES; onRe
         .then((cv) => { cvRef.current = cv; setDetecting(false); timerRef.current = window.setInterval(tick, 350) })
         .catch(() => setDetecting(false))
     } catch (e) {
-      const name = (e as { name?: string })?.name
-      setCamError(name === "NotAllowedError" ? "denied" : name === "NotFoundError" ? "nocam" : "generic")
+      const err = e as { name?: string; message?: string }
+      setCamDetail(`play: ${err?.name || ""} ${err?.message || ""}`.slice(0, 140))
+      setCamError("generic")
     }
   }
 
@@ -445,8 +467,19 @@ function CameraTab({ gender, T, onResult }: { gender: Gender; T: typeof ES; onRe
           </button>
           {camError && (
             <div className="mt-4 text-xs">
-              <p className="text-terracotta mb-2">{camError === "denied" ? T.camDenied : camError === "nocam" ? T.camNoCam : T.camGeneric}</p>
-              <label className="text-leather underline cursor-pointer">{T.camUpload}<input type="file" accept="image/*" onChange={onFileFallback} className="hidden" /></label>
+              <p className="text-terracotta mb-1">{
+                camError === "denied" ? T.camDenied
+                  : camError === "nocam" ? T.camNoCam
+                    : camError === "busy" ? T.camBusy
+                      : camError === "insecure" ? T.camInsecure
+                        : T.camGeneric
+              }</p>
+              {camDetail && <p className="text-text-subtle mb-2 font-mono break-all">{camDetail}</p>}
+              <label className="inline-flex items-center gap-1.5 mt-1 px-4 py-2 rounded-full bg-leather text-bg cursor-pointer hover:bg-text transition-colors">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" /><circle cx="12" cy="13" r="4" /></svg>
+                {T.camUpload}
+                <input type="file" accept="image/*" capture="environment" onChange={onFileFallback} className="hidden" />
+              </label>
             </div>
           )}
         </div>
@@ -529,8 +562,10 @@ const ES = {
   camLoadingCv: "Cargando detector…",
   camCardLabel: "Tarjeta", camFootLabel: "Pie",
   camCapture: "Capturar", camCancel: "Cancelar",
-  camDenied: "No diste permiso de cámara.", camNoCam: "No encontramos cámara.", camGeneric: "No se pudo abrir la cámara.",
-  camUpload: "Subir una foto",
+  camDenied: "No diste permiso de cámara. Actívalo en Ajustes › Safari › Cámara.", camNoCam: "No encontramos cámara.", camGeneric: "No se pudo abrir la cámara.",
+  camBusy: "La cámara está ocupada por otra app. Ciérrala e intenta de nuevo.",
+  camInsecure: "Abre botasleon.com en Safari directamente (no dentro de otra app como WhatsApp/Instagram).",
+  camUpload: "Tomar foto",
   camTake: "Tomar / subir foto", camRetake: "Repetir",
   camCard: "Borde largo de la tarjeta", camFoot: "Del talón a la punta",
   yourSize: "Tu talla BotasLeón", footEst: "Pie estimado",
@@ -562,8 +597,10 @@ const EN: typeof ES = {
   camLoadingCv: "Loading detector…",
   camCardLabel: "Card", camFootLabel: "Foot",
   camCapture: "Capture", camCancel: "Cancel",
-  camDenied: "Camera permission denied.", camNoCam: "No camera found.", camGeneric: "Couldn't open the camera.",
-  camUpload: "Upload a photo",
+  camDenied: "Camera permission denied. Enable it in Settings › Safari › Camera.", camNoCam: "No camera found.", camGeneric: "Couldn't open the camera.",
+  camBusy: "The camera is busy in another app. Close it and try again.",
+  camInsecure: "Open botasleon.com directly in Safari (not inside another app like WhatsApp/Instagram).",
+  camUpload: "Take a photo",
   camTake: "Take / upload photo", camRetake: "Retake",
   camCard: "Card's long edge", camFoot: "Heel to toe",
   yourSize: "Your BotasLeón size", footEst: "Estimated foot",
