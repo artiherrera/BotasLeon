@@ -2,19 +2,21 @@
 
 import { useState } from "react"
 import { useLocale } from "@/lib/i18n/context"
-import { type Gender, genderFromHandle, brandRows } from "@/lib/sizing/chart"
+import { type Gender, genderFromHandle, sizeRows } from "@/lib/sizing/chart"
 
 /**
- * "De tus tenis a tus botas" — tabla comparativa Nike · Adidas · BotasLeón.
+ * "Compara con tu Nike o Adidas" — tabla de referencia en el PDP.
  *
  * Casi nadie recuerda su talla US en abstracto, pero todo mundo sabe su número
- * de tenis. La tabla deja buscar la fila por lo que ya conoces (Nike EU, Adidas
- * EU, US o cm) y leer directo la talla de bota (MX).
+ * de tenis. La tabla deja buscar la fila por el número que YA conoces y leer
+ * directo la talla de bota (MX).
  *
- * Honestidad: entre marcas la ETIQUETA varía ≤½ número (un US 9 son ~27 cm en
- * cualquiera); lo que cambia es la HORMA. Por eso el valor real está tanto en la
- * tabla como en la nota de horma (Nike angosto/½ chico; Adidas fiel). Los datos
- * salen de chart.ts (fuente única), no de números sueltos.
+ * La referencia va en la unidad de cada mercado:
+ *   ES (México): en cm — así viene en la caja de tenis ("calzo del 27").
+ *   EN (EE.UU.): en US — como lo conoce el comprador gringo.
+ * Por eso Nike y Adidas colapsan en UNA columna: en cm (o en US) son el mismo
+ * número. La diferencia real entre marcas es la HORMA, y esa va como nota
+ * (Nike angosto/½ chico; Adidas fiel). Datos desde chart.ts (fuente única).
  */
 export function BrandSizeTable({
   genderHandle,
@@ -27,7 +29,7 @@ export function BrandSizeTable({
   const en = locale === "en"
   const T = en ? EN : ES
   const [gender, setGender] = useState<Gender>(genderFromHandle(genderHandle) ?? "men")
-  const rows = brandRows(gender)
+  const rows = sizeRows(gender)
 
   return (
     <details className="group mt-2 rounded-xl border border-border bg-bg-alt/60">
@@ -64,20 +66,20 @@ export function BrandSizeTable({
           <table className="w-full text-xs text-text-muted">
             <thead>
               <tr className="text-text-subtle">
-                <th className="text-left font-medium py-1.5 pr-3">Nike<br /><span className="text-[10px] font-normal">EU</span></th>
-                <th className="text-left font-medium pr-3">Adidas<br /><span className="text-[10px] font-normal">EU</span></th>
-                <th className="text-left font-medium pr-3">US</th>
-                <th className="text-left font-medium pr-3">{T.foot}<br /><span className="text-[10px] font-normal">cm</span></th>
-                <th className="text-left font-semibold text-leather pr-1">{T.boot}<br /><span className="text-[10px] font-normal">MX</span></th>
+                <th className="text-left font-medium py-1.5 pr-3">
+                  Nike / Adidas<br /><span className="text-[10px] font-normal">{T.refUnit}</span>
+                </th>
+                <th className="text-left font-medium pr-3">{T.secUnit}</th>
+                <th className="text-left font-semibold text-leather pr-1">
+                  {T.boot}<br /><span className="text-[10px] font-normal">MX</span>
+                </th>
               </tr>
             </thead>
             <tbody>
               {rows.map((r) => (
                 <tr key={r.us} className="border-t border-border">
-                  <td className="py-1.5 pr-3">{fmt(r.nikeEu)}</td>
-                  <td className="pr-3">{fmt(r.adidasEu)}</td>
-                  <td className="pr-3">{r.us}</td>
-                  <td className="pr-3">{r.cm}</td>
+                  <td className="py-1.5 pr-3">{en ? r.us : r.cm}</td>
+                  <td className="pr-3">{en ? r.cm : r.us}</td>
                   <td className="pr-1 font-semibold text-text">{r.mx}</td>
                 </tr>
               ))}
@@ -98,28 +100,28 @@ export function BrandSizeTable({
   )
 }
 
-const fmt = (n: number | null) => (n == null ? "—" : Number.isInteger(n) ? String(n) : n.toFixed(1))
-
 const ES = {
   summary: "Compara con tu Nike o Adidas",
-  intro: "Mismo pie, distinta etiqueta. Busca tu número de tenis (Nike o Adidas EU, US o cm) y lee tu talla de bota. Ojo: no siempre es el mismo número que tu tenis.",
+  intro: "Mismo pie, distinta etiqueta. Busca en cm el número de tu tenis (Nike o Adidas — es el que viene en la caja) y lee tu talla de bota. Ojo: no siempre es el mismo número que tu tenis.",
   men: "Hombre",
   women: "Mujer",
-  foot: "Pie",
+  refUnit: "cm",
+  secUnit: "US",
   boot: "Tu bota",
   nikeFit: "horma angosta, suele quedar ½ chico. Si dudas, sube ½ talla en tu bota.",
   adidasFit: "casi siempre fiel a la talla (los de running como Ultraboost quedan ½ chicos).",
-  disclaimer: "Equivalencias de referencia (charts oficiales Nike/Adidas); varían ±½ según el modelo. La medida más confiable es el largo de tu pie en cm.",
+  disclaimer: "Equivalencias de referencia; varían ±½ según el modelo. La medida más confiable es el largo de tu pie en cm.",
 }
 
 const EN: typeof ES = {
   summary: "Compare with your Nike or Adidas",
-  intro: "Same foot, different label. Find your sneaker size (Nike or Adidas EU, US or cm) and read your boot size. Note: it isn't always the same number as your sneaker.",
+  intro: "Same foot, different label. Find your Nike or Adidas size (US) and read your boot size. Note: it isn't always the same number as your sneaker.",
   men: "Men",
   women: "Women",
-  foot: "Foot",
+  refUnit: "US",
+  secUnit: "cm",
   boot: "Your boot",
   nikeFit: "narrow last, tends to run ½ small. When in doubt, size up ½ in your boot.",
   adidasFit: "usually true to size (running models like Ultraboost run ½ small).",
-  disclaimer: "Reference equivalences (official Nike/Adidas charts); they vary ±½ by model. Your foot length in cm is always the most reliable measure.",
+  disclaimer: "Reference equivalences; they vary ±½ by model. Your foot length is always the most reliable measure.",
 }

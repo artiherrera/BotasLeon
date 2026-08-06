@@ -105,49 +105,6 @@ export function sizeFromScale(value: number, scale: SizeScale, g: Gender): SizeR
 /** Ancho ISO de una tarjeta bancaria / credencial (ID-1): 85.60 mm. */
 export const CARD_LONG_MM = 85.6
 
-/**
- * Equivalencias EU (aprox., redondeadas a ½) de Nike y Adidas por talla US, de
- * sus charts oficiales. Son SOLO referencia visual para el comparador "de tus
- * tenis a tus botas": entre marcas la etiqueta varía ≤½ número — un US 9 son
- * ~27 cm en cualquiera. Lo que de verdad cambia es la HORMA (Nike angosto y ½
- * chico; Adidas fiel), no el largo. La medida confiable siempre es el pie (cm).
- * Fuentes: nike.com/size-fit, adidas.com/us/help/size_charts (ago 2026).
- */
-const BRAND_EU: Record<"nike" | "adidas", Record<Gender, Record<number, number>>> = {
-  nike: {
-    men: { 5: 37.5, 6: 38.5, 7: 40, 8: 41, 9: 42.5, 10: 44, 11: 45, 12: 46, 13: 47.5 },
-    women: { 4: 34.5, 5: 35.5, 6: 36.5, 7: 38, 8: 39, 9: 40.5, 10: 42, 11: 43.5 },
-  },
-  adidas: {
-    men: { 5: 38, 6: 39, 7: 40.5, 8: 41.5, 9: 42.5, 10: 44, 11: 45.5, 12: 46.5, 13: 47.5 },
-    women: { 4: 35.5, 5: 36.5, 6: 37.5, 7: 38, 8: 39, 9: 40.5, 10: 42, 11: 43 },
-  },
-}
-
-export type BrandRow = {
-  us: number
-  mx: number
-  cm: number
-  nikeEu: number | null
-  adidasEu: number | null
-}
-
-/** Filas del comparador "de tus tenis a tus botas": Nike · Adidas · US · cm · MX. */
-export function brandRows(g: Gender): BrandRow[] {
-  const { min, max } = US_RANGE[g]
-  const rows: BrandRow[] = []
-  for (let us = min; us <= max; us++) {
-    rows.push({
-      us,
-      mx: us + OFFSET[g],
-      cm: us + CM_FROM_US[g],
-      nikeEu: BRAND_EU.nike[g][us] ?? null,
-      adidasEu: BRAND_EU.adidas[g][us] ?? null,
-    })
-  }
-  return rows
-}
-
 /** Filas para mostrar una mini-tabla (US · MX · cm) del género. */
 export function sizeRows(g: Gender): Array<{ us: number; mx: number; cm: number; eu: number | null }> {
   const { min, max } = US_RANGE[g]

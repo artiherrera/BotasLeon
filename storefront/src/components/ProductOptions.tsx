@@ -6,7 +6,6 @@ import Image from "next/image"
 import { useCart } from "./CartProvider"
 import { usePDPVariant } from "./PDPVariantContext"
 import { ColorSwatch } from "./ColorSwatch"
-import { SizeFinder } from "./SizeFinder"
 import { BrandSizeTable } from "./BrandSizeTable"
 import { formatSizeWithUs } from "@/lib/sizes"
 import { formatMoney } from "@/lib/utils"
@@ -330,8 +329,6 @@ export function ProductOptions({ product }: Props) {
             </p>
           )}
 
-          {/* Buscador de talla (marca conocida / medir el pie) */}
-          <SizeFinder genderHandle={genderHandle} />
           {/* Comparador "de tus tenis a tus botas" (Nike · Adidas · MX) */}
           {genderHandle && <BrandSizeTable genderHandle={genderHandle} />}
           {showSizeError && needsSize && (
