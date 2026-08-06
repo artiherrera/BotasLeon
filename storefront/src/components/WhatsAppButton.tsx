@@ -25,7 +25,9 @@ export function WhatsAppButton({ product }: Props) {
   const t = useT()
 
   // La versión global no se muestra en el PDP (ahí manda la contextual).
-  if (!product && pathname?.startsWith("/products/")) return null
+  // Ojo: con i18n por URL las rutas llevan prefijo (/es/products/, /en/products/),
+  // por eso NO usamos startsWith("/products/") sino que buscamos el segmento.
+  if (!product && pathname && /\/products\//.test(pathname)) return null
 
   const href = product
     ? whatsappHref(productWhatsappMessage(product.title, product.url))

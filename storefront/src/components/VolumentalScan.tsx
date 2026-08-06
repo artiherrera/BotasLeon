@@ -64,15 +64,27 @@ export function VolumentalScan({
     loadSdk()
     const onRec = (e: Event) => {
       const detail = (e as CustomEvent).detail || {}
+      // eslint-disable-next-line no-console
+      console.log("[volumental] on-recommendation", detail)
       const r = toSize(detail, gender)
       if (r) onResult(r)
     }
-    window.addEventListener("volumental:on-recommendation", onRec as EventListener)
-    const el = ref.current
-    el?.addEventListener("volumental:on-recommendation", onRec as EventListener)
+    // El evento se dispara EN el <volumental-recommendation>; escuchamos ahí
+    // directo + document/window por si burbujea. El elemento puede tardar en
+    // aparecer (lo crea el SDK), así que reintentamos enganchar unos segundos.
+    const attached: EventTarget[] = []
+    const attach = (t: EventTarget | null | undefined) => {
+      if (t && !attached.includes(t)) { t.addEventListener("volumental:on-recommendation", onRec as EventListener); attached.push(t) }
+    }
+    attach(document); attach(window)
+    let tries = 0
+    const iv = window.setInterval(() => {
+      attach(ref.current?.querySelector("volumental-recommendation"))
+      if (++tries > 20) window.clearInterval(iv) // ~10s
+    }, 500)
     return () => {
-      window.removeEventListener("volumental:on-recommendation", onRec as EventListener)
-      el?.removeEventListener("volumental:on-recommendation", onRec as EventListener)
+      window.clearInterval(iv)
+      attached.forEach((t) => t.removeEventListener("volumental:on-recommendation", onRec as EventListener))
     }
   }, [gender, onResult])
 
