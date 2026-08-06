@@ -13,58 +13,128 @@ export default function DevolucionesPage() {
       <Localized
         es={
           <>
-            <h2>Cambio de talla</h2>
             <p>
-              Tienes <strong>30 días naturales</strong> desde que recibes tu pedido
-              para solicitar cambio de talla, sin costo adicional dentro de México.
-              Para envíos internacionales aplica una tarifa logística reducida.
+              En <strong>Botas León</strong> estamos comprometidos con vender y
+              distribuir productos hechos en México, de forma artesanal y con los
+              más altos estándares de calidad.
             </p>
 
-            <h3>Requisitos</h3>
+            <h2>1. Naturaleza artesanal del producto</h2>
+            <p>
+              Todas las pieles utilizadas provienen de criaderos autorizados y
+              cuentan con procesos de curtido de alta calidad. Al tratarse de
+              materiales naturales:
+            </p>
             <ul>
-              <li>La bota debe estar sin uso, sin marcas en la suela ni en la piel</li>
-              <li>En su caja original, con etiquetas y accesorios</li>
-              <li>Acompañada del comprobante de compra</li>
+              <li>Pueden existir marcas o variaciones propias del origen del material.</li>
+              <li>Cada pieza es única e irrepetible.</li>
+              <li>
+                El proceso artesanal implica intervención manual, por lo que pueden
+                existir ligeras variaciones que <strong>no se consideran defectos</strong>.
+              </li>
             </ul>
 
-            <h2>Devolución por defecto de fabricación</h2>
-            <p>
-              Si tu bota tiene un defecto de fabricación, escríbenos en los primeros
-              7 días con fotos del problema. La reemplazamos sin costo o te
-              reembolsamos íntegramente. Cubrimos el envío de regreso.
-            </p>
-
-            <h2>Devolución por arrepentimiento</h2>
-            <p>
-              Si simplemente cambiaste de opinión, tienes 14 días para devolver el
-              producto en las mismas condiciones de cambio de talla. El reembolso se
-              procesa al mismo método de pago en 5-10 días hábiles. El costo del
-              envío de regreso lo asume el cliente.
-            </p>
-
-            <h2>Cómo iniciar un cambio o devolución</h2>
-            <ol>
-              <li>
-                Escribe a <strong>contacto@botasleon.com</strong> con tu número de pedido
-                y motivo
-              </li>
-              <li>
-                Te respondemos en menos de 24 horas hábiles con la guía de envío
-                prepagada (para cambios dentro de México)
-              </li>
-              <li>Empacas la bota como te llegó y la entregas en cualquier sucursal de la paquetería</li>
-              <li>
-                Al recibirla, validamos el estado y procesamos el cambio o reembolso
-                en 3 días hábiles
-              </li>
-            </ol>
-
-            <h2>Productos NO aceptados para devolución</h2>
+            <h2>2. Envíos y procesamiento</h2>
             <ul>
-              <li>Botas hechas a la medida o personalizadas</li>
-              <li>Productos en outlet o liquidación final (se indica en la página del producto)</li>
-              <li>Botas con signos de uso, marcas o modificaciones del cliente</li>
+              <li><strong>Procesamiento:</strong> hasta 48 horas hábiles tras la confirmación de pago.</li>
+              <li><strong>Productos en stock:</strong> envío inmediato.</li>
+              <li><strong>Productos bajo pedido:</strong> fabricación de 25 a 35 días hábiles.</li>
             </ul>
+            <p>Se pueden enviar pedidos desde distintas ubicaciones sin costo adicional.</p>
+
+            <h2>3. Paquetería y entrega</h2>
+            <p>
+              Trabajamos con paqueterías externas (FedEx, DHL, UPS, Estafeta u
+              otras según la zona). Una vez entregado el paquete al transportista:
+            </p>
+            <ul>
+              <li>La responsabilidad del traslado recae en la empresa logística.</li>
+              <li>Pueden existir hasta 2 intentos de entrega.</li>
+              <li>Si el cliente no recibe el paquete, este puede ser devuelto.</li>
+            </ul>
+
+            <h2>4. Incidencias con paquetería</h2>
+            <p>Botas León no es responsable directo por:</p>
+            <ul>
+              <li>Retrasos</li>
+              <li>Pérdidas</li>
+              <li>Daños</li>
+              <li>Errores de entrega</li>
+            </ul>
+            <p>
+              Sin embargo, damos acompañamiento al cliente en el proceso de
+              aclaración. Toda resolución depende de la paquetería o la aseguradora.
+            </p>
+
+            <h2>5. Responsabilidad del cliente</h2>
+            <p>
+              El cliente es responsable de proporcionar datos correctos de envío.
+              Errores en la dirección o los datos pueden generar costos adicionales.
+            </p>
+
+            <h2>6. Cambios y devoluciones</h2>
+            <p>Se aceptan únicamente en caso de:</p>
+            <ul>
+              <li>Defecto de fabricación.</li>
+              <li>Error en el producto enviado.</li>
+            </ul>
+            <p><strong>No se realizan reembolsos por:</strong></p>
+            <ul>
+              <li>Talla incorrecta elegida por el cliente.</li>
+              <li>Color o modelo seleccionado por el cliente.</li>
+              <li>Preferencias personales.</li>
+            </ul>
+
+            <h2>7. Condiciones de cambio</h2>
+            <ul>
+              <li>1 cambio por pedido.</li>
+              <li>Dentro de 7 días naturales.</li>
+              <li>Producto sin uso exterior.</li>
+              <li>En su empaque original.</li>
+            </ul>
+
+            <h2>8. Restricciones</h2>
+            <p>No hay cambios ni devoluciones en:</p>
+            <ul>
+              <li>Liquidación</li>
+              <li>Promociones</li>
+              <li>Hot Sale / Buen Fin</li>
+              <li>Productos personalizados</li>
+            </ul>
+
+            <h2>9. Proceso</h2>
+            <p>
+              Envía tu solicitud por correo a <strong>contacto@botasleon.com</strong>{" "}
+              o por WhatsApp al <strong>479 303 2457</strong>, con evidencia
+              obligatoria:
+            </p>
+            <ul>
+              <li>Fotos</li>
+              <li>Video (si aplica)</li>
+              <li>Número de pedido</li>
+            </ul>
+
+            <h2>10. Garantías</h2>
+            <ul>
+              <li>15 días naturales.</li>
+              <li>Solo defectos de fabricación confirmados.</li>
+              <li>La empresa cubre los envíos en garantía validada.</li>
+            </ul>
+
+            <h2>11. Devoluciones de dinero</h2>
+            <p>
+              Solo en casos autorizados. El reembolso se regresa al método de pago
+              original o a la cuenta indicada.
+            </p>
+
+            <h2>12. Aceptación</h2>
+            <p>Toda compra implica la aceptación total de esta política.</p>
+
+            <h2>Contacto</h2>
+            <p>
+              WhatsApp: <strong>479 303 2457</strong> · Correo:{" "}
+              <strong>contacto@botasleon.com</strong>
+            </p>
           </>
         }
         en={
@@ -104,8 +174,8 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
   return pageMetadata({
     locale: lang,
   path: "/devoluciones",
-  title: "Devoluciones y cambios",
+  title: "Cambios, devoluciones y garantías",
   description:
-    "Cambio de talla sin costo durante 30 días. Política completa de devoluciones.",
+    "Política de envíos, cambios, devoluciones y garantías de Botas León. Cambios solo por defecto de fabricación o error en el envío.",
   })
 }
