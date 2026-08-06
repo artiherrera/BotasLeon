@@ -12,6 +12,7 @@ import {
   sizeFromCm,
   sizeRows,
 } from "@/lib/sizing/chart"
+import { VolumentalScan, VOLUMENTAL_ENABLED } from "./VolumentalScan"
 
 /**
  * "Encuentra tu talla" — herramienta propia de BotasLeón (sin terceros, sin
@@ -27,9 +28,11 @@ import {
  */
 
 export function SizeFinder({
+  productId,
   genderHandle,
   fitNote,
 }: {
+  productId: string
   genderHandle?: string | null
   fitNote?: string | null
 }) {
@@ -65,7 +68,7 @@ export function SizeFinder({
 
       {mounted && open &&
         createPortal(
-          <Modal onClose={() => setOpen(false)} en={en} T={T} genderHandle={genderHandle} fitNote={fitNote} />,
+          <Modal onClose={() => setOpen(false)} en={en} T={T} productId={productId} genderHandle={genderHandle} fitNote={fitNote} />,
           document.body
         )}
     </div>
@@ -76,17 +79,19 @@ function Modal({
   onClose,
   en,
   T,
+  productId,
   genderHandle,
   fitNote,
 }: {
   onClose: () => void
   en: boolean
   T: typeof ES
+  productId: string
   genderHandle?: string | null
   fitNote?: string | null
 }) {
   const [gender, setGender] = useState<Gender>(genderFromHandle(genderHandle) ?? "men")
-  const [tab, setTab] = useState<"known" | "measure">("known")
+  const [tab, setTab] = useState<"scan" | "known" | "measure">(VOLUMENTAL_ENABLED ? "scan" : "known")
   const [result, setResult] = useState<SizeResult | null>(null)
 
   useEffect(() => {
@@ -101,6 +106,7 @@ function Modal({
   }, [onClose])
 
   const tabs: Array<{ id: typeof tab; label: string }> = [
+    ...(VOLUMENTAL_ENABLED ? [{ id: "scan" as const, label: T.tabScan }] : []),
     { id: "known", label: T.tabKnown },
     { id: "measure", label: T.tabMeasure },
   ]
@@ -157,6 +163,7 @@ function Modal({
             ))}
           </div>
 
+          {tab === "scan" && <VolumentalScan productId={productId} genderHandle={genderHandle} onResult={setResult} en={en} />}
           {tab === "known" && <KnownTab gender={gender} T={T} onResult={setResult} />}
           {tab === "measure" && <MeasureTab gender={gender} T={T} onResult={setResult} />}
 
@@ -250,11 +257,11 @@ const fmt = (n: number) => (Number.isInteger(n) ? String(n) : n.toFixed(1))
 
 const ES = {
   trigger: "¿No sabes tu talla?",
-  triggerSub: "Con tu talla de tenis o midiendo tu pie",
+  triggerSub: "Escanea tu pie o usa tu talla de tenis",
   title: "Encuentra tu talla",
   close: "Cerrar",
   men: "Hombre", women: "Mujer",
-  tabKnown: "Ya sé mi talla", tabMeasure: "Medir mi pie",
+  tabScan: "Escanear", tabKnown: "Ya sé mi talla", tabMeasure: "Medir mi pie",
   knownHelp: "Escribe una talla que ya uses y te la convertimos a la de BotasLeón.",
   knownPh: "Ej. 9", knownTip: "Tip: tu talla de tenis (Nike, Adidas, Timberland…) suele ser tu talla US.",
   calc: "Calcular",
@@ -273,11 +280,11 @@ const ES = {
 
 const EN: typeof ES = {
   trigger: "Not sure of your size?",
-  triggerSub: "With your sneaker size or your measurement",
+  triggerSub: "Scan your foot or use your sneaker size",
   title: "Find your size",
   close: "Close",
   men: "Men", women: "Women",
-  tabKnown: "I know my size", tabMeasure: "Measure my foot",
+  tabScan: "Scan", tabKnown: "I know my size", tabMeasure: "Measure my foot",
   knownHelp: "Enter a size you already wear and we'll convert it to BotasLeón.",
   knownPh: "e.g. 9", knownTip: "Tip: your sneaker size (Nike, Adidas, Timberland…) is usually your US size.",
   calc: "Calculate",

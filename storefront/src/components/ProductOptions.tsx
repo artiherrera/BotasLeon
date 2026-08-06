@@ -7,7 +7,6 @@ import { useCart } from "./CartProvider"
 import { usePDPVariant } from "./PDPVariantContext"
 import { ColorSwatch } from "./ColorSwatch"
 import { SizeFinder } from "./SizeFinder"
-import { VolumentalScan } from "./VolumentalScan"
 import { formatSizeWithUs } from "@/lib/sizes"
 import { formatMoney } from "@/lib/utils"
 import { COLOR_OPTION_NAMES, findVariantBySelection } from "@/lib/pdp/variants"
@@ -330,11 +329,8 @@ export function ProductOptions({ product }: Props) {
             </p>
           )}
 
-          {/* Buscador de talla propio (marca / medir) */}
-          <SizeFinder genderHandle={genderHandle} />
-
-          {/* Escaneo por cámara con Volumental (ML real) → talla MX */}
-          <VolumentalScan productId={product.handle} genderHandle={genderHandle} />
+          {/* Un solo botón: escanear (Volumental) / marca / medir, todo dentro */}
+          <SizeFinder productId={product.handle} genderHandle={genderHandle} />
           {showSizeError && needsSize && (
             <p className="text-sm text-terracotta font-medium mt-2" role="alert">
               {t("pdp.sizeError")}
