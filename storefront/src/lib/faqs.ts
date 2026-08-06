@@ -50,9 +50,9 @@ export const FAQS: FAQ[] = [
       "Orders to the United States typically arrive within 7-10 business days. Some made-to-order pieces can take an additional 2-3 weeks, which we note clearly on the product page.",
   },
   {
-    question: "¿Puedo cambiar la talla si no me queda?",
+    question: "¿Aceptan cambios o devoluciones?",
     answer:
-      "Sí. Tienes 30 días desde que recibes tu bota para solicitar cambio de talla sin costo, dentro de México. La bota debe estar sin uso, sin marcas, en su caja original. Para envíos internacionales aplica una tarifa logística reducida.",
+      "Solo aceptamos cambios por defecto de fabricación o error en el envío: 1 cambio por pedido, dentro de 7 días naturales, con el producto sin uso y en su empaque original. No hacemos reembolsos por talla, color o modelo mal elegidos, así que te recomendamos revisar la guía de tallas y escribirnos por WhatsApp si tienes dudas antes de comprar. Contamos con garantía de 15 días por defecto de fabricación confirmado.",
     questionEn: "Can I return or exchange my order?",
     answerEn:
       "Orders shipped to the United States are final sale — we don't offer returns or size exchanges. Please check our size guide (Mexican cm, U.S., and EU) before ordering, and message us at contacto@botasleon.com if you're unsure about your size.",

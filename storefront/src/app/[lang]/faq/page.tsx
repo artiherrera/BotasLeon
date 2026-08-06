@@ -39,11 +39,14 @@ export default function FaqPage() {
               <Link href="/envios">Envíos</Link>.
             </p>
 
-            <h2>¿Puedo cambiar la talla si no me queda?</h2>
+            <h2>¿Aceptan cambios o devoluciones?</h2>
             <p>
-              Sí. Tienes 30 días desde que recibes tu bota para solicitar cambio
-              de talla sin costo, dentro de México. La bota debe estar sin uso,
-              sin marcas, en su caja original. Detalles completos en{" "}
+              Solo aceptamos cambios por defecto de fabricación o error en el
+              envío (1 cambio por pedido, dentro de 7 días naturales, con el
+              producto sin uso y en su empaque original). No hacemos reembolsos
+              por talla, color o modelo mal elegidos, así que te recomendamos
+              revisar la <Link href="/guia-tallas">guía de tallas</Link> y
+              escribirnos si tienes dudas antes de comprar. Política completa en{" "}
               <Link href="/devoluciones">Devoluciones</Link>.
             </p>
 

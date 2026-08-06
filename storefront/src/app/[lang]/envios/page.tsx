@@ -30,11 +30,15 @@ export default function EnviosPage() {
             </p>
 
             <h2>Costos</h2>
-            <ul>
-              <li><strong>Envío estándar nacional:</strong> $150 MXN (gratis en compras mayores a $3,000)</li>
-              <li><strong>Envío express nacional:</strong> $280 MXN</li>
-              <li><strong>Envío a Estados Unidos:</strong> calculado al pagar según destino</li>
-            </ul>
+            <p>
+              El <strong>envío es gratis</strong> en todos los pedidos, tanto
+              dentro de México como a Estados Unidos. No hay monto mínimo de compra.
+            </p>
+            <p>
+              Para pedidos a Estados Unidos el envío corre por nuestra cuenta; los
+              impuestos de aduana y aranceles los cubre el comprador (te lo
+              informamos antes de pagar).
+            </p>
 
             <h2>Paqueterías</h2>
             <p>
@@ -78,11 +82,14 @@ export default function EnviosPage() {
             </p>
 
             <h2>Shipping costs</h2>
-            <ul>
-              <li><strong>Standard shipping:</strong> calculated at checkout based on your destination</li>
-              <li><strong>Express shipping:</strong> available at checkout for eligible destinations</li>
-              <li><strong>Shipping to the United States:</strong> calculated at checkout based on your destination</li>
-            </ul>
+            <p>
+              <strong>Shipping is free</strong> on every order, both within Mexico
+              and to the United States. There is no minimum purchase.
+            </p>
+            <p>
+              For orders to the United States we cover shipping; customs duties and
+              tariffs are paid by the buyer (you&rsquo;ll be informed before checkout).
+            </p>
 
             <h2>Carriers</h2>
             <p>

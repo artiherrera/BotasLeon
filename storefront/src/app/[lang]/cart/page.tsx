@@ -268,7 +268,7 @@ export default function CartPage() {
                 <MSIBreakdown amount={subtotalNum} currency={subtotalCurrency} />
                 <div className="flex justify-between text-sm text-text-muted">
                   <span>Envío</span>
-                  <span className="text-text">Calculado al pagar</span>
+                  <span className="text-leather font-medium">Gratis</span>
                 </div>
               </div>
 
@@ -357,7 +357,7 @@ export default function CartPage() {
               ) : null}
 
               <p className="text-xs text-text-muted text-center mt-3">
-                Pago seguro · Cambio de talla 30 días
+                Pago seguro · Envío gratis · Garantía 15 días
               </p>
             </aside>
           </div>

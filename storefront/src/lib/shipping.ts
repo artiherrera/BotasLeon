@@ -1,18 +1,13 @@
 /**
- * Configuración de envíos — fuente única para threshold + costos.
+ * Configuración de envíos — fuente única.
  *
- * Cambiar aquí afecta TODOS los puntos donde se comunica el envío:
- * MarqueeBar, FreeShippingBar (Cart + CartDrawer), PDP trust block,
- * Footer, etc.
+ * Decisión de negocio: el ENVÍO ES GRATIS en todos los pedidos y a todos los
+ * destinos (México y Estados Unidos). Para EE.UU., la aduana y los aranceles
+ * los sigue pagando el comprador — eso es aparte del envío (ver CustomsTaxIdField).
  *
- * El threshold $2,999 está calibrado para empujar AOV — la mayoría de
- * botas individuales caen entre $1,800-4,500. Compras solo accesorios
- * (cinturones $800-1,500) NO califican; bota + accesorio sí, lo que
- * favorece bundling.
+ * Se conserva el umbral como 0 (siempre alcanzado) para no romper los
+ * componentes que aún lo reciben (FreeShippingBar en Cart + CartDrawer).
+ * Cambiar aquí afecta TODOS los puntos donde se comunica el envío.
  */
 
-export const FREE_SHIPPING_THRESHOLD = 2999
-
-// Formato amigable para banners ("$2,999" no "2999"). Sin decimales —
-// si el threshold sube a algo no-redondo (ej. $2,499.50) cambiar acá.
-export const FREE_SHIPPING_THRESHOLD_LABEL = "$2,999"
+export const FREE_SHIPPING_THRESHOLD = 0

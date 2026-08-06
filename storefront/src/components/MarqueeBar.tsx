@@ -13,15 +13,14 @@
 "use client"
 
 import { LocalizedLink as Link } from "@/components/LocalizedLink"
-import { FREE_SHIPPING_THRESHOLD_LABEL } from "@/lib/shipping"
 import { useT } from "@/lib/i18n/context"
 
-// Cada item es una LLAVE del diccionario. La versión inglesa (mercado USA) NO
-// promete envío gratis ni MSI — son beneficios solo de México; ver dictionary.
+// Cada item es una LLAVE del diccionario. El envío gratis SÍ se promete en ambos
+// idiomas (México y EE.UU.); los MSI siguen siendo beneficio solo de México.
 const MESSAGE_SPECS: Array<{ key: string; href?: string; vars?: Record<string, string> }> = [
   { key: "marquee.tradition" },
   { key: "marquee.leather" },
-  { key: "marquee.shipping", vars: { threshold: FREE_SHIPPING_THRESHOLD_LABEL } },
+  { key: "marquee.shipping" },
   { key: "marquee.msi" },
   { key: "marquee.store", href: "/visitanos" },
   { key: "marquee.newsletter", href: "/#newsletter" },

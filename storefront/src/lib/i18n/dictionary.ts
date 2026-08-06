@@ -23,12 +23,12 @@ export const DICTIONARY: Record<string, Entry> = {
   "pdp.chooseSize": { es: "Elige talla", en: "Choose size" },
   "pdp.comboUnavailable": { es: "Combinación no disponible", en: "Combination unavailable" },
   "pdp.selectSize": { es: "Selecciona tu talla", en: "Select your size" },
-  "pdp.shippingNote": { es: "Envío MX 3-5 días · Cambio de talla sin costo", en: "Ships across the USA · Check your size first" },
+  "pdp.shippingNote": { es: "Envío GRATIS · México 3-5 días", en: "FREE shipping · Check your size first" },
   "pdp.sizeError": { es: "Por favor selecciona tu talla.", en: "Please select your size." },
   "pdp.unavailable": { es: "No disponible", en: "Unavailable" },
   "recent.eyebrow": { es: "Visto recientemente", en: "Recently viewed" },
   "recent.title": { es: "Sigue donde te quedaste", en: "Pick up where you left off" },
-  "trust.exchange30": { es: "Cambio 30 días", en: "Ships to the USA" },
+  "trust.exchange30": { es: "Garantía 15 días", en: "Ships to the USA" },
   "trust.leather100": { es: "Cuero 100%", en: "100% leather" },
   "trust.madeInLeon": { es: "Hecho en León", en: "Made in León" },
   "trust.securePayment": { es: "Pago seguro", en: "Secure payment" },
@@ -185,11 +185,11 @@ export const DICTIONARY: Record<string, Entry> = {
     es: "Cada marca pasa nuestro filtro",
     en: "Every brand meets our standard",
   },
-  "trust.shipping.title": { es: "Envío MX y USA", en: "Ships to the USA" },
-  "trust.shipping.sub": { es: "Directo desde León", en: "Straight from León" },
-  "trust.exchange.title": { es: "Cambio de talla", en: "Built to last" },
+  "trust.shipping.title": { es: "Envío GRATIS", en: "Free shipping" },
+  "trust.shipping.sub": { es: "A México y EE.UU.", en: "To Mexico & the USA" },
+  "trust.exchange.title": { es: "Garantía", en: "Built to last" },
   "trust.exchange.sub": {
-    es: "Sin preguntas, sin costo",
+    es: "15 días por defecto de fábrica",
     en: "Premium leather, made in León",
   },
 
@@ -364,16 +364,16 @@ export const DICTIONARY: Record<string, Entry> = {
   },
 
   // ── Cintillo (MarqueeBar) ────────────────────────────────────────────
-  // OJO: en inglés (mercado USA) NO se promete envío gratis ni MSI —
-  // esos son beneficios solo de México. La versión EN usa otros mensajes.
+  // El envío gratis SÍ se promete en ambos idiomas (México y EE.UU.). Los MSI
+  // siguen siendo beneficio solo de México; la versión EN usa otro mensaje.
   "marquee.tradition": { es: "380 años de tradición", en: "380 years of tradition" },
   "marquee.leather": {
     es: "León, capital mundial del cuero",
     en: "León, the world capital of leather",
   },
   "marquee.shipping": {
-    es: "Envío GRATIS a todo México",
-    en: "Shipped to your door across the USA",
+    es: "Envío GRATIS a México y EE.UU.",
+    en: "FREE shipping to Mexico & the USA",
   },
   "marquee.msi": {
     es: "3, 6 y 9 meses sin intereses",
