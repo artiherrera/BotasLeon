@@ -1,6 +1,6 @@
 "use client"
 
-import { createElement, useEffect, useRef } from "react"
+import { createElement, useEffect, useRef, useState } from "react"
 import { genderFromHandle, sizeFromScale, sizeFromCm, type SizeResult } from "@/lib/sizing/chart"
 
 /**
@@ -58,23 +58,40 @@ export function VolumentalScan({
 }) {
   const ref = useRef<HTMLDivElement | null>(null)
   const gender = genderFromHandle(genderHandle) ?? "men"
+  // Diagnóstico visible EN PANTALLA (para probar en el cel sin consola).
+  const [dbg, setDbg] = useState<string | null>(null)
 
   useEffect(() => {
     if (!CLIENT_ID) return
     loadSdk()
-    const onRec = (e: Event) => {
+    const EVENTS = [
+      "volumental:on-loaded",
+      "volumental:on-opened",
+      "volumental:on-closed",
+      "volumental:on-measurement",
+      "volumental:on-recommendation",
+      "volumental:on-error",
+    ]
+    const handler = (e: Event) => {
+      const name = e.type.replace("volumental:on-", "")
       const detail = (e as CustomEvent).detail || {}
       // eslint-disable-next-line no-console
-      console.log("[volumental] on-recommendation", detail)
-      const r = toSize(detail, gender)
-      if (r) onResult(r)
+      console.log("[volumental]", name, detail)
+      setDbg(`${name} · ${JSON.stringify(detail).slice(0, 140)}`)
+      if (e.type === "volumental:on-recommendation") {
+        const r = toSize(detail, gender)
+        if (r) onResult(r)
+      }
     }
-    // El evento se dispara EN el <volumental-recommendation>; escuchamos ahí
-    // directo + document/window por si burbujea. El elemento puede tardar en
-    // aparecer (lo crea el SDK), así que reintentamos enganchar unos segundos.
+    // Los eventos se disparan EN el <volumental-recommendation>; enganchamos ahí
+    // directo + document/window por si burbujean. El elemento puede tardar en
+    // crearlo el SDK, así que reintentamos unos segundos.
     const attached: EventTarget[] = []
     const attach = (t: EventTarget | null | undefined) => {
-      if (t && !attached.includes(t)) { t.addEventListener("volumental:on-recommendation", onRec as EventListener); attached.push(t) }
+      if (t && !attached.includes(t)) {
+        EVENTS.forEach((ev) => t.addEventListener(ev, handler as EventListener))
+        attached.push(t)
+      }
     }
     attach(document); attach(window)
     let tries = 0
@@ -84,7 +101,7 @@ export function VolumentalScan({
     }, 500)
     return () => {
       window.clearInterval(iv)
-      attached.forEach((t) => t.removeEventListener("volumental:on-recommendation", onRec as EventListener))
+      attached.forEach((t) => EVENTS.forEach((ev) => t.removeEventListener(ev, handler as EventListener)))
     }
   }, [gender, onResult])
 
@@ -107,6 +124,11 @@ export function VolumentalScan({
           ? "No button? Use the other tabs — they work anywhere."
           : "¿No aparece el botón? Usa las otras pestañas — funcionan en cualquier equipo."}
       </p>
+      {dbg && (
+        <p className="text-[11px] text-text-subtle font-mono mt-2 break-all border-t border-border pt-2">
+          🔎 {dbg}
+        </p>
+      )}
     </div>
   )
 }
