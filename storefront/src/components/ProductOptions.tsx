@@ -329,8 +329,8 @@ export function ProductOptions({ product }: Props) {
             </p>
           )}
 
-          {/* Un solo botón: escanear (Volumental) / marca / medir, todo dentro */}
-          <SizeFinder productId={product.handle} genderHandle={genderHandle} />
+          {/* Buscador de talla (marca conocida / medir el pie) */}
+          <SizeFinder genderHandle={genderHandle} />
           {showSizeError && needsSize && (
             <p className="text-sm text-terracotta font-medium mt-2" role="alert">
               {t("pdp.sizeError")}
