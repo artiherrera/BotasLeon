@@ -21,6 +21,12 @@ const SDK_SRC = "https://js.volumental.com/sdk/v1/volumental.js"
 
 export const VOLUMENTAL_ENABLED = !!CLIENT_ID
 
+/** API pública del SDK de Volumental (window.Volumental) que usamos. */
+type VolumentalApi = {
+  on: (event: string, cb: (payload: unknown) => void) => void
+  off?: (event: string, cb: (payload: unknown) => void) => void
+}
+
 function loadSdk() {
   if (typeof document === "undefined") return
   if (document.getElementById("volumental-sdk")) return
@@ -64,44 +70,36 @@ export function VolumentalScan({
   useEffect(() => {
     if (!CLIENT_ID) return
     loadSdk()
-    const EVENTS = [
-      "volumental:on-loaded",
-      "volumental:on-opened",
-      "volumental:on-closed",
-      "volumental:on-measurement",
-      "volumental:on-recommendation",
-      "volumental:on-error",
-    ]
-    const handler = (e: Event) => {
-      const name = e.type.replace("volumental:on-", "")
-      const detail = (e as CustomEvent).detail || {}
+    // El SDK NO usa eventos DOM: emite por su API interna Volumental.on(name, cb)
+    // con nombres OnRecommendation / OnMeasurement / OnModalOpened / ... (leído
+    // del propio SDK). El payload de OnRecommendation es {length,width,sizeLocale}.
+    const EVENTS = ["OnModalOpened", "OnMeasurement", "OnRecommendation", "OnModalClosed", "OnError"]
+    const registered: Array<{ ev: string; cb: (p: unknown) => void }> = []
+    const makeCb = (ev: string) => (payload: unknown) => {
+      const d = (payload || {}) as { length?: number | string; width?: number | string; sizeLocale?: string; message?: string }
       // eslint-disable-next-line no-console
-      console.log("[volumental]", name, detail)
-      setDbg(`${name} · ${JSON.stringify(detail).slice(0, 140)}`)
-      if (e.type === "volumental:on-recommendation") {
-        const r = toSize(detail, gender)
+      console.log("[volumental]", ev, d)
+      setDbg(`${ev} · ${JSON.stringify(d).slice(0, 140)}`)
+      if (ev === "OnRecommendation") {
+        const r = toSize(d, gender)
         if (r) onResult(r)
       }
     }
-    // Los eventos se disparan EN el <volumental-recommendation>; enganchamos ahí
-    // directo + document/window por si burbujean. El elemento puede tardar en
-    // crearlo el SDK, así que reintentamos unos segundos.
-    const attached: EventTarget[] = []
-    const attach = (t: EventTarget | null | undefined) => {
-      if (t && !attached.includes(t)) {
-        EVENTS.forEach((ev) => t.addEventListener(ev, handler as EventListener))
-        attached.push(t)
-      }
-    }
-    attach(document); attach(window)
     let tries = 0
     const iv = window.setInterval(() => {
-      attach(ref.current?.querySelector("volumental-recommendation"))
-      if (++tries > 20) window.clearInterval(iv) // ~10s
-    }, 500)
+      const V = (window as unknown as { Volumental?: VolumentalApi }).Volumental
+      if (V?.on) {
+        EVENTS.forEach((ev) => { const cb = makeCb(ev); V.on(ev, cb); registered.push({ ev, cb }) })
+        window.clearInterval(iv)
+      } else if (++tries > 50) {
+        window.clearInterval(iv) // ~15s esperando al SDK
+        setDbg("SDK no cargó (¿dominio no autorizado?)")
+      }
+    }, 300)
     return () => {
       window.clearInterval(iv)
-      attached.forEach((t) => EVENTS.forEach((ev) => t.removeEventListener(ev, handler as EventListener)))
+      const V = (window as unknown as { Volumental?: VolumentalApi }).Volumental
+      registered.forEach(({ ev, cb }) => V?.off?.(ev, cb))
     }
   }, [gender, onResult])
 
