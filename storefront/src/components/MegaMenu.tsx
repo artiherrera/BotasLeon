@@ -152,7 +152,8 @@ export function MegaMenu() {
           >
             <Link
               href={item.href}
-              className={`relative block px-3.5 py-2 text-[15px] uppercase tracking-[0.1em] transition-colors after:pointer-events-none after:absolute after:inset-x-3.5 after:bottom-1 after:h-[2px] after:origin-left after:scale-x-0 after:bg-leather after:transition-transform after:duration-300 hover:after:scale-x-100 ${
+              onClick={() => setOpenIdx(null)}
+              className={`relative flex items-center gap-1 px-3.5 py-2 text-[15px] uppercase tracking-[0.1em] transition-colors after:pointer-events-none after:absolute after:inset-x-3.5 after:bottom-1 after:h-[2px] after:origin-left after:scale-x-0 after:bg-leather after:transition-transform after:duration-300 hover:after:scale-x-100 ${
                 item.highlight
                   ? "text-terracotta hover:text-terracotta-dark"
                   : "hover:text-leather"
@@ -161,6 +162,22 @@ export function MegaMenu() {
               aria-haspopup={item.sections ? "true" : undefined}
             >
               {t(item.label)}
+              {item.sections && (
+                <svg
+                  width="11"
+                  height="11"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  aria-hidden="true"
+                  className={`opacity-50 transition-transform duration-200 ${openIdx === idx ? "rotate-180" : ""}`}
+                >
+                  <path d="M6 9l6 6 6-6" />
+                </svg>
+              )}
             </Link>
             {openIdx === idx && item.sections && (
               <div
@@ -199,7 +216,19 @@ export function MegaMenu() {
                 estilos. Si en el futuro hay sections distintas (ej.
                 "Por color" / "Por marca" en el mismo dropdown), se puede
                 reactivar el título por section. */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
+            <div>
+              {/* Enlace destacado al listado completo (ver TODO lo de Hombre /
+                  Mujer). Redundante con el CTA de la derecha a propósito: es el
+                  target obvio para quien solo quiere el listado general. */}
+              <Link
+                href={activeItem.href}
+                onClick={() => setOpenIdx(null)}
+                className="group mb-6 inline-flex items-center gap-1.5 text-sm font-medium uppercase tracking-wider text-leather hover:text-terracotta transition-colors"
+              >
+                {t(activeItem.ctaLabel ?? "nav.seeAll")}
+                <span aria-hidden className="transition-transform group-hover:translate-x-1">→</span>
+              </Link>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
               {activeItem.sections!.map((section) => (
                 <div key={section.title}>
                   <ul className="space-y-3">
@@ -224,6 +253,7 @@ export function MegaMenu() {
                   </ul>
                 </div>
               ))}
+              </div>
             </div>
 
             {/* CTA visual */}
