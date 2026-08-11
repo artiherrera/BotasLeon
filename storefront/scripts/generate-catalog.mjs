@@ -333,8 +333,6 @@ function BootPage({ p, tr, locale, currency, brandLogos, qrMap }) {
   const photos = p.images.map((u) => img(u, W.photo)).filter(Boolean)
   const logo = img(brandLogos.get((p.vendor || "").trim().toLowerCase()), W.logo)
   const url = `${SITE}/products/${p.handle}`
-  const price = p.price ? money(p.price.amount, p.price.currencyCode || currency, locale) : ""
-  const compareAt = p.compareAt ? money(p.compareAt.amount, p.compareAt.currencyCode || currency, locale) : ""
   const qrImg = qrMap.get(p.handle)
   const specs = [...new Set([...p.styles, ...p.material, ...p.horma])].slice(0, 6)
 
@@ -347,16 +345,13 @@ function BootPage({ p, tr, locale, currency, brandLogos, qrMap }) {
           ...photos.map((ph, i) => photoTile(ph, { width: "48.5%", height: tileH })))
 
   return h(Page, { size: "LETTER", style: { padding: 30, backgroundColor: C.white, flexDirection: "column", fontFamily: "Zilla" } },
-    // Encabezado: marca + nombre · precio
+    // Encabezado: marca + nombre (sin precio)
     h(View, { style: { flexDirection: "row", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 12 } },
       h(View, { style: { flex: 1, paddingRight: 12 } },
         logo ? h(View, { style: { alignItems: "flex-start", marginBottom: 10 } },
                  h(Image, { src: logo, style: { height: 42, width: 170, objectFit: "contain" } }))
              : h(Text, { style: { color: C.brown, fontSize: 12, letterSpacing: 2, marginBottom: 8, fontFamily: "Bevan" } }, (p.vendor || "").toUpperCase()),
-        h(Text, { style: { color: C.text, fontSize: 19, fontFamily: "Zilla", fontWeight: 700, lineHeight: 1.15 } }, p.title)),
-      h(View, { style: { alignItems: "flex-end" } },
-        price ? h(Text, { style: { color: C.leather, fontSize: 17, fontFamily: "Zilla", fontWeight: 700 } }, price) : null,
-        compareAt ? h(Text, { style: { color: C.subtle, fontSize: 10, textDecoration: "line-through", marginTop: 2 } }, compareAt) : null)),
+        h(Text, { style: { color: C.text, fontSize: 19, fontFamily: "Zilla", fontWeight: 700, lineHeight: 1.15 } }, p.title))),
     // Collage (zona central de altura fija → nada se corta)
     h(View, { style: { height: 470, marginBottom: 12 } }, collage),
     // Specs (chips)
@@ -895,8 +890,7 @@ function ChapterTitlePage({ genderLabel, chapter, copy, range }) {
     h(Text, { style: { color: C.gold, fontSize: 12, letterSpacing: 5, marginBottom: 18 } }, genderLabel.toUpperCase()),
     h(Text, { style: { color: C.cream, fontFamily: "Bevan", fontSize: 44, lineHeight: 1.1, marginBottom: 22 } }, chapter),
     h(View, { style: { width: 64, height: 3, backgroundColor: C.gold, marginBottom: 24 } }),
-    copy ? h(Text, { style: { color: C.cream, fontSize: 14, lineHeight: 1.55, maxWidth: 420, marginBottom: 30 } }, copy) : null,
-    range ? h(Text, { style: { color: C.gold, fontSize: 12, letterSpacing: 1 } }, range) : null)
+    copy ? h(Text, { style: { color: C.cream, fontSize: 14, lineHeight: 1.55, maxWidth: 420, marginBottom: 30 } }, copy) : null)
 }
 
 function HeroPage({ p, currency, locale, brandLogos, qrMap }) {
@@ -913,10 +907,7 @@ function HeroPage({ p, currency, locale, brandLogos, qrMap }) {
       logo ? h(Image, { src: logo, style: { height: 30, width: 130, objectFit: "contain", marginBottom: 10 } })
            : h(Text, { style: { color: C.gold, fontFamily: "Bevan", fontSize: 12, letterSpacing: 2, marginBottom: 10 } }, (p.vendor || "").toUpperCase()),
       h(Text, { style: { color: C.cream, fontFamily: "Zilla", fontWeight: 700, fontSize: 24, lineHeight: 1.1, marginBottom: 12 } }, titleName(p)),
-      h(View, { style: { flexDirection: "row", alignItems: "flex-end", justifyContent: "space-between" } },
-        h(View, {},
-          price ? h(Text, { style: { color: C.cream, fontFamily: "Zilla", fontWeight: 700, fontSize: 26 } }, price) : null,
-          h(Text, { style: { color: C.gold, fontSize: 11, marginTop: 3 } }, msiLabel(p, currency, locale))),
+      h(View, { style: { flexDirection: "row", alignItems: "flex-end", justifyContent: "flex-end" } },
         qrMap.get(p.handle) ? h(Image, { src: qrMap.get(p.handle), style: { width: 54, height: 54 } }) : null)))
 }
 
@@ -934,8 +925,6 @@ function compactHalf(p, currency, locale, brandLogos, qrMap) {
       logo ? h(Image, { src: logo, style: { height: 26, width: 110, objectFit: "contain", marginBottom: 8, alignSelf: "flex-start" } })
            : h(Text, { style: { color: C.brown, fontFamily: "Bevan", fontSize: 10, letterSpacing: 2, marginBottom: 8 } }, (p.vendor || "").toUpperCase()),
       h(Text, { style: { color: C.text, fontFamily: "Zilla", fontWeight: 700, fontSize: 16, lineHeight: 1.15, marginBottom: 8 } }, titleName(p)),
-      price ? h(Text, { style: { color: C.leather, fontFamily: "Zilla", fontWeight: 700, fontSize: 18 } }, price) : null,
-      h(Text, { style: { color: C.brown, fontSize: 9.5, marginTop: 2 } }, msiLabel(p, currency, locale)),
       h(View, { style: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginTop: 12 } },
         h(Text, { style: { color: C.subtle, fontSize: 8.5, maxWidth: 130 } }, sizesLabel(p, locale)),
         qrMap.get(p.handle) ? h(Image, { src: qrMap.get(p.handle), style: { width: 46, height: 46 } }) : null)))
@@ -963,11 +952,7 @@ function StandardPage({ p, chapter, gender, currency, locale, brandLogos, qrMap 
       h(View, { style: { flex: 1, paddingRight: 12 } },
         logo ? h(View, { style: { alignItems: "flex-start", marginBottom: 10 } }, h(Image, { src: logo, style: { height: 42, width: 170, objectFit: "contain" } }))
              : h(Text, { style: { color: C.brown, fontSize: 12, letterSpacing: 2, marginBottom: 8, fontFamily: "Bevan" } }, (p.vendor || "").toUpperCase()),
-        h(Text, { style: { color: C.text, fontSize: 19, fontFamily: "Zilla", fontWeight: 700, lineHeight: 1.15 } }, titleName(p))),
-      h(View, { style: { alignItems: "flex-end" } },
-        price ? h(Text, { style: { color: C.leather, fontSize: 20, fontFamily: "Zilla", fontWeight: 700 } }, price) : null,
-        compareAt ? h(Text, { style: { color: C.terracotta, fontSize: 10, textDecoration: "line-through", marginTop: 2 } }, compareAt) : null,
-        h(Text, { style: { color: C.brown, fontSize: 9.5, marginTop: 3, textAlign: "right", maxWidth: 150 } }, msiLabel(p, currency, locale)))),
+        h(Text, { style: { color: C.text, fontSize: 19, fontFamily: "Zilla", fontWeight: 700, lineHeight: 1.15 } }, titleName(p)))),
     h(View, { style: { flexDirection: "row", flexWrap: "wrap", gap: 8, height: 452, alignContent: "flex-start", marginBottom: 10 } },
       ...four.map((ph, i) => photoTile(ph, { width: "48.5%", height: 222 }))),
     tags.length ? h(View, { style: { flexDirection: "row", flexWrap: "wrap", marginBottom: 8 } }, ...tags.map((s) => Chip(s))) : null,
