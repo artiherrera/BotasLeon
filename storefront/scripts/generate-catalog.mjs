@@ -573,6 +573,14 @@ const CHAPTER_ORDER = {
   hombre: ["Exóticas", "Vaqueras", "Clásicas", "Rancho", "Botines"],
   mujer: ["Largas", "Vaqueras", "Exóticas", "Clásicas", "Botines"],
 }
+// Precedencia de ASIGNACIÓN (la más específica gana; "Vaqueras" es el default).
+// Distinta del orden de EXHIBICIÓN (CHAPTER_ORDER) para NO reordenar el
+// catálogo. Sin esto, una bota alta o un botín con estilo genérico "Vaquera"
+// caían todos en Vaqueras y los demás capítulos quedaban vacíos.
+const CHAPTER_PRIORITY = {
+  hombre: ["Exóticas", "Botines", "Clásicas", "Rancho", "Vaqueras"],
+  mujer: ["Largas", "Botines", "Exóticas", "Clásicas", "Vaqueras"],
+}
 const EXOTIC_KW = /pit[oó]n|python|caim[aá]n|cocodrilo|crocod|avestruz|ostrich|mantarraya|stingray|bisonte|bison|v[ií]bora|serpiente|lagarto|tigre|teju|iguana|pelo de vaca/i
 
 // Héroes por nombre (sin marca). El primero abre el catálogo.
@@ -600,21 +608,29 @@ const isOutlet = (p) => (p.collections || []).some((c) => /outlet/i.test(c.handl
 
 function chapterLabels(p) {
   const set = new Set()
+  // 1. Estilo del metaobjeto boot-style.
   for (const it of p.styleItems || []) {
     const lbl = BOOT_STYLE_LABELS[(it.handle || "").toLowerCase()] || BOOT_STYLE_LABELS[(it.label || "").toLowerCase()]
     if (lbl) set.add(lbl)
   }
-  if (set.size === 0 && CHAPTER_NAMES.includes(p.productType)) set.add(p.productType)
+  // 2. productType SIEMPRE aporta (no solo como fallback): distingue Botines /
+  //    Exóticas / etc. aunque el estilo genérico diga "Vaquera".
+  if (CHAPTER_NAMES.includes(p.productType)) set.add(p.productType)
+  // 3. Señales de título más específicas que el estilo genérico:
+  if (/\b(alta|altas|larga|largas|tall)\b/i.test(p.title || "")) set.add("Largas") // caña larga
+  if (/\bbot[ií]n(es)?\b|\bbootie/i.test(p.title || "")) set.add("Botines")
+  // 4. Exótica por piel, solo si no hubo ninguna señal previa.
   if (set.size === 0 && EXOTIC_KW.test(`${p.title} ${(p.material || []).join(" ")}`)) set.add("Exóticas")
   return set
 }
 function classify(products, genderKey) {
-  const order = CHAPTER_ORDER[genderKey]
+  const order = CHAPTER_ORDER[genderKey] // orden de EXHIBICIÓN
+  const priority = CHAPTER_PRIORITY[genderKey] || order // precedencia de ASIGNACIÓN
   const chapters = new Map(order.map((c) => [c, []]))
   const unclassified = []
   for (const p of products) {
     const labels = chapterLabels(p)
-    const chosen = order.find((c) => labels.has(c))
+    const chosen = priority.find((c) => labels.has(c) && chapters.has(c))
     if (chosen) chapters.get(chosen).push(p)
     else unclassified.push(p)
   }
