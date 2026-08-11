@@ -1,22 +1,20 @@
 /**
  * Tabla y conversiones de talla de BotasLeón — SIN dependencias externas.
  *
- * Anclada en dos hechos:
- *  1. La talla MX = largo del pie en cm (numeración mexicana estándar).
- *  2. Conversión MX↔US estándar (Coppel/QueTalla/Steve Madden MX):
- *       Hombre: MX = US + 18  (US 9 = MX 27, US 10 = MX 28)
- *       Mujer:  MX = US + 17  (US 4 = MX 21, US 9 = MX 26)
+ * OJO: las BOTAS VAQUERAS mexicanas NO usan la conversión genérica de tenis
+ * (donde MX = US + 18). El corrimiento real, confirmado con los fabricantes de
+ * BotasLeón (León, Gto.) y usado por retailers de botas western, es:
+ *    Hombre: MX = US + 19   (US 9 = MX 28, US 10 = MX 29)
+ *    Mujer:  MX = US + 17   (US 7 = MX 24, US 9 = MX 26)
  *
- * De ahí salen fórmulas exactas (MX = cm en ambos; el offset US refleja las
- * escalas separadas de hombre/mujer):
- *   Hombre:  US = cm − 18 · MX = cm   (MX 28 ↔ 28 cm ↔ US 10)
- *   Mujer:   US = cm − 17 · MX = cm   (MX 26 ↔ 26 cm ↔ US 9)
+ * Relación con el largo del pie (cm): hombre US = cm − 18 (MX = cm + 1);
+ * mujer US = cm − 17 (MX = cm). Ej. hombre MX 29 ↔ 28 cm ↔ US 10.
  */
 
 export type Gender = "men" | "women"
 
-/** Corrimiento MX = US + offset (estándar mexicano; MX = cm del pie). */
-const OFFSET: Record<Gender, number> = { men: 18, women: 17 }
+/** Corrimiento MX = US + offset (botas vaqueras; verificado con fábrica). */
+const OFFSET: Record<Gender, number> = { men: 19, women: 17 }
 /** Largo de pie (cm) = US + this. */
 const CM_FROM_US: Record<Gender, number> = { men: 18, women: 17 }
 
