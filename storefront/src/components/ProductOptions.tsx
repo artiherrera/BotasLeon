@@ -6,7 +6,7 @@ import Image from "next/image"
 import { useCart } from "./CartProvider"
 import { usePDPVariant } from "./PDPVariantContext"
 import { ColorSwatch } from "./ColorSwatch"
-import { BrandSizeTable } from "./BrandSizeTable"
+import { SizeFinder } from "./SizeFinder"
 import { formatSizeWithUs } from "@/lib/sizes"
 import { formatMoney } from "@/lib/utils"
 import { COLOR_OPTION_NAMES, findVariantBySelection } from "@/lib/pdp/variants"
@@ -329,8 +329,8 @@ export function ProductOptions({ product }: Props) {
             </p>
           )}
 
-          {/* Comparador "de tus tenis a tus botas" (Nike · Adidas · MX) */}
-          {genderHandle && <BrandSizeTable genderHandle={genderHandle} />}
+          {/* Buscador de talla (marca conocida / medir el pie) */}
+          <SizeFinder genderHandle={genderHandle} />
           {showSizeError && needsSize && (
             <p className="text-sm text-terracotta font-medium mt-2" role="alert">
               {t("pdp.sizeError")}

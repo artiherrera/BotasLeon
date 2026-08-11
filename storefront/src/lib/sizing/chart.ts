@@ -1,21 +1,22 @@
 /**
  * Tabla y conversiones de talla de BotasLeón — SIN dependencias externas.
  *
- * Anclada en dos fuentes:
- *  1. Datos de fábrica (verificados con el fabricante): MX = US + 19 (hombre),
- *     MX = US + 17 (mujer). Ver también src/lib/sizes.ts.
- *  2. Relación talla↔largo de pie (estándar 10 mm por talla, calibrado contra
- *     charts reales): hombre US = cm − 18 ; mujer US = cm − 17.
+ * Anclada en dos hechos:
+ *  1. La talla MX = largo del pie en cm (numeración mexicana estándar).
+ *  2. Conversión MX↔US estándar (Coppel/QueTalla/Steve Madden MX):
+ *       Hombre: MX = US + 18  (US 9 = MX 27, US 10 = MX 28)
+ *       Mujer:  MX = US + 17  (US 4 = MX 21, US 9 = MX 26)
  *
- * De ahí salen fórmulas exactas:
- *   Hombre:  US = cm − 18 · MX = cm + 1   (MX 29 ↔ 28 cm ↔ US 10)
- *   Mujer:   US = cm − 17 · MX = cm       (MX 26 ↔ 26 cm ↔ US 9)
+ * De ahí salen fórmulas exactas (MX = cm en ambos; el offset US refleja las
+ * escalas separadas de hombre/mujer):
+ *   Hombre:  US = cm − 18 · MX = cm   (MX 28 ↔ 28 cm ↔ US 10)
+ *   Mujer:   US = cm − 17 · MX = cm   (MX 26 ↔ 26 cm ↔ US 9)
  */
 
 export type Gender = "men" | "women"
 
-/** Corrimiento MX = US + offset (fábrica). */
-const OFFSET: Record<Gender, number> = { men: 19, women: 17 }
+/** Corrimiento MX = US + offset (estándar mexicano; MX = cm del pie). */
+const OFFSET: Record<Gender, number> = { men: 18, women: 17 }
 /** Largo de pie (cm) = US + this. */
 const CM_FROM_US: Record<Gender, number> = { men: 18, women: 17 }
 

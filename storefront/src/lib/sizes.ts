@@ -2,11 +2,11 @@
  * Conversión de talla mexicana (cm) → US para botas.
  *
  * La conversión varía por SEXO porque el sistema US tiene escalas separadas
- * para hombre y mujer (distinto punto de referencia). Según los fabricantes
- * de BotasLeón:
+ * para hombre y mujer (distinto punto de referencia). Conversión mexicana
+ * estándar (MX = largo del pie en cm):
  *
- *   Hombre: US = MX − 19   (p.ej. MX 29 = US 10)
- *   Mujer:  US = MX − 17   (p.ej. MX 23 = US 6)
+ *   Hombre: US = MX − 18   (p.ej. MX 27 = US 9, MX 28 = US 10)
+ *   Mujer:  US = MX − 17   (p.ej. MX 23 = US 6, MX 26 = US 9)
  *
  * Es un corrimiento parejo, así que cubre medias tallas (25.5 → US 6.5, etc.)
  * sin necesidad de tabla. Para niños NO convertimos: el sistema US infantil
@@ -27,7 +27,7 @@ export type GenderHandle =
 
 /** Corrimiento MX→US por sexo, o null si no aplica (niños/unisex/desconocido). */
 export function usOffset(gender: GenderHandle): number | null {
-  if (gender === "masculino") return 19
+  if (gender === "masculino") return 18
   if (gender === "femenino") return 17
   return null
 }
