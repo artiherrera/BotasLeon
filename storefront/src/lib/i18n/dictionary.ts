@@ -139,7 +139,6 @@ export const DICTIONARY: Record<string, Entry> = {
   "nav.explore": { es: "Explorar", en: "Explore" },
 
   // Banda de propuesta de valor (menú móvil)
-  "promo.msi": { es: "3, 6 y 9 meses sin intereses", en: "Handcrafted in León, Mexico" },
   "promo.shipping": { es: "Envío a todo MX y USA", en: "Shipping across MX & USA" },
 
   // Secciones de ayuda / empresa
@@ -271,14 +270,9 @@ export const DICTIONARY: Record<string, Entry> = {
   "sort.priceDesc": { es: "Precio: mayor a menor", en: "Price: high to low" },
   "sort.nameAz": { es: "Nombre: A → Z", en: "Name: A → Z" },
 
-  // ── Precio (MSI) ─────────────────────────────────────────────────────
+  // ── Precio ───────────────────────────────────────────────────────────
   "price.from": { es: "Desde", en: "From" },
   "price.perMonth": { es: "al mes", en: "/mo" },
-  "price.msiPdp": {
-    es: "a {n} meses sin intereses · bancos participantes",
-    en: "{n} months interest-free · participating banks",
-  },
-  "price.msiShort": { es: "{n} MSI", en: "{n} MSI" },
 
   // ── Tarjeta de producto ──────────────────────────────────────────────
   "card.view": { es: "Ver", en: "View" },
@@ -374,10 +368,6 @@ export const DICTIONARY: Record<string, Entry> = {
   "marquee.shipping": {
     es: "Envío GRATIS a México y EE.UU.",
     en: "FREE shipping to Mexico & the USA",
-  },
-  "marquee.msi": {
-    es: "3, 6 y 9 meses sin intereses",
-    en: "Handcrafted in León, Mexico",
   },
   "marquee.store": { es: "Tienda física en León →", en: "Visit our store in León →" },
   "marquee.newsletter": {

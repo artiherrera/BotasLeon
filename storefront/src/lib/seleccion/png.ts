@@ -1,5 +1,4 @@
 import { formatMoney, saleInfo } from "@/lib/utils"
-import { msiMonthly, MSI_DISPLAY_MONTHS } from "@/lib/msi"
 import type { SeleccionItem, SeleccionMeta } from "./pdf"
 
 /**
@@ -7,8 +6,8 @@ import type { SeleccionItem, SeleccionMeta } from "./pdf"
  * marca + precio de cada bota) pero como UNA sola imagen, ideal para compartir
  * por WhatsApp. Se dibuja a un <canvas> (sin dependencias) y se exporta a Blob.
  *
- * Reutiliza las MISMAS funciones de precio del sitio (formatMoney/saleInfo/
- * msiMonthly) para que el precio coincida con las cards y con el PDF.
+ * Reutiliza las MISMAS funciones de precio del sitio (formatMoney/saleInfo)
+ * para que el precio coincida con las cards y con el PDF.
  */
 
 const C = {
@@ -275,17 +274,6 @@ export async function generateSeleccionPng(
       ctx.stroke()
     }
 
-    // MSI (solo MXN que califica)
-    const monthly = msiMonthly(it.amount, it.currency)
-    if (monthly) {
-      ctx.fillStyle = C.brown
-      ctx.font = `400 10px ${SANS}`
-      ctx.fillText(
-        `${L.from} ${formatMoney(monthly, it.currency)} ${L.perMonth} · ${MSI_DISPLAY_MONTHS} ${L.msi}`,
-        tx,
-        ty + 15
-      )
-    }
   }
 
   // === Footer ===

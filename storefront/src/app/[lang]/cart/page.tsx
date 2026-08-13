@@ -7,7 +7,6 @@ import { Header } from "@/components/Header"
 import { Footer } from "@/components/Footer"
 import { useCart } from "@/components/CartProvider"
 import { FreeShippingBar } from "@/components/FreeShippingBar"
-import { MSIBreakdown } from "@/components/MSIBreakdown"
 import { PaymentBadges } from "@/components/PaymentBadges"
 import { CustomsTaxIdField, useCustomsGate } from "@/components/CustomsTaxIdField"
 import { useLocale } from "@/lib/i18n/context"
@@ -265,7 +264,6 @@ export default function CartPage() {
                       )}
                   </span>
                 </div>
-                <MSIBreakdown amount={subtotalNum} currency={subtotalCurrency} />
                 <div className="flex justify-between text-sm text-text-muted">
                   <span>Envío</span>
                   <span className="text-leather font-medium">Gratis</span>

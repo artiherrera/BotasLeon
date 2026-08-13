@@ -21,7 +21,6 @@ const MESSAGE_SPECS: Array<{ key: string; href?: string; vars?: Record<string, s
   { key: "marquee.tradition" },
   { key: "marquee.leather" },
   { key: "marquee.shipping" },
-  { key: "marquee.msi" },
   { key: "marquee.store", href: "/visitanos" },
   { key: "marquee.newsletter", href: "/#newsletter" },
 ]

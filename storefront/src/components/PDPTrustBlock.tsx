@@ -1,16 +1,14 @@
 "use client"
 
 import type { Product } from "@/lib/shopify/types"
-import { formatMoney } from "@/lib/utils"
-import { useLocale, useT } from "@/lib/i18n/context"
+import { useT } from "@/lib/i18n/context"
 
 /**
  * PDPTrustBlock — strip de confianza bajo el CTA del PDP.
  *
  * Tres módulos compactos apilados:
  *   1. Strip de 4 íconos: materiales, origen, devoluciones, pago seguro
- *   2. Banner MSI (solo si price >= 999) con cálculo de mensualidad a 9 meses
- *   3. Bloque "Taller" con vendor en font-heading
+ *   2. Bloque "Taller" con vendor en font-heading
  *
  * Server component — no necesita interactividad. Mostrarlo en el column
  * derecho del PDP, debajo de ProductOptions y arriba de la descripción.
@@ -25,11 +23,6 @@ type Props = {
 
 export function PDPTrustBlock({ product }: Props) {
   const t = useT()
-  const { locale } = useLocale()
-  const price = product.priceRange.minVariantPrice
-  const priceNum = parseFloat(price.amount)
-  const showMsi = priceNum >= 999
-  const monthly = priceNum / 9
 
   return (
     <div className="mt-8 border border-border rounded-sm overflow-hidden bg-bg-alt/40">
@@ -75,20 +68,7 @@ export function PDPTrustBlock({ product }: Props) {
         />
       </ul>
 
-      {/* 2. Banner MSI — solo MX. En inglés (mercado USA) NO se muestra MSI. */}
-      {showMsi && locale !== "en" && (
-        <div className="border-t border-border px-4 py-3 bg-bg">
-          <p className="text-sm text-text">
-            <span className="font-medium text-leather">3, 6 y 9 meses sin intereses</span>
-            <span className="text-text-muted">
-              {" "}
-              · o desde {formatMoney(monthly, price.currencyCode, 2)} al mes en 9 pagos
-            </span>
-          </p>
-        </div>
-      )}
-
-      {/* 3. Hecho por: vendor */}
+      {/* 2. Hecho por: vendor */}
       {product.vendor && (
         <div className="border-t border-border px-4 py-3">
           <p className="eyebrow text-leather text-xs mb-0.5">{t("trust.workshop")}</p>

@@ -5,7 +5,6 @@ import Image from "next/image"
 import { LocalizedLink as Link } from "@/components/LocalizedLink"
 import { useCart } from "./CartProvider"
 import { FreeShippingBar } from "./FreeShippingBar"
-import { MSIBreakdown } from "./MSIBreakdown"
 import { PaymentBadges } from "./PaymentBadges"
 import { CustomsTaxIdField, useCustomsGate } from "./CustomsTaxIdField"
 import { formatMoney } from "@/lib/utils"
@@ -405,7 +404,6 @@ export function CartDrawer() {
                   </span>
                 </div>
               )}
-              <MSIBreakdown amount={subtotalNum} currency={subtotalCurrency} />
               <p className="text-xs text-text-muted mt-1 mb-4">
                 {t("cart.shippingTax")}
               </p>

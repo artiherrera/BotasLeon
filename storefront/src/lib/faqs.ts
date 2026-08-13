@@ -60,7 +60,7 @@ export const FAQS: FAQ[] = [
   {
     question: "¿Qué métodos de pago aceptan?",
     answer:
-      "Tarjetas de crédito y débito (Visa, MasterCard, Amex), Mercado Pago, OXXO, SPEI, transferencia bancaria, y meses sin intereses con bancos participantes. En USA aceptamos también Apple Pay y Shop Pay.",
+      "Tarjetas de crédito y débito (Visa, MasterCard, Amex), Mercado Pago, OXXO, SPEI y transferencia bancaria. En USA aceptamos también Apple Pay y Shop Pay.",
     questionEn: "What payment methods do you accept?",
     answerEn:
       "Credit and debit cards (Visa, MasterCard, Amex), Apple Pay, and Shop Pay. Additional local payment options are available for orders placed within Mexico.",

@@ -53,9 +53,8 @@ export default function FaqPage() {
             <h2>¿Qué métodos de pago aceptan?</h2>
             <p>
               Tarjetas de crédito y débito (Visa, MasterCard, Amex), Mercado
-              Pago, OXXO, SPEI, transferencia bancaria, y meses sin intereses con
-              bancos participantes. En USA aceptamos también Apple Pay y Shop
-              Pay.
+              Pago, OXXO, SPEI y transferencia bancaria. En USA aceptamos también
+              Apple Pay y Shop Pay.
             </p>
 
             <h2>¿Las botas se ven igual en persona que en la foto?</h2>

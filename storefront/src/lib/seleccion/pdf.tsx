@@ -8,7 +8,6 @@ import {
   pdf,
 } from "@react-pdf/renderer"
 import { formatMoney, saleInfo } from "@/lib/utils"
-import { msiMonthly, MSI_DISPLAY_MONTHS } from "@/lib/msi"
 
 /**
  * PDF de marca de una SELECCIÓN de productos — el resultado de una búsqueda o
@@ -16,7 +15,7 @@ import { msiMonthly, MSI_DISPLAY_MONTHS } from "@/lib/msi"
  *
  * Se genera en el navegador (dynamic import al momento de descargar; no pesa en
  * el resto del sitio) y devuelve un Blob. Reutiliza las MISMAS funciones de
- * precio del sitio (formatMoney/saleInfo/msiMonthly) para que el precio del PDF
+ * precio del sitio (formatMoney/saleInfo) para que el precio del PDF
  * sea idéntico al que ve el usuario en las cards.
  */
 
@@ -125,7 +124,6 @@ const s = StyleSheet.create({
 
 function Card({ item, L }: { item: SeleccionItem; L: (typeof STR)["es"] }) {
   const sale = saleInfo(item.amount, item.compareAt)
-  const monthly = msiMonthly(item.amount, item.currency)
   const src = item.imageUrl
     ? `${item.imageUrl}${item.imageUrl.includes("?") ? "&" : "?"}width=360`
     : null
@@ -151,11 +149,6 @@ function Card({ item, L }: { item: SeleccionItem; L: (typeof STR)["es"] }) {
               <Text style={s.compareAt}>{formatMoney(item.compareAt, item.currency)}</Text>
             ) : null}
           </View>
-          {monthly ? (
-            <Text style={s.msi}>
-              {`${L.from} ${formatMoney(monthly, item.currency)} ${L.perMonth} · ${MSI_DISPLAY_MONTHS} ${L.msi}`}
-            </Text>
-          ) : null}
         </View>
       </View>
     </View>
