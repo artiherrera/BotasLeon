@@ -226,7 +226,7 @@ function CenterBand({
         <Ornament />
       </div>
 
-      {/* Wordmark blanco (imagen). Fallback: texto Zilla. */}
+      {/* Wordmark blanco (imagen). Fallback: texto Fraunces. */}
       {logo ? (
         <img
           src={logo}
@@ -339,8 +339,8 @@ export default async function OpengraphImage({
     texts.eyebrow + texts.taglineA + texts.taglineB + texts.ship + wordmarkFallback
 
   const covers = await getCoverUrls()
-  const [zillaBold, interMedium, logo, hombre, mujer] = await Promise.all([
-    loadGoogleFont("Zilla Slab", 700, allText),
+  const [frauncesSemi, interMedium, logo, hombre, mujer] = await Promise.all([
+    loadGoogleFont("Fraunces", 600, allText),
     loadGoogleFont("Inter", 500, allText),
     loadPublicImage("logo_botasleon_white.png"),
     fetchImageDataUrl(covers.hombre),
@@ -350,15 +350,15 @@ export default async function OpengraphImage({
   const fonts: Array<{
     name: string
     data: ArrayBuffer
-    weight: 400 | 500 | 700
+    weight: 400 | 500 | 600 | 700
     style: "normal"
   }> = []
-  if (zillaBold)
-    fonts.push({ name: "Zilla Slab", data: zillaBold, weight: 700, style: "normal" })
+  if (frauncesSemi)
+    fonts.push({ name: "Fraunces", data: frauncesSemi, weight: 600, style: "normal" })
   if (interMedium)
     fonts.push({ name: "Inter", data: interMedium, weight: 500, style: "normal" })
 
-  const displayFont = zillaBold ? "Zilla Slab" : "serif"
+  const displayFont = frauncesSemi ? "Fraunces" : "serif"
   const bodyFont = interMedium ? "Inter" : "sans-serif"
 
   // Díptico solo si AMBAS fotos cargaron; si no, banda de cuero a todo lo ancho.
