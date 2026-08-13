@@ -11,6 +11,7 @@ import { useFocusTrap } from "@/lib/useFocusTrap"
 import { lookupColor } from "@/lib/pdp/colorLut"
 import { bootStyleLabel } from "@/lib/shopify/taxonomy"
 import { useT, useLocale } from "@/lib/i18n/context"
+import { facetLabel } from "@/lib/facets-i18n"
 
 /**
  * ProductsListing — grid con sidebar de filtros (estilo Amazon).
@@ -351,7 +352,7 @@ export function ProductsListing({ products, initialStyle, initialPageInfo }: Pro
     const labelsFrom = (
       set: Set<string>,
       arr: { handle: string; label: string }[]
-    ) => [...set].map((h) => arr.find((f) => f.handle === h)?.label || h)
+    ) => [...set].map((h) => facetLabel(arr.find((f) => f.handle === h)?.label || h, locale))
 
     const seg = pathname.replace(/^\/(es|en)/, "").split("/").filter(Boolean)
     const base = seg[0]
@@ -364,7 +365,7 @@ export function ProductsListing({ products, initialStyle, initialPageInfo }: Pro
     else parts.push(en ? "Catalog" : "Catálogo")
 
     if (filters.vendors.size) parts.push(`${en ? "Brand" : "Marca"}: ${[...filters.vendors].join(", ")}`)
-    if (filters.types.size) parts.push([...filters.types].join(", "))
+    if (filters.types.size) parts.push([...filters.types].map((tp) => facetLabel(tp, locale)).join(", "))
     if (filters.sizes.size) parts.push(`${en ? "Size" : "Talla"}: ${[...filters.sizes].join(", ")}`)
     if (filters.colors.size) parts.push(labelsFrom(filters.colors, facets.colors).join(", "))
     if (filters.materials.size) parts.push(labelsFrom(filters.materials, facets.materials).join(", "))
@@ -528,7 +529,7 @@ export function ProductsListing({ products, initialStyle, initialPageInfo }: Pro
                       onChange={() => toggle("types", type)}
                       className="rounded border-border accent-leather"
                     />
-                    <span className="flex-1">{type}</span>
+                    <span className="flex-1">{facetLabel(type, locale)}</span>
                     <span className="text-xs text-text-subtle">
                       {allProducts.filter((p) => styleLabelsOf(p).includes(type)).length}
                     </span>
@@ -569,7 +570,7 @@ export function ProductsListing({ products, initialStyle, initialPageInfo }: Pro
                         }`}
                         style={{ backgroundColor: swatchHex }}
                       />
-                      <span className="flex-1">{label}</span>
+                      <span className="flex-1">{facetLabel(label, locale)}</span>
                     </label>
                   )
                 })}
@@ -592,7 +593,7 @@ export function ProductsListing({ products, initialStyle, initialPageInfo }: Pro
                       onChange={() => toggle("materials", handle)}
                       className="rounded border-border accent-leather"
                     />
-                    <span className="flex-1">{label}</span>
+                    <span className="flex-1">{facetLabel(label, locale)}</span>
                   </label>
                 ))}
               </div>
@@ -615,7 +616,7 @@ export function ProductsListing({ products, initialStyle, initialPageInfo }: Pro
                       onChange={() => toggle("hormas", handle)}
                       className="rounded border-border accent-leather"
                     />
-                    <span className="flex-1">{label}</span>
+                    <span className="flex-1">{facetLabel(label, locale)}</span>
                   </label>
                 ))}
               </div>
