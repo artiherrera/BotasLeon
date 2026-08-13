@@ -66,7 +66,7 @@ export default async function VisitanosPage() {
             className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/25 to-transparent"
           />
           <div className="relative mx-auto max-w-7xl px-6 py-20 md:py-28">
-            <p className="eyebrow text-gold mb-4 drop-shadow-[0_1px_6px_rgba(0,0,0,0.5)]">
+            <p className="eyebrow text-bg mb-4 drop-shadow-[0_1px_6px_rgba(0,0,0,0.5)]">
               <T k="page.visitanos.eyebrow" />
             </p>
             <h1 className="font-display text-4xl md:text-6xl leading-[1.05] mb-4 max-w-3xl drop-shadow-[0_2px_12px_rgba(0,0,0,0.45)]">
@@ -134,7 +134,7 @@ export default async function VisitanosPage() {
                   href={MAPS_DIR}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-leather text-bg text-sm uppercase tracking-widest hover:bg-text transition-colors"
+                  className="inline-flex items-center gap-2 px-6 py-3 bg-text text-bg text-sm hover:bg-leather transition-colors"
                 >
                   <T k="page.visitanos.ctaDirections" /> →
                 </a>
@@ -144,7 +144,7 @@ export default async function VisitanosPage() {
                   )}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 px-6 py-3 rounded-full border border-leather text-leather text-sm uppercase tracking-widest hover:bg-leather hover:text-bg transition-colors"
+                  className="inline-flex items-center gap-2 px-6 py-3 border border-leather text-leather text-sm hover:bg-text hover:text-bg transition-colors"
                 >
                   <T k="page.visitanos.ctaSchedule" />
                 </a>

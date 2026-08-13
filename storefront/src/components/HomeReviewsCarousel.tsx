@@ -154,7 +154,7 @@ export function HomeReviewsCarousel() {
                 type="button"
                 onClick={() => scroll(-1)}
                 aria-label={t("reviews.prev")}
-                className="flex h-10 w-10 items-center justify-center rounded-full border border-leather text-leather transition-colors hover:bg-leather hover:text-bg"
+                className="flex h-10 w-10 items-center justify-center rounded-full border border-leather text-leather transition-colors hover:bg-text hover:text-bg"
               >
                 ‹
               </button>
@@ -162,7 +162,7 @@ export function HomeReviewsCarousel() {
                 type="button"
                 onClick={() => scroll(1)}
                 aria-label={t("reviews.next")}
-                className="flex h-10 w-10 items-center justify-center rounded-full border border-leather text-leather transition-colors hover:bg-leather hover:text-bg"
+                className="flex h-10 w-10 items-center justify-center rounded-full border border-leather text-leather transition-colors hover:bg-text hover:text-bg"
               >
                 ›
               </button>

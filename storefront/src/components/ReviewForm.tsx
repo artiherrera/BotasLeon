@@ -142,7 +142,7 @@ export function ReviewForm({
 
   if (sent) {
     return (
-      <div className="mt-4 rounded-sm border border-leather/30 bg-leather/5 p-4 text-sm text-text">
+      <div className="mt-4 rounded-sm border border-leather/30 bg-text/5 p-4 text-sm text-text">
         {t("review.thanks")}
       </div>
     )
@@ -153,7 +153,7 @@ export function ReviewForm({
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="mt-2 inline-flex self-start rounded-full border border-leather px-5 py-2.5 text-sm uppercase tracking-wider text-leather hover:bg-leather hover:text-bg transition-colors"
+        className="mt-2 inline-flex self-start border border-leather px-5 py-2.5 text-sm text-leather hover:bg-text hover:text-bg transition-colors"
       >
         {t("review.write")}
       </button>
@@ -270,7 +270,7 @@ export function ReviewForm({
         <button
           type="submit"
           disabled={sending || uploading}
-          className="rounded-full bg-leather px-5 py-2.5 text-sm uppercase tracking-wider text-bg hover:bg-text disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+          className=" bg-text px-5 py-2.5 text-sm text-bg hover:bg-text disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
         >
           {sending ? t("review.sending") : t("review.submit")}
         </button>

@@ -16,7 +16,7 @@ import { useCart } from "./CartProvider"
 const VARIANT_CLASSES: Record<"success" | "error" | "info", string> = {
   success: "bg-emerald-700 text-white",
   error: "bg-terracotta-dark text-white",
-  info: "bg-leather text-bg",
+  info: "bg-text text-bg",
 }
 
 export function Toast() {

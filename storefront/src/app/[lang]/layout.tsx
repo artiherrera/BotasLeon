@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next"
-import { Bevan, Zilla_Slab, Inter } from "next/font/google"
+import { Fraunces, Inter } from "next/font/google"
 import { KlaviyoLoader } from "@/components/KlaviyoLoader"
 import { CartProvider } from "@/components/CartProvider"
 import { CartDrawer } from "@/components/CartDrawer"
@@ -28,28 +28,21 @@ export function generateStaticParams() {
 }
 
 /**
- * Tipografías acordadas:
- *  - Bevan: display western para H1/hero (impacto, usar sparingly)
- *  - Zilla Slab: serif elegante para H2-H4 (jerarquía principal)
- *  - Inter: sans-serif para body + UI labels en caps
+ * Tipografías — Kit de Marca v2 (sobrio, estilo Tecovas):
+ *  - Fraunces: serif display para H1–H3, nombres de producto y cifras.
+ *  - Inter: sans-serif para cuerpo, navegación, botones, formularios y eyebrows.
  *
  * Se cargan como CSS variables y se conectan al @theme de globals.css.
+ * (Antes: Bevan + Zilla Slab — retirados por completo.)
  */
-const bevan = Bevan({
-  variable: "--font-bevan",
-  weight: "400",
-  subsets: ["latin"],
-  display: "swap",
-})
-const zilla = Zilla_Slab({
-  variable: "--font-zilla",
-  weight: ["400", "500", "700"],
+const fraunces = Fraunces({
+  variable: "--font-fraunces",
   subsets: ["latin"],
   display: "swap",
 })
 const inter = Inter({
   variable: "--font-inter",
-  weight: ["400", "500", "600"],
+  weight: ["400", "500", "600", "700"],
   subsets: ["latin"],
   display: "swap",
 })
@@ -140,14 +133,14 @@ export default async function RootLayout({
   return (
     <html
       lang={locale}
-      className={`${bevan.variable} ${zilla.variable} ${inter.variable} h-full antialiased`}
+      className={`${fraunces.variable} ${inter.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-bg text-text">
         {/* Saltar al contenido — primer tab para usuarios de teclado, salta
             el Header repetido y aterriza en el <main id="contenido">. */}
         <a
           href="#contenido"
-          className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[100] focus:bg-leather focus:text-bg focus:px-4 focus:py-2 focus:rounded"
+          className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[100] focus:bg-text focus:text-bg focus:px-4 focus:py-2 focus:rounded"
         >
           {locale === "en" ? "Skip to content" : "Saltar al contenido"}
         </a>

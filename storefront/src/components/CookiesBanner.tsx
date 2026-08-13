@@ -94,7 +94,7 @@ export function CookiesBanner() {
         style={{ marginBottom: "env(safe-area-inset-bottom)" }}
       >
         <div className="mb-5 flex items-center gap-3">
-          <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-leather text-bg">
+          <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-text text-bg">
             <CookieIcon />
           </span>
           <h2 className="font-heading text-lg text-text">{t("cookies.title")}</h2>
@@ -115,7 +115,7 @@ export function CookiesBanner() {
         <button
           type="button"
           onClick={() => accept("all")}
-          className="block w-full py-3.5 rounded-full bg-leather text-bg text-sm uppercase tracking-wider font-medium hover:bg-text transition-colors"
+          className="block w-full py-3.5 bg-text text-bg text-sm font-medium hover:bg-leather transition-colors"
         >
           {t("cookies.acceptAll")}
         </button>

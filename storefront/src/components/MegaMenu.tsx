@@ -153,7 +153,7 @@ export function MegaMenu() {
             <Link
               href={item.href}
               onClick={() => setOpenIdx(null)}
-              className={`relative flex items-center gap-1 px-3.5 py-2 text-[15px] uppercase tracking-[0.1em] transition-colors after:pointer-events-none after:absolute after:inset-x-3.5 after:bottom-1 after:h-[2px] after:origin-left after:scale-x-0 after:bg-leather after:transition-transform after:duration-300 hover:after:scale-x-100 ${
+              className={`relative flex items-center gap-1 px-3.5 py-2 text-[15px] uppercase tracking-[0.1em] transition-colors after:pointer-events-none after:absolute after:inset-x-3.5 after:bottom-1 after:h-[2px] after:origin-left after:scale-x-0 after:bg-text after:transition-transform after:duration-300 hover:after:scale-x-100 ${
                 item.highlight
                   ? "text-terracotta hover:text-terracotta-dark"
                   : "hover:text-leather"
@@ -261,7 +261,7 @@ export function MegaMenu() {
               <Link
                 href={activeItem.ctaHref}
                 onClick={() => setOpenIdx(null)}
-                className="relative group bg-leather text-bg p-8 flex flex-col justify-between min-h-[180px] overflow-hidden"
+                className="relative group bg-text text-bg p-8 flex flex-col justify-between min-h-[180px] overflow-hidden"
               >
                 <div
                   className="absolute inset-0 opacity-20 mix-blend-overlay pointer-events-none"
@@ -272,7 +272,7 @@ export function MegaMenu() {
                     `,
                   }}
                 />
-                <p className="eyebrow text-gold text-xs relative">
+                <p className="eyebrow text-bg text-xs relative">
                   {t(activeItem.label)}
                 </p>
                 <div className="relative">

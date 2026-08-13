@@ -119,7 +119,7 @@ export function Header() {
           >
             <BagIcon />
             {itemCount > 0 && (
-              <span className="absolute -top-0.5 -right-0.5 bg-leather text-bg text-[10px] font-medium min-w-[1.125rem] h-[1.125rem] px-1 rounded-full flex items-center justify-center">
+              <span className="absolute -top-0.5 -right-0.5 bg-text text-bg text-[10px] font-medium min-w-[1.125rem] h-[1.125rem] px-1 rounded-full flex items-center justify-center">
                 {itemCount > 99 ? "99+" : itemCount}
               </span>
             )}

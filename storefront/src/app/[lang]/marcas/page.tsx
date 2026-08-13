@@ -80,7 +80,7 @@ export default async function MarcasPage() {
                         />
                       </div>
                     ) : (
-                      <div className="absolute inset-0 flex items-center justify-center bg-leather p-2">
+                      <div className="absolute inset-0 flex items-center justify-center bg-text p-2">
                         <h3 className="font-display text-base md:text-lg text-bg text-center leading-tight">
                           {b.name}
                         </h3>

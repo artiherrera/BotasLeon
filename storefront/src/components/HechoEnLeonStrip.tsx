@@ -17,7 +17,7 @@ import { useT } from "@/lib/i18n/context"
 export function HechoEnLeonStrip() {
   const t = useT()
   return (
-    <section className="bg-leather text-bg relative overflow-hidden">
+    <section className="bg-text text-bg relative overflow-hidden">
       {/* Texture overlay sutil — preservada del original */}
       <div
         className="absolute inset-0 opacity-15 mix-blend-overlay pointer-events-none"
@@ -35,7 +35,7 @@ export function HechoEnLeonStrip() {
             <p className="font-display text-4xl md:text-5xl text-bg leading-none mb-2">
               380
             </p>
-            <p className="eyebrow text-gold text-[11px] mb-1">{t("trust.yearsTradition")}</p>
+            <p className="eyebrow text-bg text-[11px] mb-1">{t("trust.yearsTradition")}</p>
             <p className="text-bg-alt text-sm leading-relaxed">
               {t("trust.leonDesc")}
             </p>
@@ -45,7 +45,7 @@ export function HechoEnLeonStrip() {
             <p className="font-display text-4xl md:text-5xl text-bg leading-none mb-2">
               {t("trust.mexicanBootsStat")}
             </p>
-            <p className="eyebrow text-gold text-[11px] mb-1">{t("trust.mexicanBoots")}</p>
+            <p className="eyebrow text-bg text-[11px] mb-1">{t("trust.mexicanBoots")}</p>
             <p className="text-bg-alt text-sm leading-relaxed">
               {t("trust.mexicanBootsDesc")}
             </p>
@@ -55,7 +55,7 @@ export function HechoEnLeonStrip() {
             <p className="font-display text-4xl md:text-5xl text-bg leading-none mb-2">
               100%
             </p>
-            <p className="eyebrow text-gold text-[11px] mb-1">{t("trust.genuineLeather")}</p>
+            <p className="eyebrow text-bg text-[11px] mb-1">{t("trust.genuineLeather")}</p>
             <p className="text-bg-alt text-sm leading-relaxed">
               {t("trust.genuineLeatherDesc")}
             </p>

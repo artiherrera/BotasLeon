@@ -223,7 +223,7 @@ export function ProductGallery({ images, title }: Props) {
                 aria-label={`Ir a imagen ${idx + 1}`}
                 onClick={() => scrollToIdx(idx)}
                 className={`h-2 rounded-full transition-all ${
-                  idx === activeIdx ? "w-6 bg-leather" : "w-2 bg-border-strong/60"
+                  idx === activeIdx ? "w-6 bg-text" : "w-2 bg-border-strong/60"
                 }`}
               />
             ))}

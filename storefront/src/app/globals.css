@@ -1,30 +1,47 @@
 @import "tailwindcss";
 
 /**
- * BotasLeón — sistema de diseño
- * Aesthetic: Western / Cuero Premium
- * Paleta y tipografías acordadas con el cliente.
+ * BotasLeón — Kit de Marca v2
+ * Sobrio, tinta sobre crema (referencia: Tecovas). El western lo ponen el logo
+ * y las fotos; la tipografía y la UI son sobrias. Un solo acento: cuero.
  */
 
 @theme {
-  /* === Colores === */
-  --color-bg: #FBF8F1;
-  --color-bg-alt: #F4E9D8;
-  --color-text: #1F1814;
-  --color-text-muted: #5A4F44;
-  --color-text-subtle: #6E6250; /* AA sobre cream (5.6:1) y bg-alt (4.96:1); antes #8A7E6E fallaba (3.74:1) */
-  --color-leather: #4B2E1F;
-  --color-leather-light: #8B5A2B;
-  --color-terracotta: #8B3A24;
-  --color-terracotta-dark: #5C1F1F;
-  --color-cognac: #BC7B3C;
-  --color-gold: #B8924A;
-  --color-border: #D4CCBE;
-  --color-border-strong: #8B5A2B;
+  /* === Color === */
+  --color-bg: #FBF8F1;          /* crema oficial — NO cambia */
+  --color-bg-alt: #FFFFFF;      /* tarjetas y paneles */
+  --color-white: #FFFFFF;
+  --color-text: #191A19;        /* tinta: texto, botones, líneas fuertes */
+  --color-ink: #191A19;
+  --color-text-muted: #7A7265;  /* secundario (≥14px) */
+  --color-text-subtle: #7A7265;
+  --color-muted: #7A7265;
+  --color-leather: #6B4A2E;     /* ÚNICO acento: eyebrows, enlaces, detalles */
+  --color-border: #E7E1D3;      /* bordes y divisores */
+  --color-line: #E7E1D3;
+  --color-border-strong: #191A19;
 
-  /* === Tipografías === */
-  --font-display: var(--font-bevan);
-  --font-heading: var(--font-zilla);
+  /* Legacy remapeados al sistema sobrio (sin rojos/dorados/degradados): todo
+     tono decorativo cae a tinta o cuero para no romper usos existentes. */
+  --color-leather-light: #6B4A2E;
+  --color-terracotta: #6B4A2E;
+  --color-terracotta-dark: #191A19;
+  --color-cognac: #6B4A2E;
+  --color-gold: #6B4A2E;
+
+  /* === Forma — esquinas RECTAS (radius 0). --radius-full se conserva para
+     círculos genuinos (avatares, botón flotante). === */
+  --radius-xs: 0;
+  --radius-sm: 0;
+  --radius-md: 0;
+  --radius-lg: 0;
+  --radius-xl: 0;
+  --radius-2xl: 0;
+  --radius-3xl: 0;
+
+  /* === Tipografía === */
+  --font-display: var(--font-fraunces);
+  --font-heading: var(--font-fraunces);
   --font-body: var(--font-inter);
 }
 
@@ -44,24 +61,21 @@ body {
   outline-offset: 2px;
 }
 
-/* Headings con jerarquía western. H1 = Bevan display (hero only).
-   H2-H4 = Zilla Slab elegante. H5-H6 = Inter caps (labels). */
-h1, .h1 {
+/* Jerarquía v2: H1–H4 en Fraunces 600 (nunca mayúsculas forzadas, tracking
+   negativo sutil). Eyebrows en Inter 600 caps. */
+h1, .h1, h2, .h2, h3, .h3, h4, .h4 {
   font-family: var(--font-display);
-  font-weight: 400;
-  line-height: 1.1;
+  font-weight: 600;
+  line-height: 1.15;
   letter-spacing: -0.01em;
+  text-transform: none;
 }
-h2, .h2, h3, .h3, h4, .h4 {
-  font-family: var(--font-heading);
-  font-weight: 700;
-  line-height: 1.2;
-}
+h1, .h1 { line-height: 1.1; }
 h5, .h5, h6, .h6, .eyebrow {
   font-family: var(--font-body);
-  font-weight: 500;
+  font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.14em;
 }
 
 /* Ken Burns — zoom sutil para el hero. Dura lo mismo que el slide activo

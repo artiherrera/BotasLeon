@@ -48,16 +48,16 @@ export function AnnouncementBar() {
     <div
       role="region"
       aria-label="Promoción de bienvenida"
-      className="bg-leather text-bg relative"
+      className="bg-text text-bg relative"
     >
       <div className="mx-auto max-w-7xl px-4 md:px-6 py-2 md:py-2.5 flex items-center justify-center gap-3">
         <a
           href="/#newsletter"
           onClick={handleClick}
-          className="flex-1 text-center text-[12px] md:text-sm tracking-wide hover:text-gold transition-colors"
+          className="flex-1 text-center text-[12px] md:text-sm tracking-wide hover:text-bg transition-colors"
         >
           Nuevos modelos y ofertas, antes que nadie.{" "}
-          <span className="font-semibold text-gold">Suscríbete</span>
+          <span className="font-semibold text-bg">Suscríbete</span>
           <span aria-hidden className="ml-2">→</span>
         </a>
         <button

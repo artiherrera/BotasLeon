@@ -23,7 +23,7 @@ export function LocaleToggle({ className = "" }: { className?: string }) {
       {/* Píldora deslizante */}
       <span
         aria-hidden
-        className={`pointer-events-none absolute top-0.5 bottom-0.5 left-0.5 md:top-1 md:bottom-1 md:left-1 w-[calc(50%-0.125rem)] md:w-[calc(50%-0.25rem)] rounded-full bg-leather shadow-sm transition-transform duration-300 ease-out ${
+        className={`pointer-events-none absolute top-0.5 bottom-0.5 left-0.5 md:top-1 md:bottom-1 md:left-1 w-[calc(50%-0.125rem)] md:w-[calc(50%-0.25rem)] rounded-full bg-text shadow-sm transition-transform duration-300 ease-out ${
           isEn ? "translate-x-full" : "translate-x-0"
         }`}
       />

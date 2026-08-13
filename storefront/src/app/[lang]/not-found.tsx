@@ -36,19 +36,19 @@ export default function NotFound() {
           <div className="flex flex-col sm:flex-row gap-3">
             <Link
               href="/products"
-              className="inline-flex items-center justify-center px-6 py-3 rounded-full bg-leather text-bg text-sm uppercase tracking-wider hover:bg-leather-light transition-colors"
+              className="inline-flex items-center justify-center px-6 py-3 bg-text text-bg text-sm hover:bg-leather-light transition-colors"
             >
               {isEn ? "Browse the catalog" : "Ver todo el catálogo"}
             </Link>
             <Link
               href="/hombre"
-              className="inline-flex items-center justify-center px-6 py-3 rounded-full border border-leather text-leather text-sm uppercase tracking-wider hover:bg-leather hover:text-bg transition-colors"
+              className="inline-flex items-center justify-center px-6 py-3 border border-leather text-leather text-sm hover:bg-text hover:text-bg transition-colors"
             >
               {isEn ? "Men's boots" : "Botas hombre"}
             </Link>
             <Link
               href="/mujer"
-              className="inline-flex items-center justify-center px-6 py-3 rounded-full border border-leather text-leather text-sm uppercase tracking-wider hover:bg-leather hover:text-bg transition-colors"
+              className="inline-flex items-center justify-center px-6 py-3 border border-leather text-leather text-sm hover:bg-text hover:text-bg transition-colors"
             >
               {isEn ? "Women's boots" : "Botas mujer"}
             </Link>

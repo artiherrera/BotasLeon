@@ -77,7 +77,7 @@ export function NewsletterForm() {
         <button
           type="submit"
           disabled={status === "loading"}
-          className="px-6 py-3 rounded-full bg-leather text-bg font-medium hover:bg-text transition-colors disabled:opacity-60"
+          className="px-6 py-3 rounded-full bg-text text-bg font-medium hover:bg-leather transition-colors disabled:opacity-60"
           aria-label={t("newsletter.subscribeAria")}
         >
           {status === "loading" ? t("newsletter.sending") : t("newsletter.subscribe")}

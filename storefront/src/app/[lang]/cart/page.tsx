@@ -124,7 +124,7 @@ export default function CartPage() {
             </p>
             <Link
               href="/products"
-              className="inline-flex px-8 py-4 rounded-full bg-leather text-bg text-sm uppercase tracking-widest hover:bg-text transition-colors"
+              className="inline-flex px-8 py-4 bg-text text-bg text-sm hover:bg-leather transition-colors"
             >
               Ver catálogo
             </Link>
@@ -304,7 +304,7 @@ export default function CartPage() {
                   <button
                     type="submit"
                     disabled={!couponInput.trim()}
-                    className="px-4 py-2 rounded-full bg-leather text-bg text-xs uppercase tracking-wider hover:bg-text transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                    className="px-4 py-2 bg-text text-bg text-xs hover:bg-leather transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                   >
                     Aplicar
                   </button>
@@ -312,7 +312,7 @@ export default function CartPage() {
               </details>
 
               {pendingDiscount && (
-                <div className="mb-3 p-3 bg-leather text-bg text-xs rounded-sm">
+                <div className="mb-3 p-3 bg-text text-bg text-xs rounded-sm">
                   <p className="font-medium">Descuento aplicado al pagar</p>
                   <p className="text-bg/80 mt-0.5">{pendingDiscount}</p>
                 </div>
@@ -331,7 +331,7 @@ export default function CartPage() {
                       type="button"
                       disabled
                       aria-disabled
-                      className="block w-full text-center py-4 rounded-full bg-border text-text-muted text-sm uppercase tracking-widest cursor-not-allowed"
+                      className="block w-full text-center py-4 bg-border text-text-muted text-sm cursor-not-allowed"
                     >
                       {locale === "en" ? "Checkout" : "Proceder al pago"}
                     </button>
@@ -349,7 +349,7 @@ export default function CartPage() {
                   <a
                     href={withDiscount(cart.checkoutUrl, pendingDiscount)}
                     onClick={handleCheckoutClick}
-                    className="block w-full text-center py-4 rounded-full bg-leather text-bg text-sm uppercase tracking-widest hover:bg-text transition-colors"
+                    className="block w-full text-center py-4 bg-text text-bg text-sm hover:bg-leather transition-colors"
                   >
                     {locale === "en" ? "Checkout" : "Proceder al pago"}
                   </a>

@@ -49,7 +49,7 @@ export function PasswordGate({ children }: { children: React.ReactNode }) {
   return (
     <div className="min-h-[60vh] flex items-center justify-center px-6 py-16">
       <form onSubmit={submit} className="w-full max-w-sm text-center">
-        <span className="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-full bg-leather text-bg">
+        <span className="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-full bg-text text-bg">
           <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <rect width="18" height="11" x="3" y="11" rx="2" ry="2" />
             <path d="M7 11V7a5 5 0 0 1 10 0v4" />
@@ -79,7 +79,7 @@ export function PasswordGate({ children }: { children: React.ReactNode }) {
         <button
           type="submit"
           disabled={checking || !pw}
-          className="mt-4 w-full rounded-full bg-leather py-3 text-sm uppercase tracking-wider text-bg hover:bg-text disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+          className="mt-4 w-full bg-text py-3 text-sm text-bg hover:bg-text disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
         >
           {checking ? "Verificando…" : "Entrar"}
         </button>

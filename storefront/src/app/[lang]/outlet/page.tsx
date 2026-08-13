@@ -54,7 +54,7 @@ export default async function OutletPage() {
               </p>
               <Link
                 href="/products"
-                className="inline-flex px-8 py-4 rounded-full bg-leather text-bg text-sm uppercase tracking-widest hover:bg-text transition-colors"
+                className="inline-flex px-8 py-4 bg-text text-bg text-sm hover:bg-leather transition-colors"
               >
                 Ver catálogo completo
               </Link>

@@ -15,7 +15,7 @@ import { useT } from "@/lib/i18n/context"
 export function Hero() {
   const t = useT()
   return (
-    <section className="relative w-full h-[70vh] min-h-[500px] max-h-[720px] overflow-hidden bg-leather">
+    <section className="relative w-full h-[70vh] min-h-[500px] max-h-[720px] overflow-hidden bg-text">
       {/* Background pattern — sustituir con foto real cuando esté */}
       <div
         className="absolute inset-0 opacity-40"
@@ -33,7 +33,7 @@ export function Hero() {
       {/* Contenido */}
       <div className="relative h-full mx-auto max-w-7xl px-6 flex items-center">
         <div className="max-w-xl">
-          <p className="eyebrow text-gold mb-4">{t("hero.eyebrow")}</p>
+          <p className="eyebrow text-bg mb-4">{t("hero.eyebrow")}</p>
           <h1 className="font-display text-bg text-5xl md:text-6xl lg:text-7xl mb-6 leading-[1.05] whitespace-pre-line">
             {t("hero.title")}
           </h1>

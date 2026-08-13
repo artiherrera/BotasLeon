@@ -207,7 +207,7 @@ export function CartDrawer() {
             <Link
               href="/products"
               onClick={closeCart}
-              className="inline-flex px-6 py-3 rounded-full bg-leather text-bg text-sm uppercase tracking-wider hover:bg-text transition-colors"
+              className="inline-flex px-6 py-3 bg-text text-bg text-sm hover:bg-leather transition-colors"
             >
               {t("cart.viewCatalog")}
             </Link>
@@ -323,7 +323,7 @@ export function CartDrawer() {
                   {appliedCodes.map((d) => (
                     <div
                       key={d.code}
-                      className="flex items-center justify-between gap-2 rounded-sm border border-leather/30 bg-leather/10 px-3 py-2"
+                      className="flex items-center justify-between gap-2 rounded-sm border border-leather/30 bg-text/10 px-3 py-2"
                     >
                       <span className="flex items-center gap-2 text-sm font-medium text-leather">
                         <CheckIcon />
@@ -368,7 +368,7 @@ export function CartDrawer() {
                     <button
                       type="submit"
                       disabled={applyingCode || !codeInput.trim()}
-                      className="whitespace-nowrap rounded-sm border border-leather px-4 py-2 text-sm uppercase tracking-wider text-leather hover:bg-leather hover:text-bg disabled:cursor-not-allowed disabled:opacity-40 transition-colors"
+                      className="whitespace-nowrap rounded-sm border border-leather px-4 py-2 text-sm uppercase tracking-wider text-leather hover:bg-text hover:text-bg disabled:cursor-not-allowed disabled:opacity-40 transition-colors"
                     >
                       {applyingCode ? "..." : t("cart.apply")}
                     </button>
@@ -423,7 +423,7 @@ export function CartDrawer() {
                       type="button"
                       disabled
                       aria-disabled
-                      className="block w-full text-center py-4 rounded-full bg-border text-text-muted text-sm uppercase tracking-wider cursor-not-allowed"
+                      className="block w-full text-center py-4 bg-border text-text-muted text-sm cursor-not-allowed"
                     >
                       {t("cart.checkout")}
                     </button>
@@ -433,7 +433,7 @@ export function CartDrawer() {
                   <a
                     href={withDiscount(cart.checkoutUrl)}
                     onClick={handleCheckoutClick}
-                    className="block w-full text-center py-4 rounded-full bg-leather text-bg text-sm uppercase tracking-wider hover:bg-text transition-colors"
+                    className="block w-full text-center py-4 bg-text text-bg text-sm hover:bg-leather transition-colors"
                   >
                     {t("cart.checkout")}
                   </a>

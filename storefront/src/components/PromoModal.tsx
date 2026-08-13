@@ -127,7 +127,7 @@ export function PromoModal() {
           <button
             type="button"
             onClick={close}
-            className="block w-full py-3.5 rounded-full bg-leather text-bg text-sm uppercase tracking-wider font-medium hover:bg-text transition-colors"
+            className="block w-full py-3.5 bg-text text-bg text-sm font-medium hover:bg-leather transition-colors"
           >
             {PROMO.cta}
           </button>

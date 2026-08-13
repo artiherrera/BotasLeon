@@ -86,7 +86,7 @@ function DiscountHandler() {
             </p>
             <Link
               href="/products"
-              className="inline-flex px-6 py-3 rounded-full bg-leather text-bg uppercase text-sm tracking-wider hover:bg-text"
+              className="inline-flex px-6 py-3 bg-text text-bg text-sm hover:bg-leather"
             >
               Ver catálogo
             </Link>
@@ -102,7 +102,7 @@ function DiscountHandler() {
       <Header />
       <main id="contenido" tabIndex={-1} className="flex-1 flex items-center justify-center px-6 py-20">
         <div className="max-w-md text-center">
-          <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-leather text-bg flex items-center justify-center">
+          <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-text text-bg flex items-center justify-center">
             <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M20 6 9 17l-5-5" />
             </svg>
@@ -120,7 +120,7 @@ function DiscountHandler() {
           </p>
           <Link
             href={redirect}
-            className="inline-flex px-6 py-3 rounded-full bg-leather text-bg uppercase text-sm tracking-wider hover:bg-text"
+            className="inline-flex px-6 py-3 bg-text text-bg text-sm hover:bg-leather"
           >
             Ver catálogo
           </Link>

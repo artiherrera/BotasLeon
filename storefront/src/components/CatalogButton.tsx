@@ -19,7 +19,7 @@ export function CatalogButton({ className = "" }: { className?: string }) {
       href={href}
       target="_blank"
       rel="noopener noreferrer"
-      className={`inline-flex items-center gap-2 rounded-full bg-leather px-6 py-3 text-sm uppercase tracking-wider text-bg hover:bg-text transition-colors ${className}`}
+      className={`inline-flex items-center gap-2 bg-text px-6 py-3 text-sm text-bg hover:bg-text transition-colors ${className}`}
     >
       <svg
         width="18"

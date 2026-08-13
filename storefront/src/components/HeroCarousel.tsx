@@ -327,7 +327,7 @@ export function HeroCarousel({ slides }: Props) {
     <section
       ref={sectionRef}
       role="region"
-      className="relative w-full h-[70vh] min-h-[480px] max-h-[680px] overflow-hidden bg-leather touch-pan-y"
+      className="relative w-full h-[70vh] min-h-[480px] max-h-[680px] overflow-hidden bg-text touch-pan-y"
       aria-roledescription="carousel"
       aria-label="Hero"
       onTouchStart={onTouchStart}
@@ -364,7 +364,7 @@ export function HeroCarousel({ slides }: Props) {
               />
             </div>
           ) : (
-            <div className={`absolute inset-0 ${slide.bgClass ?? "bg-leather"} ${idx === active ? kenBurnsClass : ""}`} />
+            <div className={`absolute inset-0 ${slide.bgClass ?? "bg-text"} ${idx === active ? kenBurnsClass : ""}`} />
           )}
 
           {/* Texture overlay */}
@@ -386,7 +386,7 @@ export function HeroCarousel({ slides }: Props) {
           <div className="absolute inset-x-0 bottom-0 px-8 md:px-16 lg:px-20 pb-20 md:pb-24">
             <div className="max-w-7xl mx-auto">
               {slide.eyebrow && (
-                <p className="eyebrow text-gold mb-4 text-sm md:text-base tracking-[0.25em] drop-shadow-[0_1px_6px_rgba(0,0,0,0.6)]">
+                <p className="eyebrow text-bg mb-4 text-sm md:text-base tracking-[0.25em] drop-shadow-[0_1px_6px_rgba(0,0,0,0.6)]">
                   {slide.eyebrow}
                 </p>
               )}

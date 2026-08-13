@@ -18,7 +18,7 @@ import { useT } from "@/lib/i18n/context"
 export function Footer() {
   const t = useT()
   return (
-    <footer className="mt-24 bg-leather text-bg-alt">
+    <footer className="mt-24 bg-text text-bg-alt">
       <div className="mx-auto max-w-7xl px-6 py-16 grid grid-cols-2 md:grid-cols-4 gap-10">
         <div className="col-span-2 md:col-span-1">
           <Link

@@ -482,7 +482,7 @@ export function ProductsListing({ products, initialStyle, initialPageInfo }: Pro
                       aria-pressed={active}
                       className={`min-w-[2.5rem] px-3 py-1.5 rounded-full text-xs border transition-colors ${
                         active
-                          ? "border-leather bg-leather text-bg"
+                          ? "border-leather bg-text text-bg"
                           : "border-border text-text hover:border-leather"
                       }`}
                     >
@@ -646,7 +646,7 @@ export function ProductsListing({ products, initialStyle, initialPageInfo }: Pro
               </button>
               <button
                 onClick={() => setMobileOpen(false)}
-                className="flex-1 py-3 rounded-full bg-leather text-bg text-sm uppercase tracking-wider hover:bg-text"
+                className="flex-1 py-3 bg-text text-bg text-sm hover:bg-leather"
               >
                 {t("filters.show")} {filtered.length}
               </button>
@@ -701,7 +701,7 @@ export function ProductsListing({ products, initialStyle, initialPageInfo }: Pro
               </svg>
               {t("filters.title")}
               {activeCount > 0 && (
-                <span className="bg-leather text-bg w-5 h-5 rounded-full flex items-center justify-center text-[10px]">
+                <span className="bg-text text-bg w-5 h-5 rounded-full flex items-center justify-center text-[10px]">
                   {activeCount}
                 </span>
               )}
@@ -721,7 +721,7 @@ export function ProductsListing({ products, initialStyle, initialPageInfo }: Pro
               </p>
               <button
                 onClick={clearAll}
-                className="inline-flex px-6 py-3 rounded-full border border-leather text-leather text-sm uppercase tracking-wider hover:bg-leather hover:text-bg transition-colors"
+                className="inline-flex px-6 py-3 border border-leather text-leather text-sm hover:bg-text hover:text-bg transition-colors"
               >
                 {t("filters.clearAll")}
               </button>
@@ -767,7 +767,7 @@ export function ProductsListing({ products, initialStyle, initialPageInfo }: Pro
                       setLoadingMore(false)
                     }
                   }}
-                  className="inline-flex items-center gap-2 px-8 py-4 rounded-full border border-leather text-leather text-sm uppercase tracking-wider hover:bg-leather hover:text-bg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="inline-flex items-center gap-2 px-8 py-4 border border-leather text-leather text-sm hover:bg-text hover:text-bg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {loadingMore ? t("listing.loading") : t("listing.loadMore")}
                 </button>

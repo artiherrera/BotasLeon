@@ -92,7 +92,7 @@ function BrandLogo({ brand: b, decorative }: { brand: Brand; decorative: boolean
           className="object-cover transition-transform duration-500 group-hover:scale-105"
         />
       ) : (
-        <div className="absolute inset-0 flex items-center justify-center bg-leather p-3">
+        <div className="absolute inset-0 flex items-center justify-center bg-text p-3">
           <span className="font-display text-base md:text-lg text-bg text-center leading-tight">
             {b.name}
           </span>

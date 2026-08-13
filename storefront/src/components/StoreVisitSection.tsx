@@ -36,7 +36,7 @@ export function StoreVisitSection() {
           <div className="flex flex-wrap gap-3">
             <Link
               href="/visitanos"
-              className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-leather text-bg text-sm uppercase tracking-widest hover:bg-text transition-colors"
+              className="inline-flex items-center gap-2 px-6 py-3 bg-text text-bg text-sm hover:bg-leather transition-colors"
             >
               {t("store.viewStore")} →
             </Link>
@@ -44,7 +44,7 @@ export function StoreVisitSection() {
               href={MAPS_DIR}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 px-6 py-3 rounded-full border border-leather text-leather text-sm uppercase tracking-widest hover:bg-leather hover:text-bg transition-colors"
+              className="inline-flex items-center gap-2 px-6 py-3 border border-leather text-leather text-sm hover:bg-text hover:text-bg transition-colors"
             >
               {t("store.directions")}
             </a>

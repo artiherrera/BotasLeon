@@ -188,7 +188,7 @@ export function ProductOptions({ product }: Props) {
       disabled={!available && !active}
       className={`min-w-[3rem] px-4 py-2 rounded-full text-sm border transition-all whitespace-nowrap ${
         active
-          ? "border-leather bg-leather text-bg"
+          ? "border-leather bg-text text-bg"
           : available
             ? "border-border text-text hover:border-leather"
             : "border-border text-text-subtle line-through cursor-not-allowed"
@@ -233,7 +233,7 @@ export function ProductOptions({ product }: Props) {
           disabled={ctaDisabled}
           aria-busy={isPending}
           aria-label={ctaLabel}
-          className="px-5 py-3 rounded-full bg-leather text-bg text-xs uppercase tracking-wider font-medium hover:bg-text disabled:bg-text-subtle disabled:cursor-not-allowed transition-colors whitespace-nowrap"
+          className="px-5 py-3 bg-text text-bg text-xs font-medium hover:bg-leather disabled:bg-text-subtle disabled:cursor-not-allowed transition-colors whitespace-nowrap"
         >
           {stickyCtaLabel}
         </button>
@@ -361,7 +361,7 @@ export function ProductOptions({ product }: Props) {
         onClick={handleAdd}
         disabled={ctaDisabled}
         aria-busy={isPending}
-        className="w-full py-4 rounded-full bg-leather text-bg text-sm uppercase tracking-widest hover:bg-text disabled:bg-text-subtle disabled:cursor-not-allowed transition-colors"
+        className="w-full py-4 bg-text text-bg text-sm hover:bg-leather disabled:bg-text-subtle disabled:cursor-not-allowed transition-colors"
       >
         {ctaLabel}
       </button>

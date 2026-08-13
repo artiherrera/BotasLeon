@@ -188,7 +188,7 @@ export function MobileNav() {
         </div>
 
         {/* Value prop band */}
-        <div className="bg-leather text-bg px-5 py-3 text-[11px] uppercase tracking-wider leading-relaxed">
+        <div className="bg-text text-bg px-5 py-3 text-[11px] uppercase tracking-wider leading-relaxed">
           <p>{t("promo.msi")}</p>
           <p className="text-bg/70">{t("promo.shipping")}</p>
         </div>

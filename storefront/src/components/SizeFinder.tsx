@@ -45,7 +45,7 @@ export function SizeFinder({
         onClick={() => setOpen(true)}
         className="group flex w-full items-center gap-3 rounded-xl border border-border bg-bg-alt px-4 py-3 text-left transition-all hover:border-leather hover:shadow-sm active:scale-[0.99]"
       >
-        <span className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-leather text-bg transition-transform group-hover:scale-105">
+        <span className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-text text-bg transition-transform group-hover:scale-105">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
             <rect x="2.5" y="8" width="19" height="8" rx="1.5" />
             <path d="M7 8v3M11 8v4M15 8v3M19 8v3" />
@@ -130,7 +130,7 @@ function Modal({
                 type="button"
                 onClick={() => { setGender(g); setResult(null) }}
                 className={`flex-1 py-2 text-sm rounded-full border transition-colors ${
-                  gender === g ? "border-leather bg-leather text-bg" : "border-border text-text-muted hover:border-leather"
+                  gender === g ? "border-leather bg-text text-bg" : "border-border text-text-muted hover:border-leather"
                 }`}
               >
                 {g === "men" ? T.men : T.women}
@@ -199,7 +199,7 @@ function KnownTab({ gender, T, onResult }: { gender: Gender; T: typeof ES; onRes
         </select>
       </div>
       <p className="text-xs text-text-subtle mt-2">{T.knownTip}</p>
-      <button type="button" onClick={calc} className="mt-3 w-full py-2.5 rounded-full bg-leather text-bg text-sm uppercase tracking-wider hover:bg-text transition-colors">{T.calc}</button>
+      <button type="button" onClick={calc} className="mt-3 w-full py-2.5 bg-text text-bg text-sm hover:bg-leather transition-colors">{T.calc}</button>
     </div>
   )
 }
@@ -221,7 +221,7 @@ function MeasureTab({ gender, T, onResult }: { gender: Gender; T: typeof ES; onR
         />
         <span className="text-sm text-text-muted">cm</span>
       </div>
-      <button type="button" onClick={calc} className="mt-3 w-full py-2.5 rounded-full bg-leather text-bg text-sm uppercase tracking-wider hover:bg-text transition-colors">{T.calc}</button>
+      <button type="button" onClick={calc} className="mt-3 w-full py-2.5 bg-text text-bg text-sm hover:bg-leather transition-colors">{T.calc}</button>
     </div>
   )
 }

@@ -39,7 +39,7 @@ export function MarqueeBar() {
     return { text, href: spec.href }
   })
   return (
-    <div className="overflow-hidden bg-leather text-bg border-y border-leather-light/20">
+    <div className="overflow-hidden bg-text text-bg border-y border-leather-light/20">
       <div className="marquee-track flex w-max py-5">
         {/* Items duplicados 2x para loop seamless */}
         {[...MESSAGES, ...MESSAGES].map((msg, idx) => {
@@ -50,7 +50,7 @@ export function MarqueeBar() {
               href={msg.href}
               aria-hidden={dup}
               tabIndex={dup ? -1 : undefined}
-              className={`${ITEM_CLS} text-gold hover:text-bg transition-colors`}
+              className={`${ITEM_CLS} text-bg hover:text-bg transition-colors`}
             >
               {msg.text}
             </Link>
