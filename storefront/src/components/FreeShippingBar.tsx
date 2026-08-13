@@ -5,7 +5,7 @@ import { useLocale } from "@/lib/i18n/context"
 /**
  * FreeShippingBar — aviso de envío gratis en el carrito.
  *
- * El envío es GRATIS siempre y a todos los destinos (México y EE.UU.), así que
+ * El envío es GRATIS siempre y a todos los destinos (Estados Unidos), así que
  * ya no hay progreso hacia un umbral: mostramos un aviso fijo y positivo, justo
  * arriba del subtotal (Cart + CartDrawer). Conserva las props por compatibilidad
  * con quien lo monta, aunque hoy no dependemos de ellas.

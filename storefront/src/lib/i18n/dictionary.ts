@@ -23,7 +23,7 @@ export const DICTIONARY: Record<string, Entry> = {
   "pdp.chooseSize": { es: "Elige talla", en: "Choose size" },
   "pdp.comboUnavailable": { es: "Combinación no disponible", en: "Combination unavailable" },
   "pdp.selectSize": { es: "Selecciona tu talla", en: "Select your size" },
-  "pdp.shippingNote": { es: "Envío GRATIS · México 3-5 días", en: "FREE shipping · Check your size first" },
+  "pdp.shippingNote": { es: "Envío GRATIS · EE.UU. 7-10 días", en: "FREE shipping · Check your size first" },
   "pdp.sizeError": { es: "Por favor selecciona tu talla.", en: "Please select your size." },
   "pdp.unavailable": { es: "No disponible", en: "Unavailable" },
   "recent.eyebrow": { es: "Visto recientemente", en: "Recently viewed" },
@@ -139,7 +139,7 @@ export const DICTIONARY: Record<string, Entry> = {
   "nav.explore": { es: "Explorar", en: "Explore" },
 
   // Banda de propuesta de valor (menú móvil)
-  "promo.shipping": { es: "Envío a todo MX y USA", en: "Shipping across MX & USA" },
+  "promo.shipping": { es: "Envío a todo Estados Unidos", en: "Shipping across the USA" },
 
   // Secciones de ayuda / empresa
   "nav.help": { es: "Ayuda", en: "Help" },
@@ -164,8 +164,8 @@ export const DICTIONARY: Record<string, Entry> = {
     en: "The West\nalso belongs\nin the city.",
   },
   "hero.subtitle": {
-    es: "Botas premium fabricadas a mano en León. Tradición artesanal mexicana con calidad de exportación. Envíos a todo México y Estados Unidos.",
-    en: "Premium boots handcrafted in León. Mexican artisan tradition with export-grade quality. Shipped across Mexico and the USA.",
+    es: "Botas premium fabricadas a mano en León. Tradición artesanal mexicana con calidad de exportación. Envíos a todo Estados Unidos.",
+    en: "Premium boots handcrafted in León. Mexican artisan tradition with export-grade quality. Shipped across the USA.",
   },
   "hero.ctaCollection": { es: "Ver colección", en: "Shop the collection" },
   "hero.ctaBrands": { es: "Nuestras marcas", en: "Our brands" },
@@ -185,7 +185,7 @@ export const DICTIONARY: Record<string, Entry> = {
     en: "Every brand meets our standard",
   },
   "trust.shipping.title": { es: "Envío GRATIS", en: "Free shipping" },
-  "trust.shipping.sub": { es: "A México y EE.UU.", en: "To Mexico & the USA" },
+  "trust.shipping.sub": { es: "A todo Estados Unidos", en: "Across the USA" },
   "trust.exchange.title": { es: "Garantía", en: "Built to last" },
   "trust.exchange.sub": {
     es: "15 días por defecto de fábrica",
@@ -358,16 +358,16 @@ export const DICTIONARY: Record<string, Entry> = {
   },
 
   // ── Cintillo (MarqueeBar) ────────────────────────────────────────────
-  // El envío gratis SÍ se promete en ambos idiomas (México y EE.UU.). Los MSI
-  // siguen siendo beneficio solo de México; la versión EN usa otro mensaje.
+  // El envío gratis SÍ se promete en ambos idiomas. Mercado único: Estados Unidos
+  // (USD); el copy de envío ya no menciona México.
   "marquee.tradition": { es: "380 años de tradición", en: "380 years of tradition" },
   "marquee.leather": {
     es: "León, capital mundial del cuero",
     en: "León, the world capital of leather",
   },
   "marquee.shipping": {
-    es: "Envío GRATIS a México y EE.UU.",
-    en: "FREE shipping to Mexico & the USA",
+    es: "Envío GRATIS a todo Estados Unidos",
+    en: "FREE shipping across the USA",
   },
   "marquee.store": { es: "Tienda física en León →", en: "Visit our store in León →" },
   "marquee.newsletter": {
@@ -471,8 +471,8 @@ export const DICTIONARY: Record<string, Entry> = {
   "cart.subtotal": { es: "Subtotal", en: "Subtotal" },
   "cart.discount": { es: "Descuento", en: "Discount" },
   "cart.shippingTax": {
-    es: "Envío e impuestos calculados al pagar",
-    en: "Shipping & taxes calculated at checkout",
+    es: "Envío gratis · precios en USD, sin IVA",
+    en: "Free shipping · prices in USD, no VAT",
   },
   "cart.checkout": { es: "Pagar", en: "Checkout" },
   "cart.taxIdBlocked": {

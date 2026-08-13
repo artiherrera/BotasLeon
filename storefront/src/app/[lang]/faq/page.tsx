@@ -32,8 +32,7 @@ export default function FaqPage() {
 
             <h2>¿Cuánto tarda mi pedido?</h2>
             <p>
-              Envíos dentro de México: 2-5 días hábiles según destino. Envíos a
-              Estados Unidos: 7-10 días hábiles. Algunas piezas hechas a la
+              Envíos a Estados Unidos: 7-10 días hábiles. Algunas piezas hechas a la
               medida pueden tomar 2-3 semanas adicionales; lo indicamos
               claramente en la página del producto. Más detalles en la página de{" "}
               <Link href="/envios">Envíos</Link>.
@@ -52,9 +51,8 @@ export default function FaqPage() {
 
             <h2>¿Qué métodos de pago aceptan?</h2>
             <p>
-              Tarjetas de crédito y débito (Visa, MasterCard, Amex), Mercado
-              Pago, OXXO, SPEI y transferencia bancaria. En USA aceptamos también
-              Apple Pay y Shop Pay.
+              Tarjetas de crédito y débito (Visa, MasterCard, Amex), Apple Pay y
+              Shop Pay.
             </p>
 
             <h2>¿Las botas se ven igual en persona que en la foto?</h2>
@@ -129,8 +127,7 @@ export default function FaqPage() {
             <h2>What payment methods do you accept?</h2>
             <p>
               Credit and debit cards (Visa, MasterCard, Amex), Apple Pay, and
-              Shop Pay. Additional local payment options are available for orders
-              placed within Mexico.
+              Shop Pay.
             </p>
 
             <h2>Do the boots look the same in person as in the photos?</h2>

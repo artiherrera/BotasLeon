@@ -44,7 +44,7 @@ export const FAQS: FAQ[] = [
   {
     question: "¿Cuánto tarda mi pedido?",
     answer:
-      "Envíos dentro de México: 3-5 días hábiles. Envíos a Estados Unidos: 7-10 días hábiles. Algunas piezas hechas a la medida pueden tomar 2-3 semanas adicionales; lo indicamos claramente en la página del producto.",
+      "Envíos a Estados Unidos: 7-10 días hábiles. Algunas piezas hechas a la medida pueden tomar 2-3 semanas adicionales; lo indicamos claramente en la página del producto.",
     questionEn: "How long will my order take?",
     answerEn:
       "Orders to the United States typically arrive within 7-10 business days. Some made-to-order pieces can take an additional 2-3 weeks, which we note clearly on the product page.",
@@ -60,10 +60,10 @@ export const FAQS: FAQ[] = [
   {
     question: "¿Qué métodos de pago aceptan?",
     answer:
-      "Tarjetas de crédito y débito (Visa, MasterCard, Amex), Mercado Pago, OXXO, SPEI y transferencia bancaria. En USA aceptamos también Apple Pay y Shop Pay.",
+      "Tarjetas de crédito y débito (Visa, MasterCard, Amex), Apple Pay y Shop Pay.",
     questionEn: "What payment methods do you accept?",
     answerEn:
-      "Credit and debit cards (Visa, MasterCard, Amex), Apple Pay, and Shop Pay. Additional local payment options are available for orders placed within Mexico.",
+      "Credit and debit cards (Visa, MasterCard, Amex), Apple Pay, and Shop Pay.",
   },
   {
     question: "¿Trabajan con distribuidores o mayoristas?",

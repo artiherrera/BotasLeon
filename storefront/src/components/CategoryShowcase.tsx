@@ -17,6 +17,19 @@ import type { CategoryCard } from "@/lib/shopify/types"
  * de "vitrina premium".
  */
 
+// El TEXTO de la card se resuelve por diccionario i18n según el destino, para
+// que traduzca a inglés (el metaobjeto de Shopify solo aporta la IMAGEN, en un
+// solo idioma). Para hrefs sin mapeo (cards custom) se usa el texto del
+// metaobjeto tal cual.
+const CARD_I18N: Record<string, { eyebrow: string; title: string; desc: string }> = {
+  "/hombre": { eyebrow: "cat.men.eyebrow", title: "cat.men.title", desc: "cat.men.desc" },
+  "/mujer": { eyebrow: "cat.women.eyebrow", title: "cat.women.title", desc: "cat.women.desc" },
+  "/nino": { eyebrow: "cat.kids.eyebrow", title: "cat.kids.title", desc: "cat.kids.desc" },
+  "/ninos": { eyebrow: "cat.kids.eyebrow", title: "cat.kids.title", desc: "cat.kids.desc" },
+}
+const i18nFor = (href: string) =>
+  CARD_I18N[(href || "").replace(/^\/(es|en)(?=\/)/, "").replace(/\/$/, "")] ?? null
+
 // Fallback hardcoded — se usa cuando el metaobject "category_card"
 // no tiene entries activas en Shopify. Mantiene el home funcional
 // mientras el admin configura las cards desde el panel.
@@ -156,19 +169,29 @@ function CardFrame({
       {/* Gradient inferior para legibilidad del texto */}
       <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/10 to-transparent pointer-events-none" />
 
-      {/* Contenido */}
+      {/* Contenido — texto por i18n si el destino está mapeado; si no, literal
+          del metaobjeto (así el inglés funciona en las categorías estándar). */}
       <div className="absolute inset-x-0 bottom-0 p-8">
-        {eyebrow ? (
-          <p className="eyebrow text-bg/80 text-xs mb-3">{eyebrow}</p>
-        ) : null}
-        <h3 className="font-display text-4xl md:text-5xl text-bg leading-none mb-3">
-          {title}
-        </h3>
-        {description ? (
-          <p className="text-bg/85 text-sm leading-snug mb-4 max-w-xs">
-            {description}
-          </p>
-        ) : null}
+        {(() => {
+          const keys = i18nFor(href)
+          return (
+            <>
+              {keys || eyebrow ? (
+                <p className="eyebrow text-bg/80 text-xs mb-3">
+                  {keys ? <T k={keys.eyebrow} /> : eyebrow}
+                </p>
+              ) : null}
+              <h3 className="font-display text-4xl md:text-5xl text-bg leading-none mb-3">
+                {keys ? <T k={keys.title} /> : title}
+              </h3>
+              {keys || description ? (
+                <p className="text-bg/85 text-sm leading-snug mb-4 max-w-xs">
+                  {keys ? <T k={keys.desc} /> : description}
+                </p>
+              ) : null}
+            </>
+          )
+        })()}
         <span className="inline-flex items-center text-bg/90 text-xs uppercase tracking-widest group-hover:text-bg transition-colors">
           <T k="nav.explore" />
           <span className="ml-2 transition-transform group-hover:translate-x-1">

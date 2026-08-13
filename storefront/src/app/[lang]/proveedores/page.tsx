@@ -15,7 +15,7 @@ export default function ProveedoresPage() {
             <h2>Quiénes somos para ustedes</h2>
             <p>
               Somos canal de venta directa al consumidor final, online, con foco en
-              México (CDMX, GDL, MTY) y crecimiento hacia USA. No tenemos tienda
+              Estados Unidos. No tenemos tienda
               física propia. Vendemos producto curado, con precios alineados al
               mercado y márgenes sanos.
             </p>
@@ -62,8 +62,8 @@ export default function ProveedoresPage() {
           <>
             <h2>Who we are, for you</h2>
             <p>
-              We're a direct-to-consumer online sales channel, focused on Mexico
-              (Mexico City, Guadalajara, Monterrey) and growing into the USA. We
+              We're a direct-to-consumer online sales channel, focused on the
+              United States. We
               don't have our own brick-and-mortar store. We sell curated product,
               with prices in line with the market and healthy margins.
             </p>

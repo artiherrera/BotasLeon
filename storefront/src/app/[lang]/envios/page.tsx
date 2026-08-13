@@ -14,14 +14,12 @@ export default function EnviosPage() {
           <>
             <h2>Cobertura</h2>
             <p>
-              Enviamos a toda la República Mexicana y a Estados Unidos continental.
-              Para otros países, escríbenos a contacto@botasleon.com y te cotizamos.
+              Enviamos a todo Estados Unidos continental. Para otros destinos,
+              escríbenos a contacto@botasleon.com y te cotizamos.
             </p>
 
             <h2>Tiempos de entrega</h2>
             <ul>
-              <li><strong>México (CDMX, Guadalajara, Monterrey):</strong> 2-3 días hábiles</li>
-              <li><strong>México (resto del país):</strong> 3-5 días hábiles</li>
               <li><strong>Estados Unidos:</strong> 7-10 días hábiles</li>
             </ul>
             <p>
@@ -31,8 +29,8 @@ export default function EnviosPage() {
 
             <h2>Costos</h2>
             <p>
-              El <strong>envío es gratis</strong> en todos los pedidos, tanto
-              dentro de México como a Estados Unidos. No hay monto mínimo de compra.
+              El <strong>envío es gratis</strong> en todos los pedidos a Estados
+              Unidos. No hay monto mínimo de compra.
             </p>
             <p>
               Para pedidos a Estados Unidos el envío corre por nuestra cuenta; los
@@ -42,7 +40,7 @@ export default function EnviosPage() {
 
             <h2>Paqueterías</h2>
             <p>
-              Trabajamos con Estafeta, DHL y FedEx según el destino y la urgencia.
+              Trabajamos con DHL y FedEx según el servicio y la urgencia.
               Todos los envíos van con seguro contra extravío y daños en tránsito.
             </p>
 
@@ -65,16 +63,14 @@ export default function EnviosPage() {
           <>
             <h2>Coverage</h2>
             <p>
-              We ship throughout the continental United States, as well as across
-              Mexico. For other countries, email us at contacto@botasleon.com and
+              We ship throughout the continental United States. For other
+              destinations, email us at contacto@botasleon.com and
               we&rsquo;ll send you a quote.
             </p>
 
             <h2>Delivery times</h2>
             <ul>
               <li><strong>United States:</strong> estimated 7-10 business days</li>
-              <li><strong>Mexico (major cities):</strong> 2-3 business days</li>
-              <li><strong>Mexico (rest of the country):</strong> 3-5 business days</li>
             </ul>
             <p>
               Transit times start counting once your order ships (not when you place
@@ -83,8 +79,8 @@ export default function EnviosPage() {
 
             <h2>Shipping costs</h2>
             <p>
-              <strong>Shipping is free</strong> on every order, both within Mexico
-              and to the United States. There is no minimum purchase.
+              <strong>Shipping is free</strong> on every order to the United
+              States. There is no minimum purchase.
             </p>
             <p>
               For orders to the United States we cover shipping; customs duties and
@@ -125,6 +121,6 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
   path: "/envios",
   title: "Envíos",
   description:
-    "Envío a todo México y Estados Unidos. Tiempos, costos y rastreo de pedidos.",
+    "Envío a todo Estados Unidos. Tiempos, costos y rastreo de pedidos.",
   })
 }

@@ -25,7 +25,7 @@ import { ImageResponse } from "next/og"
 export const size = { width: 1200, height: 630 }
 export const contentType = "image/png"
 export const alt =
-  "BotasLeón — 380 años de tradición. Botas hechas en León, para México y EE.UU."
+  "BotasLeón — 380 años de tradición. Botas hechas en León, para Estados Unidos."
 
 // Genera la OG para ambos idiomas (es/en) en el build estático.
 export function generateStaticParams() {
@@ -317,13 +317,13 @@ const TEXTS = {
     eyebrow: "ESTABLECIDA EN LEÓN · GTO.",
     taglineA: "380 años de tradición.",
     taglineB: "A la puerta de tu casa.",
-    ship: "ENVÍO A MÉXICO Y EE.UU.",
+    ship: "ENVÍO A TODO ESTADOS UNIDOS",
   },
   en: {
     eyebrow: "ESTABLISHED IN LEÓN · MEXICO",
     taglineA: "380 years of tradition.",
     taglineB: "Right to your doorstep.",
-    ship: "SHIPPING TO MEXICO & THE U.S.",
+    ship: "SHIPPING ACROSS THE U.S.",
   },
 }
 

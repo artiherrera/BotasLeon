@@ -11,7 +11,7 @@ export const SITE_URL =
 
 export const SITE_NAME = "BotasLeón"
 export const SITE_DESCRIPTION =
-  "Comercializadora de botas mexicanas hechas en León, Guanajuato. Vaqueras, clásicas, exóticas y de rancho — curadas par por par. Envío a México y Estados Unidos."
+  "Comercializadora de botas mexicanas hechas en León, Guanajuato. Vaqueras, clásicas, exóticas y de rancho — curadas par por par. Envío a todo Estados Unidos."
 
 export function absoluteUrl(path: string): string {
   if (path.startsWith("http")) return path

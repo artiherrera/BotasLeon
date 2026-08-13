@@ -16,7 +16,7 @@ import { LocalizedLink as Link } from "@/components/LocalizedLink"
 import { useT } from "@/lib/i18n/context"
 
 // Cada item es una LLAVE del diccionario. El envío gratis SÍ se promete en ambos
-// idiomas (México y EE.UU.); los MSI siguen siendo beneficio solo de México.
+// idiomas. Mercado único: Estados Unidos (USD).
 const MESSAGE_SPECS: Array<{ key: string; href?: string; vars?: Record<string, string> }> = [
   { key: "marquee.tradition" },
   { key: "marquee.leather" },

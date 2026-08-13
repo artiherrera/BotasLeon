@@ -30,15 +30,14 @@ export default function TerminosPage() {
             <h2>3. Productos y precios</h2>
             <p>
               Los productos exhibidos están sujetos a disponibilidad. Los precios
-              se muestran en pesos mexicanos (MXN) e incluyen el IVA aplicable.
+              se muestran en dólares estadounidenses (USD) y no incluyen IVA (la tienda no cobra impuestos mexicanos).
               Nos reservamos el derecho de modificar precios sin previo aviso, pero
               siempre se respetará el precio mostrado al confirmar tu pedido.
             </p>
 
             <h2>4. Pedidos y pagos</h2>
             <p>
-              Al confirmar un pedido aceptas pagar el monto total (productos +
-              envío + impuestos aplicables). Los pagos se procesan a través de
+              Al confirmar un pedido aceptas pagar el monto total en dólares estadounidenses (USD): producto más envío. Los precios no incluyen IVA. Los aranceles e impuestos de importación que cobre la aduana de EE. UU. corren por cuenta del comprador y no están incluidos en el total. Los pagos se procesan a través de
               Shopify Payments y nuestros proveedores autorizados; no almacenamos
               datos de tarjetas. Un pedido se considera aceptado únicamente al
               confirmarse el pago.
@@ -107,15 +106,14 @@ export default function TerminosPage() {
             <h2>3. Products and prices</h2>
             <p>
               The products displayed are subject to availability. Prices are shown
-              in Mexican pesos (MXN) and include any applicable VAT. We reserve the
+              in U.S. dollars (USD) and do not include VAT (we do not charge Mexican taxes). We reserve the
               right to modify prices without prior notice, but the price shown when
               you confirm your order will always be honored.
             </p>
 
             <h2>4. Orders and payments</h2>
             <p>
-              By confirming an order you agree to pay the total amount (products +
-              shipping + applicable taxes). Payments are processed through Shopify
+              By confirming an order you agree to pay the total amount in U.S. dollars (USD): product plus shipping. Prices do not include VAT. Any U.S. import duties and customs taxes are the buyer's responsibility and are not included in the total. Payments are processed through Shopify
               Payments and our authorized providers; we do not store card data. An
               order is considered accepted only once payment is confirmed.
             </p>

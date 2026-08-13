@@ -395,7 +395,7 @@ function buildCatalog({ hombre, mujer, brandLogos, covers, qrMap, tr, locale, cu
 
 const STR = {
   es: {
-    coverEyebrow: "CATÁLOGO", coverTitle: "Botas hechas en León, Guanajuato", men: "HOMBRE", women: "MUJER", tapToSee: "TOCA PARA VER", buy: "Comprar →", shopOnline: "Compra en línea · Envío a todo México", madeIn: "Hecho con orgullo en México", docTitle: "Catálogo BotasLeón", pageAlt: "Página", downloadPdf: "Descargar PDF", backToStore: "Ir a la tienda", langHref: "/catalogo-en.html", langLabel: "EN", htmlLang: "es",
+    coverEyebrow: "CATÁLOGO", coverTitle: "Botas hechas en León, Guanajuato", men: "HOMBRE", women: "MUJER", tapToSee: "TOCA PARA VER", buy: "Comprar →", shopOnline: "Compra en línea · Envío a todo Estados Unidos", madeIn: "Hecho con orgullo en México", docTitle: "Catálogo BotasLeón", pageAlt: "Página", downloadPdf: "Descargar PDF", backToStore: "Ir a la tienda", langHref: "/catalogo-en.html", langLabel: "EN", htmlLang: "es",
     editionWord: "EDICIÓN", collectionLabel: "COLECCIÓN",
     historyEyebrow: "NUESTRA HISTORIA", historyTitle: "380 años de tradición en cuero",
     historyParas: [
