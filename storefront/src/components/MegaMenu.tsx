@@ -153,7 +153,7 @@ export function MegaMenu() {
             <Link
               href={item.href}
               onClick={() => setOpenIdx(null)}
-              className={`relative flex items-center gap-1 px-3.5 py-2 text-[15px] uppercase tracking-[0.1em] transition-colors after:pointer-events-none after:absolute after:inset-x-3.5 after:bottom-1 after:h-[2px] after:origin-left after:scale-x-0 after:bg-text after:transition-transform after:duration-300 hover:after:scale-x-100 ${
+              className={`relative flex items-center gap-1 px-3.5 py-2 text-[15px] tracking-normal transition-colors after:pointer-events-none after:absolute after:inset-x-3.5 after:bottom-1 after:h-[2px] after:origin-left after:scale-x-0 after:bg-text after:transition-transform after:duration-300 hover:after:scale-x-100 ${
                 item.highlight
                   ? "text-terracotta hover:text-terracotta-dark"
                   : "hover:text-leather"
@@ -191,7 +191,7 @@ export function MegaMenu() {
           href={locale === "en" ? "/catalogo-en.html" : "/catalogo-es.html"}
           target="_blank"
           rel="noopener noreferrer"
-          className="relative block px-3.5 py-2 text-[15px] uppercase tracking-[0.1em] transition-colors hover:text-leather"
+          className="relative block px-3.5 py-2 text-[15px] tracking-normal transition-colors hover:text-leather"
         >
           {t("catalog.nav")}
         </a>

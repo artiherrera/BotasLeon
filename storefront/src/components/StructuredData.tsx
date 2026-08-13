@@ -51,7 +51,7 @@ export function OrganizationJsonLd() {
           "@type": "ContactPoint",
           email: "contacto@botasleon.com",
           contactType: "Customer service",
-          areaServed: ["MX", "US"],
+          areaServed: ["US"],
           availableLanguage: ["Spanish", "English"],
         },
       }}
@@ -73,7 +73,7 @@ export function WebsiteJsonLd() {
           "@type": "SearchAction",
           target: {
             "@type": "EntryPoint",
-            urlTemplate: `${SITE_URL}/es/search?q={search_term_string}`,
+            urlTemplate: `${SITE_URL}/en/search?q={search_term_string}`,
           },
           "query-input": "required name=search_term_string",
         },
@@ -145,7 +145,7 @@ export function ProductJsonLd({
             },
             shippingDestination: {
               "@type": "DefinedRegion",
-              addressCountry: "MX",
+              addressCountry: "US",
             },
             deliveryTime: {
               "@type": "ShippingDeliveryTime",
@@ -165,7 +165,7 @@ export function ProductJsonLd({
           },
           hasMerchantReturnPolicy: {
             "@type": "MerchantReturnPolicy",
-            applicableCountry: "MX",
+            applicableCountry: "US",
             returnPolicyCategory:
               "https://schema.org/MerchantReturnFiniteReturnWindow",
             merchantReturnDays: 30,

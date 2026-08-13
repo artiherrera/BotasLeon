@@ -66,7 +66,7 @@ export function pageMetadata({
       canonical: url,
       // hreflang — le dice a Google qué versión servir por idioma/región.
       ...(lang
-        ? { languages: { "es-MX": esUrl, "en-US": enUrl, "x-default": esUrl } }
+        ? { languages: { "es-US": esUrl, "en-US": enUrl, "x-default": enUrl } }
         : {}),
     },
     openGraph: {

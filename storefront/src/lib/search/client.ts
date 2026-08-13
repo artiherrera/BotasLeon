@@ -43,7 +43,7 @@ const CATALOG_FIELDS = /* GraphQL */ `
 // sin importar el idioma del navegador). Sin `lang`, Shopify usa el
 // Accept-Language del navegador (comportamiento de la búsqueda del sitio).
 const catalogQuery = (lang?: "ES" | "EN") => /* GraphQL */ `
-  query SearchCatalog($first: Int!)${lang ? ` @inContext(language: ${lang})` : ""} {
+  query SearchCatalog($first: Int!) @inContext(country: US${lang ? `, language: ${lang}` : ""}) {
     products(first: $first) {
       edges { node { ${CATALOG_FIELDS} } }
       pageInfo { hasNextPage }
@@ -167,7 +167,7 @@ const LOAD_MORE_QUERY = /* GraphQL */ `
     $first: Int!
     $after: String
     $sortKey: ProductSortKeys
-  ) {
+  ) @inContext(country: US) {
     products(first: $first, after: $after, sortKey: $sortKey) {
       edges {
         node {

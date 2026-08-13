@@ -106,7 +106,7 @@ export function CartDrawer() {
   const lines = cart?.lines ?? []
   const isEmpty = lines.length === 0
   const subtotalNum = cart ? parseFloat(cart.cost.subtotalAmount.amount) : 0
-  const subtotalCurrency = cart?.cost.subtotalAmount.currencyCode ?? "MXN"
+  const subtotalCurrency = cart?.cost.subtotalAmount.currencyCode ?? "USD"
   const totalNum = cart ? parseFloat(cart.cost.totalAmount.amount) : 0
   // Ahorro reflejado en el carrito: subtotal (antes del descuento) − total
   // (después). Pre-checkout no hay envío/impuesto, así que la diferencia es el

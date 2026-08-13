@@ -158,7 +158,7 @@ export const GET_PRODUCTS_QUERY = /* GraphQL */ `
     $query: String
     $sortKey: ProductSortKeys
     $reverse: Boolean
-  ) {
+  ) @inContext(country: US, language: ES) {
     products(first: $first, after: $after, query: $query, sortKey: $sortKey, reverse: $reverse) {
       edges {
         node { ...ProductCardFields }
@@ -175,7 +175,7 @@ export const GET_PRODUCTS_QUERY = /* GraphQL */ `
 `
 
 export const GET_PRODUCT_BY_HANDLE_QUERY = /* GraphQL */ `
-  query GetProductByHandle($handle: String!) {
+  query GetProductByHandle($handle: String!) @inContext(country: US, language: ES) {
     product(handle: $handle) {
       ...ProductDetailFields
     }
@@ -215,7 +215,7 @@ export const GET_PRODUCTS_WITH_TAXONOMY_QUERY = /* GraphQL */ `
     $first: Int!
     $sortKey: ProductSortKeys
     $reverse: Boolean
-  ) {
+  ) @inContext(country: US, language: ES) {
     products(first: $first, sortKey: $sortKey, reverse: $reverse) {
       edges {
         node {
@@ -284,7 +284,7 @@ export const GET_BRANDS_QUERY = /* GraphQL */ `
 // Si la colección no existe, `collection` devuelve null y la página
 // muestra empty state pidiendo al admin crearla.
 export const GET_COLLECTION_BY_HANDLE_QUERY = /* GraphQL */ `
-  query GetCollectionByHandle($handle: String!, $first: Int!) {
+  query GetCollectionByHandle($handle: String!, $first: Int!) @inContext(country: US, language: ES) {
     collection(handle: $handle) {
       id
       handle

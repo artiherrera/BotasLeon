@@ -333,7 +333,7 @@ export default async function OpengraphImage({
   params?: Promise<{ lang?: string }> | { lang?: string }
 }) {
   const resolved = params ? await params : undefined
-  const texts = resolved?.lang === "en" ? TEXTS.en : TEXTS.es
+  const texts = resolved?.lang === "es" ? TEXTS.es : TEXTS.en
   const wordmarkFallback = "BotasLeón"
   const allText =
     texts.eyebrow + texts.taglineA + texts.taglineB + texts.ship + wordmarkFallback

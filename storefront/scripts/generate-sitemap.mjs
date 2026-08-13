@@ -167,9 +167,9 @@ function localizedEntries(path, priority, changefreq, lastmod) {
   const es = `${SITE_URL}/es${suffix}`
   const en = `${SITE_URL}/en${suffix}`
   const links =
-    `    <xhtml:link rel="alternate" hreflang="es-MX" href="${es}"/>\n` +
+    `    <xhtml:link rel="alternate" hreflang="es-US" href="${es}"/>\n` +
     `    <xhtml:link rel="alternate" hreflang="en-US" href="${en}"/>\n` +
-    `    <xhtml:link rel="alternate" hreflang="x-default" href="${es}"/>`
+    `    <xhtml:link rel="alternate" hreflang="x-default" href="${en}"/>`
   const one = (loc) => `  <url>
     <loc>${loc}</loc>
     <lastmod>${lastmod}</lastmod>

@@ -19,7 +19,6 @@ import {
   clientUpdateDiscountCodes,
   clientUpdateLines,
 } from "@/lib/cart/client"
-import { useLocale } from "@/lib/i18n/context"
 import { clearPendingDiscount } from "@/lib/discount/client"
 import { track } from "@/lib/klaviyo/client"
 import { pixelTrack, toContentId } from "@/lib/meta/pixel"
@@ -84,10 +83,9 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const cartIdRef = useRef<string | null>(null)
   const toastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
-  // Idioma → país/mercado del carrito. EN = Estados Unidos (USD), ES = México
-  // (MXN). Se usa al crear el carrito y al cambiar de idioma con carrito activo.
-  const { locale } = useLocale()
-  const countryCode = locale === "en" ? "US" : "MX"
+  // Mercado ÚNICO: Estados Unidos (USD). Se usa al crear el carrito y para
+  // re-alinear a USD un carrito viejo (creado en MXN) al montar.
+  const countryCode = "US"
   const countryRef = useRef(countryCode)
   useEffect(() => {
     countryRef.current = countryCode

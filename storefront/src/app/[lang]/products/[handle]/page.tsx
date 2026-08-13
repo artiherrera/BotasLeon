@@ -256,9 +256,9 @@ export async function generateMetadata({ params }: Props) {
     alternates: {
       canonical: absoluteUrl(`/${lang}/products/${product.handle}`),
       languages: {
-        "es-MX": absoluteUrl(`/es/products/${product.handle}`),
+        "es-US": absoluteUrl(`/es/products/${product.handle}`),
         "en-US": absoluteUrl(`/en/products/${product.handle}`),
-        "x-default": absoluteUrl(`/es/products/${product.handle}`),
+        "x-default": absoluteUrl(`/en/products/${product.handle}`),
       },
     },
     openGraph: {

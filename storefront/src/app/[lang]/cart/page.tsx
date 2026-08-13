@@ -38,7 +38,7 @@ export default function CartPage() {
   const lines = cart?.lines ?? []
   const isEmpty = lines.length === 0
   const subtotalNum = cart ? parseFloat(cart.cost.subtotalAmount.amount) : 0
-  const subtotalCurrency = cart?.cost.subtotalAmount.currencyCode ?? "MXN"
+  const subtotalCurrency = cart?.cost.subtotalAmount.currencyCode ?? "USD"
 
   useEffect(() => {
     setPendingDiscount(getPendingDiscount())

@@ -14,7 +14,7 @@ export const LOCALES = ["es", "en"] as const
 export type Locale = (typeof LOCALES)[number]
 
 /** Idioma por defecto — el del render del servidor (evita mismatch de hidratación). */
-export const DEFAULT_LOCALE: Locale = "es"
+export const DEFAULT_LOCALE: Locale = "en"
 
 /** Clave de localStorage donde se guarda la preferencia manual del visitante. */
 export const STORAGE_KEY = "botasleon:locale"

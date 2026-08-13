@@ -51,7 +51,7 @@ export function useCustomsGate() {
   const taxId = (attrs.find((a) => a.key === TAX_ID_KEY)?.value ?? "").trim()
   const ack = (attrs.find((a) => a.key === CUSTOMS_ACK_KEY)?.value ?? "") === "sí"
   const destAttr = attrs.find((a) => a.key === DEST_US_KEY)?.value
-  const toUsa = destAttr != null ? destAttr === "sí" : locale === "en"
+  const toUsa = destAttr != null ? destAttr === "sí" : true
   const usd = usdEquivalent(cart)
   const needsTaxId = toUsa && usd >= USD_THRESHOLD
   const ackMissing = toUsa && !ack
@@ -81,7 +81,7 @@ export function CustomsTaxIdField() {
   const serverTaxId = attrs.find((a) => a.key === TAX_ID_KEY)?.value ?? ""
   const serverAck = (attrs.find((a) => a.key === CUSTOMS_ACK_KEY)?.value ?? "") === "sí"
   const destAttr = attrs.find((a) => a.key === DEST_US_KEY)?.value
-  const defaultToUsa = destAttr != null ? destAttr === "sí" : en
+  const defaultToUsa = destAttr != null ? destAttr === "sí" : true
 
   const [toUsa, setToUsa] = useState(defaultToUsa)
   const [taxId, setTaxId] = useState("")
