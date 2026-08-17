@@ -18,14 +18,14 @@ export default function ContactoPage() {
             <p>
               <strong>Correo:</strong> contacto@botasleon.com<br />
               <strong>WhatsApp:</strong>{" "}
-              <a href={whatsappHref()} target="_blank" rel="noopener noreferrer">
+              <a href={whatsappHref("es")} target="_blank" rel="noopener noreferrer">
                 +52 479 303 2457
               </a><br />
               <strong>Horario:</strong> Lunes a viernes 9:00 a 18:00 (CDMX)
             </p>
             <p className="not-prose">
               <a
-                href={whatsappHref()}
+                href={whatsappHref("es")}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-[#25D366] text-white text-sm font-medium no-underline shadow-sm hover:brightness-95 transition"
@@ -75,14 +75,14 @@ export default function ContactoPage() {
             <p>
               <strong>Email:</strong> contacto@botasleon.com<br />
               <strong>WhatsApp:</strong>{" "}
-              <a href={whatsappHref()} target="_blank" rel="noopener noreferrer">
+              <a href={whatsappHref("en")} target="_blank" rel="noopener noreferrer">
                 +52 479 303 2457
               </a><br />
               <strong>Hours:</strong> Monday to Friday, 9:00 a.m. to 6:00 p.m. (Mexico City time)
             </p>
             <p className="not-prose">
               <a
-                href={whatsappHref()}
+                href={whatsappHref("en")}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-[#25D366] text-white text-sm font-medium no-underline shadow-sm hover:brightness-95 transition"

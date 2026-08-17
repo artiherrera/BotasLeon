@@ -5,7 +5,7 @@ import { LocalizedLink as Link } from "@/components/LocalizedLink"
 import { PaymentBadges } from "./PaymentBadges"
 import { SocialIcons } from "./SocialIcons"
 import { whatsappHref } from "@/lib/whatsapp"
-import { useT } from "@/lib/i18n/context"
+import { useLocale } from "@/lib/i18n/context"
 
 /**
  * Footer del storefront. Tres columnas + barra inferior.
@@ -16,7 +16,7 @@ import { useT } from "@/lib/i18n/context"
  * factuales (dirección, WhatsApp, correo) NO se traducen.
  */
 export function Footer() {
-  const t = useT()
+  const { locale, t } = useLocale()
   return (
     <footer className="mt-24 bg-text text-bg-alt">
       <div className="mx-auto max-w-7xl px-6 py-16 grid grid-cols-2 md:grid-cols-4 gap-10">
@@ -49,7 +49,7 @@ export function Footer() {
             </p>
             <p>
               <a
-                href={whatsappHref()}
+                href={whatsappHref(locale)}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="hover:text-bg transition-colors"

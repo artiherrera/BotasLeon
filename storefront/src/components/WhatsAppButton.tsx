@@ -2,7 +2,7 @@
 
 import { usePathname } from "next/navigation"
 import { whatsappHref, productWhatsappMessage } from "@/lib/whatsapp"
-import { useT } from "@/lib/i18n/context"
+import { useLocale } from "@/lib/i18n/context"
 
 /**
  * WhatsAppButton — botón flotante de contacto/dudas.
@@ -22,16 +22,17 @@ type Props = {
 
 export function WhatsAppButton({ product }: Props) {
   const pathname = usePathname()
-  const t = useT()
+  const { locale, t } = useLocale()
 
   // La versión global no se muestra en el PDP (ahí manda la contextual).
   // Ojo: con i18n por URL las rutas llevan prefijo (/es/products/, /en/products/),
   // por eso NO usamos startsWith("/products/") sino que buscamos el segmento.
   if (!product && pathname && /\/products\//.test(pathname)) return null
 
+  // El mensaje precargado va en el idioma del sitio (ES/EN), igual que el chrome.
   const href = product
-    ? whatsappHref(productWhatsappMessage(product.title, product.url))
-    : whatsappHref()
+    ? whatsappHref(locale, productWhatsappMessage(product.title, product.url, locale))
+    : whatsappHref(locale)
 
   // En el PDP subimos el botón en móvil para no chocar con la barra sticky de
   // "Agregar al carrito" (md:hidden); en desktop y demás rutas va abajo.

@@ -4,8 +4,9 @@ import { Footer } from "@/components/Footer"
 import { Localized } from "@/components/Localized"
 import { T } from "@/components/T"
 import { pageMetadata } from "@/lib/seo"
-import { whatsappHref } from "@/lib/whatsapp"
+import { whatsappHref, storeVisitWhatsappMessage } from "@/lib/whatsapp"
 import { getStorePhotos } from "@/lib/shopify"
+import { DEFAULT_LOCALE, isLocale } from "@/lib/i18n/config"
 
 export const revalidate = 60
 
@@ -41,7 +42,16 @@ const STORE_JSONLD = JSON.stringify({
   },
 }).replace(/</g, "\\u003c")
 
-export default async function VisitanosPage() {
+export default async function VisitanosPage({
+  params,
+}: {
+  params: Promise<{ lang: string }>
+}) {
+  // El idioma de la URL manda el mensaje precargado de WhatsApp (el layout ya
+  // hace notFound() si el segmento no es un locale válido).
+  const { lang } = await params
+  const locale = isLocale(lang) ? lang : DEFAULT_LOCALE
+
   // Galería de fotos del local — metaobjeto "store_photo" que el admin sube
   // desde Shopify. Vacío hasta que existan → la sección se auto-oculta.
   const photos = await getStorePhotos()
@@ -139,9 +149,7 @@ export default async function VisitanosPage() {
                   <T k="page.visitanos.ctaDirections" /> →
                 </a>
                 <a
-                  href={whatsappHref(
-                    "¡Hola! 👋 Me gustaría agendar una visita a su tienda en León para ver y probarme sus botas. ¿Qué día y horario me recomiendan?"
-                  )}
+                  href={whatsappHref(locale, storeVisitWhatsappMessage(locale))}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-2 px-6 py-3 border border-leather text-leather text-sm hover:bg-text hover:text-bg transition-colors"
