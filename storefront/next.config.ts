@@ -30,6 +30,11 @@ const SECURITY_HEADERS = [
 ];
 
 const nextConfig: NextConfig = {
+  // Habilita app/global-not-found.tsx — el 404 con marca para URLs que no hacen
+  // match con ninguna ruta. Sin esto, Next sirve su 404 interno (página blanca).
+  experimental: {
+    globalNotFound: true,
+  },
   images: {
     remotePatterns: [
       // Shopify CDN — productos, metaobjects (hero slides), cualquier asset

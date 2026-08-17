@@ -42,28 +42,41 @@ import { absoluteUrl } from "@/lib/seo"
 
 export const revalidate = 60
 
+/**
+ * Handles que no salieron de generateStaticParams → 404 en el router, SIN
+ * intentar renderizarlos en runtime. Es el fix del 500: un producto
+ * despublicado (o una URL vieja de un anuncio) llegaba a render on-demand y
+ * Amplify responde "Internal Server Error" a las rutas Next 16 dinámicas.
+ * Google reintenta y penaliza un 500; un 404 lo saca del índice y punto.
+ *
+ * Costo asumido: un producto nuevo en Shopify da 404 hasta el siguiente
+ * deploy — igual que antes, porque el render on-demand nunca funcionó en
+ * Amplify.
+ */
+export const dynamicParams = false
+
 type Props = {
   params: Promise<{ lang: string; handle: string }>
 }
 
 export async function generateStaticParams() {
-  try {
-    // Paginamos el catálogo completo (Shopify topa `first` en 250) para
-    // pre-generar TODAS las PDPs — importante porque Amplify no regenera
-    // rutas dinámicas on-demand de forma fiable. Cap de 20 páginas (5000
-    // productos) como salvaguarda anti-loop.
-    const params: { handle: string }[] = []
-    let after: string | null = null
-    for (let page = 0; page < 20; page++) {
-      const { products, pageInfo } = await getProducts({ first: 250, after })
-      params.push(...products.map((p) => ({ handle: p.handle })))
-      if (!pageInfo.hasNextPage || !pageInfo.endCursor) break
-      after = pageInfo.endCursor
-    }
-    return params
-  } catch {
-    return []
+  // Paginamos el catálogo completo (Shopify topa `first` en 250) para
+  // pre-generar TODAS las PDPs — importante porque Amplify no regenera
+  // rutas dinámicas on-demand de forma fiable. Cap de 20 páginas (5000
+  // productos) como salvaguarda anti-loop.
+  //
+  // SIN try/catch a propósito: con dynamicParams = false, tragarse un fallo de
+  // Shopify aquí publicaría un sitio donde TODAS las fichas dan 404. Que
+  // reviente el build es lo correcto — Amplify deja en pie el deploy anterior.
+  const params: { handle: string }[] = []
+  let after: string | null = null
+  for (let page = 0; page < 20; page++) {
+    const { products, pageInfo } = await getProducts({ first: 250, after })
+    params.push(...products.map((p) => ({ handle: p.handle })))
+    if (!pageInfo.hasNextPage || !pageInfo.endCursor) break
+    after = pageInfo.endCursor
   }
+  return params
 }
 
 export default async function ProductPage({ params }: Props) {

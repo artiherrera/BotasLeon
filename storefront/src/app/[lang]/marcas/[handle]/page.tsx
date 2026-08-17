@@ -17,17 +17,19 @@ import { pageMetadata } from "@/lib/seo"
 
 export const revalidate = 60
 
+/** Marca inexistente → 404 del router, sin render on-demand (Amplify da 500 ahí). */
+export const dynamicParams = false
+
 type Props = {
   params: Promise<{ lang: string; handle: string }>
 }
 
 export async function generateStaticParams() {
-  try {
-    const brands = await getBrands()
-    return brands.map((b) => ({ handle: b.handle }))
-  } catch {
-    return []
-  }
+  // Sin try/catch: con dynamicParams = false, tragarse un fallo de Shopify
+  // publicaría un sitio donde TODAS las páginas de marca dan 404. Mejor que
+  // reviente el build y Amplify deje en pie el deploy anterior.
+  const brands = await getBrands()
+  return brands.map((b) => ({ handle: b.handle }))
 }
 
 /**

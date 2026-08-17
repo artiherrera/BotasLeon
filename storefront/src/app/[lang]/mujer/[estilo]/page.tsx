@@ -10,6 +10,13 @@ import { pageMetadata } from "@/lib/seo"
 
 export const revalidate = 60
 
+/**
+ * La lista de slugs válidos es fija y se pre-genera completa, así que un slug
+ * inventado → 404 del router. Sin esto Next intenta renderizarlo on-demand y
+ * Amplify responde 500 ("Internal Server Error") en vez de 404.
+ */
+export const dynamicParams = false
+
 const VALID_STYLES = ["vaqueras", "botines", "clasicas", "largas", "exoticas"] as const
 type EstiloMujer = (typeof VALID_STYLES)[number]
 
