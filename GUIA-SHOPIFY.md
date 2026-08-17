@@ -192,10 +192,13 @@ Esto NO es para subir productos pero es CRÍTICO para que el checkout funcione.
 
 **Zona "México"**:
 - Tarifa fija: `Envío estándar — $150 MXN` (2-5 días hábiles)
-- Tarifa fija: `Envío gratis a partir de $3,000` (condicional)
 
 **Zona "Estados Unidos"**:
 - Tarifa fija: `Envío internacional — $499 MXN` (7-10 días hábiles)
+
+> El sitio NO promete envío gratis en ningún lado (ni copy, ni JSON-LD, ni
+> cintillo). Si algún día se activa una tarifa gratuita aquí, hay que volver a
+> anunciarla a mano — no se propaga sola.
 
 ### Impuestos
 **Configuración → Impuestos y derechos** → activar para México:

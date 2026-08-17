@@ -6,7 +6,6 @@ import { LocalizedLink as Link } from "@/components/LocalizedLink"
 import { Header } from "@/components/Header"
 import { Footer } from "@/components/Footer"
 import { useCart } from "@/components/CartProvider"
-import { FreeShippingBar } from "@/components/FreeShippingBar"
 import { PaymentBadges } from "@/components/PaymentBadges"
 import { CustomsTaxIdField, useCustomsGate } from "@/components/CustomsTaxIdField"
 import { useLocale } from "@/lib/i18n/context"
@@ -18,7 +17,6 @@ import {
 } from "@/lib/discount/client"
 import { track } from "@/lib/klaviyo/client"
 import { gaEvent } from "@/lib/ga/events"
-import { FREE_SHIPPING_THRESHOLD } from "@/lib/shipping"
 
 /**
  * /cart — vista full-page del carrito.
@@ -247,13 +245,7 @@ export default function CartPage() {
             <aside className="bg-bg-alt p-6 h-fit lg:sticky lg:top-24">
               <h2 className="eyebrow text-leather mb-4">Resumen</h2>
 
-              <FreeShippingBar
-                subtotal={subtotalNum}
-                threshold={FREE_SHIPPING_THRESHOLD}
-                currency={subtotalCurrency}
-              />
-
-              <div className="space-y-2 mt-3 mb-6">
+              <div className="space-y-2 mb-6">
                 <div className="flex justify-between text-sm text-text-muted">
                   <span>Subtotal</span>
                   <span className="text-text">
@@ -265,8 +257,10 @@ export default function CartPage() {
                   </span>
                 </div>
                 <div className="flex justify-between text-sm text-text-muted">
-                  <span>Envío</span>
-                  <span className="text-leather font-medium">Gratis</span>
+                  <span>{locale === "en" ? "Shipping" : "Envío"}</span>
+                  <span className="text-text">
+                    {locale === "en" ? "Calculated at checkout" : "Se calcula en el pago"}
+                  </span>
                 </div>
               </div>
 
@@ -355,7 +349,7 @@ export default function CartPage() {
               ) : null}
 
               <p className="text-xs text-text-muted text-center mt-3">
-                Pago seguro · Envío gratis · Garantía 15 días
+                Pago seguro · Envío calculado en el pago · Garantía 15 días
               </p>
             </aside>
           </div>

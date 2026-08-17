@@ -29,13 +29,13 @@ export default function EnviosPage() {
 
             <h2>Costos</h2>
             <p>
-              El <strong>envío es gratis</strong> en todos los pedidos a Estados
-              Unidos. No hay monto mínimo de compra.
+              El costo del envío se calcula al momento de pagar, según tu
+              dirección y el servicio de paquetería. Lo ves antes de confirmar
+              el pedido — nunca hay cargos sorpresa después.
             </p>
             <p>
-              Para pedidos a Estados Unidos el envío corre por nuestra cuenta; los
-              impuestos de aduana y aranceles los cubre el comprador (te lo
-              informamos antes de pagar).
+              Los impuestos de aduana y aranceles de Estados Unidos son aparte y
+              los cubre el comprador (te lo informamos antes de pagar).
             </p>
 
             <h2>Paqueterías</h2>
@@ -79,12 +79,13 @@ export default function EnviosPage() {
 
             <h2>Shipping costs</h2>
             <p>
-              <strong>Shipping is free</strong> on every order to the United
-              States. There is no minimum purchase.
+              Shipping is calculated at checkout based on your address and the
+              carrier service. You see it before confirming your order — never a
+              surprise charge afterwards.
             </p>
             <p>
-              For orders to the United States we cover shipping; customs duties and
-              tariffs are paid by the buyer (you&rsquo;ll be informed before checkout).
+              U.S. customs duties and tariffs are separate and are paid by the
+              buyer (you&rsquo;ll be informed before checkout).
             </p>
 
             <h2>Carriers</h2>

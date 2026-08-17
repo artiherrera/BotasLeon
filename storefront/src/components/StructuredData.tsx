@@ -137,12 +137,10 @@ export function ProductJsonLd({
             : "https://schema.org/OutOfStock",
           url: absoluteUrl(`/${lang}/products/${product.handle}`),
           shippingDetails: {
+            // SIN `shippingRate`: declarar 0 le prometía envío gratis a Google
+            // (y a Merchant Center, que lo trata como dato de la oferta). El
+            // costo real lo calcula el checkout / la configuración de Shopify.
             "@type": "OfferShippingDetails",
-            shippingRate: {
-              "@type": "MonetaryAmount",
-              value: 0,
-              currency: product.priceRange.minVariantPrice.currencyCode,
-            },
             shippingDestination: {
               "@type": "DefinedRegion",
               addressCountry: "US",

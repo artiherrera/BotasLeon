@@ -23,7 +23,7 @@ export const DICTIONARY: Record<string, Entry> = {
   "pdp.chooseSize": { es: "Elige talla", en: "Choose size" },
   "pdp.comboUnavailable": { es: "Combinación no disponible", en: "Combination unavailable" },
   "pdp.selectSize": { es: "Selecciona tu talla", en: "Select your size" },
-  "pdp.shippingNote": { es: "Envío GRATIS · EE.UU. 7-10 días", en: "FREE shipping · Check your size first" },
+  "pdp.shippingNote": { es: "Envío a EE.UU. · 7-10 días", en: "Ships to the USA · 7-10 days" },
   "pdp.sizeError": { es: "Por favor selecciona tu talla.", en: "Please select your size." },
   "pdp.unavailable": { es: "No disponible", en: "Unavailable" },
   "recent.eyebrow": { es: "Visto recientemente", en: "Recently viewed" },
@@ -184,8 +184,8 @@ export const DICTIONARY: Record<string, Entry> = {
     es: "Cada marca pasa nuestro filtro",
     en: "Every brand meets our standard",
   },
-  "trust.shipping.title": { es: "Envío GRATIS", en: "Free shipping" },
-  "trust.shipping.sub": { es: "A todo Estados Unidos", en: "Across the USA" },
+  "trust.shipping.title": { es: "Envío a Estados Unidos", en: "Shipping to the USA" },
+  "trust.shipping.sub": { es: "7-10 días hábiles", en: "7-10 business days" },
   "trust.exchange.title": { es: "Garantía", en: "Built to last" },
   "trust.exchange.sub": {
     es: "15 días por defecto de fábrica",
@@ -358,16 +358,16 @@ export const DICTIONARY: Record<string, Entry> = {
   },
 
   // ── Cintillo (MarqueeBar) ────────────────────────────────────────────
-  // El envío gratis SÍ se promete en ambos idiomas. Mercado único: Estados Unidos
-  // (USD); el copy de envío ya no menciona México.
+  // Mercado único: Estados Unidos (USD). El copy de envío NO promete envío
+  // gratis (el costo lo calcula el checkout) ni menciona México.
   "marquee.tradition": { es: "380 años de tradición", en: "380 years of tradition" },
   "marquee.leather": {
     es: "León, capital mundial del cuero",
     en: "León, the world capital of leather",
   },
   "marquee.shipping": {
-    es: "Envío GRATIS a todo Estados Unidos",
-    en: "FREE shipping across the USA",
+    es: "Envío a todo Estados Unidos",
+    en: "Shipping across the USA",
   },
   "marquee.store": { es: "Tienda física en León →", en: "Visit our store in León →" },
   "marquee.newsletter": {
@@ -471,8 +471,8 @@ export const DICTIONARY: Record<string, Entry> = {
   "cart.subtotal": { es: "Subtotal", en: "Subtotal" },
   "cart.discount": { es: "Descuento", en: "Discount" },
   "cart.shippingTax": {
-    es: "Envío gratis · precios en USD, sin IVA",
-    en: "Free shipping · prices in USD, no VAT",
+    es: "Envío calculado en el pago · precios en USD, sin IVA",
+    en: "Shipping calculated at checkout · prices in USD, no VAT",
   },
   "cart.checkout": { es: "Pagar", en: "Checkout" },
   "cart.taxIdBlocked": {

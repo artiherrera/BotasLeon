@@ -15,8 +15,8 @@
 import { LocalizedLink as Link } from "@/components/LocalizedLink"
 import { useT } from "@/lib/i18n/context"
 
-// Cada item es una LLAVE del diccionario. El envío gratis SÍ se promete en ambos
-// idiomas. Mercado único: Estados Unidos (USD).
+// Cada item es una LLAVE del diccionario. Mercado único: Estados Unidos (USD).
+// El cintillo NO promete envío gratis — solo dice que enviamos a EE.UU.
 const MESSAGE_SPECS: Array<{ key: string; href?: string; vars?: Record<string, string> }> = [
   { key: "marquee.tradition" },
   { key: "marquee.leather" },

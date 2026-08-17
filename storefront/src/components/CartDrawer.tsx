@@ -4,14 +4,12 @@ import { useEffect, useRef, useState } from "react"
 import Image from "next/image"
 import { LocalizedLink as Link } from "@/components/LocalizedLink"
 import { useCart } from "./CartProvider"
-import { FreeShippingBar } from "./FreeShippingBar"
 import { PaymentBadges } from "./PaymentBadges"
 import { CustomsTaxIdField, useCustomsGate } from "./CustomsTaxIdField"
 import { formatMoney } from "@/lib/utils"
 import { clearPendingDiscount, getPendingDiscount, withDiscount } from "@/lib/discount/client"
 import { track } from "@/lib/klaviyo/client"
 import { gaEvent } from "@/lib/ga/events"
-import { FREE_SHIPPING_THRESHOLD } from "@/lib/shipping"
 import { useFocusTrap } from "@/lib/useFocusTrap"
 import { useT } from "@/lib/i18n/context"
 
@@ -379,12 +377,6 @@ export function CartDrawer() {
                   )}
                 </form>
               )}
-
-              <FreeShippingBar
-                subtotal={subtotalNum}
-                threshold={FREE_SHIPPING_THRESHOLD}
-                currency={subtotalCurrency}
-              />
 
               <div className="flex justify-between items-baseline mt-2 mb-1">
                 <span className="text-sm text-text-muted">{t("cart.subtotal")}</span>

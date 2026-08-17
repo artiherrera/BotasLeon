@@ -14,8 +14,9 @@
  * BILINGÜE (aditivo): question/answer se mantienen EN ESPAÑOL — los consume
  * FAQJsonLd, que emite structured data en español para SEO (no tocar). Los
  * campos questionEn/answerEn traen la versión en inglés; FAQAccordion elige
- * según el idioma activo (useLocale). Público EN = Estados Unidos: sin promesas
- * de envío gratis, sin "meses sin intereses".
+ * según el idioma activo (useLocale). Público EN = Estados Unidos. En NINGÚN
+ * idioma se promete envío gratis (el costo lo calcula el checkout) ni "meses
+ * sin intereses".
  */
 export type FAQ = {
   question: string
