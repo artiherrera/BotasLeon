@@ -49,8 +49,8 @@ export default function PrivacidadPage() {
               <li>Contactarte sobre tu pedido o consultas</li>
               <li>Mejorar el sitio y la experiencia de compra</li>
               <li>
-                Enviarte comunicaciones de marketing (solo si te suscribiste o
-                aceptaste)
+                Enviarte comunicaciones de marketing (solo si diste tu
+                consentimiento)
               </li>
               <li>Cumplir obligaciones fiscales y legales</li>
             </ul>
@@ -69,8 +69,8 @@ export default function PrivacidadPage() {
                 tu pedido
               </li>
               <li>
-                <strong>Email marketing</strong> (Klaviyo o similar): si te
-                suscribiste al newsletter
+                <strong>Email marketing</strong> (Klaviyo o similar): si diste
+                tu consentimiento
               </li>
               <li><strong>Analytics</strong> (Google Analytics): datos agregados de uso</li>
             </ul>
@@ -164,8 +164,7 @@ export default function PrivacidadPage() {
               <li>Contact you about your order or inquiries</li>
               <li>Improve the site and shopping experience</li>
               <li>
-                Send you marketing communications (only if you subscribed or opted
-                in)
+                Send you marketing communications (only if you opted in)
               </li>
               <li>Comply with tax and legal obligations</li>
             </ul>
@@ -184,7 +183,7 @@ export default function PrivacidadPage() {
               </li>
               <li>
                 <strong>Email marketing</strong> (Klaviyo or similar): if you
-                subscribed to the newsletter
+                opted in
               </li>
               <li><strong>Analytics</strong> (Google Analytics): aggregated usage data</li>
             </ul>

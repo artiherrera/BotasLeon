@@ -8,7 +8,6 @@ import { FAQAccordion } from "@/components/FAQAccordion"
 import { LatestByGenderTabs } from "@/components/LatestByGenderTabs"
 import { LatestGenderGrid } from "@/components/LatestGenderGrid"
 import { AccessoriesShowcase } from "@/components/AccessoriesShowcase"
-import { NewsletterForm } from "@/components/NewsletterForm"
 import { HechoEnLeonStrip } from "@/components/HechoEnLeonStrip"
 import { HomeReviewsCarousel } from "@/components/HomeReviewsCarousel"
 import { StoreVisitSection } from "@/components/StoreVisitSection"
@@ -58,8 +57,7 @@ export const revalidate = 60
  *   6. BrandGrid — Marcas (oculto cuando 0 marcas, curado cuando 1-3)
  *   7. HechoEnLeonStrip — banda compacta 380 años · 7 de 10 · curadores
  *   8. FAQAccordion
- *   9. Newsletter
- *  10. Footer
+ *   9. Footer
  *
  * Por qué este orden:
  *  - MarqueeBar arriba del Hero = trust signals visibles en scroll 0 (patrón Zara/H&M).
@@ -154,20 +152,6 @@ export default async function HomePage() {
         <StoreVisitSection />
 
         <FAQAccordion />
-
-        {/* Newsletter — id newsletter para scroll-target del AnnouncementBar */}
-        <section id="newsletter" className="mx-auto max-w-7xl px-6 py-20 scroll-mt-24">
-          <div className="border border-border p-10 md:p-16 text-center bg-bg-alt">
-            <p className="eyebrow text-leather mb-3">Newsletter</p>
-            <h3 className="font-heading text-2xl md:text-3xl text-text mb-3">
-              <T k="home.newsletterTitle" />
-            </h3>
-            <p className="text-text-muted mb-8 max-w-md mx-auto">
-              <T k="home.newsletterSubtitle" />
-            </p>
-            <NewsletterForm />
-          </div>
-        </section>
       </main>
       <Footer />
     </>

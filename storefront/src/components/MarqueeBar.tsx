@@ -22,7 +22,6 @@ const MESSAGE_SPECS: Array<{ key: string; href?: string; vars?: Record<string, s
   { key: "marquee.leather" },
   { key: "marquee.shipping" },
   { key: "marquee.store", href: "/visitanos" },
-  { key: "marquee.newsletter", href: "/#newsletter" },
 ]
 
 const ITEM_CLS =

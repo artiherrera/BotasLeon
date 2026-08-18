@@ -12,10 +12,6 @@ import Script from "next/script"
  * del cliente Klaviyo son no-op sin el snippet, gatear la carga aquí también
  * apaga el tracking onsite (ProductViewedTracker, etc.) sin consentimiento.
  *
- * El newsletter (`subscribe`) usa fetch directo a la API pública de Klaviyo,
- * no el snippet, así que sigue funcionando: ahí el consentimiento es explícito
- * (el usuario tecleó su email y pulsó "Suscribirme").
- *
  * Usa useSyncExternalStore para sincronizar con localStorage + el evento
  * `botasleon:consent-change` sin setState-en-effect.
  */
