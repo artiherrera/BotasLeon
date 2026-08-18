@@ -14,6 +14,13 @@ import { useLocale } from "@/lib/i18n/context"
  * Para no tener dos botones a la vez: la versión global se OCULTA en las
  * rutas de producto (`/products/*`), donde el propio PDP renderiza su versión
  * con contexto. Así siempre hay exactamente un botón.
+ *
+ * JERARQUÍA — esto es un botón de AYUDA, no un canal de venta. Va en los tokens
+ * de marca (blanco + borde + glifo cuero), no en el verde de WhatsApp: ese verde
+ * era el único color saturado del sitio y se comía al "Agregar al carrito", que
+ * es tinta plana. Por eso también z-30 (debajo de la barra de compra, z-40) y
+ * 44px en vez de 56. Mientras la barra sticky de compra está arriba, este botón
+ * se atenúa — regla `.wa-fab` en globals.css, disparada por data-buy-bar.
  */
 
 type Props = {
@@ -51,11 +58,11 @@ export function WhatsAppButton({ product }: Props) {
           ? t("whatsapp.askProduct").replace("{title}", product.title)
           : t("whatsapp.contact")
       }
-      className={`fixed ${position} z-40 flex h-14 w-14 items-center justify-center rounded-full bg-[#25D366] text-white shadow-lg shadow-black/20 transition-transform hover:scale-105 active:scale-95 motion-reduce:transition-none`}
+      className={`wa-fab fixed ${position} z-30 flex h-11 w-11 items-center justify-center rounded-full border border-border bg-bg-alt text-leather shadow-sm transition-[opacity,transform,color,border-color] hover:border-leather hover:text-text active:scale-95 motion-reduce:transition-none`}
     >
       <svg
-        width="30"
-        height="30"
+        width="20"
+        height="20"
         viewBox="0 0 24 24"
         fill="currentColor"
         aria-hidden="true"

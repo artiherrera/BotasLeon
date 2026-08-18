@@ -126,6 +126,18 @@ export function ProductOptions({ product }: Props) {
     return () => observer.disconnect()
   }, [])
 
+  // Marca en <body> que la barra de compra está arriba, para que el botón
+  // flotante de WhatsApp se atenúe y no compita con el CTA (regla .wa-fab en
+  // globals.css). Vía atributo y no estado compartido: si algo falla, el peor
+  // caso es que el botón siga visible — nunca que se quede oculto.
+  useEffect(() => {
+    if (showSticky) document.body.dataset.buyBar = "up"
+    else delete document.body.dataset.buyBar
+    return () => {
+      delete document.body.dataset.buyBar
+    }
+  }, [showSticky])
+
   const handleAdd = () => {
     if (isPending) return
     // Obligar a elegir talla — si falta, avisamos y hacemos scroll al selector.
@@ -233,7 +245,7 @@ export function ProductOptions({ product }: Props) {
           disabled={ctaDisabled}
           aria-busy={isPending}
           aria-label={ctaLabel}
-          className="px-5 py-3 bg-text text-bg text-xs font-medium hover:bg-leather disabled:bg-text-subtle disabled:cursor-not-allowed transition-colors whitespace-nowrap"
+          className="px-6 py-3.5 bg-text text-bg text-sm font-semibold hover:bg-leather disabled:bg-text-subtle disabled:cursor-not-allowed transition-colors whitespace-nowrap"
         >
           {stickyCtaLabel}
         </button>
@@ -361,7 +373,7 @@ export function ProductOptions({ product }: Props) {
         onClick={handleAdd}
         disabled={ctaDisabled}
         aria-busy={isPending}
-        className="w-full py-4 bg-text text-bg text-sm hover:bg-leather disabled:bg-text-subtle disabled:cursor-not-allowed transition-colors"
+        className="w-full py-5 bg-text text-bg text-base font-semibold tracking-wide shadow-sm hover:bg-leather hover:shadow-md disabled:bg-text-subtle disabled:shadow-none disabled:cursor-not-allowed transition-all"
       >
         {ctaLabel}
       </button>

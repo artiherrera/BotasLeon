@@ -131,3 +131,29 @@ h5, .h5, h6, .h6, .eyebrow {
     overflow-y: hidden;
   }
 }
+
+/* Botón flotante de WhatsApp (.wa-fab) — es AYUDA, no un canal de venta.
+   Mientras la barra sticky de "Agregar al carrito" está arriba (ProductOptions
+   marca data-buy-bar="up" en <body>), el botón se aparta: baja a 55% de opacidad
+   y se encoge un poco, para que en el momento de comprar no haya dos botones
+   flotantes peleando la misma esquina. Sigue siendo clickeable — quien quiera
+   preguntar por talla lo encuentra igual. */
+/* Solo por debajo de md (768px): ahí es donde existe la barra sticky
+   (md:hidden). En desktop el observer también marca data-buy-bar al pasar el
+   CTA, pero no hay barra visible, así que no habría nada de qué apartarse. */
+@media (max-width: 767px) {
+  body[data-buy-bar="up"] .wa-fab {
+    opacity: 0.55;
+    transform: scale(0.9);
+  }
+  body[data-buy-bar="up"] .wa-fab:hover,
+  body[data-buy-bar="up"] .wa-fab:focus-visible {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+@media (max-width: 767px) and (prefers-reduced-motion: reduce) {
+  body[data-buy-bar="up"] .wa-fab {
+    transform: none;
+  }
+}
