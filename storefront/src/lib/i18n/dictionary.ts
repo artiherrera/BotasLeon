@@ -54,14 +54,6 @@ export const DICTIONARY: Record<string, Entry> = {
   "accessories.title": { es: "Para complementar tu vestir", en: "To complete your look" },
   "accessories.viewAll": { es: "Ver todos", en: "View all" },
   "accessories.viewAllLong": { es: "Ver todos los accesorios", en: "View all accessories" },
-  "home.newsletterTitle": {
-    es: "Suscríbete y recibe 10% en tu primera compra",
-    en: "Subscribe and get 10% off your first order",
-  },
-  "home.newsletterSubtitle": {
-    es: "Plus las novedades de las marcas de León antes que nadie. Sin spam, prometido.",
-    en: "Plus the latest from León's brands before anyone else. No spam, promised.",
-  },
 
   // ── Páginas de contenido / ayuda (encabezados) ──────────────────────
   "page.envios.eyebrow": { es: "Información", en: "Information" },
@@ -276,6 +268,12 @@ export const DICTIONARY: Record<string, Entry> = {
 
   // ── Tarjeta de producto ──────────────────────────────────────────────
   "card.view": { es: "Ver", en: "View" },
+  // Compra directa desde la tarjeta — la talla se elige después, en el carrito.
+  "card.add": { es: "Agregar al carrito", en: "Add to cart" },
+  "card.addAria": {
+    es: "Agregar {title} al carrito — la talla se elige en el carrito",
+    en: "Add {title} to cart — choose your size in the cart",
+  },
   "card.soldOutParen": { es: "(agotado)", en: "(sold out)" },
   "card.soldOut": { es: "Agotado", en: "Sold out" },
 
@@ -370,10 +368,6 @@ export const DICTIONARY: Record<string, Entry> = {
     en: "Shipping across the USA",
   },
   "marquee.store": { es: "Tienda física en León →", en: "Visit our store in León →" },
-  "marquee.newsletter": {
-    es: "Suscríbete y recibe ofertas antes que nadie →",
-    en: "Subscribe for early access to deals →",
-  },
 
   // ── Footer ────────────────────────────────────────────────────────────
   "footer.shop": { es: "Tienda", en: "Shop" },
@@ -423,31 +417,6 @@ export const DICTIONARY: Record<string, Entry> = {
     en: "BotasLeón location on Google Maps",
   },
 
-  // ── Newsletter (NewsletterForm) ──────────────────────────────────────
-  "newsletter.thanks": { es: "¡Gracias!", en: "Thank you!" },
-  "newsletter.successDesc": {
-    es: "Pronto recibirás un correo de bienvenida con tu primer descuento.",
-    en: "You'll soon receive a welcome email with your first discount.",
-  },
-  "newsletter.emailPlaceholder": { es: "tu@correo.com", en: "you@email.com" },
-  "newsletter.emailAria": {
-    es: "Correo electrónico para newsletter con 10% de descuento",
-    en: "Email for the 10% off newsletter",
-  },
-  "newsletter.subscribeAria": {
-    es: "Suscribirme y recibir mi cupón de 10%",
-    en: "Subscribe and get my 10% coupon",
-  },
-  "newsletter.sending": { es: "Enviando...", en: "Sending..." },
-  "newsletter.subscribe": { es: "Suscribirme", en: "Subscribe" },
-  "newsletter.footnote": {
-    es: "El descuento llega a tu correo al confirmar.",
-    en: "Your discount arrives by email once you confirm.",
-  },
-  "newsletter.error": {
-    es: "Error al suscribir",
-    en: "Couldn't subscribe. Please try again.",
-  },
 
   // ── Carrito (CartDrawer) ─────────────────────────────────────────────
   "cart.ariaLabel": { es: "Carrito de compras", en: "Shopping cart" },
@@ -475,6 +444,14 @@ export const DICTIONARY: Record<string, Entry> = {
     en: "Shipping calculated at checkout · prices in USD, no VAT",
   },
   "cart.checkout": { es: "Pagar", en: "Checkout" },
+  // Talla dentro del carrito (se puede agregar desde la tarjeta sin elegirla).
+  "cart.chooseSize": { es: "Elige tu talla", en: "Choose your size" },
+  "cart.changeSize": { es: "Cambiar", en: "Change" },
+  "cart.changeSizeTitle": { es: "Cambiar talla", en: "Change size" },
+  "cart.sizeBlocked": {
+    es: "Elige la talla de cada par para continuar.",
+    en: "Choose a size for each pair to continue.",
+  },
   "cart.taxIdBlocked": {
     es: "Ingresa tu Tax ID arriba para continuar (envíos a EE.UU. ≥ $800).",
     en: "Enter your Tax ID above to continue (U.S. orders ≥ $800).",
@@ -552,17 +529,4 @@ export const DICTIONARY: Record<string, Entry> = {
   },
   "cookies.necessary": { es: "Solo las necesarias", en: "Only necessary" },
 
-  // ── Botón de WhatsApp (WhatsAppButton) ───────────────────────────────
-  "whatsapp.tooltip": {
-    es: "¿Dudas? Escríbenos por WhatsApp",
-    en: "Questions? Message us on WhatsApp",
-  },
-  "whatsapp.askProduct": {
-    es: "Preguntar por WhatsApp sobre {title}",
-    en: "Ask about {title} on WhatsApp",
-  },
-  "whatsapp.contact": {
-    es: "Contactar por WhatsApp",
-    en: "Contact us on WhatsApp",
-  },
 }

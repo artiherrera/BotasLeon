@@ -194,7 +194,14 @@ export type Cart = {
   lines: Array<{
     id: string
     quantity: number
-    merchandise: ProductVariant & { product: Pick<Product, "handle" | "title"> }
+    merchandise: ProductVariant & {
+      product: Pick<Product, "handle" | "title"> & {
+        // Metacampos que el carrito necesita para su selector de talla:
+        // la lista de tallas del producto y el sexo (conversión MX→US).
+        targetGender?: Product["targetGender"]
+        shoeSizes?: Product["shoeSizes"]
+      }
+    }
     cost: { totalAmount: Money }
     // Atributos custom de la línea (ej. "Talla" cuando no es variante).
     attributes: Array<{ key: string; value: string | null }>

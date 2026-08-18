@@ -9,6 +9,7 @@ import {
   useState,
   useTransition,
 } from "react"
+import { SIZE_ATTR } from "@/lib/cart/line-size"
 import {
   clientAddLines,
   clientCreateCart,
@@ -59,6 +60,9 @@ type CartContextValue = {
     attributes?: Array<{ key: string; value: string }>
   ) => void
   updateLine: (lineId: string, quantity: number) => void
+  // Fija/cambia la TALLA de una línea (atributo, no variante — ver
+  // lib/cart/line-size.ts). Permite agregar sin talla y elegirla en el carrito.
+  setLineSize: (lineId: string, size: string) => void
   removeLine: (lineId: string) => void
   // Reemplaza el set de atributos del carrito (ej. Tax ID de aduana).
   updateAttributes: (attributes: Array<{ key: string; value: string }>) => void
@@ -253,6 +257,24 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     [persist]
   )
 
+  const setLineSize = useCallback(
+    (lineId: string, size: string) => {
+      const id = cartIdRef.current
+      if (!id) return
+      startTransition(async () => {
+        try {
+          const updated = await clientUpdateLines(id, [
+            { id: lineId, attributes: [{ key: SIZE_ATTR, value: size }] },
+          ])
+          persist(updated)
+        } catch (e) {
+          console.error("[cart] setLineSize falló:", e)
+        }
+      })
+    },
+    [persist]
+  )
+
   const removeLine = useCallback(
     (lineId: string) => {
       const id = cartIdRef.current
@@ -344,6 +366,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         closeCart,
         toggleCart,
         addItem,
+        setLineSize,
         updateLine,
         removeLine,
         updateAttributes,

@@ -9,6 +9,8 @@ import { useCart } from "@/components/CartProvider"
 import { PaymentBadges } from "@/components/PaymentBadges"
 import { CustomsTaxIdField, useCustomsGate } from "@/components/CustomsTaxIdField"
 import { useLocale } from "@/lib/i18n/context"
+import { CartLineSize } from "@/components/CartLineSize"
+import { SIZE_ATTR, isDefaultOption, missingSizeLines } from "@/lib/cart/line-size"
 import { formatMoney } from "@/lib/utils"
 import {
   getPendingDiscount,
@@ -30,6 +32,7 @@ import { gaEvent } from "@/lib/ga/events"
 export default function CartPage() {
   const { cart, ready, isPending, updateLine, removeLine, showToast } = useCart()
   const { locale } = useLocale()
+  const sizeBlocked = missingSizeLines(cart).length > 0 // sin talla no se puede surtir
   const { blocked: taxIdBlocked, blockReason } = useCustomsGate() // bloquea el pago: aceptación aduana (todo EE.UU.) o Tax ID (≥ $800)
   const [pendingDiscount, setPendingDiscount] = useState<string | null>(null)
   const [couponInput, setCouponInput] = useState("")
@@ -154,10 +157,10 @@ export default function CartPage() {
                 const v = line.merchandise
                 const subtitle = [
                   ...v.selectedOptions
-                    .filter((o) => o.name.toLowerCase() !== "title")
+                    .filter((o) => !isDefaultOption(o.name, o.value))
                     .map((o) => `${o.name}: ${o.value}`),
                   ...(line.attributes ?? [])
-                    .filter((a) => a.value)
+                    .filter((a) => a.value && a.key !== SIZE_ATTR)
                     .map((a) => `${a.key}: ${a.value}`),
                 ].join(" · ")
 
@@ -198,6 +201,10 @@ export default function CartPage() {
                       {subtitle && (
                         <p className="text-sm text-text-muted mt-1">{subtitle}</p>
                       )}
+
+                      <div className="mt-2">
+                        <CartLineSize line={line} />
+                      </div>
 
                       <div className="flex items-center justify-between mt-auto pt-3">
                         <div className="inline-flex items-center border border-border">
@@ -317,7 +324,7 @@ export default function CartPage() {
               </div>
 
               {cart?.checkoutUrl ? (
-                taxIdBlocked ? (
+                sizeBlocked || taxIdBlocked ? (
                   <>
                     <button
                       type="button"
@@ -328,7 +335,12 @@ export default function CartPage() {
                       {locale === "en" ? "Checkout" : "Proceder al pago"}
                     </button>
                     <p className="text-xs text-terracotta text-center mt-2">
-                      {blockReason === "ack"
+                      {/* La talla manda: sin ella el pedido no se puede surtir. */}
+                      {sizeBlocked
+                        ? locale === "en"
+                          ? "Choose a size for each pair to continue."
+                          : "Elige la talla de cada par para continuar."
+                        : blockReason === "ack"
                         ? locale === "en"
                           ? "Please accept above that customs duties are your responsibility to continue."
                           : "Acepta arriba que los aranceles de aduana corren por tu cuenta para continuar."

@@ -50,7 +50,23 @@ const CART_FRAGMENT = /* GraphQL */ `
               price { amount currencyCode }
               image { url altText width height }
               selectedOptions { name value }
-              product { handle title }
+              product {
+                handle
+                title
+                # Para el selector de talla DENTRO del carrito: la lista de
+                # tallas del producto y el sexo (que decide la conversión
+                # MX→US: hombre −19, mujer −17).
+                targetGender: metafield(namespace: "shopify", key: "target-gender") {
+                  references(first: 1) {
+                    edges { node { ... on Metaobject { handle } } }
+                  }
+                }
+                shoeSizes: metafield(namespace: "shopify", key: "shoe-size") {
+                  references(first: 30) {
+                    edges { node { ... on Metaobject { handle fields { key value } } } }
+                  }
+                }
+              }
             }
           }
         }
@@ -204,7 +220,13 @@ export async function clientAddLines(
 
 export async function clientUpdateLines(
   cartId: string,
-  lines: Array<{ id: string; quantity: number }>
+  // `attributes` reemplaza el set completo de atributos de la línea — así se
+  // fija/cambia la talla desde el carrito sin borrar y volver a agregar.
+  lines: Array<{
+    id: string
+    quantity?: number
+    attributes?: Array<{ key: string; value: string }>
+  }>
 ): Promise<Cart> {
   const data = await shopifyClientFetch<Mutation<"cartLinesUpdate">>(
     /* GraphQL */ `

@@ -7,14 +7,21 @@ import type { Product, Image as ShopifyImage } from "@/lib/shopify/types"
 import { JudgemeStars } from "./JudgemeStars"
 import { LocalizedPrice, useProductTranslation } from "./LocalizedProductContent"
 import { useT } from "@/lib/i18n/context"
+import { useCart } from "@/components/CartProvider"
 
 /**
  * Tarjeta de producto para grids (home, listing, marca page).
  *
  * La miniatura es un mini-carrusel: en móvil se hace SWIPE (scroll-snap nativo),
  * en desktop aparecen flechas discretas al pasar el mouse + puntos indicadores.
- * Toda la tarjeta sigue siendo un enlace al PDP (tocar la foto navega; deslizar
- * o usar las flechas NO navega).
+ * La foto y el texto siguen siendo enlace al PDP (deslizar o usar las flechas
+ * NO navega).
+ *
+ * COMPRA DIRECTA: el botón "Agregar" mete la bota al carrito sin pasar por la
+ * ficha. Puede hacerlo porque TODO el catálogo es de variante única — la talla
+ * no es variante, vive en un metacampo y viaja como atributo de línea — así que
+ * se elige después, en el carrito (ver CartLineSize). El botón va FUERA del
+ * <a> del enlace: un <button> dentro de un <a> es HTML inválido.
  */
 export function ProductCard({ product }: { product: Product }) {
   const t = useT()
@@ -31,10 +38,15 @@ export function ProductCard({ product }: { product: Product }) {
     .filter((im) => (seen.has(im.url) ? false : (seen.add(im.url), true)))
     .slice(0, 6)
 
+  const { addItem, isPending } = useCart()
+  const variantId = product.variants?.[0]?.id ?? null
+  const canQuickAdd = !!variantId && product.availableForSale
+
   return (
+    <div className="group">
     <Link
       href={`/products/${handle}`}
-      className="group block"
+      className="block"
       aria-label={
         product.availableForSale
           ? `${t("card.view")} ${displayTitle}`
@@ -81,6 +93,19 @@ export function ProductCard({ product }: { product: Product }) {
         />
       </div>
     </Link>
+
+    {canQuickAdd && (
+      <button
+        type="button"
+        disabled={isPending}
+        aria-label={t("card.addAria").replace("{title}", displayTitle)}
+        onClick={() => addItem(variantId, 1)}
+        className="mt-3 w-full px-1 py-2.5 border border-text text-text text-sm font-medium hover:bg-text hover:text-bg disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+      >
+        {t("card.add")}
+      </button>
+    )}
+    </div>
   )
 }
 

@@ -56,6 +56,12 @@ export const PRODUCT_CARD_FRAGMENT = /* GraphQL */ `
       minVariantPrice { ...MoneyFields }
     }
     options { id name values }
+    # Variante única del producto: TODO el catálogo es de una sola variante (la
+    # talla vive en el metacampo shoe-size, no como opción), así que con first:1
+    # la tarjeta ya tiene lo necesario para agregar al carrito sin abrir el PDP.
+    variants(first: 1) {
+      edges { node { id title availableForSale } }
+    }
     color: metafield(namespace: "shopify", key: "color-pattern") {
       references(first: 5) {
         edges { node { ... on Metaobject { handle fields { key value } } } }

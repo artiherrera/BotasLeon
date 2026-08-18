@@ -12,6 +12,8 @@ import { track } from "@/lib/klaviyo/client"
 import { gaEvent } from "@/lib/ga/events"
 import { useFocusTrap } from "@/lib/useFocusTrap"
 import { useT } from "@/lib/i18n/context"
+import { CartLineSize } from "@/components/CartLineSize"
+import { SIZE_ATTR, isDefaultOption, missingSizeLines } from "@/lib/cart/line-size"
 
 /**
  * CartDrawer — sidebar lateral derecho con líneas del cart.
@@ -41,6 +43,7 @@ export function CartDrawer() {
     removeDiscount,
   } = useCart()
   const t = useT()
+  const sizeBlocked = missingSizeLines(cart).length > 0 // sin talla no se puede surtir
   const { blocked: taxIdBlocked, blockReason } = useCustomsGate() // bloquea "Pagar": aceptación aduana (todo EE.UU.) o Tax ID (≥ $800)
   // Traduce el NOMBRE de la opción/atributo (Talla/Color/Material vienen en
   // español desde Shopify) sin tocar el valor. Si no lo conocemos, lo deja igual.
@@ -216,10 +219,10 @@ export function CartDrawer() {
                 const v = line.merchandise
                 const subtitle = [
                   ...v.selectedOptions
-                    .filter((o) => o.name.toLowerCase() !== "title")
+                    .filter((o) => !isDefaultOption(o.name, o.value))
                     .map((o) => `${optLabel(o.name)}: ${o.value}`),
                   ...(line.attributes ?? [])
-                    .filter((a) => a.value)
+                    .filter((a) => a.value && a.key !== SIZE_ATTR)
                     .map((a) => `${optLabel(a.key)}: ${a.value}`),
                 ].join(" · ")
 
@@ -262,6 +265,10 @@ export function CartDrawer() {
                       {subtitle && (
                         <p className="text-xs text-text-muted mt-1">{subtitle}</p>
                       )}
+
+                      <div className="mt-2">
+                        <CartLineSize line={line} compact />
+                      </div>
 
                       <div className="flex items-center justify-between mt-3">
                         <div className="inline-flex items-center border border-border">
@@ -407,7 +414,7 @@ export function CartDrawer() {
               </div>
 
               {cart?.checkoutUrl ? (
-                taxIdBlocked ? (
+                sizeBlocked || taxIdBlocked ? (
                   <>
                     <button
                       type="button"
@@ -417,7 +424,8 @@ export function CartDrawer() {
                     >
                       {t("cart.checkout")}
                     </button>
-                    <p className="text-xs text-terracotta text-center mt-2">{t(blockReason === "ack" ? "cart.customsAckBlocked" : "cart.taxIdBlocked")}</p>
+                    {/* La talla manda: sin ella el pedido no se puede surtir. */}
+                    <p className="text-xs text-terracotta text-center mt-2">{sizeBlocked ? t("cart.sizeBlocked") : t(blockReason === "ack" ? "cart.customsAckBlocked" : "cart.taxIdBlocked")}</p>
                   </>
                 ) : (
                   <a

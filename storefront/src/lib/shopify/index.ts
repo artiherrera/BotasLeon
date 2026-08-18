@@ -94,13 +94,23 @@ function parseJudgemeCount(mf: RawMetafield): number | null {
 function applyJudgeme<T extends JudgemeMetafields>(node: T): T & { images: Image[]; judgemeRating: number | null; judgemeReviewCount: number | null } {
   // Aplana images.edges → Image[] si viene como conexión (fragment de tarjeta).
   // Si ya es arreglo (PDP, que aplana antes) o no viene, lo respeta.
-  const raw = node as unknown as { images?: Image[] | { edges: { node: Image }[] } }
+  const raw = node as unknown as {
+    images?: Image[] | { edges: { node: Image }[] }
+    variants?: Product["variants"] | { edges: { node: Product["variants"][number] }[] }
+  }
   const images: Image[] = Array.isArray(raw.images)
     ? raw.images
     : raw.images?.edges?.map((e) => e.node) ?? []
+  // Mismo trato para variants: la tarjeta necesita la variante única para poder
+  // agregar al carrito sin abrir la ficha, y sin aplanar llegaba como conexión
+  // (product.variants[0] salía undefined y el botón no se pintaba).
+  const variants: Product["variants"] = Array.isArray(raw.variants)
+    ? raw.variants
+    : raw.variants?.edges?.map((e) => e.node) ?? []
   return {
     ...node,
     images,
+    variants,
     judgemeRating: parseJudgemeRating(node.reviewsRating ?? null),
     judgemeReviewCount: parseJudgemeCount(node.reviewsRatingCount ?? null),
   }
