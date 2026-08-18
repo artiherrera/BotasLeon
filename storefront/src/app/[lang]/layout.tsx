@@ -8,7 +8,6 @@ import { CookiesBanner } from "@/components/CookiesBanner"
 import { GoogleAnalytics } from "@/components/GoogleAnalytics"
 import { MetaPixel } from "@/components/MetaPixel"
 import { OrganizationJsonLd, WebsiteJsonLd } from "@/components/StructuredData"
-import { WhatsAppButton } from "@/components/WhatsAppButton"
 import { PromoModal } from "@/components/PromoModal"
 import { notFound } from "next/navigation"
 import { LocaleProvider } from "@/lib/i18n/context"
@@ -161,7 +160,8 @@ export default async function RootLayout({
         <WebsiteJsonLd />
 
         {/* Klaviyo Onsite — se inyecta SOLO con consentimiento "todas"
-            (ver KlaviyoLoader). El newsletter no depende de esto. */}
+            (ver KlaviyoLoader). Hoy solo alimenta eventos de navegación y
+            carrito; no hay captura de email en el sitio. */}
         <KlaviyoLoader />
 
         {/* GA4 con Consent Mode v2 — escucha botasleon:consent-change del
@@ -179,9 +179,6 @@ export default async function RootLayout({
         </CartProvider>
         <CookiesBanner />
 
-        {/* Botón flotante de WhatsApp — mensaje genérico aquí; en el PDP se
-            oculta y el propio producto renderiza su versión con contexto. */}
-        <WhatsAppButton />
         </LocaleProvider>
       </body>
     </html>

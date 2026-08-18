@@ -126,18 +126,6 @@ export function ProductOptions({ product }: Props) {
     return () => observer.disconnect()
   }, [])
 
-  // Marca en <body> que la barra de compra está arriba, para que el botón
-  // flotante de WhatsApp se atenúe y no compita con el CTA (regla .wa-fab en
-  // globals.css). Vía atributo y no estado compartido: si algo falla, el peor
-  // caso es que el botón siga visible — nunca que se quede oculto.
-  useEffect(() => {
-    if (showSticky) document.body.dataset.buyBar = "up"
-    else delete document.body.dataset.buyBar
-    return () => {
-      delete document.body.dataset.buyBar
-    }
-  }, [showSticky])
-
   const handleAdd = () => {
     if (isPending) return
     // Obligar a elegir talla — si falta, avisamos y hacemos scroll al selector.

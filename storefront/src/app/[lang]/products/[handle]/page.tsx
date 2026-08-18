@@ -14,7 +14,6 @@ import { RelatedProducts } from "@/components/RelatedProducts"
 import { RecentlyViewed } from "@/components/RecentlyViewed"
 import { ProductJsonLd, BreadcrumbJsonLd } from "@/components/StructuredData"
 import { ProductViewedTracker } from "@/components/ProductViewedTracker"
-import { WhatsAppButton } from "@/components/WhatsAppButton"
 import { getProductByHandle, getProducts, getBrands } from "@/lib/shopify"
 import {
   LocalizedProductTitle,
@@ -124,11 +123,6 @@ export default async function ProductPage({ params }: Props) {
 
       {/* Klaviyo: dispara 'Viewed Product' para Browse Abandonment flow */}
       <ProductViewedTracker product={product} />
-
-      {/* WhatsApp flotante con contexto de la bota (nombre + link) */}
-      <WhatsAppButton
-        product={{ title: product.title, url: absoluteUrl(`/${lang}/products/${product.handle}`) }}
-      />
 
       <Header />
       <main id="contenido" tabIndex={-1} className="flex-1">

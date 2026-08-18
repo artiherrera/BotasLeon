@@ -1,5 +1,9 @@
 /**
- * Config + helpers para el botón de WhatsApp (soporte/dudas).
+ * Config + helpers para los enlaces de WhatsApp (soporte/dudas).
+ *
+ * NO hay botón flotante: se retiró porque competía con el CTA de compra y la
+ * gente escribía en vez de comprar. WhatsApp vive ahora solo donde el visitante
+ * lo busca a propósito: footer, /contacto y el CTA de agendar visita.
  *
  * El número va en formato wa.me: internacional, solo dígitos, sin `+` ni
  * espacios. México = 52 + 10 dígitos (ya no hace falta el 1 de móvil).
@@ -32,28 +36,9 @@ const GENERIC_MESSAGE: Message = {
   en: "Hi! 👋 I'm interested in your boots. Could you help me with sizing, prices and shipping to the US?",
 }
 
-/** Mensaje genérico (botón flotante, footer, contacto) en el idioma del sitio. */
+/** Mensaje genérico (footer y página de contacto) en el idioma del sitio. */
 export function genericWhatsappMessage(locale: Locale): string {
   return pick(GENERIC_MESSAGE, locale)
-}
-
-/**
- * Mensaje contextual para el PDP: incluye nombre + link de la bota para que
- * quien atiende el chat sepa de inmediato de qué producto se trata, y cierra
- * con la pregunta de talla+envío que empuja la conversión.
- */
-export function productWhatsappMessage(
-  title: string,
-  url: string,
-  locale: Locale
-): string {
-  return pick(
-    {
-      es: `¡Hola! 👋 Me interesa esta bota: ${title}\n${url}\n¿Tienen mi talla y cómo es el envío?`,
-      en: `Hi! 👋 I'm interested in these boots: ${title}\n${url}\nDo you have my size, and how does shipping work?`,
-    },
-    locale
-  )
 }
 
 /** Mensaje del CTA "agendar visita" de /visitanos (tienda física en León). */
