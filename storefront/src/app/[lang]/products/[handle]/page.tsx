@@ -58,24 +58,40 @@ type Props = {
   params: Promise<{ lang: string; handle: string }>
 }
 
-export async function generateStaticParams() {
-  // Paginamos el catálogo completo (Shopify topa `first` en 250) para
-  // pre-generar TODAS las PDPs — importante porque Amplify no regenera
-  // rutas dinámicas on-demand de forma fiable. Cap de 20 páginas (5000
-  // productos) como salvaguarda anti-loop.
-  //
-  // SIN try/catch a propósito: con dynamicParams = false, tragarse un fallo de
-  // Shopify aquí publicaría un sitio donde TODAS las fichas dan 404. Que
-  // reviente el build es lo correcto — Amplify deja en pie el deploy anterior.
-  const params: { handle: string }[] = []
+/** Recorre el catálogo completo (Shopify topa `first` en 250). Cap de 20
+ *  páginas (5000 productos) como salvaguarda anti-loop. */
+async function fetchAllHandles(): Promise<string[]> {
+  const handles: string[] = []
   let after: string | null = null
   for (let page = 0; page < 20; page++) {
     const { products, pageInfo } = await getProducts({ first: 250, after })
-    params.push(...products.map((p) => ({ handle: p.handle })))
+    handles.push(...products.map((p) => p.handle))
     if (!pageInfo.hasNextPage || !pageInfo.endCursor) break
     after = pageInfo.endCursor
   }
-  return params
+  return handles
+}
+
+export async function generateStaticParams() {
+  // DOS pasadas y unión de resultados. No es paranoia: un deploy real salió con
+  // 96 de 98 fichas porque Shopify devolvió un catálogo corto —sin error, con
+  // hasNextPage=false—, y como dynamicParams=false, esos dos productos daban
+  // 404 permanente aunque existieran. El buscador sí los encontraba, así que el
+  // cliente llegaba a una página inexistente.
+  //
+  // La segunda pasada cuesta una petición por build y convierte un fallo
+  // silencioso en uno que se cura solo (y se ve en el log).
+  const [a, b] = await Promise.all([fetchAllHandles(), fetchAllHandles()])
+  const union = Array.from(new Set([...a, ...b]))
+  if (union.length !== a.length || union.length !== b.length) {
+    console.warn(
+      `[PDP] catálogo inconsistente entre pasadas: ${a.length} y ${b.length} → se pre-generan ${union.length}`
+    )
+  }
+  // SIN try/catch a propósito: con dynamicParams = false, tragarse un fallo de
+  // Shopify publicaría un sitio donde TODAS las fichas dan 404. Que reviente el
+  // build es lo correcto — Amplify deja en pie el deploy anterior.
+  return union.map((handle) => ({ handle }))
 }
 
 export default async function ProductPage({ params }: Props) {
