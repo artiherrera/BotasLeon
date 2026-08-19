@@ -48,6 +48,9 @@ const s = StyleSheet.create({
   },
   // Header de marca
   headerRule: { borderTopWidth: 2, borderTopColor: C.leather, marginHorizontal: 90 },
+  // Logo oficial del sitio (public/logo_botasleon.png, 800×220 → ratio 3.64).
+  logo: { width: 150, height: 41, marginTop: 8, marginBottom: 2, alignSelf: "center" },
+  // Respaldo tipográfico: solo si el logo no se pudo cargar (offline, bloqueo).
   brand: {
     fontFamily: "Times-Roman",
     fontSize: 24,
@@ -189,7 +192,7 @@ function ItemRows({
   )
 }
 
-function QuoteDoc({ quote }: { quote: Quote }) {
+function QuoteDoc({ quote, logo }: { quote: Quote; logo: string | null }) {
   const pares = totalPares(quote.items)
   const importe = importeTotal(quote.items)
   const L = STR[quote.idioma] ?? STR.es
@@ -200,7 +203,12 @@ function QuoteDoc({ quote }: { quote: Quote }) {
       <Page size="A4" style={s.page}>
         {/* Marca */}
         <View style={s.headerRule} />
-        <Text style={s.brand}>BOTAS LEÓN</Text>
+        {logo ? (
+          // eslint-disable-next-line jsx-a11y/alt-text -- react-pdf Image no es HTML img (no lleva alt)
+          <Image style={s.logo} src={logo} />
+        ) : (
+          <Text style={s.brand}>BOTAS LEÓN</Text>
+        )}
         <Text style={s.brandSub}>{L.subtitle}</Text>
         <View style={s.headerRule} />
 
@@ -277,6 +285,36 @@ function MetaLine({ label, value }: { label: string; value: string }) {
   )
 }
 
+/**
+ * Logo oficial → data URI. react-pdf necesita los bytes al generar, y una URL
+ * suelta haría fallar TODO el PDF si la red falla justo ahí. Resolviéndolo
+ * antes, un fallo se degrada al respaldo tipográfico en vez de romper la
+ * descarga: para un vendedor, quedarse sin cotización es peor que quedarse sin
+ * logo. Se cachea entre descargas de la misma sesión.
+ */
+const LOGO_URL = "/logo_botasleon.png"
+let logoCache: string | null | undefined
+
+async function loadLogo(): Promise<string | null> {
+  if (logoCache !== undefined) return logoCache
+  try {
+    const res = await fetch(LOGO_URL)
+    if (!res.ok) throw new Error(`HTTP ${res.status}`)
+    const blob = await res.blob()
+    logoCache = await new Promise<string>((resolve, reject) => {
+      const r = new FileReader()
+      r.onload = () => resolve(String(r.result))
+      r.onerror = () => reject(r.error)
+      r.readAsDataURL(blob)
+    })
+  } catch (e) {
+    console.error("[cotizador] no se pudo cargar el logo, uso el respaldo:", e)
+    logoCache = null
+  }
+  return logoCache
+}
+
 export async function generateQuotePdf(quote: Quote): Promise<Blob> {
-  return await pdf(<QuoteDoc quote={quote} />).toBlob()
+  const logo = await loadLogo()
+  return await pdf(<QuoteDoc quote={quote} logo={logo} />).toBlob()
 }
