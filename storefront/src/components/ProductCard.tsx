@@ -23,7 +23,18 @@ import { useCart } from "@/components/CartProvider"
  * se elige después, en el carrito (ver CartLineSize). El botón va FUERA del
  * <a> del enlace: un <button> dentro de un <a> es HTML inválido.
  */
-export function ProductCard({ product }: { product: Product }) {
+export function ProductCard({
+  product,
+  singleImage = false,
+}: {
+  product: Product
+  /**
+   * Muestra solo la portada, sin el carrusel interno de fotos. Se usa dentro de
+   * ProductRail: dos deslizadores horizontales anidados se disputan el gesto en
+   * móvil y gana el de adentro, dejando el riel atascado.
+   */
+  singleImage?: boolean
+}) {
   const t = useT()
   const { handle, title, vendor, featuredImage, priceRange } = product
   const loc = useProductTranslation(handle)
@@ -54,10 +65,18 @@ export function ProductCard({ product }: { product: Product }) {
       }
     >
       <div className="relative aspect-square overflow-hidden bg-bg-alt rounded-sm mb-3">
-        {gallery.length > 0 ? (
-          <CardGallery images={gallery} alt={title} />
-        ) : (
+        {gallery.length === 0 ? (
           <PlaceholderImage />
+        ) : singleImage ? (
+          <Image
+            src={gallery[0].url}
+            alt={gallery[0].altText || title}
+            fill
+            sizes={SIZES}
+            className="object-cover transition-transform duration-500 group-hover:scale-105"
+          />
+        ) : (
+          <CardGallery images={gallery} alt={title} />
         )}
         {!product.availableForSale && (
           <div className="absolute top-3 left-3 z-20 bg-text/90 text-bg eyebrow text-xs px-2 py-1 rounded">

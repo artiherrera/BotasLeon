@@ -2,6 +2,7 @@
 
 import { LocalizedLink as Link } from "@/components/LocalizedLink"
 import { ProductCard } from "./ProductCard"
+import { ProductRail } from "./ProductRail"
 import { EmptyProductsState } from "./EmptyState"
 import type { Product } from "@/lib/shopify/types"
 import { useT } from "@/lib/i18n/context"
@@ -31,11 +32,14 @@ export function LatestGenderGrid({
   }
   return (
     <>
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-        {products.slice(0, 4).map((p) => (
-          <ProductCard key={p.id} product={p} />
+      {/* Riel deslizable: 4 tarjetas se quedaban cortas para "lo más nuevo".
+          Ahora entran las 20 más recientes y se recorren con el dedo o con las
+          flechas, sin alargar la página. */}
+      <ProductRail label={t("latest.railLabel").replace("{label}", t(`latest.label.${label}`))}>
+        {products.slice(0, 20).map((p) => (
+          <ProductCard key={p.id} product={p} singleImage />
         ))}
-      </div>
+      </ProductRail>
       <div className="text-center mt-10">
         <Link
           href={href}

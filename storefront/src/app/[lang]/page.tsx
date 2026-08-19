@@ -70,6 +70,14 @@ export const revalidate = 60
  * el futuro se quiere recuperar como "Acerca de" en /nosotros, restaurar desde
  * commit anterior.
  */
+/**
+ * Cuántas botas entran al riel de "Lo más nuevo". El fetch sigue pidiendo el
+ * catálogo completo (el filtro por género ocurre en JS, ver abajo), pero al
+ * componente solo le pasamos estas: mandar los 250 productos de cada género al
+ * navegador para pintar 20 inflaba la home sin que nadie los viera.
+ */
+const RIEL_MAX = 20
+
 export default async function HomePage() {
   // Parallel fetch — hero + 2 grids por género en una pasada.
   //
@@ -110,7 +118,7 @@ export default async function HomePage() {
         <LatestByGenderTabs
           hombreContent={
             <LatestGenderGrid
-              products={hombreProducts}
+              products={hombreProducts.slice(0, RIEL_MAX)}
               href="/hombre"
               label="hombre"
               emptyHint={
@@ -122,7 +130,7 @@ export default async function HomePage() {
           }
           mujerContent={
             <LatestGenderGrid
-              products={mujerProducts}
+              products={mujerProducts.slice(0, RIEL_MAX)}
               href="/mujer"
               label="mujer"
               emptyHint={

@@ -268,6 +268,13 @@ export const DICTIONARY: Record<string, Entry> = {
 
   // ── Tarjeta de producto ──────────────────────────────────────────────
   "card.view": { es: "Ver", en: "View" },
+  // Riel horizontal de productos (ProductRail).
+  "rail.prev": { es: "Ver anteriores", en: "See previous" },
+  "rail.next": { es: "Ver siguientes", en: "See next" },
+  "latest.railLabel": {
+    es: "Lo más nuevo en {label}",
+    en: "New in {label}",
+  },
   // Compra directa desde la tarjeta — la talla se elige después, en el carrito.
   "card.add": { es: "Agregar al carrito", en: "Add to cart" },
   "card.addAria": {
