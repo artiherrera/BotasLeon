@@ -23,7 +23,7 @@ export const DICTIONARY: Record<string, Entry> = {
   "pdp.chooseSize": { es: "Elige talla", en: "Choose size" },
   "pdp.comboUnavailable": { es: "Combinación no disponible", en: "Combination unavailable" },
   "pdp.selectSize": { es: "Selecciona tu talla", en: "Select your size" },
-  "pdp.shippingNote": { es: "Envío a EE.UU. · 7-10 días", en: "Ships to the USA · 7-10 days" },
+  "pdp.shippingNote": { es: "Envío a EE.UU. y México", en: "Ships to the USA and Mexico" },
   "pdp.sizeError": { es: "Por favor selecciona tu talla.", en: "Please select your size." },
   "pdp.unavailable": { es: "No disponible", en: "Unavailable" },
   "recent.eyebrow": { es: "Visto recientemente", en: "Recently viewed" },
@@ -131,7 +131,7 @@ export const DICTIONARY: Record<string, Entry> = {
   "nav.explore": { es: "Explorar", en: "Explore" },
 
   // Banda de propuesta de valor (menú móvil)
-  "promo.shipping": { es: "Envío a todo Estados Unidos", en: "Shipping across the USA" },
+  "promo.shipping": { es: "Envío a EE.UU. y México", en: "Shipping to the USA and Mexico" },
 
   // Secciones de ayuda / empresa
   "nav.help": { es: "Ayuda", en: "Help" },
@@ -176,8 +176,8 @@ export const DICTIONARY: Record<string, Entry> = {
     es: "Cada marca pasa nuestro filtro",
     en: "Every brand meets our standard",
   },
-  "trust.shipping.title": { es: "Envío a Estados Unidos", en: "Shipping to the USA" },
-  "trust.shipping.sub": { es: "7-10 días hábiles", en: "7-10 business days" },
+  "trust.shipping.title": { es: "Envío a EE.UU. y México", en: "Ships to the USA and Mexico" },
+  "trust.shipping.sub": { es: "Costo calculado en el pago", en: "Cost calculated at checkout" },
   "trust.exchange.title": { es: "Garantía", en: "Built to last" },
   "trust.exchange.sub": {
     es: "15 días por defecto de fábrica",
@@ -371,8 +371,8 @@ export const DICTIONARY: Record<string, Entry> = {
     en: "León, the world capital of leather",
   },
   "marquee.shipping": {
-    es: "Envío a todo Estados Unidos",
-    en: "Shipping across the USA",
+    es: "Enviamos a EE.UU. y a todo México",
+    en: "We ship to the USA and all of Mexico",
   },
   "marquee.store": { es: "Tienda física en León →", en: "Visit our store in León →" },
 

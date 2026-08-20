@@ -14,13 +14,15 @@ export default function EnviosPage() {
           <>
             <h2>Cobertura</h2>
             <p>
-              Enviamos a todo Estados Unidos continental. Para otros destinos,
-              escríbenos a contacto@botasleon.com y te cotizamos.
+              Enviamos a todo Estados Unidos continental y a toda la República
+              Mexicana. Para otros destinos, escríbenos a contacto@botasleon.com
+              y te cotizamos.
             </p>
 
             <h2>Tiempos de entrega</h2>
             <ul>
               <li><strong>Estados Unidos:</strong> 7-10 días hábiles</li>
+              <li><strong>México:</strong> el plazo se confirma al pagar, según tu estado y la paquetería</li>
             </ul>
             <p>
               Los tiempos comienzan a contar desde que tu pedido es enviado (no desde
@@ -34,8 +36,9 @@ export default function EnviosPage() {
               el pedido — nunca hay cargos sorpresa después.
             </p>
             <p>
-              Los impuestos de aduana y aranceles de Estados Unidos son aparte y
-              los cubre el comprador (te lo informamos antes de pagar).
+              Los impuestos de aduana y aranceles <strong>de Estados Unidos</strong> son
+              aparte y los cubre el comprador (te lo informamos antes de pagar). En
+              envíos dentro de México no hay aduana: no aplica ese cargo.
             </p>
 
             <h2>Paqueterías</h2>
@@ -63,14 +66,15 @@ export default function EnviosPage() {
           <>
             <h2>Coverage</h2>
             <p>
-              We ship throughout the continental United States. For other
-              destinations, email us at contacto@botasleon.com and
+              We ship throughout the continental United States and all of Mexico.
+              For other destinations, email us at contacto@botasleon.com and
               we&rsquo;ll send you a quote.
             </p>
 
             <h2>Delivery times</h2>
             <ul>
               <li><strong>United States:</strong> estimated 7-10 business days</li>
+              <li><strong>Mexico:</strong> confirmed at checkout, based on your state and carrier</li>
             </ul>
             <p>
               Transit times start counting once your order ships (not when you place
@@ -84,8 +88,9 @@ export default function EnviosPage() {
               surprise charge afterwards.
             </p>
             <p>
-              U.S. customs duties and tariffs are separate and are paid by the
-              buyer (you&rsquo;ll be informed before checkout).
+              <strong>U.S.</strong> customs duties and tariffs are separate and are paid
+              by the buyer (you&rsquo;ll be informed before checkout). Shipments within
+              Mexico clear no customs, so that charge does not apply.
             </p>
 
             <h2>Carriers</h2>
@@ -122,6 +127,6 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
   path: "/envios",
   title: "Envíos",
   description:
-    "Envío a todo Estados Unidos. Tiempos, costos y rastreo de pedidos.",
+    "Envío a Estados Unidos y a todo México. Tiempos, costos y rastreo de pedidos.",
   })
 }
