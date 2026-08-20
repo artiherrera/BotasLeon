@@ -1,4 +1,4 @@
-import { Rye, Playfair_Display, Oswald, Josefin_Sans } from "next/font/google"
+import localFont from "next/font/local"
 
 /**
  * Fuentes curadas para el TÍTULO de una marca — el nombre grande en su página
@@ -6,24 +6,30 @@ import { Rye, Playfair_Display, Oswald, Josefin_Sans } from "next/font/google"
  * campo `title_font` del metaobjeto "brand" (valor = uno de los slugs de
  * abajo). Vacío o desconocido → cae a la fuente display del sitio (Bevan).
  *
- * Se llaman a nivel de módulo (requisito de next/font) y self-hosted en build,
- * así que no hay request externo en runtime (CSP-safe). Solo entran al bundle
- * de las rutas que importan este archivo (marca + producto), no al home.
+ * Los archivos viven en src/fonts (subconjunto latino) y NO se bajan de Google
+ * en el build. Antes sí: un deploy real falló porque fonts.gstatic.com devolvió
+ * 404 en medio de la compilación y Turbopack no pudo resolver Josefin Sans.
+ * Depender de una red ajena para poder publicar no vale la pena por una fuente
+ * decorativa.
  */
-const rye = Rye({ weight: "400", subsets: ["latin"], display: "swap" })
-const playfair = Playfair_Display({
-  weight: ["600", "700"],
-  subsets: ["latin"],
+const rye = localFont({
+  src: "../fonts/rye.woff2",
+  weight: "400",
   display: "swap",
 })
-const oswald = Oswald({
-  weight: ["500", "600"],
-  subsets: ["latin"],
+const playfair = localFont({
+  src: "../fonts/playfair-display.woff2",
+  weight: "600 700",
   display: "swap",
 })
-const josefin = Josefin_Sans({
-  weight: ["400", "600"],
-  subsets: ["latin"],
+const oswald = localFont({
+  src: "../fonts/oswald.woff2",
+  weight: "500 600",
+  display: "swap",
+})
+const josefin = localFont({
+  src: "../fonts/josefin-sans.woff2",
+  weight: "400 600",
   display: "swap",
 })
 

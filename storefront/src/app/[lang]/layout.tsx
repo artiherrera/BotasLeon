@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next"
-import { Fraunces, Inter } from "next/font/google"
+import localFont from "next/font/local"
 import { KlaviyoLoader } from "@/components/KlaviyoLoader"
 import { CartProvider } from "@/components/CartProvider"
 import { CartDrawer } from "@/components/CartDrawer"
@@ -34,15 +34,19 @@ export function generateStaticParams() {
  * Se cargan como CSS variables y se conectan al @theme de globals.css.
  * (Antes: Bevan + Zilla Slab — retirados por completo.)
  */
-const fraunces = Fraunces({
+// Archivos locales (src/fonts, subconjunto latino): el build no depende de que
+// Google responda. Son variables, así que un solo archivo cubre todo el rango
+// de pesos que usa el sitio.
+const fraunces = localFont({
+  src: "../../fonts/fraunces.woff2",
   variable: "--font-fraunces",
-  subsets: ["latin"],
+  weight: "300 700",
   display: "swap",
 })
-const inter = Inter({
+const inter = localFont({
+  src: "../../fonts/inter.woff2",
   variable: "--font-inter",
-  weight: ["400", "500", "600", "700"],
-  subsets: ["latin"],
+  weight: "400 700",
   display: "swap",
 })
 

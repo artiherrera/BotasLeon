@@ -2,7 +2,7 @@
    fuera del router (sin layout ni contexto de navegación), así que los enlaces
    tienen que ser <a> de toda la vida: una navegación dura de vuelta al sitio. */
 import type { Metadata } from "next"
-import { Fraunces, Inter } from "next/font/google"
+import localFont from "next/font/local"
 import "./globals.css"
 
 /**
@@ -20,15 +20,18 @@ import "./globals.css"
  * 404 automáticamente.
  */
 
-const fraunces = Fraunces({
+// Locales, como el resto del sitio: esta página se sirve suelta y tampoco tiene
+// por qué depender de que Google responda durante el build.
+const fraunces = localFont({
+  src: "../fonts/fraunces.woff2",
   variable: "--font-fraunces",
-  subsets: ["latin"],
+  weight: "300 700",
   display: "swap",
 })
-const inter = Inter({
+const inter = localFont({
+  src: "../fonts/inter.woff2",
   variable: "--font-inter",
-  weight: ["400", "500", "600"],
-  subsets: ["latin"],
+  weight: "400 700",
   display: "swap",
 })
 
