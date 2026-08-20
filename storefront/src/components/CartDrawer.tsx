@@ -44,7 +44,7 @@ export function CartDrawer() {
   } = useCart()
   const t = useT()
   const sizeBlocked = missingSizeLines(cart).length > 0 // sin talla no se puede surtir
-  const { blocked: taxIdBlocked, blockReason } = useCustomsGate() // bloquea "Pagar": aceptación aduana (todo EE.UU.) o Tax ID (≥ $800)
+  const { blocked: taxIdBlocked, blockReason, toUsa } = useCustomsGate() // bloquea "Pagar": aceptación aduana (todo EE.UU.) o Tax ID (≥ $800)
   // Traduce el NOMBRE de la opción/atributo (Talla/Color/Material vienen en
   // español desde Shopify) sin tocar el valor. Si no lo conocemos, lo deja igual.
   const optLabel = (name: string): string => {
@@ -404,7 +404,7 @@ export function CartDrawer() {
                 </div>
               )}
               <p className="text-xs text-text-muted mt-1 mb-4">
-                {t("cart.shippingTax")}
+                {t(toUsa ? "cart.shippingTax" : "cart.shippingTaxMx")}
               </p>
 
               <CustomsTaxIdField />

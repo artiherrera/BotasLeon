@@ -446,9 +446,15 @@ export const DICTIONARY: Record<string, Entry> = {
   "cart.apply": { es: "Aplicar", en: "Apply" },
   "cart.subtotal": { es: "Subtotal", en: "Subtotal" },
   "cart.discount": { es: "Descuento", en: "Discount" },
+  // Dos notas porque el impuesto depende del DESTINO, no del idioma: a EE.UU.
+  // la venta va sin IVA mexicano; dentro de México el precio lo lleva incluido.
   "cart.shippingTax": {
     es: "Envío calculado en el pago · precios en USD, sin IVA",
     en: "Shipping calculated at checkout · prices in USD, no VAT",
+  },
+  "cart.shippingTaxMx": {
+    es: "Envío calculado en el pago · precios en USD, IVA incluido",
+    en: "Shipping calculated at checkout · prices in USD, VAT included",
   },
   "cart.checkout": { es: "Pagar", en: "Checkout" },
   // Talla dentro del carrito (se puede agregar desde la tarjeta sin elegirla).
