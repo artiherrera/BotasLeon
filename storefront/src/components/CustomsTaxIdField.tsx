@@ -146,10 +146,13 @@ export function CustomsTaxIdField() {
     if (checked) {
       setAttr(DEST_US_KEY, "sí") // persistimos YA (lo lee el candado)
     } else {
-      // Al desmarcar EE.UU., limpiamos todo lo de aduana de un solo golpe.
+      // Se PERSISTE "no", no se borra: el candado lee un atributo ausente como
+      // "sí es a EE.UU." (default seguro para el mercado principal). Si aquí se
+      // limpiara, el comprador mexicano quedaba trabado — ocultábamos la casilla
+      // de aranceles y el pago seguía pidiendo que la aceptara.
       setTaxId("")
       setAck(false)
-      setAttrs({ [DEST_US_KEY]: null, [TAX_ID_KEY]: null, [CUSTOMS_ACK_KEY]: null })
+      setAttrs({ [DEST_US_KEY]: "no", [TAX_ID_KEY]: null, [CUSTOMS_ACK_KEY]: null })
     }
   }
 
@@ -166,6 +169,10 @@ export function CustomsTaxIdField() {
   const S = en
     ? {
         toUsa: "Shipping to the United States",
+        destQuestion: "Where are we shipping your order?",
+        destUsa: "United States",
+        destMx: "Mexico",
+        destMxNote: "Domestic shipping — no customs or import duties apply.",
         label: "Tax ID / EIN",
         opt: "(optional, for U.S. customs)",
         req: "(required for orders ≥ $800)",
@@ -178,6 +185,10 @@ export function CustomsTaxIdField() {
       }
     : {
         toUsa: "Mi envío es a Estados Unidos",
+        destQuestion: "¿A dónde enviamos tu pedido?",
+        destUsa: "Estados Unidos",
+        destMx: "México",
+        destMxNote: "Envío nacional — sin aduana ni aranceles de importación.",
         label: "Tax ID / EIN",
         opt: "(opcional, para aduana de EE.UU.)",
         req: "(requerido en pedidos ≥ $800)",
@@ -191,15 +202,31 @@ export function CustomsTaxIdField() {
 
   return (
     <div className="border-t border-border pt-4 mb-4 text-sm">
-      <label className="flex items-center gap-2 cursor-pointer select-none text-text-muted hover:text-text transition-colors">
-        <input
-          type="checkbox"
-          checked={toUsa}
-          onChange={(e) => handleToggle(e.target.checked)}
-          className="accent-leather w-4 h-4 flex-shrink-0"
-        />
-        <span>{S.toUsa}</span>
-      </label>
+      {/* Elección explícita de destino. Antes era una casilla marcada por
+          defecto: el cliente mexicano tenía que descubrir que debía desmarcarla
+          para no aceptar aranceles que no le tocan. */}
+      <p className="text-text-muted mb-2">{S.destQuestion}</p>
+      <div className="flex gap-2" role="group" aria-label={S.destQuestion}>
+        {([true, false] as const).map((isUsa) => (
+          <button
+            key={String(isUsa)}
+            type="button"
+            onClick={() => handleToggle(isUsa)}
+            aria-pressed={toUsa === isUsa}
+            className={`px-4 py-2 rounded-full border text-sm transition-colors ${
+              toUsa === isUsa
+                ? "border-leather bg-text text-bg"
+                : "border-border text-text hover:border-leather"
+            }`}
+          >
+            {isUsa ? S.destUsa : S.destMx}
+          </button>
+        ))}
+      </div>
+
+      {!toUsa && (
+        <p className="mt-2.5 text-xs text-text-subtle">{S.destMxNote}</p>
+      )}
 
       {toUsa && (
         <div className="mt-3">
