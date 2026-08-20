@@ -168,7 +168,6 @@ export function CustomsTaxIdField() {
 
   const S = en
     ? {
-        toUsa: "Shipping to the United States",
         destQuestion: "Where are we shipping your order?",
         destUsa: "United States",
         destMx: "Mexico",
@@ -184,7 +183,6 @@ export function CustomsTaxIdField() {
         customsAck: "I understand and accept that these charges are my responsibility.",
       }
     : {
-        toUsa: "Mi envío es a Estados Unidos",
         destQuestion: "¿A dónde enviamos tu pedido?",
         destUsa: "Estados Unidos",
         destMx: "México",
