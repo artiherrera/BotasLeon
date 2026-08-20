@@ -5,6 +5,7 @@ import { LocalizedLink as Link } from "@/components/LocalizedLink"
 import Image from "next/image"
 import type { HeroSlide } from "@/lib/shopify/types"
 import { useLocale, useT } from "@/lib/i18n/context"
+import { inContext } from "@/lib/market"
 
 // Traducción EN de los slides del hero (metaobjects hero_slide). El render del
 // servidor trae el texto en español; en inglés pedimos la versión traducida
@@ -30,7 +31,7 @@ async function fetchHeroSlidesEN(): Promise<Map<string, HeroText>> {
       },
       body: JSON.stringify({
         query: /* GraphQL */ `
-          query HeroEN @inContext(country: US, language: EN) {
+          query HeroEN ${inContext('EN')} {
             metaobjects(type: "hero_slide", first: 20) {
               edges { node { handle fields { key value } } }
             }

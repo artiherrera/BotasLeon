@@ -10,6 +10,7 @@ import {
   useTransition,
 } from "react"
 import { SIZE_ATTR } from "@/lib/cart/line-size"
+import { COUNTRY } from "@/lib/market"
 import {
   clientAddLines,
   clientCreateCart,
@@ -87,9 +88,9 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const cartIdRef = useRef<string | null>(null)
   const toastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
-  // Mercado ÚNICO: Estados Unidos (USD). Se usa al crear el carrito y para
-  // re-alinear a USD un carrito viejo (creado en MXN) al montar.
-  const countryCode = "US"
+  // País del carrito = mercado del despliegue (ver lib/market.ts). Decide la
+  // moneda del checkout, y re-alinea un carrito viejo guardado en otra moneda.
+  const countryCode = COUNTRY
   const countryRef = useRef(countryCode)
   useEffect(() => {
     countryRef.current = countryCode

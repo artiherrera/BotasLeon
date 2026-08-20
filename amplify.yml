@@ -11,14 +11,27 @@ applications:
           # cuando vienen vacíos. El Storefront token es público por diseño
           # (read-only, scoped a la tienda), así que comitearlo no compromete.
           commands:
+            # MERCADO del despliegue: US (botasleon.com) o MX (botasleon.mx).
+            # Cada uno apunta a SU tienda de Shopify — son cuentas separadas.
+            - MARKET="${NEXT_PUBLIC_MARKET:-US}"
+            # Los defaults de abajo son de la tienda de EE.UU. Si un build de MX
+            # se quedara sin variables, heredaría la tienda equivocada y
+            # publicaría precios en dólares en el sitio mexicano: mejor que
+            # reviente aquí que descubrirlo vendiendo.
+            - |
+              if [ "$MARKET" = "MX" ] && { [ -z "$SHOPIFY_STOREFRONT_ACCESS_TOKEN" ] || [ -z "$SHOPIFY_STORE_DOMAIN" ]; }; then
+                echo "MARKET=MX sin SHOPIFY_STORE_DOMAIN/SHOPIFY_STOREFRONT_ACCESS_TOKEN propios." >&2
+                exit 1
+              fi
             - TOKEN="${SHOPIFY_STOREFRONT_ACCESS_TOKEN:-a972078fe7ba6fa5a4f2247ba596e2b9}"
             - DOMAIN="${SHOPIFY_STORE_DOMAIN:-botas-leon-3.myshopify.com}"
             - VERSION="${SHOPIFY_API_VERSION:-2025-01}"
-            - SITE_URL="https://botasleon.com"
+            - SITE_URL="${NEXT_PUBLIC_SITE_URL:-https://botasleon.com}"
             - echo "SHOPIFY_STOREFRONT_ACCESS_TOKEN=$TOKEN"               >  .env.production.local
             - echo "SHOPIFY_STORE_DOMAIN=$DOMAIN"                         >> .env.production.local
             - echo "SHOPIFY_API_VERSION=$VERSION"                         >> .env.production.local
             - echo "NEXT_PUBLIC_SITE_URL=$SITE_URL"                       >> .env.production.local
+            - echo "NEXT_PUBLIC_MARKET=$MARKET"                           >> .env.production.local
             # NEXT_PUBLIC_* se exponen al bundle del navegador. El cart
             # client-side hace fetch directo desde el browser a Shopify
             # (sin pasar por nuestro server), así que necesita ambos.

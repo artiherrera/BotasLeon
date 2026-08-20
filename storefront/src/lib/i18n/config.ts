@@ -10,11 +10,18 @@
  * Fase 2 (futuro): descripciones de producto en inglés vía @inContext(language:)
  * cuando Translate & Adapt esté poblado en Shopify.
  */
+import { MARKET } from "@/lib/market"
+
 export const LOCALES = ["es", "en"] as const
 export type Locale = (typeof LOCALES)[number]
 
-/** Idioma por defecto — el del render del servidor (evita mismatch de hidratación). */
-export const DEFAULT_LOCALE: Locale = "en"
+/**
+ * Idioma por defecto — lo decide el MERCADO del despliegue: botasleon.com vende
+ * a Estados Unidos y abre en inglés; botasleon.mx vende en México y abre en
+ * español. (Ambos sitios conservan los dos idiomas; solo cambia cuál es el que
+ * recibe a quien llega sin preferencia.)
+ */
+export const DEFAULT_LOCALE: Locale = MARKET === "MX" ? "es" : "en"
 
 /** Clave de localStorage donde se guarda la preferencia manual del visitante. */
 export const STORAGE_KEY = "botasleon:locale"

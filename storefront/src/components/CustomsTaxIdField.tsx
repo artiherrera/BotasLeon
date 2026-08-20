@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react"
 import { useCart } from "./CartProvider"
 import { useLocale } from "@/lib/i18n/context"
+import { requiresUsCustoms } from "@/lib/market"
 
 /**
  * Datos de aduana para envíos a EE.UU. (Tax ID + aceptación de aranceles).
@@ -46,6 +47,9 @@ function usdEquivalent(cart: CartLike): number {
  */
 export function useCustomsGate() {
   const { cart } = useCart()
+  // En el mercado mexicano no hay importación que declarar: ni campo, ni
+  // candado. Los hooks de abajo siguen corriendo (no se pueden saltar), pero el
+  // resultado se neutraliza al final.
   const { locale } = useLocale()
   const attrs = cart?.attributes ?? []
   const taxId = (attrs.find((a) => a.key === TAX_ID_KEY)?.value ?? "").trim()
@@ -61,6 +65,19 @@ export function useCustomsGate() {
     : taxIdMissing
       ? "taxId"
       : null
+  if (!requiresUsCustoms) {
+    return {
+      toUsa: false,
+      taxId: "",
+      ack: true,
+      needsTaxId: false,
+      ackMissing: false,
+      blockReason: null,
+      blocked: false,
+      usd,
+    }
+  }
+
   return {
     toUsa,
     taxId,

@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react"
 import { useLocale, useT } from "@/lib/i18n/context"
 import { PriceMSI } from "./PriceMSI"
+import { inContext } from "@/lib/market"
 
 /**
  * Contenido de producto localizado (Fase 2).
@@ -50,7 +51,7 @@ async function fetchTranslation(handle: string): Promise<Translation | null> {
         // Shopify cae a español. Este contexto TAMBIÉN devuelve precios en USD
         // (conversión automática del mercado USA).
         query: /* GraphQL */ `
-          query ProductEN($handle: String!) @inContext(country: US, language: EN) {
+          query ProductEN($handle: String!) ${inContext('EN')} {
             product(handle: $handle) {
               title
               descriptionHtml
@@ -169,7 +170,7 @@ export function LocalizedProductDescription({
 
 /**
  * Precio localizado — en inglés (mercado USA) muestra el precio en USD que
- * devuelve Shopify vía @inContext(country: US); en español muestra el precio
+ * devuelve Shopify vía @inContext del mercado; en español muestra el precio
  * base en MXN (render del servidor, SSG). PriceMSI apaga solo el MSI cuando la
  * moneda no es MXN, así que en USD sale el total limpio (sin "meses sin
  * intereses", que no aplica a EE.UU.).

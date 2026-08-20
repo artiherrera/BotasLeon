@@ -12,6 +12,8 @@
 
 import type { Product, PageInfo } from "@/lib/shopify/types"
 
+import { inContext } from "@/lib/market"
+
 const DOMAIN = process.env.NEXT_PUBLIC_SHOPIFY_STORE_DOMAIN
 const TOKEN = process.env.NEXT_PUBLIC_SHOPIFY_STOREFRONT_ACCESS_TOKEN
 const VERSION = process.env.NEXT_PUBLIC_SHOPIFY_API_VERSION || "2025-01"
@@ -43,7 +45,7 @@ const CATALOG_FIELDS = /* GraphQL */ `
 // sin importar el idioma del navegador). Sin `lang`, Shopify usa el
 // Accept-Language del navegador (comportamiento de la búsqueda del sitio).
 const catalogQuery = (lang?: "ES" | "EN") => /* GraphQL */ `
-  query SearchCatalog($first: Int!) @inContext(country: US${lang ? `, language: ${lang}` : ""}) {
+  query SearchCatalog($first: Int!) ${inContext(lang)} {
     products(first: $first) {
       edges { node { ${CATALOG_FIELDS} } }
       pageInfo { hasNextPage }
@@ -167,7 +169,7 @@ const LOAD_MORE_QUERY = /* GraphQL */ `
     $first: Int!
     $after: String
     $sortKey: ProductSortKeys
-  ) @inContext(country: US) {
+  ) ${inContext()} {
     products(first: $first, after: $after, sortKey: $sortKey) {
       edges {
         node {
