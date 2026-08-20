@@ -44,7 +44,7 @@ export function CartDrawer() {
   } = useCart()
   const t = useT()
   const sizeBlocked = missingSizeLines(cart).length > 0 // sin talla no se puede surtir
-  const { blocked: taxIdBlocked, blockReason, toUsa } = useCustomsGate() // bloquea "Pagar": aceptación aduana (todo EE.UU.) o Tax ID (≥ $800)
+  const { toUsa } = useCustomsGate() // solo decide la leyenda de impuesto
   // Traduce el NOMBRE de la opción/atributo (Talla/Color/Material vienen en
   // español desde Shopify) sin tocar el valor. Si no lo conocemos, lo deja igual.
   const optLabel = (name: string): string => {
@@ -414,7 +414,7 @@ export function CartDrawer() {
               </div>
 
               {cart?.checkoutUrl ? (
-                sizeBlocked || taxIdBlocked ? (
+                sizeBlocked ? (
                   <>
                     <button
                       type="button"
@@ -425,7 +425,7 @@ export function CartDrawer() {
                       {t("cart.checkout")}
                     </button>
                     {/* La talla manda: sin ella el pedido no se puede surtir. */}
-                    <p className="text-xs text-terracotta text-center mt-2">{sizeBlocked ? t("cart.sizeBlocked") : t(blockReason === "ack" ? "cart.customsAckBlocked" : "cart.taxIdBlocked")}</p>
+                    <p className="text-xs text-terracotta text-center mt-2">{t("cart.sizeBlocked")}</p>
                   </>
                 ) : (
                   <a

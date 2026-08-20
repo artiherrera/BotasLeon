@@ -7,7 +7,7 @@ import { Header } from "@/components/Header"
 import { Footer } from "@/components/Footer"
 import { useCart } from "@/components/CartProvider"
 import { PaymentBadges } from "@/components/PaymentBadges"
-import { CustomsTaxIdField, useCustomsGate } from "@/components/CustomsTaxIdField"
+import { CustomsTaxIdField } from "@/components/CustomsTaxIdField"
 import { useLocale } from "@/lib/i18n/context"
 import { CartLineSize } from "@/components/CartLineSize"
 import { SIZE_ATTR, isDefaultOption, missingSizeLines } from "@/lib/cart/line-size"
@@ -33,7 +33,8 @@ export default function CartPage() {
   const { cart, ready, isPending, updateLine, removeLine, showToast } = useCart()
   const { locale } = useLocale()
   const sizeBlocked = missingSizeLines(cart).length > 0 // sin talla no se puede surtir
-  const { blocked: taxIdBlocked, blockReason } = useCustomsGate() // bloquea el pago: aceptación aduana (todo EE.UU.) o Tax ID (≥ $800)
+  // El único candado que queda es la talla: sin ella el pedido no se puede
+  // surtir. La aceptación de aranceles se retiró (estos productos no los causan).
   const [pendingDiscount, setPendingDiscount] = useState<string | null>(null)
   const [couponInput, setCouponInput] = useState("")
   const lines = cart?.lines ?? []
@@ -324,7 +325,7 @@ export default function CartPage() {
               </div>
 
               {cart?.checkoutUrl ? (
-                sizeBlocked || taxIdBlocked ? (
+                sizeBlocked ? (
                   <>
                     <button
                       type="button"
@@ -335,18 +336,9 @@ export default function CartPage() {
                       {locale === "en" ? "Checkout" : "Proceder al pago"}
                     </button>
                     <p className="text-xs text-terracotta text-center mt-2">
-                      {/* La talla manda: sin ella el pedido no se puede surtir. */}
-                      {sizeBlocked
-                        ? locale === "en"
-                          ? "Choose a size for each pair to continue."
-                          : "Elige la talla de cada par para continuar."
-                        : blockReason === "ack"
-                        ? locale === "en"
-                          ? "Please accept above that customs duties are your responsibility to continue."
-                          : "Acepta arriba que los aranceles de aduana corren por tu cuenta para continuar."
-                        : locale === "en"
-                          ? "Enter your Tax ID above to continue (U.S. orders ≥ $800)."
-                          : "Ingresa tu Tax ID arriba para continuar (envíos a EE.UU. ≥ $800)."}
+                      {locale === "en"
+                        ? "Choose a size for each pair to continue."
+                        : "Elige la talla de cada par para continuar."}
                     </p>
                   </>
                 ) : (
