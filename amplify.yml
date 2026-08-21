@@ -32,6 +32,10 @@ applications:
             - echo "SHOPIFY_API_VERSION=$VERSION"                         >> .env.production.local
             - echo "NEXT_PUBLIC_SITE_URL=$SITE_URL"                       >> .env.production.local
             - echo "NEXT_PUBLIC_MARKET=$MARKET"                           >> .env.production.local
+            # Dominio propio para el checkout: Shopify siempre devuelve el host
+            # myshopify en headless, y sacar al comprador del dominio de marca
+            # justo al pagar cuesta ventas. Ver storefront/src/lib/checkout.ts.
+            - echo "NEXT_PUBLIC_CHECKOUT_DOMAIN=${NEXT_PUBLIC_CHECKOUT_DOMAIN:-}" >> .env.production.local
             # NEXT_PUBLIC_* se exponen al bundle del navegador. El cart
             # client-side hace fetch directo desde el browser a Shopify
             # (sin pasar por nuestro server), así que necesita ambos.

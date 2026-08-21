@@ -9,6 +9,7 @@ import { useCart } from "@/components/CartProvider"
 import { PaymentBadges } from "@/components/PaymentBadges"
 import { CustomsTaxIdField } from "@/components/CustomsTaxIdField"
 import { useLocale } from "@/lib/i18n/context"
+import { checkoutHref } from "@/lib/checkout"
 import { CartLineSize } from "@/components/CartLineSize"
 import { SIZE_ATTR, isDefaultOption, missingSizeLines } from "@/lib/cart/line-size"
 import { formatMoney } from "@/lib/utils"
@@ -343,7 +344,7 @@ export default function CartPage() {
                   </>
                 ) : (
                   <a
-                    href={withDiscount(cart.checkoutUrl, pendingDiscount)}
+                    href={withDiscount(checkoutHref(cart.checkoutUrl), pendingDiscount)}
                     onClick={handleCheckoutClick}
                     className="block w-full text-center py-4 bg-text text-bg text-sm hover:bg-leather transition-colors"
                   >

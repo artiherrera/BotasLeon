@@ -12,6 +12,7 @@ import { track } from "@/lib/klaviyo/client"
 import { gaEvent } from "@/lib/ga/events"
 import { useFocusTrap } from "@/lib/useFocusTrap"
 import { useT } from "@/lib/i18n/context"
+import { checkoutHref } from "@/lib/checkout"
 import { isMX } from "@/lib/market"
 import { CartLineSize } from "@/components/CartLineSize"
 import { SIZE_ATTR, isDefaultOption, missingSizeLines } from "@/lib/cart/line-size"
@@ -429,7 +430,7 @@ export function CartDrawer() {
                   </>
                 ) : (
                   <a
-                    href={withDiscount(cart.checkoutUrl)}
+                    href={withDiscount(checkoutHref(cart.checkoutUrl))}
                     onClick={handleCheckoutClick}
                     className="block w-full text-center py-4 bg-text text-bg text-sm hover:bg-leather transition-colors"
                   >
