@@ -169,36 +169,26 @@ export function LocalizedProductDescription({
 }
 
 /**
- * Precio localizado — en inglés (mercado USA) muestra el precio en USD que
- * devuelve Shopify vía @inContext del mercado; en español muestra el precio
- * base en MXN (render del servidor, SSG). PriceMSI apaga solo el MSI cuando la
- * moneda no es MXN, así que en USD sale el total limpio (sin "meses sin
- * intereses", que no aplica a EE.UU.).
+ * Precio localizado — el MISMO en los dos idiomas.
+ *
+ * Antes había dos fuentes: en inglés el precio que se traía del cliente en vivo,
+ * y en español el horneado en el build. Mientras coincidían nadie lo notaba;
+ * el día que la tienda cambió de moneda, cambiar de idioma cambiaba el precio
+ * en pantalla. Un precio no puede depender del idioma que lea el cliente.
+ *
+ * Ahora manda una sola fuente: la que Shopify devuelve para el mercado en el
+ * render. La traducción sigue aplicando a título y descripción, no al importe.
  */
 export function LocalizedPrice({
-  handle,
   amount,
   currency,
   compareAt,
   size = "card",
 }: {
-  handle: string
   amount: string
   currency: string
   compareAt?: string | null
   size?: "card" | "pdp"
 }) {
-  const t = useProductTranslation(handle)
-  const usd = t?.price
-  if (usd) {
-    return (
-      <PriceMSI
-        amount={usd.amount}
-        currency={usd.currencyCode}
-        compareAt={t?.compareAtPrice?.amount ?? undefined}
-        size={size}
-      />
-    )
-  }
   return <PriceMSI amount={amount} currency={currency} compareAt={compareAt ?? undefined} size={size} />
 }

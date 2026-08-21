@@ -47,6 +47,12 @@ applications:
             - echo "DOMAIN=$DOMAIN VERSION=$VERSION SITE_URL=$SITE_URL"
             - echo "TOKEN_length=${#TOKEN}"
             - echo "==================="
+            # La caché de datos de Next guarda las respuestas de Shopify entre
+            # builds. Al cambiar precios o moneda, los builds seguían sirviendo
+            # los valores viejos: pasó de verdad —la tienda ya cobraba en pesos
+            # y el sitio publicaba dólares convertidos—. Se borra solo la caché
+            # de fetch; la del compilador se conserva para no alargar el build.
+            - rm -rf .next/cache/fetch-cache
             - npm install
         build:
           commands:

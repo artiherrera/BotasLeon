@@ -104,7 +104,6 @@ export function ProductCard({
           </div>
         )}
         <LocalizedPrice
-          handle={handle}
           amount={minPrice.amount}
           currency={minPrice.currencyCode}
           compareAt={compareAt?.amount}

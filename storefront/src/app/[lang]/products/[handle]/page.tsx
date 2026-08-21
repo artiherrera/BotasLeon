@@ -224,7 +224,6 @@ export default async function ProductPage({ params }: Props) {
 
                 <div className="mb-8">
                   <LocalizedPrice
-                    handle={product.handle}
                     amount={price.amount}
                     currency={price.currencyCode}
                     compareAt={compareAt?.amount}
