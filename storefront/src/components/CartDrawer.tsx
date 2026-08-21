@@ -404,7 +404,7 @@ export function CartDrawer() {
                 </div>
               )}
               <p className="text-xs text-text-muted mt-1 mb-4">
-                {t(toUsa ? "cart.shippingTax" : "cart.shippingTaxMx")}
+                {t(toUsa ? "cart.shippingTaxUs" : "cart.shippingTax")}
               </p>
 
               <CustomsTaxIdField />

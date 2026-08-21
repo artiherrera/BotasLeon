@@ -446,15 +446,16 @@ export const DICTIONARY: Record<string, Entry> = {
   "cart.apply": { es: "Aplicar", en: "Apply" },
   "cart.subtotal": { es: "Subtotal", en: "Subtotal" },
   "cart.discount": { es: "Descuento", en: "Discount" },
-  // Dos notas porque el impuesto depende del DESTINO, no del idioma: a EE.UU.
-  // la venta va sin IVA mexicano; dentro de México el precio lo lleva incluido.
+  // La moneda NO se escribe aquí: la pone el carrito con lo que devuelve
+  // Shopify. Escribirla a mano fue lo que dejó al sitio anunciando dólares
+  // después de que la tienda ya cobraba pesos.
   "cart.shippingTax": {
-    es: "Envío calculado en el pago · precios en USD, sin IVA",
-    en: "Shipping calculated at checkout · prices in USD, no VAT",
+    es: "Envío calculado en el pago · IVA incluido",
+    en: "Shipping calculated at checkout · VAT included",
   },
-  "cart.shippingTaxMx": {
-    es: "Envío calculado en el pago · precios en USD, IVA incluido",
-    en: "Shipping calculated at checkout · prices in USD, VAT included",
+  "cart.shippingTaxUs": {
+    es: "Envío calculado en el pago · impuestos de EE.UU. aparte",
+    en: "Shipping calculated at checkout · U.S. taxes separate",
   },
   "cart.checkout": { es: "Pagar", en: "Checkout" },
   // Talla dentro del carrito (se puede agregar desde la tarjeta sin elegirla).
