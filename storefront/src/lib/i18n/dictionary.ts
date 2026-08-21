@@ -460,6 +460,19 @@ export const DICTIONARY: Record<string, Entry> = {
     en: "Shipping and taxes calculated at checkout",
   },
   "cart.checkout": { es: "Pagar", en: "Checkout" },
+  // Envío gratis: SOLO existe en el mercado mexicano, a partir de $3,999 MXN
+  // (ver lib/shipping-policy.ts). El sitio de EE.UU. no renderiza estas claves
+  // porque allá el envío pasa de $100 USD y prometerlo gratis sería falso.
+  // Van partidas en dos porque useT() no interpola: el monto se arma en JSX.
+  "cart.freeShippingQualified": {
+    es: "Tu pedido lleva envío gratis",
+    en: "Your order ships free",
+  },
+  "cart.freeShippingRemainingPre": { es: "Te faltan ", en: "You're " },
+  "cart.freeShippingRemainingPost": {
+    es: " para envío gratis",
+    en: " away from free shipping",
+  },
   // Talla dentro del carrito (se puede agregar desde la tarjeta sin elegirla).
   "cart.chooseSize": { es: "Elige tu talla", en: "Choose your size" },
   "cart.changeSize": { es: "Cambiar", en: "Change" },

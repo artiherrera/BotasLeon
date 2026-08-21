@@ -7,6 +7,7 @@ import { useCart } from "./CartProvider"
 import { PaymentBadges } from "./PaymentBadges"
 import { CustomsTaxIdField, useCustomsGate } from "./CustomsTaxIdField"
 import { formatMoney } from "@/lib/utils"
+import { FreeShippingProgress } from "@/components/FreeShippingProgress"
 import { clearPendingDiscount, getPendingDiscount, withDiscount } from "@/lib/discount/client"
 import { track } from "@/lib/klaviyo/client"
 import { gaEvent } from "@/lib/ga/events"
@@ -407,6 +408,10 @@ export function CartDrawer() {
               <p className="text-xs text-text-muted mt-1 mb-4">
                 {t(isMX ? "cart.shippingTax" : "cart.shippingTaxUs")}
               </p>
+
+              {/* Solo renderiza en el despliegue de México; en el de EE.UU. no
+                  hay envío gratis y el componente devuelve null. */}
+              <FreeShippingProgress amount={totalNum} currency={subtotalCurrency} />
 
               <CustomsTaxIdField />
 
