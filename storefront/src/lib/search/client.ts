@@ -39,7 +39,29 @@ const CATALOG_FIELDS = /* GraphQL */ `
     maxVariantPrice { amount currencyCode }
   }
   options { id name values }
+  variants(first: 1) { edges { node { id availableForSale } } }
 `
+
+/**
+ * Shopify devuelve `variants` como CONEXIÓN (`{ edges: [{ node }] }`), pero el
+ * tipo Product la declara como arreglo plano y de ahí saca ProductCard el
+ * variantId para el botón de agregar. Sin aplanar, `product.variants[0]` salía
+ * undefined y el buscador pintaba 24 tarjetas SIN botón — el mismo tropiezo que
+ * ya se había corregido del lado servidor en lib/shopify/index.ts.
+ */
+type NodoCrudo = Omit<Product, "variants"> & {
+  variants?: { edges: Array<{ node: Product["variants"][number] }> }
+}
+
+function aplanarVariantes(node: NodoCrudo): Product {
+  const { variants, ...resto } = node
+  return {
+    ...resto,
+    variants: Array.isArray(variants)
+      ? variants
+      : variants?.edges?.map((e) => e.node) ?? [],
+  } as Product
+}
 
 // Con `lang` fija el idioma vía @inContext (p.ej. el cotizador siempre en ES,
 // sin importar el idioma del navegador). Sin `lang`, Shopify usa el
@@ -88,7 +110,9 @@ async function fetchCatalog(lang?: "ES" | "EN"): Promise<Product[]> {
   if (json.data.products.pageInfo?.hasNextPage) {
     console.warn("[search] catálogo >250: la búsqueda local solo cubre los primeros 250")
   }
-  return json.data.products.edges.map((e: { node: Product }) => e.node)
+  return json.data.products.edges.map((e: { node: NodoCrudo }) =>
+    aplanarVariantes(e.node)
+  )
 }
 
 function getSearchCatalog(lang?: "ES" | "EN"): Promise<Product[]> {
@@ -187,6 +211,7 @@ const LOAD_MORE_QUERY = /* GraphQL */ `
             maxVariantPrice { amount currencyCode }
           }
           options { id name values }
+          variants(first: 1) { edges { node { id availableForSale } } }
           color: metafield(namespace: "shopify", key: "color-pattern") {
             references(first: 5) {
               edges { node { ... on Metaobject { handle fields { key value } } } }
@@ -241,7 +266,9 @@ export async function loadMoreProducts({
   }
 
   return {
-    products: json.data.products.edges.map((e: { node: Product }) => e.node),
+    products: json.data.products.edges.map((e: { node: NodoCrudo }) =>
+      aplanarVariantes(e.node)
+    ),
     pageInfo: json.data.products.pageInfo as PageInfo,
   }
 }

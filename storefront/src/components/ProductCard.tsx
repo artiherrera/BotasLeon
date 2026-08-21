@@ -54,17 +54,17 @@ export function ProductCard({
   const canQuickAdd = !!variantId && product.availableForSale
 
   return (
-    <div className="group">
+    <div className="group flex h-full flex-col">
     <Link
       href={`/products/${handle}`}
-      className="block"
+      className="flex flex-1 flex-col"
       aria-label={
         product.availableForSale
           ? `${t("card.view")} ${displayTitle}`
           : `${t("card.view")} ${displayTitle} ${t("card.soldOutParen")}`
       }
     >
-      <div className="relative aspect-square overflow-hidden bg-bg-alt rounded-sm mb-3">
+      <div className="relative aspect-square shrink-0 overflow-hidden bg-bg-alt rounded-sm mb-3">
         {gallery.length === 0 ? (
           <PlaceholderImage />
         ) : singleImage ? (
@@ -85,13 +85,15 @@ export function ProductCard({
         )}
       </div>
 
-      <div className="px-1">
-        {vendor && (
-          <p className="eyebrow text-text-subtle group-hover:text-leather transition-colors mb-1">
-            {vendor}
-          </p>
-        )}
-        <h3 className="font-heading text-lg text-text leading-tight mb-1">
+      <div className="flex flex-1 flex-col px-1">
+        {/* El renglón de marca se pinta SIEMPRE, con un espacio duro cuando el
+            producto no la trae: si desaparece, esa tarjeta sube todo lo de
+            abajo y deja de cuadrar con sus vecinas. */}
+        <p className="eyebrow text-text-subtle group-hover:text-leather transition-colors mb-1">
+          {vendor || "\u00A0"}
+        </p>
+        {/* line-clamp-2: un nombre muy largo estiraba su tarjeta sola. */}
+        <h3 className="font-heading text-lg text-text leading-tight mb-1 line-clamp-2">
           {displayTitle}
         </h3>
         {product.judgemeRating != null && product.judgemeRating > 0 && (
@@ -103,16 +105,20 @@ export function ProductCard({
             />
           </div>
         )}
-        <LocalizedPrice
-          amount={minPrice.amount}
-          currency={minPrice.currencyCode}
-          compareAt={compareAt?.amount}
-          size="card"
-        />
+        {/* mt-auto: el precio se ancla al fondo del bloque de texto, así queda
+            a la misma altura aunque una tarjeta traiga estrellas y otra no. */}
+        <div className="mt-auto">
+          <LocalizedPrice
+            amount={minPrice.amount}
+            currency={minPrice.currencyCode}
+            compareAt={compareAt?.amount}
+            size="card"
+          />
+        </div>
       </div>
     </Link>
 
-    {canQuickAdd && (
+    {canQuickAdd ? (
       <button
         type="button"
         disabled={isPending}
@@ -122,6 +128,17 @@ export function ProductCard({
       >
         {t("card.add")}
       </button>
+    ) : (
+      /* Un agotado no pinta botón, y sin este hueco su tarjeta quedaba más
+         corta que las demás. Replica la caja del botón (mismo padding, borde
+         y tamaño de texto) en vez de fijar una altura en píxeles, para que no
+         se despegue si el botón cambia. */
+      <div
+        aria-hidden
+        className="mt-3 select-none border border-transparent px-1 py-2.5 text-sm font-medium"
+      >
+        &nbsp;
+      </div>
     )}
     </div>
   )
