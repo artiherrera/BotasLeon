@@ -167,7 +167,9 @@ export function ProductJsonLd({
             returnPolicyCategory:
               "https://schema.org/MerchantReturnFiniteReturnWindow",
             merchantReturnDays: 30,
-            returnFees: "https://schema.org/FreeReturn",
+            // SIN `returnFees`: declarar devolución gratis contradecía la política
+            // publicada en /devoluciones (cambios solo por defecto de fábrica), y
+            // Merchant Center castiga esa discrepancia.
             returnMethod: "https://schema.org/ReturnByMail",
           },
         },

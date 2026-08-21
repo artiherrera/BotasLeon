@@ -12,6 +12,7 @@ import { track } from "@/lib/klaviyo/client"
 import { gaEvent } from "@/lib/ga/events"
 import { useFocusTrap } from "@/lib/useFocusTrap"
 import { useT } from "@/lib/i18n/context"
+import { isMX } from "@/lib/market"
 import { CartLineSize } from "@/components/CartLineSize"
 import { SIZE_ATTR, isDefaultOption, missingSizeLines } from "@/lib/cart/line-size"
 
@@ -44,7 +45,6 @@ export function CartDrawer() {
   } = useCart()
   const t = useT()
   const sizeBlocked = missingSizeLines(cart).length > 0 // sin talla no se puede surtir
-  const { toUsa } = useCustomsGate() // solo decide la leyenda de impuesto
   // Traduce el NOMBRE de la opción/atributo (Talla/Color/Material vienen en
   // español desde Shopify) sin tocar el valor. Si no lo conocemos, lo deja igual.
   const optLabel = (name: string): string => {
@@ -404,7 +404,7 @@ export function CartDrawer() {
                 </div>
               )}
               <p className="text-xs text-text-muted mt-1 mb-4">
-                {t(toUsa ? "cart.shippingTaxUs" : "cart.shippingTax")}
+                {t(isMX ? "cart.shippingTax" : "cart.shippingTaxUs")}
               </p>
 
               <CustomsTaxIdField />

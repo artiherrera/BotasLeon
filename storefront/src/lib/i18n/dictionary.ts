@@ -23,7 +23,7 @@ export const DICTIONARY: Record<string, Entry> = {
   "pdp.chooseSize": { es: "Elige talla", en: "Choose size" },
   "pdp.comboUnavailable": { es: "Combinación no disponible", en: "Combination unavailable" },
   "pdp.selectSize": { es: "Selecciona tu talla", en: "Select your size" },
-  "pdp.shippingNote": { es: "Envío a EE.UU. y México", en: "Ships to the USA and Mexico" },
+  "pdp.shippingNote": { es: "Envío a todo Estados Unidos", en: "Ships anywhere in the USA" },
   "pdp.sizeError": { es: "Por favor selecciona tu talla.", en: "Please select your size." },
   "pdp.unavailable": { es: "No disponible", en: "Unavailable" },
   "recent.eyebrow": { es: "Visto recientemente", en: "Recently viewed" },
@@ -131,7 +131,7 @@ export const DICTIONARY: Record<string, Entry> = {
   "nav.explore": { es: "Explorar", en: "Explore" },
 
   // Banda de propuesta de valor (menú móvil)
-  "promo.shipping": { es: "Envío a EE.UU. y México", en: "Shipping to the USA and Mexico" },
+  "promo.shipping": { es: "Envío a todo Estados Unidos", en: "Shipping across the USA" },
 
   // Secciones de ayuda / empresa
   "nav.help": { es: "Ayuda", en: "Help" },
@@ -176,7 +176,7 @@ export const DICTIONARY: Record<string, Entry> = {
     es: "Cada marca pasa nuestro filtro",
     en: "Every brand meets our standard",
   },
-  "trust.shipping.title": { es: "Envío a EE.UU. y México", en: "Ships to the USA and Mexico" },
+  "trust.shipping.title": { es: "Envío a Estados Unidos", en: "Ships across the USA" },
   "trust.shipping.sub": { es: "Costo calculado en el pago", en: "Cost calculated at checkout" },
   "trust.exchange.title": { es: "Garantía", en: "Built to last" },
   "trust.exchange.sub": {
@@ -363,16 +363,16 @@ export const DICTIONARY: Record<string, Entry> = {
   },
 
   // ── Cintillo (MarqueeBar) ────────────────────────────────────────────
-  // Mercado único: Estados Unidos (USD). El copy de envío NO promete envío
-  // gratis (el costo lo calcula el checkout) ni menciona México.
+  // Este despliegue vende a Estados Unidos en USD. El copy de envío no promete
+  // envío gratis ni menciona México: eso vive en el sitio botasleon.mx.
   "marquee.tradition": { es: "380 años de tradición", en: "380 years of tradition" },
   "marquee.leather": {
     es: "León, capital mundial del cuero",
     en: "León, the world capital of leather",
   },
   "marquee.shipping": {
-    es: "Enviamos a EE.UU. y a todo México",
-    en: "We ship to the USA and all of Mexico",
+    es: "Enviamos a todo Estados Unidos",
+    en: "We ship anywhere in the USA",
   },
   "marquee.store": { es: "Tienda física en León →", en: "Visit our store in León →" },
 
@@ -449,13 +449,15 @@ export const DICTIONARY: Record<string, Entry> = {
   // La moneda NO se escribe aquí: la pone el carrito con lo que devuelve
   // Shopify. Escribirla a mano fue lo que dejó al sitio anunciando dólares
   // después de que la tienda ya cobraba pesos.
+  // La usa el despliegue de México (botasleon.mx): ahí el precio lleva IVA.
   "cart.shippingTax": {
     es: "Envío calculado en el pago · IVA incluido",
     en: "Shipping calculated at checkout · VAT included",
   },
+  // La usa botasleon.com: precios en USD, sin IVA mexicano.
   "cart.shippingTaxUs": {
-    es: "Envío calculado en el pago · impuestos de EE.UU. aparte",
-    en: "Shipping calculated at checkout · U.S. taxes separate",
+    es: "Envío e impuestos calculados en el pago",
+    en: "Shipping and taxes calculated at checkout",
   },
   "cart.checkout": { es: "Pagar", en: "Checkout" },
   // Talla dentro del carrito (se puede agregar desde la tarjeta sin elegirla).
