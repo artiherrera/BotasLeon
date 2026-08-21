@@ -5,9 +5,11 @@
  *   botasleon.com → MARKET=US · precios en USD · inglés por defecto
  *   botasleon.mx  → MARKET=MX · precios en MXN · español por defecto
  *
- * Cada build fija su mercado con NEXT_PUBLIC_MARKET y apunta a SU tienda de
- * Shopify con SHOPIFY_STORE_DOMAIN / SHOPIFY_STOREFRONT_ACCESS_TOKEN (son
- * cuentas independientes: catálogo, precios, inventario y checkout separados).
+ * Es UNA SOLA tienda de Shopify con dos mercados configurados (MX→MXN,
+ * US→USD): el catálogo, el inventario y los pedidos son compartidos, y lo
+ * único que cambia entre despliegues es el país que va en `@inContext`, que
+ * es lo que hace a Shopify devolver pesos o dólares. Cada build fija el suyo
+ * con NEXT_PUBLIC_MARKET.
  *
  * No se detecta el dominio en vivo a propósito: el sitio es estático y los
  * precios se hornean en el build, así que un mismo build no puede servir dos

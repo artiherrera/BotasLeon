@@ -12,16 +12,22 @@ applications:
           # (read-only, scoped a la tienda), así que comitearlo no compromete.
           commands:
             # MERCADO del despliegue: US (botasleon.com) o MX (botasleon.mx).
-            # Cada uno apunta a SU tienda de Shopify — son cuentas separadas.
+            # MISMA tienda de Shopify, dos mercados: MX->MXN y US->USD. El país
+            # que va en @inContext decide la moneda y el idioma que devuelve
+            # Shopify. Ver storefront/src/lib/market.ts.
             - MARKET="${NEXT_PUBLIC_MARKET:-US}"
-            # Los defaults de abajo son de la tienda de EE.UU. Si un build de MX
-            # se quedara sin variables, heredaría la tienda equivocada y
-            # publicaría precios en dólares en el sitio mexicano: mejor que
-            # reviente aquí que descubrirlo vendiendo.
+            # El build hornea los precios Y las URLs canónicas. Un build de MX
+            # que se quedara con el SITE_URL de .com publicaría canonicals,
+            # sitemap y OG apuntando al sitio equivocado — Google terminaria
+            # deduplicando los dos dominios contra el de dolares. Mejor que
+            # reviente aqui que descubrirlo cuando ya no rankea.
             - |
-              if [ "$MARKET" = "MX" ] && { [ -z "$SHOPIFY_STOREFRONT_ACCESS_TOKEN" ] || [ -z "$SHOPIFY_STORE_DOMAIN" ]; }; then
-                echo "MARKET=MX sin SHOPIFY_STORE_DOMAIN/SHOPIFY_STOREFRONT_ACCESS_TOKEN propios." >&2
-                exit 1
+              if [ "$MARKET" = "MX" ]; then
+                case "${NEXT_PUBLIC_SITE_URL:-}" in
+                  *botasleon.mx*) ;;
+                  *) echo "MARKET=MX exige NEXT_PUBLIC_SITE_URL en botasleon.mx (recibido: '${NEXT_PUBLIC_SITE_URL:-vacio}')." >&2
+                     exit 1 ;;
+                esac
               fi
             - TOKEN="${SHOPIFY_STOREFRONT_ACCESS_TOKEN:-a972078fe7ba6fa5a4f2247ba596e2b9}"
             - DOMAIN="${SHOPIFY_STORE_DOMAIN:-botas-leon-3.myshopify.com}"
