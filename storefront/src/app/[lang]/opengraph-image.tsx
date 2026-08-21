@@ -1,6 +1,7 @@
 import { readFile } from "node:fs/promises"
 import { join } from "node:path"
 import { ImageResponse } from "next/og"
+import { LOCALES } from "@/lib/i18n/config"
 
 /**
  * Open Graph image — la miniatura que aparece al compartir el link en
@@ -29,7 +30,10 @@ export const alt =
 
 // Genera la OG para ambos idiomas (es/en) en el build estático.
 export function generateStaticParams() {
-  return [{ lang: "es" }, { lang: "en" }]
+  // Lee LOCALES en vez de fijar los dos: en la .mx (solo español) esto estaba
+  // generando /en/opengraph-image, una URL en inglés en un sitio que ya no
+  // publica inglés.
+  return LOCALES.map((lang) => ({ lang }))
 }
 
 // Paleta cuero (globals.css @theme)

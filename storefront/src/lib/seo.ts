@@ -1,4 +1,5 @@
 import type { Metadata } from "next"
+import { isMX } from "@/lib/market"
 
 /**
  * SEO helpers — usados por sitemap, structured data, y metadata
@@ -9,9 +10,23 @@ import type { Metadata } from "next"
 export const SITE_URL =
   process.env.NEXT_PUBLIC_SITE_URL ?? "https://botasleon.com"
 
+/**
+ * Los DOS dominios de la marca, fijos y absolutos.
+ *
+ * El hreflang tiene que ser recíproco: cada sitio anuncia todas las variantes,
+ * incluidas las del otro dominio. Sin esto Google ve botasleon.com/es y
+ * botasleon.mx/es como el mismo catálogo en español duplicado en dos dominios,
+ * y elige él cuál indexa — normalmente el equivocado. Con esto los lee como
+ * variantes regionales de la misma oferta, que es lo que son: mismo producto,
+ * distinto país y distinta moneda.
+ */
+export const US_SITE_URL = "https://botasleon.com"
+export const MX_SITE_URL = "https://botasleon.mx"
+
 export const SITE_NAME = "BotasLeón"
-export const SITE_DESCRIPTION =
-  "Comercializadora de botas mexicanas hechas en León, Guanajuato. Vaqueras, clásicas, exóticas y de rancho — curadas par por par. Envío a todo Estados Unidos."
+export const SITE_DESCRIPTION = isMX
+  ? "Botas mexicanas hechas en León, Guanajuato. Vaqueras, clásicas, exóticas y de rancho — curadas par por par. Envío a toda la República."
+  : "Comercializadora de botas mexicanas hechas en León, Guanajuato. Vaqueras, clásicas, exóticas y de rancho — curadas par por par. Envío a todo Estados Unidos."
 
 export function absoluteUrl(path: string): string {
   if (path.startsWith("http")) return path
@@ -57,8 +72,10 @@ export function pageMetadata({
   const suffix = path === "/" ? "" : path
   // Canonical = la URL con prefijo de idioma (la que responde 200, no la que redirige).
   const url = absoluteUrl(lang ? `/${lang}${suffix}` : path)
-  const esUrl = absoluteUrl(`/es${suffix}`)
-  const enUrl = absoluteUrl(`/en${suffix}`)
+  // Absolutas y cruzadas entre dominios: los dos builds emiten el mismo juego.
+  const enUS = `${US_SITE_URL}/en${suffix}`
+  const esUS = `${US_SITE_URL}/es${suffix}`
+  const esMX = `${MX_SITE_URL}/es${suffix}`
   return {
     title,
     description,
@@ -66,7 +83,16 @@ export function pageMetadata({
       canonical: url,
       // hreflang — le dice a Google qué versión servir por idioma/región.
       ...(lang
-        ? { languages: { "es-US": esUrl, "en-US": enUrl, "x-default": enUrl } }
+        ? {
+            languages: {
+              "en-US": enUS,
+              "es-US": esUS,
+              "es-MX": esMX,
+              // x-default = a dónde mandar a quien no encaja en ninguna: el
+              // sitio en inglés, que es el mercado principal.
+              "x-default": enUS,
+            },
+          }
         : {}),
     },
     openGraph: {
@@ -75,7 +101,9 @@ export function pageMetadata({
       url,
       type: "website",
       siteName: SITE_NAME,
-      locale: lang === "en" ? "en_US" : "es_MX",
+      // es_MX solo en el sitio mexicano; el español del .com atiende a la
+      // diáspora en Estados Unidos.
+      locale: lang === "en" ? "en_US" : isMX ? "es_MX" : "es_US",
       ...(ogImage ? { images: [{ url: ogImage }] } : {}),
     },
     twitter: {

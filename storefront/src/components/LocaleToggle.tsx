@@ -1,6 +1,7 @@
 "use client"
 
 import { useLocale } from "@/lib/i18n/context"
+import { IS_MULTILINGUAL } from "@/lib/i18n/config"
 
 /**
  * LocaleToggle — interruptor 🇲🇽 ES / 🇺🇸 EN con indicador DESLIZANTE animado.
@@ -13,6 +14,11 @@ import { useLocale } from "@/lib/i18n/context"
 export function LocaleToggle({ className = "" }: { className?: string }) {
   const { locale, setLocale } = useLocale()
   const isEn = locale === "en"
+
+  // El sitio mexicano publica solo español: un interruptor con una sola opción
+  // no es un interruptor. Se apaga aquí y no en el Header para que cualquier
+  // otro punto de montaje quede cubierto por la misma regla.
+  if (!IS_MULTILINGUAL) return null
 
   return (
     <div

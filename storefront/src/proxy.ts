@@ -1,6 +1,12 @@
 import { NextResponse } from "next/server"
 import type { NextRequest } from "next/server"
-import { LOCALES, DEFAULT_LOCALE, STORAGE_KEY } from "@/lib/i18n/config"
+import {
+  ALL_LOCALES,
+  LOCALES,
+  DEFAULT_LOCALE,
+  STORAGE_KEY,
+  isPublishedLocale,
+} from "@/lib/i18n/config"
 
 /**
  * Proxy (antes "middleware" en Next < 16). i18n por URL:
@@ -16,13 +22,15 @@ import { LOCALES, DEFAULT_LOCALE, STORAGE_KEY } from "@/lib/i18n/config"
  * prefijo (prosa de páginas legales) se queden en el mismo idioma.
  */
 function pickLocale(req: NextRequest): string {
+  // Todo lo que se elija tiene que estar PUBLICADO en este despliegue: en la
+  // .mx (solo español) una cookie vieja con "en" mandaría a una ruta muerta.
   const cookie = req.cookies.get(STORAGE_KEY)?.value
-  if (cookie === "es" || cookie === "en") return cookie
+  if (isPublishedLocale(cookie)) return cookie
   const accept = (req.headers.get("accept-language") || "").toLowerCase()
   for (const part of accept.split(",")) {
     const code = part.trim().slice(0, 2)
-    if (code === "en") return "en"
-    if (code === "es") return "es"
+    if (code === "en" && isPublishedLocale("en")) return "en"
+    if (code === "es" && isPublishedLocale("es")) return "es"
   }
   return DEFAULT_LOCALE
 }
@@ -33,6 +41,21 @@ export function proxy(req: NextRequest) {
     (l) => pathname === `/${l}` || pathname.startsWith(`/${l}/`)
   )
   if (hasLocale) return NextResponse.next()
+
+  // Prefijo de un idioma que este sitio NO publica (/en en la .mx). Hay que
+  // REEMPLAZAR el prefijo, no anteponerle otro, o saldría /es/en/products/x.
+  // 308 y no 307: para Google esto es una consolidación permanente hacia el
+  // español, no una alternativa disponible.
+  const noPublicado = ALL_LOCALES.find(
+    (l) =>
+      !(LOCALES as readonly string[]).includes(l) &&
+      (pathname === `/${l}` || pathname.startsWith(`/${l}/`))
+  )
+  if (noPublicado) {
+    const url = req.nextUrl.clone()
+    url.pathname = `/${DEFAULT_LOCALE}${pathname.slice(noPublicado.length + 1)}`
+    return NextResponse.redirect(url, 308)
+  }
 
   const locale = pickLocale(req)
   const url = req.nextUrl.clone()

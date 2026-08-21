@@ -12,8 +12,24 @@
  */
 import { MARKET } from "@/lib/market"
 
-export const LOCALES = ["es", "en"] as const
-export type Locale = (typeof LOCALES)[number]
+/** Todos los idiomas que el diccionario sabe traducir. */
+export const ALL_LOCALES = ["es", "en"] as const
+export type Locale = (typeof ALL_LOCALES)[number]
+
+/**
+ * Idiomas que ESTE despliegue publica.
+ *
+ * México vende solo en español: el sitio .mx atiende a compradores mexicanos y
+ * publicar ahí una versión en inglés no le sirve a nadie — pero sí le crea a
+ * Google un duplicado del catálogo en español que ya vive en botasleon.com/es.
+ * El .com sí conserva los dos: vende a EE.UU. en inglés y a la diáspora en
+ * español.
+ */
+export const LOCALES: readonly Locale[] =
+  MARKET === "MX" ? (["es"] as const) : ALL_LOCALES
+
+/** ¿Este despliegue publica más de un idioma? Decide si se pinta el toggle. */
+export const IS_MULTILINGUAL = LOCALES.length > 1
 
 /**
  * Idioma por defecto — lo decide el MERCADO del despliegue: botasleon.com vende
@@ -31,6 +47,15 @@ export function isLocale(value: unknown): value is Locale {
 }
 
 /**
+ * ¿Este idioma se publica en ESTE despliegue? `isLocale` sigue aceptando "en"
+ * en el build de México a propósito: hay que poder RECONOCER un /en entrante
+ * para redirigirlo, cosa distinta de servirlo.
+ */
+export function isPublishedLocale(value: unknown): value is Locale {
+  return isLocale(value) && (LOCALES as readonly string[]).includes(value)
+}
+
+/**
  * Detecta el idioma del navegador. Devuelve "en" solo si el visitante lo prefiere
  * claramente (gringo); en cualquier otro caso se queda en español. Corre solo en
  * el cliente (usa navigator).
@@ -43,8 +68,10 @@ export function detectBrowserLocale(): Locale {
       : [navigator.language]
   for (const lang of langs) {
     const lc = (lang || "").toLowerCase()
-    if (lc.startsWith("es")) return "es"
-    if (lc.startsWith("en")) return "en"
+    // Solo se puede elegir lo que este despliegue publica: en la .mx un
+    // navegador en inglés se queda en español, no en una ruta que no existe.
+    if (lc.startsWith("es") && isPublishedLocale("es")) return "es"
+    if (lc.startsWith("en") && isPublishedLocale("en")) return "en"
   }
   return DEFAULT_LOCALE
 }

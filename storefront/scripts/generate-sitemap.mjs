@@ -51,6 +51,13 @@ const TOKEN =
 const VERSION = process.env.SHOPIFY_API_VERSION || "2025-01"
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://botasleon.com"
 
+// Mercado del build. Espeja storefront/src/lib/i18n/config.ts y lib/seo.ts:
+// el sitio mexicano publica SOLO español, el de EE.UU. publica los dos.
+const IS_MX = process.env.NEXT_PUBLIC_MARKET === "MX"
+const LOCALES = IS_MX ? ["es"] : ["es", "en"]
+const US_SITE_URL = "https://botasleon.com"
+const MX_SITE_URL = "https://botasleon.mx"
+
 const ENDPOINT = DOMAIN
   ? `https://${DOMAIN}/api/${VERSION}/graphql.json`
   : ""
@@ -160,16 +167,25 @@ const SUBROUTES = [
   })),
 ]
 
-// i18n por URL: cada ruta existe en /es y /en. Emitimos AMBAS entradas, cada una
-// con los <xhtml:link hreflang> apuntando a las dos versiones + x-default (es).
+// i18n por URL. Dos reglas distintas que es fácil confundir:
+//
+//  1. <loc> lista SOLO las URLs que ESTE dominio publica. En la .mx eso es
+//     únicamente /es — listar /en metería en el sitemap URLs que el proxy
+//     redirige con 308, y un sitemap no debe contener redirecciones.
+//  2. Los <xhtml:link hreflang> anuncian TODAS las variantes de la marca,
+//     incluidas las del otro dominio. Tiene que ser recíproco entre los dos
+//     sitios o Google lo ignora, y sin él lee botasleon.com/es y
+//     botasleon.mx/es como el mismo catálogo duplicado. Espeja lib/seo.ts.
 function localizedEntries(path, priority, changefreq, lastmod) {
   const suffix = path === "/" ? "" : path
-  const es = `${SITE_URL}/es${suffix}`
-  const en = `${SITE_URL}/en${suffix}`
+  const enUS = `${US_SITE_URL}/en${suffix}`
+  const esUS = `${US_SITE_URL}/es${suffix}`
+  const esMX = `${MX_SITE_URL}/es${suffix}`
   const links =
-    `    <xhtml:link rel="alternate" hreflang="es-US" href="${es}"/>\n` +
-    `    <xhtml:link rel="alternate" hreflang="en-US" href="${en}"/>\n` +
-    `    <xhtml:link rel="alternate" hreflang="x-default" href="${en}"/>`
+    `    <xhtml:link rel="alternate" hreflang="en-US" href="${enUS}"/>\n` +
+    `    <xhtml:link rel="alternate" hreflang="es-US" href="${esUS}"/>\n` +
+    `    <xhtml:link rel="alternate" hreflang="es-MX" href="${esMX}"/>\n` +
+    `    <xhtml:link rel="alternate" hreflang="x-default" href="${enUS}"/>`
   const one = (loc) => `  <url>
     <loc>${loc}</loc>
     <lastmod>${lastmod}</lastmod>
@@ -177,7 +193,7 @@ function localizedEntries(path, priority, changefreq, lastmod) {
     <priority>${priority}</priority>
 ${links}
   </url>`
-  return [one(es), one(en)]
+  return LOCALES.map((l) => one(`${SITE_URL}/${l}${suffix}`))
 }
 
 async function main() {
