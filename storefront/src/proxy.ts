@@ -76,19 +76,38 @@ export function proxy(req: NextRequest) {
     return res
   }
 
-  if (MARKET === "US" && !req.cookies.get(COOKIE_MERCADO)) {
-    const pais = paisDesdeCabeceras(req.headers)
-    if (pais === "MX" && !esRastreador(req.headers.get("user-agent"))) {
-      return NextResponse.redirect(
-        equivalenteMx(pathname, req.nextUrl.search),
-        307
-      )
-    }
+  //
+  // ⚠️ APAGADO. Se activó y redirigió a la .mx una petición que NO venía de
+  // México (comprobado desde fuera del país, y sin caché de por medio:
+  // x-cache decía Miss). Mandar visitantes de Estados Unidos al sitio en pesos
+  // rompe el mercado principal, así que la vía del servidor queda fuera hasta
+  // saber QUÉ país está leyendo de verdad — para eso se emite abajo la cabecera
+  // de diagnóstico x-pais-detectado.
+  //
+  // Mientras tanto redirige solo el navegador por zona horaria
+  // (components/RedireccionMercado.tsx), que no puede equivocarse en esta
+  // dirección: la zona horaria de un visitante estadounidense nunca es mexicana.
+  const paisDetectado = paisDesdeCabeceras(req.headers)
+  const REDIRECCION_SERVIDOR_ACTIVA = false
+
+  if (
+    REDIRECCION_SERVIDOR_ACTIVA &&
+    MARKET === "US" &&
+    !req.cookies.get(COOKIE_MERCADO) &&
+    paisDetectado === "MX" &&
+    !esRastreador(req.headers.get("user-agent"))
+  ) {
+    return NextResponse.redirect(equivalenteMx(pathname, req.nextUrl.search), 307)
   }
   const hasLocale = LOCALES.some(
     (l) => pathname === `/${l}` || pathname.startsWith(`/${l}/`)
   )
-  if (hasLocale) return NextResponse.next()
+  if (hasLocale) {
+    const res = NextResponse.next()
+    // Diagnóstico temporal: qué país (si alguno) llega desde el CDN.
+    res.headers.set("x-pais-detectado", paisDetectado ?? "ninguno")
+    return res
+  }
 
   // Prefijo de un idioma que este sitio NO publica (/en en la .mx). Hay que
   // REEMPLAZAR el prefijo, no anteponerle otro, o saldría /es/en/products/x.
