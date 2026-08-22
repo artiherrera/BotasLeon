@@ -1,12 +1,6 @@
 import { NextResponse } from "next/server"
 import type { NextRequest } from "next/server"
-import { MARKET } from "@/lib/market"
-import {
-  COOKIE_MERCADO,
-  equivalenteMx,
-  esRastreador,
-  paisDesdeCabeceras,
-} from "@/lib/geo"
+import { COOKIE_MERCADO } from "@/lib/geo"
 import {
   ALL_LOCALES,
   LOCALES,
@@ -76,38 +70,20 @@ export function proxy(req: NextRequest) {
     return res
   }
 
+  // La redirección por país NO se hace aquí. Se intentó y, en producción,
+  // mandó a la .mx una petición que no venía de México — sin caché de por medio
+  // (x-cache: Miss), o sea que el país que llega del CDN no es de fiar en todas
+  // las rutas de entrada. Mandar compradores de Estados Unidos al sitio en pesos
+  // rompe el mercado principal, así que esa vía queda descartada.
   //
-  // ⚠️ APAGADO. Se activó y redirigió a la .mx una petición que NO venía de
-  // México (comprobado desde fuera del país, y sin caché de por medio:
-  // x-cache decía Miss). Mandar visitantes de Estados Unidos al sitio en pesos
-  // rompe el mercado principal, así que la vía del servidor queda fuera hasta
-  // saber QUÉ país está leyendo de verdad — para eso se emite abajo la cabecera
-  // de diagnóstico x-pais-detectado.
-  //
-  // Mientras tanto redirige solo el navegador por zona horaria
-  // (components/RedireccionMercado.tsx), que no puede equivocarse en esta
-  // dirección: la zona horaria de un visitante estadounidense nunca es mexicana.
-  const paisDetectado = paisDesdeCabeceras(req.headers)
-  const REDIRECCION_SERVIDOR_ACTIVA = false
-
-  if (
-    REDIRECCION_SERVIDOR_ACTIVA &&
-    MARKET === "US" &&
-    !req.cookies.get(COOKIE_MERCADO) &&
-    paisDetectado === "MX" &&
-    !esRastreador(req.headers.get("user-agent"))
-  ) {
-    return NextResponse.redirect(equivalenteMx(pathname, req.nextUrl.search), 307)
-  }
+  // Lo resuelve el navegador con la zona horaria, en
+  // components/RedireccionMercado.tsx. Verificado en producción: México y
+  // Tijuana van a la .mx, Texas y Nueva York se quedan en la .com, y quien
+  // eligió dólares se respeta.
   const hasLocale = LOCALES.some(
     (l) => pathname === `/${l}` || pathname.startsWith(`/${l}/`)
   )
-  if (hasLocale) {
-    const res = NextResponse.next()
-    // Diagnóstico temporal: qué país (si alguno) llega desde el CDN.
-    res.headers.set("x-pais-detectado", paisDetectado ?? "ninguno")
-    return res
-  }
+  if (hasLocale) return NextResponse.next()
 
   // Prefijo de un idioma que este sitio NO publica (/en en la .mx). Hay que
   // REEMPLAZAR el prefijo, no anteponerle otro, o saldría /es/en/products/x.
