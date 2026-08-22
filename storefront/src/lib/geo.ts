@@ -37,12 +37,40 @@ const ZONAS_MX = [
   "America/Ojinaga", "America/Bahia_Banderas",
 ]
 
-/** Corre solo en el navegador. */
+/**
+ * Zonas de Estados Unidos. Se listan explícitamente para poder DESCARTAR, que
+ * es la parte que importa.
+ *
+ * México y Estados Unidos comparten desfase horario —Monterrey y Chicago son
+ * ambos UTC−6— pero NO comparten identificador: el navegador reporta
+ * "America/Monterrey" o "America/Chicago", nunca el desfase. Por eso la zona
+ * distingue bien y el desfase no serviría.
+ */
+const ZONAS_US = [
+  "America/New_York", "America/Detroit", "America/Chicago", "America/Denver",
+  "America/Phoenix", "America/Los_Angeles", "America/Anchorage",
+  "America/Boise", "America/Indiana/Indianapolis", "America/Kentucky/Louisville",
+  "America/North_Dakota/Center", "America/Menominee", "America/Juneau",
+  "America/Sitka", "America/Nome", "America/Adak", "Pacific/Honolulu",
+]
+
+/**
+ * Corre solo en el navegador.
+ *
+ * LA ZONA HORARIA MANDA, EL IDIOMA SOLO DESEMPATA. Antes el idioma era una
+ * señal independiente, y eso mandaba al sitio en pesos a un paisano en Chicago
+ * con el navegador en es-MX: justo el comprador de la diáspora al que se le
+ * paga publicidad, que debe ver dólares y envío a Estados Unidos. Ahora una zona
+ * estadounidense descarta México aunque el idioma diga es-MX, y el idioma solo
+ * decide cuando la zona no dice nada útil (navegadores que reportan "UTC" por
+ * privacidad).
+ */
 export function pareceMexico(): boolean {
   try {
     const tz = Intl.DateTimeFormat().resolvedOptions().timeZone
     if (ZONAS_MX.includes(tz)) return true
-    // Respaldo por idioma, para navegadores sin zona horaria fiable.
+    if (ZONAS_US.includes(tz)) return false
+    // Zona desconocida o enmascarada: recién aquí pesa el idioma.
     return (navigator.languages || [navigator.language]).some((l) =>
       (l || "").toLowerCase().startsWith("es-mx")
     )
