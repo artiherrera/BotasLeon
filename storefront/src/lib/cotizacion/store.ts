@@ -15,13 +15,11 @@
  * sigue funcionando como antes).
  */
 
+import { restAutenticado } from "@/lib/supabase/session"
 import type { Quote } from "./types"
 import { importeTotal, totalPares } from "./types"
 
-const URL = process.env.NEXT_PUBLIC_SUPABASE_URL
-const KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-
-export const quotesEnabled = (): boolean => !!(URL && KEY)
+export { supabaseEnabled as quotesEnabled } from "@/lib/supabase/session"
 
 export type SavedQuote = {
   id: string
@@ -37,20 +35,14 @@ export type SavedQuote = {
   created_at: string
 }
 
-async function rest(path: string, init?: RequestInit): Promise<Response> {
-  if (!quotesEnabled()) throw new Error("Base de datos de cotizaciones no configurada")
-  const res = await fetch(`${URL}/rest/v1/${path}`, {
-    ...init,
-    headers: {
-      apikey: KEY as string,
-      Authorization: `Bearer ${KEY}`,
-      "Content-Type": "application/json",
-      ...(init?.headers ?? {}),
-    },
-  })
-  if (!res.ok) throw new Error(`Supabase ${res.status}: ${await res.text().catch(() => "")}`)
-  return res
-}
+/**
+ * CORREGIDO: aquí se mandaba la ANON KEY como Bearer, que da el rol `anon`. El
+ * RLS de supabase/migrations/0001 concede acceso solo `to authenticated`, así
+ * que toda lectura habría devuelto cero filas y toda escritura 401 — el
+ * cotizador habría parecido roto en cuanto se conectara la base. Ahora viaja el
+ * token del usuario. Ver lib/supabase/session.ts.
+ */
+const rest = restAutenticado
 
 /** Fila para guardar: columnas de resumen + el Quote completo en `data`. */
 function rowFrom(quote: Quote) {
