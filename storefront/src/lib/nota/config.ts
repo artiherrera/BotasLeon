@@ -21,45 +21,92 @@ export const VENDEDOR = {
 } as const
 
 /**
- * Fracciones arancelarias candidatas (HTSUS).
+ * Fracciones arancelarias (HTSUS) para bota vaquera de corte de piel.
  *
- * La investigación de agosto 2026 encontró que el catálogo trae cargado
- * `6403.51.90`, que es la línea RESIDUAL "for other persons" — la más cara
- * (10% MFN) — y además de OCHO dígitos, cuando CBP exige DIEZ desde que terminó
- * la exención de minimis.
+ * QUÉ DECIDE CUÁL VA
+ * ──────────────────
+ * La partida 6403 es "calzado con corte de PIEL". Dentro de ella mandan dos
+ * cosas, en este orden:
  *
- * Con el T-MEC bien reclamado el arancel es 0% en cualquiera de estas líneas,
- * pero la clasificación correcta es la red de seguridad si el reclamo falla, y
- * una declaración inexacta ante CBP es sancionable por sí sola.
+ *   1. LA SUELA.   De piel  -> 6403.51    De hule o poliuretano -> 6403.91
+ *   2. PARA QUIÉN. Caballero -> .60       Dama y unisex -> .90
  *
- * ⚠️ Los últimos dos dígitos van como XX: hay que confirmar la línea estadística
- * exacta con un agente aduanal antes de emitir a Estados Unidos.
+ * Y por encima de ambas: si la construcción es WELT (Goodyear), es .30, que
+ * además es la de arancel más bajo.
+ *
+ * El catálogo de Shopify trae el género de los 99 productos (59 masculino, 40
+ * femenino) pero NO trae la suela: `footwear-material` describe el corte. Por
+ * eso la suela se pregunta por nota y el valor por defecto es piel, que es lo
+ * habitual en bota vaquera fina.
+ *
+ * IMPORTANTE SOBRE EL ARANCEL: con el T-MEC bien reclamado, TODAS estas líneas
+ * pagan 0%. El porcentaje de abajo es lo que se pagaría si el reclamo falla —
+ * o sea, la red de seguridad, no el costo esperado. Por eso no conviene elegir
+ * "la más barata" sino la que de verdad describe el producto: una declaración
+ * inexacta ante CBP es sancionable por sí sola, cobre o no cobre arancel.
+ *
+ * ⚠️ LOS DOS ÚLTIMOS DÍGITOS VAN COMO XX. CBP exige diez desde que terminó la
+ * exención de minimis, y el sufijo estadístico hay que confirmarlo con un
+ * agente aduanal. No los invento aquí: un número inventado en una declaración
+ * es peor que un hueco evidente.
  */
-export const FRACCIONES = [
-  {
-    codigo: "6403.51.30.XX",
-    etiqueta: "Suela de piel · construcción welt (Goodyear)",
-    mfn: "5%",
-    nota: "La más barata si el reclamo T-MEC falla. Común en bota vaquera fina.",
-  },
-  {
-    codigo: "6403.51.60.XX",
-    etiqueta: "Suela de piel · caballero",
-    mfn: "8.5%",
-  },
-  {
-    codigo: "6403.51.90.XX",
-    etiqueta: "Suela de piel · dama y unisex (residual)",
-    mfn: "10%",
-    nota: "Es la que trae hoy el catálogo. La más cara: verificar si de verdad aplica.",
-  },
-  {
-    codigo: "6403.91.60.XX",
-    etiqueta: "Suela de hule o poliuretano · caballero",
-    mfn: "8.5%",
-    nota: "Si la suela NO es de piel, la partida cambia entera a 6403.91.",
-  },
-] as const
+export type Suela = "piel" | "hule"
+
+export type Fraccion = {
+  codigo: string
+  etiqueta: string
+  mfnSiFallaTmec: string
+}
+
+export const FRACCIONES: Record<string, Fraccion> = {
+  "51.30": { codigo: "6403.51.30.XX", etiqueta: "Suela de piel · construcción welt (Goodyear)", mfnSiFallaTmec: "5%" },
+  "51.60": { codigo: "6403.51.60.XX", etiqueta: "Suela de piel · caballero", mfnSiFallaTmec: "8.5%" },
+  "51.90": { codigo: "6403.51.90.XX", etiqueta: "Suela de piel · dama y unisex", mfnSiFallaTmec: "10%" },
+  "91.30": { codigo: "6403.91.30.XX", etiqueta: "Suela de hule o PU · construcción welt", mfnSiFallaTmec: "5%" },
+  "91.60": { codigo: "6403.91.60.XX", etiqueta: "Suela de hule o PU · caballero", mfnSiFallaTmec: "8.5%" },
+  "91.90": { codigo: "6403.91.90.XX", etiqueta: "Suela de hule o PU · dama y unisex", mfnSiFallaTmec: "10%" },
+}
+
+/**
+ * Sugerencia por producto. `welt` gana sobre el género porque la construcción
+ * define una línea propia en el arancel.
+ */
+export function sugerirFraccion(
+  sexo: string,
+  suela: Suela = "piel",
+  welt = false
+): Fraccion {
+  const familia = suela === "hule" ? "91" : "51"
+  if (welt) return FRACCIONES[`${familia}.30`]
+  const esCaballero = sexo === "Hombre" || sexo === "masculino"
+  return FRACCIONES[`${familia}.${esCaballero ? "60" : "90"}`]
+}
+
+/**
+ * Pieles CITES presentes en el catálogo.
+ *
+ * Son los handles del metacampo `footwear-material` de Shopify: hay 11
+ * productos de pitón y 7 de caimán. Exportar cualquiera de ellos a Estados
+ * Unidos NO es cuestión de arancel — exige permiso del USFWS, formato 3-177,
+ * despacho por un puerto designado, y el trámite corre entre 8 y 12 semanas.
+ *
+ * La nota de venta bloquea la exportación de estos materiales a propósito: es
+ * mucho más barato descubrirlo al capturar que cuando el paquete está retenido
+ * en la aduana.
+ */
+export const MATERIALES_CITES = ["piton", "pitón", "caiman", "caimán", "cocodrilo"] as const
+
+export function esCites(material: string): boolean {
+  const m = (material || "").toLowerCase()
+  return MATERIALES_CITES.some((c) => m.includes(c))
+}
+
+/** Materiales CITES detectados en una nota. Vacío = se puede exportar. */
+export function citesEnNota(items: Array<{ title: string; descripcion: string }>): string[] {
+  return items
+    .filter((it) => esCites(`${it.title} ${it.descripcion}`))
+    .map((it) => it.title)
+}
 
 export const PAIS_ORIGEN = "MX"
 

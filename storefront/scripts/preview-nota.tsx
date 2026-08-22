@@ -10,8 +10,8 @@
  */
 import React from "react"
 import { renderToFile } from "@react-pdf/renderer"
-import { NotaDoc } from "./src/lib/nota/pdf"
-import { notaVacia } from "./src/lib/nota/config"
+import { NotaDoc } from "../src/lib/nota/pdf"
+import { notaVacia } from "../src/lib/nota/config"
 
 const nota = notaVacia("nacional")
 nota.folio = "NV-2026-0002"
