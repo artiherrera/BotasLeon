@@ -22,34 +22,8 @@
 -- ============================================================================
 
 -- ── Folio por serie ─────────────────────────────────────────────────────────
--- La 0001 fija el prefijo 'COT-' dentro de next_folio(). Las notas necesitan su
--- propia serie y su propio consecutivo: NV-2026-0001 no debe consumir números
--- de COT-2026-xxxx. Se generaliza el contador por (serie, año) y next_folio()
--- se conserva delegando, para no romper el default de `quotes.folio`.
-alter table folio_counters add column if not exists serie text not null default 'COT';
-
--- La PK pasa de (year) a (serie, year).
-alter table folio_counters drop constraint if exists folio_counters_pkey;
-alter table folio_counters add primary key (serie, year);
-
-create or replace function next_folio_serie(p_serie text) returns text
-language plpgsql security definer set search_path = public as $$
-declare
-  y int := extract(year from now())::int;
-  n int;
-begin
-  insert into folio_counters (serie, year, last) values (p_serie, y, 1)
-    on conflict (serie, year) do update set last = folio_counters.last + 1
-    returning last into n;
-  return p_serie || '-' || y || '-' || lpad(n::text, 4, '0');
-end $$;
-
-create or replace function next_folio() returns text
-language plpgsql security definer set search_path = public as $$
-begin
-  return next_folio_serie('COT');
-end $$;
-
+-- La serie vive en la PK de folio_counters (ver 0001): NV-2026-0001 no consume
+-- números de COT-2026-xxxx porque son contadores distintos.
 -- ── sales_notes ─────────────────────────────────────────────────────────────
 create table if not exists sales_notes (
   id           uuid primary key default gen_random_uuid(),
@@ -97,7 +71,7 @@ create table if not exists sales_notes (
   certifica_nombre text not null default '',
   certifica_cargo  text not null default '',
 
-  vendedor_id  uuid references auth.users(id) default auth.uid(),
+  vendedor_id  uuid references vendedores(id),
   atiende      text not null default '',   -- nombre visible en el PDF
 
   moneda       text not null default 'MXN' check (moneda in ('MXN','USD')),
@@ -157,7 +131,7 @@ create trigger sales_notes_congelar before update on sales_notes
   for each row execute function congelar_nota_emitida();
 
 create or replace function emitir_nota(p_id uuid) returns text
-language plpgsql security invoker set search_path = public as $$
+language plpgsql set search_path = public as $$
 declare f text;
 begin
   update sales_notes
@@ -183,7 +157,7 @@ create table if not exists sale_payments (
              check (forma in ('efectivo','transferencia','tarjeta','deposito','otro')),
   referencia text not null default '',
   pagado_en  timestamptz not null default now(),
-  registro_por uuid references auth.users(id) default auth.uid(),
+  registro_por uuid references vendedores(id),
   created_at timestamptz not null default now()
 );
 
@@ -201,25 +175,14 @@ select n.id,
   left join sale_payments p on p.nota_id = n.id
  group by n.id, n.folio, n.total;
 
--- ── RLS ─────────────────────────────────────────────────────────────────────
--- Mismo criterio que la 0001: sin sesión iniciada no se devuelve una sola fila.
--- IMPORTANTE: la anon key del bundle da el rol `anon`, NO `authenticated`. Para
--- que esto funcione el cotizador tiene que iniciar sesión de verdad con
--- Supabase Auth; sin eso, toda lectura devuelve vacío y toda escritura da 401.
-alter table sales_notes   enable row level security;
-alter table sale_payments enable row level security;
-
-drop policy if exists sales_notes_rw on sales_notes;
-create policy sales_notes_rw on sales_notes
-  for all to authenticated using (true) with check (true);
-
--- Los pagos se registran y se consultan, nunca se editan ni se borran: son el
--- registro de dinero que entró. Un cobro mal capturado se corrige con un
--- movimiento nuevo, no reescribiendo el anterior.
-drop policy if exists sale_payments_read on sale_payments;
-create policy sale_payments_read on sale_payments
-  for select to authenticated using (true);
-
-drop policy if exists sale_payments_insert on sale_payments;
-create policy sale_payments_insert on sale_payments
-  for insert to authenticated with check (true);
+-- ── Permisos ────────────────────────────────────────────────────────────────
+-- No hay RLS: en Supabase el navegador hablaba directo con la base y las
+-- políticas eran lo único que lo contenía. Aquí el único cliente es la Lambda,
+-- que verifica el token de Cognito antes de tocar nada, y se conecta con un rol
+-- de aplicación. La credencial no vive en ningún archivo: RDS la administra en
+-- Secrets Manager (--manage-master-user-password) y la Lambda la lee al
+-- arrancar.
+--
+-- Lo que SÍ se conserva de aquel diseño son las garantías que no dependen de
+-- quién pregunta: el folio lo da la base, el trigger congela la nota emitida, y
+-- los pagos no tienen ruta de UPDATE ni DELETE en la API.
