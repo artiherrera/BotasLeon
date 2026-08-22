@@ -1,20 +1,24 @@
 import type { Incoterm, Nota, TipoNota } from "./types"
 
 /**
- * Constantes de la factura comercial.
+ * Datos del vendedor que salen impresos en la nota.
  *
- * 👉 LO PRIMERO QUE HAY QUE LLENAR: VENDEDOR. Hoy trae marcadores. Un domicilio
- * incompleto del exportador es de los primeros motivos de retención en CBP.
+ * El domicilio es el MISMO que ya publica el sitio (Footer.tsx y /visitanos, de
+ * donde también sale el LocalBusiness de Schema.org). Se copia aquí en vez de
+ * importarse porque son cosas distintas que pueden divergir: si algún día hay
+ * bodega aparte del local, cambia una y no la otra.
+ *
+ * Falta el RFC: no está publicado en el sitio y solo hace falta si se emite
+ * factura fiscal. Una nota de venta simple no lo necesita.
  */
 export const VENDEDOR = {
-  nombre: "REVISAR — razón social completa de BotasLeón",
-  domicilio: "REVISAR — calle, número, colonia, León, Guanajuato, C.P., México",
-  rfc: "REVISAR — RFC",
+  nombre: "BotasLeón",
+  // Con salto explícito: dejar que envuelva solo partía "León," de "Gto." y
+  // abría un hueco en medio del bloque.
+  domicilio: "Blvd. Hilario Medina 407, 2º piso\nCol. Josefina, 37260 León, Gto., México",
+  telefono: "+52 479 303 2457",
+  rfc: "",
 } as const
-
-/** ¿Ya se sustituyeron los marcadores? La UI avisa mientras no. */
-export const vendedorPendiente = (): boolean =>
-  VENDEDOR.nombre.startsWith("REVISAR") || VENDEDOR.domicilio.startsWith("REVISAR")
 
 /**
  * Fracciones arancelarias candidatas (HTSUS).
@@ -97,6 +101,14 @@ export const CONDICIONES_DEFAULT = [
   "Cambios de talla sujetos a disponibilidad; no aplican en modelos a medida.",
 ].join("\n")
 
+/**
+ * Nota nueva. Por defecto NACIONAL: es el caso real de hoy — venta por WhatsApp
+ * a un comprador en México, en pesos y en español.
+ *
+ * El tipo "exportacion" existe en el modelo y en la base (fracción arancelaria,
+ * país de origen, declaración T-MEC) pero todavía no tiene pantalla. Cuando
+ * haga falta facturar a Estados Unidos ya está el andamio puesto.
+ */
 export function notaVacia(tipo: TipoNota = "nacional"): Nota {
   return {
     folio: "",
