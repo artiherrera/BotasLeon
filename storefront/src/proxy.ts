@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server"
 import type { NextRequest } from "next/server"
+import { MARKET } from "@/lib/market"
 import { COOKIE_MERCADO } from "@/lib/geo"
 import {
   ALL_LOCALES,
