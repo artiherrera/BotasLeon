@@ -1,15 +1,16 @@
 /**
- * Persistencia de notas de venta contra PostgREST.
+ * Persistencia de notas de venta contra la API interna.
  *
- * Todo pasa por `restAutenticado` (lib/supabase/session.ts): las tablas tienen
- * RLS `to authenticated`, así que sin sesión real no se lee ni se escribe nada.
+ * Cada llamada lleva el token de Cognito; la Lambda lo verifica antes de tocar
+ * la base. `estado` y `folio` NO se mandan nunca: el folio lo genera Postgres y
+ * el estado solo se mueve por rutas explícitas (emitir, cancelar).
  */
 
-import { restAutenticado, rpc, supabaseEnabled } from "@/lib/supabase/session"
+import { api, apiEnabled } from "@/lib/api/client"
 import type { EstadoNota, FormaPago, Nota, Pago } from "./types"
 import { importeTotal, totalPares } from "./types"
 
-export { supabaseEnabled as notasEnabled }
+export { apiEnabled as notasEnabled }
 
 export type NotaGuardada = {
   id: string
@@ -62,40 +63,31 @@ function filaDe(nota: Nota) {
 }
 
 export async function listNotas(): Promise<NotaGuardada[]> {
-  const res = await restAutenticado(
-    "sales_notes?select=*&order=updated_at.desc&limit=300"
-  )
-  return res.json()
+  return api<NotaGuardada[]>("/notas")
 }
 
 export async function insertNota(nota: Nota): Promise<NotaGuardada> {
-  const res = await restAutenticado("sales_notes", {
-    method: "POST",
-    headers: { Prefer: "return=representation" },
-    body: JSON.stringify(filaDe(nota)),
-  })
-  const [row] = await res.json()
-  return row
+  return api<NotaGuardada>("/notas", { method: "POST", body: filaDe(nota) })
 }
 
 /**
  * Solo tiene efecto en borrador: un trigger de la base rechaza cambiar importes
- * o contenido de una nota ya emitida. Se deja que el error suba tal cual para
- * que la UI muestre el motivo real en vez de fallar en silencio.
+ * o contenido de una nota ya emitida. El error sube tal cual para que la UI
+ * muestre el motivo real en vez de fallar en silencio.
  */
 export async function updateNota(id: string, nota: Nota): Promise<NotaGuardada> {
-  const res = await restAutenticado(`sales_notes?id=eq.${encodeURIComponent(id)}`, {
+  return api<NotaGuardada>(`/notas/${encodeURIComponent(id)}`, {
     method: "PATCH",
-    headers: { Prefer: "return=representation" },
-    body: JSON.stringify(filaDe(nota)),
+    body: filaDe(nota),
   })
-  const [row] = await res.json()
-  return row
 }
 
 /** Congela la nota y devuelve su folio. A partir de aquí ya no se edita. */
 export async function emitirNota(id: string): Promise<string> {
-  return rpc<string>("emitir_nota", { p_id: id })
+  const r = await api<{ folio: string }>(`/notas/${encodeURIComponent(id)}/emitir`, {
+    method: "POST",
+  })
+  return r.folio
 }
 
 /**
@@ -103,40 +95,35 @@ export async function emitirNota(id: string): Promise<string> {
  * dinero, y un hueco en el consecutivo no hay cómo explicarlo después.
  */
 export async function cancelarNota(id: string, motivo: string): Promise<void> {
-  await restAutenticado(`sales_notes?id=eq.${encodeURIComponent(id)}`, {
-    method: "PATCH",
-    body: JSON.stringify({ estado: "cancelada", motivo_cancelacion: motivo }),
+  await api(`/notas/${encodeURIComponent(id)}/cancelar`, {
+    method: "POST",
+    body: { motivo },
   })
 }
 
 export async function cambiarEstado(id: string, estado: EstadoNota): Promise<void> {
-  await restAutenticado(`sales_notes?id=eq.${encodeURIComponent(id)}`, {
-    method: "PATCH",
-    body: JSON.stringify({ estado }),
+  await api(`/notas/${encodeURIComponent(id)}/estado`, {
+    method: "POST",
+    body: { estado },
   })
 }
 
 /** Un borrador sí se puede borrar: todavía no es registro de nada. */
 export async function borrarBorrador(id: string): Promise<void> {
-  await restAutenticado(
-    `sales_notes?id=eq.${encodeURIComponent(id)}&estado=eq.borrador`,
-    { method: "DELETE" }
-  )
+  await api(`/notas/${encodeURIComponent(id)}`, { method: "DELETE" })
 }
 
 // ── Pagos ───────────────────────────────────────────────────────────────────
 
+/** Postgres devuelve `numeric` como cadena: se convierte aquí, no en la UI. */
 export async function listPagos(notaId: string): Promise<Pago[]> {
-  const res = await restAutenticado(
-    `sale_payments?nota_id=eq.${encodeURIComponent(notaId)}&select=*&order=pagado_en.asc`
-  )
-  const filas: Array<{
+  const filas = await api<Array<{
     id: string
-    monto: string | number
+    monto: string
     forma: FormaPago
     referencia: string
     pagado_en: string
-  }> = await res.json()
+  }>>(`/notas/${encodeURIComponent(notaId)}/pagos`)
   return filas.map((f) => ({
     id: f.id,
     monto: Number(f.monto),
@@ -148,8 +135,8 @@ export async function listPagos(notaId: string): Promise<Pago[]> {
 
 /**
  * Los pagos solo se insertan. Un cobro mal capturado se corrige con un
- * movimiento nuevo, no reescribiendo el anterior — el RLS ni siquiera permite
- * UPDATE ni DELETE sobre esta tabla.
+ * movimiento nuevo, no reescribiendo el anterior — la API ni siquiera expone
+ * ruta de edición ni de borrado.
  */
 export async function registrarPago(
   notaId: string,
@@ -157,24 +144,19 @@ export async function registrarPago(
   forma: FormaPago,
   referencia = ""
 ): Promise<void> {
-  await restAutenticado("sale_payments", {
+  await api(`/notas/${encodeURIComponent(notaId)}/pagos`, {
     method: "POST",
-    body: JSON.stringify({ nota_id: notaId, monto, forma, referencia }),
+    body: { monto, forma, referencia },
   })
 }
 
-/** Saldo calculado por la vista, no por una columna que se desincroniza. */
+/** Saldo calculado por una vista en la base, no por una columna desincronizada. */
 export async function saldoDe(
   notaId: string
 ): Promise<{ total: number; pagado: number; saldo: number } | null> {
-  const res = await restAutenticado(
-    `sales_notes_saldo?id=eq.${encodeURIComponent(notaId)}&select=total,pagado,saldo`
+  const r = await api<{ total: string; pagado: string; saldo: string } | null>(
+    `/notas/${encodeURIComponent(notaId)}/saldo`
   )
-  const [row] = await res.json()
-  if (!row) return null
-  return {
-    total: Number(row.total),
-    pagado: Number(row.pagado),
-    saldo: Number(row.saldo),
-  }
+  if (!r) return null
+  return { total: Number(r.total), pagado: Number(r.pagado), saldo: Number(r.saldo) }
 }

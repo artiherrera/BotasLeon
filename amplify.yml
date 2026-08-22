@@ -42,6 +42,12 @@ applications:
             # myshopify en headless, y sacar al comprador del dominio de marca
             # justo al pagar cuesta ventas. Ver storefront/src/lib/checkout.ts.
             - echo "NEXT_PUBLIC_CHECKOUT_DOMAIN=${NEXT_PUBLIC_CHECKOUT_DOMAIN:-}" >> .env.production.local
+            # Herramientas internas (cotizador y notas de venta). Apuntan a la API
+            # propia en AWS: API Gateway -> Lambda -> RDS. Si faltan, esas
+            # secciones se apagan solas y el resto del sitio no se entera.
+            - echo "NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-}"                 >> .env.production.local
+            - echo "NEXT_PUBLIC_COGNITO_CLIENT_ID=${NEXT_PUBLIC_COGNITO_CLIENT_ID:-}" >> .env.production.local
+            - echo "NEXT_PUBLIC_AWS_REGION=${NEXT_PUBLIC_AWS_REGION:-us-east-2}"  >> .env.production.local
             # NEXT_PUBLIC_* se exponen al bundle del navegador. El cart
             # client-side hace fetch directo desde el browser a Shopify
             # (sin pasar por nuestro server), así que necesita ambos.

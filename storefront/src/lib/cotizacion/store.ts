@@ -15,11 +15,11 @@
  * sigue funcionando como antes).
  */
 
-import { restAutenticado } from "@/lib/supabase/session"
+import { api, apiEnabled } from "@/lib/api/client"
 import type { Quote } from "./types"
 import { importeTotal, totalPares } from "./types"
 
-export { supabaseEnabled as quotesEnabled } from "@/lib/supabase/session"
+export { apiEnabled as quotesEnabled }
 
 export type SavedQuote = {
   id: string
@@ -34,15 +34,6 @@ export type SavedQuote = {
   updated_at: string
   created_at: string
 }
-
-/**
- * CORREGIDO: aquí se mandaba la ANON KEY como Bearer, que da el rol `anon`. El
- * RLS de supabase/migrations/0001 concede acceso solo `to authenticated`, así
- * que toda lectura habría devuelto cero filas y toda escritura 401 — el
- * cotizador habría parecido roto en cuanto se conectara la base. Ahora viaja el
- * token del usuario. Ver lib/supabase/session.ts.
- */
-const rest = restAutenticado
 
 /** Fila para guardar: columnas de resumen + el Quote completo en `data`. */
 function rowFrom(quote: Quote) {
@@ -60,33 +51,23 @@ function rowFrom(quote: Quote) {
 
 /** Trae las cotizaciones (más recientes primero). El filtro de texto es local. */
 export async function listQuotes(): Promise<SavedQuote[]> {
-  const res = await rest("quotes?select=*&order=updated_at.desc&limit=300")
-  return res.json()
+  return api<SavedQuote[]>("/quotes")
 }
 
 /** Inserta una cotización nueva y devuelve la fila guardada (con id). */
 export async function insertQuote(quote: Quote): Promise<SavedQuote> {
-  const res = await rest("quotes", {
-    method: "POST",
-    headers: { Prefer: "return=representation" },
-    body: JSON.stringify(rowFrom(quote)),
-  })
-  const [row] = await res.json()
-  return row
+  return api<SavedQuote>("/quotes", { method: "POST", body: rowFrom(quote) })
 }
 
 /** Actualiza una cotización existente. */
 export async function updateQuote(id: string, quote: Quote): Promise<SavedQuote> {
-  const res = await rest(`quotes?id=eq.${encodeURIComponent(id)}`, {
+  return api<SavedQuote>(`/quotes/${encodeURIComponent(id)}`, {
     method: "PATCH",
-    headers: { Prefer: "return=representation" },
-    body: JSON.stringify({ ...rowFrom(quote), updated_at: new Date().toISOString() }),
+    body: rowFrom(quote),
   })
-  const [row] = await res.json()
-  return row
 }
 
 /** Elimina una cotización. */
 export async function deleteQuote(id: string): Promise<void> {
-  await rest(`quotes?id=eq.${encodeURIComponent(id)}`, { method: "DELETE" })
+  await api(`/quotes/${encodeURIComponent(id)}`, { method: "DELETE" })
 }
