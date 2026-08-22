@@ -82,6 +82,25 @@ async function idp(target: string, body: unknown): Promise<RespuestaAuth> {
   return json
 }
 
+/**
+ * Suscripción a los cambios de sesión.
+ *
+ * Existe para que la UI use `useSyncExternalStore` en vez de leer localStorage
+ * dentro de un `useEffect` y llamar a setState: eso provoca un render de más y
+ * la regla react-hooks/set-state-in-effect lo marca con razón.
+ */
+const oyentes = new Set<() => void>()
+const notificar = () => oyentes.forEach((f) => f())
+
+export function suscribirSesion(fn: () => void): () => void {
+  oyentes.add(fn)
+  return () => oyentes.delete(fn)
+}
+
+/** Instantánea para useSyncExternalStore. En el servidor siempre es false. */
+export const haySesion = (): boolean => !!cargarSesion()
+export const noHaySesionEnServidor = (): boolean => false
+
 export function cargarSesion(): Sesion | null {
   if (typeof localStorage === "undefined") return null
   try {
@@ -98,6 +117,7 @@ function guardar(s: Sesion): void {
   } catch {
     /* modo privado: la sesión dura lo que dure la pestaña */
   }
+  notificar()
 }
 
 export function cerrarSesion(): void {
@@ -106,6 +126,7 @@ export function cerrarSesion(): void {
   } catch {
     /* nada que limpiar */
   }
+  notificar()
 }
 
 export const correoActual = (): string | null => cargarSesion()?.email ?? null

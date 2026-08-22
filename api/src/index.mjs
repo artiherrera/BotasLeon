@@ -111,6 +111,17 @@ const CAMPOS_NOTA = [
   "total", "pares", "data",
 ]
 
+/**
+ * En BORRADOR todo es modificable, incluido el folio: puede hacer falta
+ * empatarlo con una serie en papel que ya existe. La unicidad la sigue
+ * garantizando la restricción `unique` de la columna, y el trigger de la base
+ * bloquea el cambio en cuanto la nota se emite.
+ *
+ * No se acepta en el alta: si llegara vacío, insertaría cadena vacía en vez de
+ * dejar actuar al consecutivo de Postgres.
+ */
+const CAMPOS_NOTA_PATCH = [...CAMPOS_NOTA, "folio"]
+
 const CAMPOS_QUOTE = [
   "cliente", "atiende", "moneda", "idioma", "total", "pares", "vigencia_hasta", "data",
 ]
@@ -158,7 +169,7 @@ async function router(metodo, ruta, body, vendedor) {
     if (metodo === "POST" && !p[1])
       return json(201, await q1(...insert("sales_notes", CAMPOS_NOTA, body, vendedor.id)))
     if (metodo === "PATCH" && p[1] && !p[2])
-      return json(200, await q1(...update("sales_notes", CAMPOS_NOTA, p[1], body)))
+      return json(200, await q1(...update("sales_notes", CAMPOS_NOTA_PATCH, p[1], body)))
     if (metodo === "POST" && p[1] && p[2] === "emitir")
       return json(200, { folio: (await q1("select emitir_nota($1) as f", [p[1]])).f })
     if (metodo === "POST" && p[1] && p[2] === "cancelar")

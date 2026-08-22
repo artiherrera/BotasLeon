@@ -70,6 +70,13 @@ export const FRACCIONES: Record<string, Fraccion> = {
 /**
  * Sugerencia por producto. `welt` gana sobre el género porque la construcción
  * define una línea propia en el arancel.
+ *
+ * SUGERENCIA, NO CANDADO. Lo que devuelve esta función solo PRELLENA el campo;
+ * en la nota sigue siendo texto libre y se puede sobrescribir con lo que diga
+ * el agente aduanal. Vale para todo el documento: título, descripción, precio,
+ * talla, moneda, domicilios y condiciones son editables mientras la nota esté
+ * en borrador. Lo único que se congela es lo ya emitido, y para eso está
+ * cancelar y volver a emitir.
  */
 export function sugerirFraccion(
   sexo: string,

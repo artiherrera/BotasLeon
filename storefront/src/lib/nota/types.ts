@@ -48,7 +48,15 @@ export type Aduana = {
   descripcionEn: string
 }
 
-export type NotaItem = QuoteItem & { aduana?: Aduana }
+/**
+ * `suela` no viene del catálogo de Shopify: su metacampo `footwear-material`
+ * describe el CORTE. Y la suela es justo lo que decide entre 6403.51 y 6403.91,
+ * así que se captura por partida.
+ */
+export type NotaItem = QuoteItem & {
+  aduana?: Aduana
+  suela?: "piel" | "hule"
+}
 
 export type Nota = {
   folio: string
