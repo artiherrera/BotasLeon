@@ -4,6 +4,7 @@ import { KlaviyoLoader } from "@/components/KlaviyoLoader"
 import { CartProvider } from "@/components/CartProvider"
 import { CartDrawer } from "@/components/CartDrawer"
 import { Toast } from "@/components/Toast"
+import { RedireccionMercado } from "@/components/RedireccionMercado"
 import { CookiesBanner } from "@/components/CookiesBanner"
 import { GoogleAnalytics } from "@/components/GoogleAnalytics"
 import { MetaPixel } from "@/components/MetaPixel"
@@ -175,6 +176,11 @@ export default async function RootLayout({
         {/* Meta Pixel — se inyecta SOLO con consentimiento "todas" (como
             Klaviyo). La Compra la captura el canal de Facebook de Shopify. */}
         <MetaPixel />
+
+        {/* Manda a la .mx a quien entra desde México. Va tan arriba como se
+            pueda para que el cambio ocurra antes de que se vea el precio en
+            dólares. Ver components/RedireccionMercado.tsx. */}
+        <RedireccionMercado />
 
         <CartProvider>
           {children}

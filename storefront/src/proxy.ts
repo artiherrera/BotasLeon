@@ -1,5 +1,12 @@
 import { NextResponse } from "next/server"
 import type { NextRequest } from "next/server"
+import { MARKET } from "@/lib/market"
+import {
+  COOKIE_MERCADO,
+  equivalenteMx,
+  esRastreador,
+  paisDesdeCabeceras,
+} from "@/lib/geo"
 import {
   ALL_LOCALES,
   LOCALES,
@@ -37,6 +44,47 @@ function pickLocale(req: NextRequest): string {
 
 export function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl
+
+  // ── Mercado: un visitante de México en la .com va a la .mx ────────────────
+  // La moneda se hornea en el build (ver lib/market.ts), así que no se puede
+  // cambiar el precio en sitio: hay que mandarlo al despliegue que le toca. Y
+  // no es solo el precio — el carrito lleva el país del build, así que aquí
+  // pagaría en dólares y con envío internacional en vez del envío gratis desde
+  // $3,999 que le corresponde.
+  //
+  // Tres frenos, en este orden:
+  //   · Rastreadores NUNCA. Googlebot rastrea desde EE.UU.; mandarlo a la .mx
+  //     haría que dejara de indexar la .com.
+  //   · Si ya eligió quedarse (cookie), se respeta.
+  //   · Solo si el CDN de verdad manda el país. Si no llega, no se adivina
+  //     aquí: lo resuelve el navegador por zona horaria (ver
+  //     components/RedireccionMercado.tsx), que además acierta más con un
+  //     mexicano de viaje.
+  // Salida explícita. Las cookies son por dominio, así que una puesta en la .mx
+  // no sirve aquí: el enlace de vuelta trae ?mercado=us y ES ese parámetro el
+  // que fija la preferencia del lado de la .com. Sin esto, quien quisiera ver
+  // dólares rebotaría a pesos en cada visita.
+  if (MARKET === "US" && req.nextUrl.searchParams.get("mercado") === "us") {
+    const limpia = req.nextUrl.clone()
+    limpia.searchParams.delete("mercado")
+    const res = NextResponse.redirect(limpia, 307)
+    res.cookies.set(COOKIE_MERCADO, "us", {
+      path: "/",
+      maxAge: 60 * 60 * 24 * 365,
+      sameSite: "lax",
+    })
+    return res
+  }
+
+  if (MARKET === "US" && !req.cookies.get(COOKIE_MERCADO)) {
+    const pais = paisDesdeCabeceras(req.headers)
+    if (pais === "MX" && !esRastreador(req.headers.get("user-agent"))) {
+      return NextResponse.redirect(
+        equivalenteMx(pathname, req.nextUrl.search),
+        307
+      )
+    }
+  }
   const hasLocale = LOCALES.some(
     (l) => pathname === `/${l}` || pathname.startsWith(`/${l}/`)
   )

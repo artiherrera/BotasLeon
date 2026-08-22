@@ -2,6 +2,7 @@
 
 import Image from "next/image"
 import { LocalizedLink as Link } from "@/components/LocalizedLink"
+import { EnlaceOtroMercado } from "./EnlaceOtroMercado"
 import { PaymentBadges } from "./PaymentBadges"
 import { SocialIcons } from "./SocialIcons"
 import { whatsappHref } from "@/lib/whatsapp"
@@ -115,6 +116,8 @@ export function Footer() {
       <div className="border-t border-bg-alt/20">
         <div className="mx-auto max-w-7xl px-6 py-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-bg-alt/60">
           <p>© {new Date().getFullYear()} BotasLeón · León, Guanajuato, México.</p>
+          {/* Solo aparece en la .mx: la vuelta al sitio en dólares. */}
+          <EnlaceOtroMercado className="text-bg-alt/70" />
           <p>{t("footer.madeIn")}</p>
         </div>
       </div>
