@@ -1,5 +1,5 @@
 import { Header } from "@/components/Header"
-import { PasswordGate } from "@/components/cotizador/PasswordGate"
+import { Entrar } from "@/components/notas/Entrar"
 import { QuoteBuilder } from "@/components/cotizador/QuoteBuilder"
 import { pageMetadata } from "@/lib/seo"
 
@@ -14,9 +14,9 @@ export default function CotizadorPage() {
     <>
       <Header />
       <main id="contenido" tabIndex={-1} className="flex-1">
-        <PasswordGate>
+        <Entrar>
           <QuoteBuilder />
-        </PasswordGate>
+        </Entrar>
       </main>
     </>
   )
