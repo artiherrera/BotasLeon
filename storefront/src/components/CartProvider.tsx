@@ -11,6 +11,7 @@ import {
 } from "react"
 import { SIZE_ATTR } from "@/lib/cart/line-size"
 import { COUNTRY } from "@/lib/market"
+import { useLocale } from "@/lib/i18n/context"
 import {
   clientAddLines,
   clientCreateCart,
@@ -20,6 +21,7 @@ import {
   clientUpdateBuyerIdentity,
   clientUpdateDiscountCodes,
   clientUpdateLines,
+  fijarIdiomaCarrito,
 } from "@/lib/cart/client"
 import { clearPendingDiscount } from "@/lib/discount/client"
 import { track } from "@/lib/klaviyo/client"
@@ -90,6 +92,13 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
   // País del carrito = mercado del despliegue (ver lib/market.ts). Decide la
   // moneda del checkout, y re-alinea un carrito viejo guardado en otra moneda.
+  const { locale } = useLocale()
+
+  // El idioma del checkout se decide al pedirle el carrito a Shopify, así que
+  // hay que fijarlo ANTES de cualquier operación — no en un efecto, que correría
+  // después del primer render y dejaría el primer carrito en el idioma anterior.
+  fijarIdiomaCarrito(locale)
+
   const countryCode = COUNTRY
   const countryRef = useRef(countryCode)
   useEffect(() => {

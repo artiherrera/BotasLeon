@@ -13,6 +13,8 @@
  *     Headless (sin esto, browser bloquea por CORS)
  */
 
+import { inContext } from "@/lib/market"
+import { DEFAULT_LOCALE } from "@/lib/i18n/config"
 import type { Cart } from "@/lib/shopify/types"
 
 const DOMAIN = process.env.NEXT_PUBLIC_SHOPIFY_STORE_DOMAIN
@@ -139,10 +141,35 @@ function unwrap<K extends string>(resp: Mutation<K>, key: K): Cart {
 
 // === Mutaciones ===
 
+/**
+ * IDIOMA DEL CARRITO — y por lo tanto del CHECKOUT.
+ *
+ * El `checkoutUrl` que devuelve Shopify viene localizado según el idioma que
+ * lleve `@inContext` al pedirlo: con EN sale .../en/cart/c/..., sin idioma sale
+ * en el idioma por defecto de la TIENDA.
+ *
+ * Aquí no había `@inContext` en ninguna operación, solo `buyerIdentity` con el
+ * país. Resultado: un comprador en Austin veía el sitio en inglés y llegaba a
+ * una pantalla de pago EN ESPAÑOL, porque la tienda es mexicana y ese es su
+ * idioma por defecto.
+ *
+ * Se guarda a nivel de módulo en vez de pasarlo por parámetro porque las ocho
+ * operaciones se llaman desde un único sitio (CartProvider), y enhebrarlo por
+ * todas ensuciaría las firmas sin ganar nada.
+ */
+let idiomaCarrito: "ES" | "EN" = DEFAULT_LOCALE === "en" ? "EN" : "ES"
+
+export function fijarIdiomaCarrito(locale: string): void {
+  idiomaCarrito = locale === "en" ? "EN" : "ES"
+}
+
+/** Directiva ya armada, con el país del mercado y el idioma en curso. */
+const ctx = (): string => inContext(idiomaCarrito)
+
 export async function clientGetCart(cartId: string): Promise<Cart | null> {
   const data = await shopifyClientFetch<{ cart: RawCart | null }>(
     /* GraphQL */ `
-      query ($id: ID!) {
+      query ($id: ID!) ${ctx()} {
         cart(id: $id) { ...CartFields }
       }
       ${CART_FRAGMENT}
@@ -163,7 +190,7 @@ export async function clientCreateCart(
   if (countryCode) input.buyerIdentity = { countryCode }
   const data = await shopifyClientFetch<Mutation<"cartCreate">>(
     /* GraphQL */ `
-      mutation ($input: CartInput!) {
+      mutation ($input: CartInput!) ${ctx()} {
         cartCreate(input: $input) {
           cart { ...CartFields }
           userErrors { message field }
@@ -186,7 +213,7 @@ export async function clientUpdateBuyerIdentity(
 ): Promise<Cart> {
   const data = await shopifyClientFetch<Mutation<"cartBuyerIdentityUpdate">>(
     /* GraphQL */ `
-      mutation ($cartId: ID!, $buyerIdentity: CartBuyerIdentityInput!) {
+      mutation ($cartId: ID!, $buyerIdentity: CartBuyerIdentityInput!) ${ctx()} {
         cartBuyerIdentityUpdate(cartId: $cartId, buyerIdentity: $buyerIdentity) {
           cart { ...CartFields }
           userErrors { message field }
@@ -205,7 +232,7 @@ export async function clientAddLines(
 ): Promise<Cart> {
   const data = await shopifyClientFetch<Mutation<"cartLinesAdd">>(
     /* GraphQL */ `
-      mutation ($cartId: ID!, $lines: [CartLineInput!]!) {
+      mutation ($cartId: ID!, $lines: [CartLineInput!]!) ${ctx()} {
         cartLinesAdd(cartId: $cartId, lines: $lines) {
           cart { ...CartFields }
           userErrors { message field }
@@ -230,7 +257,7 @@ export async function clientUpdateLines(
 ): Promise<Cart> {
   const data = await shopifyClientFetch<Mutation<"cartLinesUpdate">>(
     /* GraphQL */ `
-      mutation ($cartId: ID!, $lines: [CartLineUpdateInput!]!) {
+      mutation ($cartId: ID!, $lines: [CartLineUpdateInput!]!) ${ctx()} {
         cartLinesUpdate(cartId: $cartId, lines: $lines) {
           cart { ...CartFields }
           userErrors { message field }
@@ -249,7 +276,7 @@ export async function clientRemoveLines(
 ): Promise<Cart> {
   const data = await shopifyClientFetch<Mutation<"cartLinesRemove">>(
     /* GraphQL */ `
-      mutation ($cartId: ID!, $lineIds: [ID!]!) {
+      mutation ($cartId: ID!, $lineIds: [ID!]!) ${ctx()} {
         cartLinesRemove(cartId: $cartId, lineIds: $lineIds) {
           cart { ...CartFields }
           userErrors { message field }
@@ -274,7 +301,7 @@ export async function clientUpdateAttributes(
 ): Promise<Cart> {
   const data = await shopifyClientFetch<Mutation<"cartAttributesUpdate">>(
     /* GraphQL */ `
-      mutation ($cartId: ID!, $attributes: [AttributeInput!]!) {
+      mutation ($cartId: ID!, $attributes: [AttributeInput!]!) ${ctx()} {
         cartAttributesUpdate(cartId: $cartId, attributes: $attributes) {
           cart { ...CartFields }
           userErrors { message field }
@@ -300,7 +327,7 @@ export async function clientUpdateDiscountCodes(
 ): Promise<Cart> {
   const data = await shopifyClientFetch<Mutation<"cartDiscountCodesUpdate">>(
     /* GraphQL */ `
-      mutation ($cartId: ID!, $discountCodes: [String!]) {
+      mutation ($cartId: ID!, $discountCodes: [String!]) ${ctx()} {
         cartDiscountCodesUpdate(cartId: $cartId, discountCodes: $discountCodes) {
           cart { ...CartFields }
           userErrors { message field }
