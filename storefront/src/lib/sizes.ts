@@ -25,6 +25,8 @@ export type GenderHandle =
   | null
   | undefined
 
+import { isMX } from "@/lib/market"
+
 /** Corrimiento MX→US por sexo, o null si no aplica (niños/unisex/desconocido). */
 export function usOffset(gender: GenderHandle): number | null {
   if (gender === "masculino") return 19
@@ -44,11 +46,23 @@ export function mxToUs(mxSize: string | number, gender: GenderHandle): string | 
 }
 
 /**
- * Formato corto para los botones de talla:
- *   "24 · US 7"  (con conversión)
- *   "24"          (sin conversión — niños o sexo desconocido)
+ * Talla como se muestra al comprador, según el mercado del despliegue.
+ *
+ *   botasleon.mx   "24 · US 7"   las dos escalas: el comprador mexicano piensa
+ *                                en la suya y la US le sirve de referencia.
+ *   botasleon.com  "US 7"        solo la americana. Enseñarle un 24 a alguien
+ *                                en Texas no le dice nada y siembra la duda de
+ *                                si el número que va a recibir es ese.
+ *
+ * Se conserva el prefijo "US" en vez de dejar el número pelón porque estas son
+ * botas importadas y el comprador de calzado importado desconfía de las tallas:
+ * decirle explícitamente que el 7 es su 7 es justo lo que quiere leer.
+ *
+ * Sin conversión (niños o sexo desconocido) se cae a la talla MX en los dos
+ * sitios — es preferible a dejar el botón en blanco.
  */
 export function formatSizeWithUs(mxSize: string, gender: GenderHandle): string {
   const us = mxToUs(mxSize, gender)
-  return us ? `${mxSize} · US ${us}` : mxSize
+  if (!us) return mxSize
+  return isMX ? `${mxSize} · US ${us}` : `US ${us}`
 }
