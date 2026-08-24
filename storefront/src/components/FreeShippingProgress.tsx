@@ -1,6 +1,6 @@
 "use client"
 
-import { freeShippingProgress } from "@/lib/shipping-policy"
+import { ENVIO_GRATIS_SIEMPRE, freeShippingProgress } from "@/lib/shipping-policy"
 import { useT } from "@/lib/i18n/context"
 import { formatMoney } from "@/lib/utils"
 
@@ -21,6 +21,16 @@ export function FreeShippingProgress({
 }) {
   const t = useT()
   const { applies, qualifies, remaining, ratio } = freeShippingProgress(amount)
+
+  // Sin condición: no hay avance que mostrar, solo el hecho. Una barra llena al
+  // 100% en todos los carritos es ruido.
+  if (ENVIO_GRATIS_SIEMPRE) {
+    return (
+      <p className="mb-4 text-xs font-medium text-leather">
+        {t("cart.freeShippingAlways")}
+      </p>
+    )
+  }
 
   if (!applies) return null
 

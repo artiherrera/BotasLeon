@@ -2,7 +2,6 @@ import { ContentPage } from "@/components/ContentPage"
 import { Localized } from "@/components/Localized"
 import { pageMetadata } from "@/lib/seo"
 import { isMX } from "@/lib/market"
-import { FREE_SHIPPING_THRESHOLD } from "@/lib/shipping-policy"
 
 /**
  * Una página, dos mercados. `isMX` es constante de build (lib/market.ts), así
@@ -14,9 +13,6 @@ import { FREE_SHIPPING_THRESHOLD } from "@/lib/shipping-policy"
  * comprador". En botasleon.mx las dos cosas son falsas: el envío es nacional y
  * no cruza ninguna aduana.
  */
-
-/** Umbral con separador de miles. El ?? nunca dispara en un build MX. */
-const UMBRAL = (FREE_SHIPPING_THRESHOLD ?? 3999).toLocaleString("es-MX")
 
 function EnviosMexico() {
   return (
@@ -32,9 +28,8 @@ function EnviosMexico() {
 
           <h2>Costos</h2>
           <p>
-            <strong>Envío gratis en pedidos de ${UMBRAL} MXN o más.</strong> Por
-            debajo de ese monto, el costo se calcula al pagar según tu código
-            postal y la paquetería. Lo ves antes de confirmar el pedido.
+            <strong>El envío es gratis, sin monto mínimo.</strong> A cualquier
+            código postal de la República, en cualquier pedido.
           </p>
           <p>
             Todos nuestros precios ya incluyen IVA. No hay cargos adicionales
@@ -74,9 +69,8 @@ function EnviosMexico() {
 
           <h2>Shipping costs</h2>
           <p>
-            <strong>Free shipping on orders of ${UMBRAL} MXN or more.</strong>{" "}
-            Below that, shipping is calculated at checkout based on your postal
-            code and carrier. You see it before confirming your order.
+            <strong>Shipping is free, with no minimum order.</strong> To any
+            postal code in Mexico, on every order.
           </p>
           <p>
             All our prices already include Mexican VAT. There are no additional
@@ -235,7 +229,7 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
     path: "/envios",
     title: "Envíos",
     description: isMX
-      ? `Envíos a toda la República Mexicana. Gratis en pedidos de $${UMBRAL} MXN o más. Tiempos, costos y rastreo.`
+      ? "Envío gratis a toda la República Mexicana, sin monto mínimo. Tiempos de entrega y rastreo."
       : "Envío a todo Estados Unidos. Tiempos, costos y rastreo de pedidos.",
   })
 }

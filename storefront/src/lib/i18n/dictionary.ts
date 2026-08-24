@@ -464,6 +464,10 @@ export const DICTIONARY: Record<string, Entry> = {
   // (ver lib/shipping-policy.ts). El sitio de EE.UU. no renderiza estas claves
   // porque allá el envío pasa de $100 USD y prometerlo gratis sería falso.
   // Van partidas en dos porque useT() no interpola: el monto se arma en JSX.
+  "cart.freeShippingAlways": {
+    es: "Envío gratis a toda la República",
+    en: "Free shipping anywhere in Mexico",
+  },
   "cart.freeShippingQualified": {
     es: "Tu pedido lleva envío gratis",
     en: "Your order ships free",
