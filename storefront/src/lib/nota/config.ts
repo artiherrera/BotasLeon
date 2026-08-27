@@ -90,16 +90,20 @@ export function sugerirFraccion(
 }
 
 /**
- * Pieles CITES presentes en el catálogo.
+ * Pieles CITES presentes en el catálogo — 21 productos entre pitón, caimán y
+ * cocodrilo real.
  *
- * Son los handles del metacampo `footwear-material` de Shopify: hay 11
- * productos de pitón y 7 de caimán. Exportar cualquiera de ellos a Estados
- * Unidos NO es cuestión de arancel — exige permiso del USFWS, formato 3-177,
- * despacho por un puerto designado, y el trámite corre entre 8 y 12 semanas.
+ * NO BLOQUEA LA VENTA. El dueño tiene los permisos CITES, así que estas botas
+ * sí se exportan; lo que hace falta es que la documentación viaje con ellas
+ * (permiso USFWS, formato 3-177, despacho por puerto designado). Por eso esto
+ * es un RECORDATORIO al capturar la nota, no un candado: un candado le impediría
+ * vender algo que sí puede vender.
  *
- * La nota de venta bloquea la exportación de estos materiales a propósito: es
- * mucho más barato descubrirlo al capturar que cuando el paquete está retenido
- * en la aduana.
+ * OJO CON LAS GRABADAS: hay cuatro "Cocodrilo Grabado" que son piel de res
+ * estampada (material `cuero` en Shopify), no reptil. No son CITES y no
+ * necesitan permiso. El detector las marca igual porque busca la palabra
+ * "cocodrilo" en el texto libre de la nota, y ahí se prefiere avisar de más:
+ * declarar de menos ante CBP es multa, avisar de más solo cuesta un vistazo.
  */
 export const MATERIALES_CITES = ["piton", "pitón", "caiman", "caimán", "cocodrilo"] as const
 
@@ -108,7 +112,10 @@ export function esCites(material: string): boolean {
   return MATERIALES_CITES.some((c) => m.includes(c))
 }
 
-/** Materiales CITES detectados en una nota. Vacío = se puede exportar. */
+/**
+ * Partidas que requieren documentación CITES. Vacío = nada que adjuntar.
+ * Devuelve títulos, no un booleano, para poder nombrarlas en el aviso.
+ */
 export function citesEnNota(items: Array<{ title: string; descripcion: string }>): string[] {
   return items
     .filter((it) => esCites(`${it.title} ${it.descripcion}`))
