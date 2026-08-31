@@ -66,8 +66,15 @@ const CATEGORIES: Category[] = [
     ],
     ctaLabel: "nav.cta.women",
   },
-  // Accesorios oculto del nav móvil — aún sin productos dados de alta.
-  // Restaurar cuando los haya (rutas /accesorios siguen existiendo).
+  // Solo las sub-categorías CON producto — ver la nota en MegaMenu.
+  {
+    label: "nav.accessories",
+    href: "/accesorios",
+    sublinks: [
+      { label: "nav.belts", href: "/accesorios/cinturones", description: "nav.belts.desc" },
+    ],
+    ctaLabel: "nav.cta.accessories",
+  },
 ]
 
 const QUICK_LINKS: Array<{ label: string; href: string; highlight?: boolean }> = [

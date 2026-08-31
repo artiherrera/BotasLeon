@@ -73,9 +73,23 @@ const MENU: MenuItem[] = [
     ctaHref: "/mujer",
     ctaLabel: "nav.cta.women",
   },
-  // Accesorios oculto del nav — aún sin productos dados de alta. Para
-  // reactivar cuando los haya, restaurar este item (rutas /accesorios siguen
-  // existiendo, solo sin enlazar).
+  // Solo se enlazan las sub-categorías CON producto. Sombreros, Carteras y
+  // Cuidado del cuero existen como ruta pero están vacías: enlazarlas sería
+  // mandar al comprador a una página en blanco.
+  {
+    label: "nav.accessories",
+    href: "/accesorios",
+    sections: [
+      {
+        title: "nav.explore",
+        links: [
+          { label: "nav.belts", href: "/accesorios/cinturones", description: "nav.belts.desc" },
+        ],
+      },
+    ],
+    ctaHref: "/accesorios",
+    ctaLabel: "nav.cta.accessories",
+  },
   {
     label: "nav.brands",
     href: "/marcas",

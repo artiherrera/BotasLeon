@@ -100,6 +100,13 @@ export const DICTIONARY: Record<string, Entry> = {
   // ── Navegación principal ──────────────────────────────────────────────
   "nav.men": { es: "Hombre", en: "Men" },
   "nav.women": { es: "Mujer", en: "Women" },
+  "nav.accessories": { es: "Accesorios", en: "Accessories" },
+  "nav.belts": { es: "Cinturones", en: "Belts" },
+  "nav.belts.desc": {
+    es: "Piel de res labrada, hebilla de latón. Tallas en pulgadas.",
+    en: "Tooled cowhide with brass buckle. Sizes in inches.",
+  },
+  "nav.cta.accessories": { es: "Ver todos los accesorios", en: "Shop all accessories" },
   "nav.brands": { es: "Marcas", en: "Brands" },
   "nav.outlet": { es: "Outlet", en: "Outlet" },
   "nav.visit": { es: "Visítanos", en: "Visit Us" },
