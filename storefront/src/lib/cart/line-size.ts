@@ -34,6 +34,11 @@ export function lineGender(line: CartLine): GenderHandle {
   )
 }
 
+/** Tipo de producto de la línea — decide si la talla se convierte a US. */
+export function lineProductType(line: CartLine): string | null {
+  return line.merchandise.product.productType ?? null
+}
+
 /**
  * Tallas que ofrece el producto de la línea, en orden numérico (22, 22.5, 23…).
  * Usa el campo `label` del metaobjeto, igual que el PDP, para que el carrito y

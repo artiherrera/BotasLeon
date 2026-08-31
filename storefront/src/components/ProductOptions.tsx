@@ -194,7 +194,7 @@ export function ProductOptions({ product }: Props) {
             : "border-border text-text-subtle line-through cursor-not-allowed"
       }`}
     >
-      {formatSizeWithUs(value, genderHandle)}
+      {formatSizeWithUs(value, genderHandle, product.productType)}
     </button>
   )
 
@@ -293,12 +293,12 @@ export function ProductOptions({ product }: Props) {
             {t("filters.size")}
             {sizeOption && selection[sizeOption.name] && (
               <span className="ml-2 text-text normal-case tracking-normal font-medium">
-                {formatSizeWithUs(selection[sizeOption.name], genderHandle)}
+                {formatSizeWithUs(selection[sizeOption.name], genderHandle, product.productType)}
               </span>
             )}
             {!sizeOption && metaSize && (
               <span className="ml-2 text-text normal-case tracking-normal font-medium">
-                {formatSizeWithUs(metaSize, genderHandle)}
+                {formatSizeWithUs(metaSize, genderHandle, product.productType)}
               </span>
             )}
           </p>

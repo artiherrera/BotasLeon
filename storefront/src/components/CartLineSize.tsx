@@ -4,7 +4,8 @@ import { useState } from "react"
 import { useCart } from "@/components/CartProvider"
 import { useT } from "@/lib/i18n/context"
 import { formatSizeWithUs } from "@/lib/sizes"
-import { lineGender, lineSize, lineSizes } from "@/lib/cart/line-size"
+import { lineGender,
+  lineProductType, lineSize, lineSizes } from "@/lib/cart/line-size"
 import type { Cart } from "@/lib/shopify/types"
 
 /**
@@ -30,6 +31,7 @@ export function CartLineSize({
   const sizes = lineSizes(line)
   const current = lineSize(line)
   const gender = lineGender(line)
+  const tipo = lineProductType(line)
   const [open, setOpen] = useState(false)
 
   // Producto sin tallas (accesorios): no hay nada que elegir.
@@ -39,7 +41,7 @@ export function CartLineSize({
     return (
       <p className={compact ? "text-xs text-text-muted" : "text-sm text-text-muted"}>
         {t("filters.size")}:{" "}
-        <span className="text-text">{formatSizeWithUs(current, gender)}</span>{" "}
+        <span className="text-text">{formatSizeWithUs(current, gender, tipo)}</span>{" "}
         <button
           type="button"
           onClick={() => setOpen(true)}
@@ -79,7 +81,7 @@ export function CartLineSize({
                   : "border-border text-text hover:border-leather"
               }`}
             >
-              {formatSizeWithUs(size, gender)}
+              {formatSizeWithUs(size, gender, tipo)}
             </button>
           )
         })}

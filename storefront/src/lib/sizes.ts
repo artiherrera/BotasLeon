@@ -26,6 +26,7 @@ export type GenderHandle =
   | undefined
 
 import { isMX } from "@/lib/market"
+import { BOOT_PRODUCT_TYPES } from "@/lib/shopify/taxonomy"
 
 /** Corrimiento MX→US por sexo, o null si no aplica (niños/unisex/desconocido). */
 export function usOffset(gender: GenderHandle): number | null {
@@ -61,7 +62,29 @@ export function mxToUs(mxSize: string | number, gender: GenderHandle): string | 
  * Sin conversión (niños o sexo desconocido) se cae a la talla MX en los dos
  * sitios — es preferible a dejar el botón en blanco.
  */
-export function formatSizeWithUs(mxSize: string, gender: GenderHandle): string {
+/**
+ * ¿Este producto usa escala de CALZADO?
+ *
+ * Solo el calzado se mide en la escala mexicana que se convierte restando 19 o
+ * 17. Un cinturón se vende en PULGADAS —en los dos mercados— y pasarlo por esa
+ * resta daba disparates: un 34 de hombre salía como "US 15", y en el sitio de
+ * Estados Unidos, donde solo se muestra la escala americana, el comprador vería
+ * ese "US 15" a secas, sin nada que le permitiera notar el error.
+ *
+ * Se exige que el tipo esté en la lista de calzado en vez de excluir accesorios
+ * uno por uno: un tipo nuevo que nadie contempló no se convierte, que es el lado
+ * seguro del error.
+ */
+export function usaEscalaDeCalzado(productType?: string | null): boolean {
+  return (BOOT_PRODUCT_TYPES as readonly string[]).includes(productType ?? "")
+}
+
+export function formatSizeWithUs(
+  mxSize: string,
+  gender: GenderHandle,
+  productType?: string | null
+): string {
+  if (!usaEscalaDeCalzado(productType)) return mxSize
   const us = mxToUs(mxSize, gender)
   if (!us) return mxSize
   return isMX ? `${mxSize} · US ${us}` : `US ${us}`
