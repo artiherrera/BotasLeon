@@ -28,6 +28,17 @@ if (!DOMAIN) {
 
 const ENDPOINT = `https://${DOMAIN}/api/${VERSION}/graphql.json`
 
+/**
+ * Segundos que un dato de Shopify se considera fresco en la caché de datos.
+ *
+ * Sin esto, el `force-cache` de abajo guardaba la respuesta PARA SIEMPRE:
+ * nadie en el sitio llama a `revalidateTag`, así que los `tags` no invalidan
+ * nada por su cuenta y un cambio de precio en el admin no se veía hasta el
+ * siguiente deploy. 300 s empata con el stale-time de las rutas, así que el
+ * dato y la página se refrescan juntos.
+ */
+const REVALIDADO_POR_DEFECTO = 300
+
 export type ShopifyFetchResponse<T> = {
   data: T
   errors?: Array<{ message: string; extensions?: Record<string, unknown> }>
@@ -65,9 +76,13 @@ export async function shopifyFetch<TData, TVariables extends Record<string, unkn
     )
   }
 
+  const modoCache = options?.cache ?? "force-cache"
   const nextOpts: { tags?: string[]; revalidate?: number } = {}
   if (options?.tags) nextOpts.tags = options.tags
-  if (options?.revalidate !== undefined) nextOpts.revalidate = options.revalidate
+  // `no-store` + `revalidate` es combinación inválida — Next ignora las dos.
+  if (modoCache !== "no-store") {
+    nextOpts.revalidate = options?.revalidate ?? REVALIDADO_POR_DEFECTO
+  }
 
   const res = await fetch(ENDPOINT, {
     method: "POST",
@@ -77,7 +92,7 @@ export async function shopifyFetch<TData, TVariables extends Record<string, unkn
       Accept: "application/json",
     },
     body: JSON.stringify({ query, variables }),
-    cache: options?.cache ?? "force-cache",
+    cache: modoCache,
     next: Object.keys(nextOpts).length > 0 ? nextOpts : undefined,
   })
 
