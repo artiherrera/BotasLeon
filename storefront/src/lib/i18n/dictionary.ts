@@ -39,6 +39,11 @@ export const DICTIONARY: Record<string, Entry> = {
     en: "Wrong size? We swap it and cover both shipments.",
   },
   "exchange.badge.link": { es: "Ver condiciones", en: "See terms" },
+
+  // Meses sin intereses — solo México (ver lib/msi.ts). El NÚMERO de meses no
+  // vive aquí sino en MESES_MSI, para no tener dos cifras que puedan
+  // desfasarse de lo que el checkout cobra de verdad.
+  "msi.of": { es: "meses sin intereses de", en: "interest-free payments of" },
   "trust.leather100": { es: "Cuero 100%", en: "100% leather" },
   "trust.madeInLeon": { es: "Hecho en León", en: "Made in León" },
   "trust.securePayment": { es: "Pago seguro", en: "Secure payment" },
