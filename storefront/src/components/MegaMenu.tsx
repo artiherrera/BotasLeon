@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react"
 import { LocalizedLink as Link } from "@/components/LocalizedLink"
 import { useLocale } from "@/lib/i18n/context"
+import { isMX } from "@/lib/market"
 
 /**
  * MegaMenu — navegación principal con dropdowns full-width.
@@ -120,7 +121,7 @@ const MENU: MenuItem[] = [
 const CLOSE_DELAY_MS = 200
 
 export function MegaMenu() {
-  const { locale, t } = useLocale()
+  const { t } = useLocale()
   const [openIdx, setOpenIdx] = useState<number | null>(null)
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
@@ -202,7 +203,7 @@ export function MegaMenu() {
           </div>
         ))}
         <a
-          href={locale === "en" ? "/catalogo-en.html" : "/catalogo-es.html"}
+          href={isMX ? "/catalogo-es.html" : "/catalogo-en.html"}
           target="_blank"
           rel="noopener noreferrer"
           className="relative block px-3.5 py-2 text-[15px] tracking-normal transition-colors hover:text-leather"

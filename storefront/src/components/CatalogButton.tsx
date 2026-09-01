@@ -1,18 +1,22 @@
 "use client"
 
-import { useLocale, useT } from "@/lib/i18n/context"
+import { useT } from "@/lib/i18n/context"
+import { isMX } from "@/lib/market"
 
 /**
- * Botón "Ver catálogo". Abre el VISOR HTML del catálogo (catalogo-es.html /
- * catalogo-en.html en /public, generado por scripts/generate-catalog.mjs).
+ * Botón "Ver catálogo". Abre el VISOR HTML del catálogo (catalogo-es.html en
+ * México, catalogo-en.html en EE.UU.; en /public, generado por
+ * scripts/generate-catalog.mjs).
  * Usamos HTML y no el PDF directo porque Chrome/Android y los navegadores de
  * IG/FB descargan el PDF en vez de abrirlo; el HTML abre en todos. El visor
  * tiene su propio botón "Descargar PDF".
  */
 export function CatalogButton({ className = "" }: { className?: string }) {
-  const { locale } = useLocale()
   const t = useT()
-  const href = locale === "en" ? "/catalogo-en.html" : "/catalogo-es.html"
+  // El catálogo trae los precios horneados, así que pertenece al MERCADO y no
+  // al idioma: en botasleon.com el visitante que lee en español sigue comprando
+  // en dólares, y mandarlo al catálogo en pesos le cotiza mal cada bota.
+  const href = isMX ? "/catalogo-es.html" : "/catalogo-en.html"
 
   return (
     <a

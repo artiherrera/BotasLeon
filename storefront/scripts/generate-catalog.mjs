@@ -73,7 +73,14 @@ const TOKEN =
   process.env.NEXT_PUBLIC_SHOPIFY_STOREFRONT_ACCESS_TOKEN ||
   process.env.SHOPIFY_STOREFRONT_ACCESS_TOKEN
 const VERSION = process.env.SHOPIFY_API_VERSION || "2025-01"
-const SITE = (process.env.NEXT_PUBLIC_SITE_URL || "https://botasleon.com").replace(/\/$/, "")
+/**
+ * Cada catálogo vive en su propio dominio: el de pesos en botasleon.mx y el
+ * de dólares en botasleon.com. Antes los dos salían de NEXT_PUBLIC_SITE_URL,
+ * así que el catálogo en español —con precios en pesos— mandaba los QR a la
+ * tienda que cobra en dólares.
+ */
+const SITIO = { es: "https://botasleon.mx", en: "https://botasleon.com" }
+const idiomaDe = (locale) => (String(locale ?? "").startsWith("en") ? "en" : "es")
 const ENDPOINT = DOMAIN ? `https://${DOMAIN}/api/${VERSION}/graphql.json` : ""
 
 // anchos objetivo (px) por tipo de imagen
@@ -255,8 +262,20 @@ function mapProduct(node) {
     genders: (node.gender?.references?.edges ?? []).map((e) => e.node.handle),
   }
 }
-function splitByGender(data) {
-  const all = (data?.products?.edges ?? []).map((e) => mapProduct(e.node))
+// Solo calzado entra al catálogo. Un cinturón (talla en pulgadas) rompería la
+// etiqueta de tallas, que asume número mexicano.
+//
+// OJO: el tipo de producto SE TRADUCE ("Vaqueras" → "Cowboy"/"Cowgirls",
+// "Botines" → "Ankle boots"), así que esta lista solo sirve contra el juego en
+// español. El catálogo en inglés hereda los handles que ya pasaron el filtro
+// —ver main()—; si se filtrara por tipo traducido no pasaría ni un producto.
+const TIPOS_CALZADO = new Set(["Vaqueras", "Clásicas", "Rancho", "Largas", "Exóticas", "Botines"])
+const esCalzado = (p) => TIPOS_CALZADO.has((p.productType || "").trim())
+
+function splitByGender(data, filtro = esCalzado) {
+  const all = (data?.products?.edges ?? [])
+    .map((e) => mapProduct(e.node))
+    .filter(filtro)
   return {
     hombre: all.filter((p) => p.genders.includes("masculino")),
     mujer: all.filter((p) => p.genders.includes("femenino")),
@@ -313,7 +332,7 @@ function CoverMenu({ tr, covers, edition }) {
       edition ? h(Text, { style: { color: C.subtle, fontSize: 9, letterSpacing: 2, marginTop: 6 } }, edition) : null),
     h(View, { style: { flexDirection: "row", height: COVER_TILE_H } }, tile(tr.men, covers.hombre, "sec-hombre"), tile(tr.women, covers.mujer, "sec-mujer")),
     h(View, { style: { height: 32, alignItems: "center", justifyContent: "center" } },
-      h(Text, { style: { color: C.subtle, fontSize: 9 } }, "botasleon.com")))
+      h(Text, { style: { color: C.subtle, fontSize: 9 } }, tr.host)))
 }
 
 function Divider({ label, cover, dest }) {
@@ -338,7 +357,8 @@ function photoTile(src, style) {
 function BootPage({ p, tr, locale, currency, brandLogos, qrMap }) {
   const photos = p.images.map((u) => img(u, W.photo)).filter(Boolean)
   const logo = img(brandLogos.get((p.vendor || "").trim().toLowerCase()), W.logo)
-  const url = `${SITE}/products/${p.handle}`
+  const lang = idiomaDe(locale)
+  const url = `${SITIO[lang]}/${lang}/products/${p.handle}`
   const qrImg = qrMap.get(p.handle)
   const specs = [...new Set([...p.styles, ...p.material, ...p.horma])].slice(0, 6)
 
@@ -366,7 +386,7 @@ function BootPage({ p, tr, locale, currency, brandLogos, qrMap }) {
     p.description ? h(Text, { style: { color: C.muted, fontSize: 10, lineHeight: 1.5 } }, p.description) : null,
     // Pie: web + QR/enlace
     h(View, { style: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginTop: "auto", borderTop: `1px solid ${C.border}`, paddingTop: 10 } },
-      h(Text, { style: { color: C.subtle, fontSize: 9 } }, "botasleon.com"),
+      h(Text, { style: { color: C.subtle, fontSize: 9 } }, tr.host),
       h(Link, { src: url, style: { flexDirection: "row", alignItems: "center", gap: 8, textDecoration: "none" } },
         h(Text, { style: { color: C.brown, fontSize: 10, fontFamily: "Fraunces", fontWeight: 700 } }, tr.buy),
         qrImg ? h(Image, { src: qrImg, style: { width: 54, height: 54 } }) : null)))
@@ -376,7 +396,7 @@ function BackCover({ tr }) {
   return h(Page, { size: "LETTER", style: { backgroundColor: C.leather, padding: 50, justifyContent: "center", alignItems: "center", fontFamily: "Inter" } },
     h(Logo, { w: 260 }),
     h(Text, { style: { color: C.cream, fontSize: 15, marginTop: 24, marginBottom: 16, textAlign: "center" } }, tr.shopOnline),
-    h(Text, { style: { color: C.gold, fontSize: 20, letterSpacing: 1, marginBottom: 26, fontFamily: "Fraunces", fontWeight: 700 } }, "botasleon.com"),
+    h(Text, { style: { color: C.gold, fontSize: 20, letterSpacing: 1, marginBottom: 26, fontFamily: "Fraunces", fontWeight: 700 } }, tr.host),
     h(Text, { style: { color: C.cream, fontSize: 11, lineHeight: 1.8, textAlign: "center" } }, "WhatsApp: +52 479 303 2457"),
     h(Text, { style: { color: C.cream, fontSize: 11, lineHeight: 1.8, textAlign: "center" } }, "contacto@botasleon.com"),
     h(Text, { style: { color: C.subtle, fontSize: 10, textAlign: "center", marginTop: 6 } }, "Blvd. Hilario Medina 407, 2º piso · León, Gto."),
@@ -395,7 +415,7 @@ function buildCatalog({ hombre, mujer, brandLogos, covers, qrMap, tr, locale, cu
 
 const STR = {
   es: {
-    coverEyebrow: "CATÁLOGO", coverTitle: "Botas hechas en León, Guanajuato", men: "HOMBRE", women: "MUJER", tapToSee: "TOCA PARA VER", buy: "Comprar →", shopOnline: "Compra en línea · Envío a todo Estados Unidos", madeIn: "Hecho con orgullo en México", docTitle: "Catálogo BotasLeón", pageAlt: "Página", downloadPdf: "Descargar PDF", backToStore: "Ir a la tienda", langHref: "/catalogo-en.html", langLabel: "EN", htmlLang: "es",
+    coverEyebrow: "CATÁLOGO", coverTitle: "Botas hechas en León, Guanajuato", men: "HOMBRE", women: "MUJER", tapToSee: "TOCA PARA VER", buy: "Comprar →", host: "botasleon.mx", shopOnline: "Compra en línea · Envío gratis a todo México", madeIn: "Hecho con orgullo en México", docTitle: "Catálogo BotasLeón", pageAlt: "Página", downloadPdf: "Descargar PDF", backToStore: "Ir a la tienda", langHref: "/catalogo-en.html", langLabel: "EN", htmlLang: "es",
     editionWord: "EDICIÓN", collectionLabel: "COLECCIÓN",
     historyEyebrow: "NUESTRA HISTORIA", historyTitle: "380 años de tradición en cuero",
     historyParas: [
@@ -429,12 +449,12 @@ const STR = {
       "Guárdalas con hormas para conservar la forma.",
       "Rota su uso; deja descansar el cuero entre puestas.",
     ],
-    sizesLink: "Guía completa: botasleon.com/guia-tallas · Cuidado: botasleon.com/accesorios/cuidado-del-cuero",
-    accEyebrow: "ACCESORIOS", accTitle: "Completa tu look", accCopy: "Cinturones, sombreros, carteras y productos para el cuidado del cuero — piezas seleccionadas para acompañar tus botas.", accCta: "Ver accesorios en botasleon.com/accesorios",
+    sizesLink: "Guía completa: botasleon.mx/es/guia-tallas · Cuidado: botasleon.mx/es/accesorios/cuidado-del-cuero",
+    accEyebrow: "ACCESORIOS", accTitle: "Completa tu look", accCopy: "Cinturones, sombreros, carteras y productos para el cuidado del cuero — piezas seleccionadas para acompañar tus botas.", accCta: "Ver accesorios en botasleon.mx/es/accesorios",
     closingTitle: "Hecho en León, para ti", closingText: "Gracias por elegir tradición.",
   },
   en: {
-    coverEyebrow: "CATALOG", coverTitle: "Boots handcrafted in León, Mexico", men: "MEN", women: "WOMEN", tapToSee: "TAP TO VIEW", buy: "Shop →", shopOnline: "Shop online · Shipped across the USA", madeIn: "Proudly made in Mexico", docTitle: "BotasLeón Catalog", pageAlt: "Page", downloadPdf: "Download PDF", backToStore: "Go to store", langHref: "/catalogo-es.html", langLabel: "ES", htmlLang: "en",
+    coverEyebrow: "CATALOG", coverTitle: "Boots handcrafted in León, Mexico", men: "MEN", women: "WOMEN", tapToSee: "TAP TO VIEW", buy: "Shop →", host: "botasleon.com", shopOnline: "Shop online · Shipped across the USA", madeIn: "Proudly made in Mexico", docTitle: "BotasLeón Catalog", pageAlt: "Page", downloadPdf: "Download PDF", backToStore: "Go to store", langHref: "/catalogo-es.html", langLabel: "ES", htmlLang: "en",
     editionWord: "EDITION", collectionLabel: "COLLECTION",
     historyEyebrow: "OUR STORY", historyTitle: "380 years of leather tradition",
     historyParas: [
@@ -557,7 +577,7 @@ function viewerHtml({ lang, tr, count, hombreDivider, mujerDivider, pdfHref }) {
 <main>
 ${pages.join("\n")}
 </main>
-<footer>${esc(tr.shopOnline)} · <a href="/">botasleon.com</a></footer>
+<footer>${esc(tr.shopOnline)} · <a href="/">${esc(tr.host)}</a></footer>
 </body>
 </html>
 `
@@ -621,7 +641,12 @@ function chapterLabels(p) {
   }
   // 2. productType SIEMPRE aporta (no solo como fallback): distingue Botines /
   //    Exóticas / etc. aunque el estilo genérico diga "Vaquera".
-  if (CHAPTER_NAMES.includes(p.productType)) set.add(p.productType)
+  //    OJO: en el juego en inglés el tipo viene traducido ("Vaqueras" →
+  //    "Cowboy", "Botines" → "Ankle boots") y los capítulos son los nombres en
+  //    español, así que se usa el tipo del juego en pesos cuando lo hay. Sin
+  //    esto, 7 modelos se quedaban sin capítulo y fuera del PDF en inglés.
+  const tipo = p.productTypeEs || p.productType
+  if (CHAPTER_NAMES.includes(tipo)) set.add(tipo)
   // 3. Señales de título más específicas que el estilo genérico:
   if (/\b(alta|altas|larga|largas|tall)\b/i.test(p.title || "")) set.add("Largas") // caña larga
   if (/\bbot[ií]n(es)?\b|\bbootie/i.test(p.title || "")) set.add("Botines")
@@ -858,16 +883,23 @@ function tagsFor(p, gender) {
 }
 
 function sizesLabel(p, locale) {
-  const T = locale?.startsWith("en") ? "Sizes" : "Tallas"
-  const nums = (p.sizes || []).map((s) => parseFloat(s)).filter((n) => Number.isFinite(n) && n >= 20 && n <= 35)
-  if (!nums.length) return `${T} 25–30 MX`
+  const en = idiomaDe(locale) === "en"
+  const T = en ? "Sizes" : "Tallas"
   const gender = (p.genders || []).includes("femenino") ? "femenino" : (p.genders || []).includes("masculino") ? "masculino" : null
-  const lo = Math.min(...nums), hi = Math.max(...nums)
-  const usLo = usFor(lo, gender), usHi = usFor(hi, gender)
-  return `${T} ${lo}–${hi} MX${usLo && usHi ? ` · US ${usLo}–${usHi}` : ""}`
+  const nums = (p.sizes || []).map((s) => parseFloat(s)).filter((n) => Number.isFinite(n) && n >= 20 && n <= 35)
+  // Al comprador de EE.UU. el número mexicano no le dice nada y de paso lo
+  // confunde: ahí va solo su talla. Si no hay conversión (sexo sin definir)
+  // cae a la mexicana etiquetada, que es preferible a inventar una US.
+  const rango = (lo, hi) => {
+    const usLo = usFor(lo, gender), usHi = usFor(hi, gender)
+    if (en) return usLo && usHi ? `${T} US ${usLo}–${usHi}` : `${T} ${lo}–${hi} MX`
+    return `${T} ${lo}–${hi} MX${usLo && usHi ? ` · US ${usLo}–${usHi}` : ""}`
+  }
+  if (!nums.length) return rango(25, 30)
+  return rango(Math.min(...nums), Math.max(...nums))
 }
 function qrCampaignUrl(handle, lang = "es") {
-  return `${SITE}/${lang}/products/${handle}?utm_source=catalogo&utm_medium=qr&utm_campaign=catalogo-${EDITION_YEAR}`
+  return `${SITIO[lang] ?? SITIO.es}/${lang}/products/${handle}?utm_source=catalogo&utm_medium=qr&utm_campaign=catalogo-${EDITION_YEAR}`
 }
 
 // 4ª imagen: crop de textura (punta/empeine, ~40% inferior-central de la lateral).
@@ -923,7 +955,8 @@ function HeroPage({ p, currency, locale, brandLogos, qrMap }) {
       logo ? h(Image, { src: logo, style: { height: 30, width: 130, objectFit: "contain", marginBottom: 10 } })
            : h(Text, { style: { color: C.gold, fontFamily: "Fraunces", fontSize: 12, letterSpacing: 2, marginBottom: 10 } }, (p.vendor || "").toUpperCase()),
       h(Text, { style: { color: C.cream, fontFamily: "Fraunces", fontWeight: 700, fontSize: 24, lineHeight: 1.1, marginBottom: 12 } }, titleName(p)),
-      h(View, { style: { flexDirection: "row", alignItems: "flex-end", justifyContent: "flex-end" } },
+      h(View, { style: { flexDirection: "row", alignItems: "flex-end", justifyContent: "space-between" } },
+        h(Text, { style: { color: C.cream, fontFamily: "Fraunces", fontWeight: 700, fontSize: 22 } }, price || " "),
         qrMap.get(p.handle) ? h(Image, { src: qrMap.get(p.handle), style: { width: 54, height: 54 } }) : null)))
 }
 
@@ -941,6 +974,7 @@ function compactHalf(p, currency, locale, brandLogos, qrMap) {
       logo ? h(Image, { src: logo, style: { height: 26, width: 110, objectFit: "contain", marginBottom: 8, alignSelf: "flex-start" } })
            : h(Text, { style: { color: C.brown, fontFamily: "Fraunces", fontSize: 10, letterSpacing: 2, marginBottom: 8 } }, (p.vendor || "").toUpperCase()),
       h(Text, { style: { color: C.text, fontFamily: "Fraunces", fontWeight: 700, fontSize: 16, lineHeight: 1.15, marginBottom: 8 } }, titleName(p)),
+      price ? h(Text, { style: { color: C.text, fontFamily: "Fraunces", fontWeight: 700, fontSize: 15 } }, price) : null,
       h(View, { style: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginTop: 12 } },
         h(Text, { style: { color: C.subtle, fontSize: 8.5, maxWidth: 130 } }, sizesLabel(p, locale)),
         qrMap.get(p.handle) ? h(Image, { src: qrMap.get(p.handle), style: { width: 46, height: 46 } }) : null)))
@@ -968,7 +1002,10 @@ function StandardPage({ p, chapter, gender, currency, locale, brandLogos, qrMap 
       h(View, { style: { flex: 1, paddingRight: 12 } },
         logo ? h(View, { style: { alignItems: "flex-start", marginBottom: 10 } }, h(Image, { src: logo, style: { height: 42, width: 170, objectFit: "contain" } }))
              : h(Text, { style: { color: C.brown, fontSize: 12, letterSpacing: 2, marginBottom: 8, fontFamily: "Fraunces" } }, (p.vendor || "").toUpperCase()),
-        h(Text, { style: { color: C.text, fontSize: 19, fontFamily: "Fraunces", fontWeight: 700, lineHeight: 1.15 } }, titleName(p)))),
+        h(Text, { style: { color: C.text, fontSize: 19, fontFamily: "Fraunces", fontWeight: 700, lineHeight: 1.15 } }, titleName(p))),
+      price ? h(View, { style: { alignItems: "flex-end" } },
+        compareAt ? h(Text, { style: { color: C.subtle, fontSize: 10, textDecoration: "line-through", marginBottom: 2 } }, compareAt) : null,
+        h(Text, { style: { color: C.text, fontSize: 20, fontFamily: "Fraunces", fontWeight: 700 } }, price)) : null),
     h(View, { style: { flexDirection: "row", flexWrap: "wrap", gap: 8, height: 452, alignContent: "flex-start", marginBottom: 10 } },
       ...four.map((ph, i) => photoTile(ph, { width: "48.5%", height: 222 }))),
     tags.length ? h(View, { style: { flexDirection: "row", flexWrap: "wrap", marginBottom: 8 } }, ...tags.map((s) => Chip(s))) : null,
@@ -1310,15 +1347,29 @@ async function main() {
     return
   }
   const es = esData ? splitByGender(esData) : null
-  const en = enData ? splitByGender(enData) : null
+  // El inglés se queda con los mismos productos que el español. Si el español
+  // no llegó, pasa sin filtrar en vez de salir vacío.
+  const handlesEs = es ? new Set([...es.hombre, ...es.mujer].map((p) => p.handle)) : null
+  const en = enData ? splitByGender(enData, handlesEs ? (p) => handlesEs.has(p.handle) : () => true) : null
+  if (es && en) {
+    const tipoEs = new Map([...es.hombre, ...es.mujer].map((p) => [p.handle, p.productType]))
+    for (const p of [...en.hombre, ...en.mujer]) p.productTypeEs = tipoEs.get(p.handle)
+  }
   const [brandLogos, covers, storePhotos] = await Promise.all([getBrandLogos(), getCovers(), getStorePhotos()])
   LOGO_WHITE = await loadWhiteLogo()
   console.log(`[catalog] logo blanco: ${LOGO_WHITE ? "OK" : "no"} · fotos tienda: ${storePhotos.length}`)
 
   const src = es || en
-  // Page list ES define la estructura (héroes, capítulos) — misma para EN.
   const plEs = buildPageList({ hombre: src.hombre, mujer: src.mujer, covers, storePhotos, tr: STR.es, currency: "MXN", locale: "es-MX" })
-  const heroHandles = new Set(plEs.pages.filter((pg) => pg.type === "hero").map((pg) => pg.data.p.handle))
+  // El mercado de EE.UU. NO publica las exóticas —77 modelos de 102—, así que
+  // el catálogo en inglés se arma con SU propio juego. Antes reusaba la
+  // paginación del español y esas botas se colaban con el precio en pesos, en
+  // el sitio que cobra dólares. Solo se cae a relocalizeForEn si falta el ES.
+  const plEn = es && en
+    ? buildPageList({ hombre: en.hombre, mujer: en.mujer, covers, storePhotos, tr: STR.en, currency: "USD", locale: "en-US" })
+    : en ? relocalizeForEn(plEs, [...en.hombre, ...en.mujer]) : null
+  const paginas = [...plEs.pages, ...(plEn?.pages ?? [])]
+  const heroHandles = new Set(paginas.filter((pg) => pg.type === "hero").map((pg) => pg.data.p.handle))
 
   // Imágenes: 4 por producto + héroe lateral a W.cover + logos de marca.
   const jobs = []
@@ -1333,7 +1384,7 @@ async function main() {
   await Promise.all([covers.hombre, covers.mujer, ...storePhotos.slice(0, 3)].map((u) => prepDuotone(u)))
   // Crops de textura (4ª imagen) + detalle de héroes.
   const cropUrls = new Set()
-  for (const pg of plEs.pages) {
+  for (const pg of paginas) {
     if (pg.type === "standard" && needsToeCrop(pg.data.chapter, pg.data.p)) cropUrls.add(pg.data.p.images[0])
     if (pg.type === "hero") cropUrls.add(pg.data.p.images[0])
   }
@@ -1345,7 +1396,7 @@ async function main() {
     qr(qrCampaignUrl(p.handle, "es")).then((v) => qrEs.set(p.handle, v)),
     qr(qrCampaignUrl(p.handle, "en")).then((v) => qrEn.set(p.handle, v)),
   ]))
-  const accQr = { es: await qr(`${SITE}/es/accesorios?utm_source=catalogo&utm_medium=qr&utm_campaign=catalogo-${EDITION_YEAR}`), en: await qr(`${SITE}/en/accesorios?utm_source=catalogo&utm_medium=qr&utm_campaign=catalogo-${EDITION_YEAR}`) }
+  const accQr = { es: await qr(`${SITIO.es}/es/accesorios?utm_source=catalogo&utm_medium=qr&utm_campaign=catalogo-${EDITION_YEAR}`), en: await qr(`${SITIO.en}/en/accesorios?utm_source=catalogo&utm_medium=qr&utm_campaign=catalogo-${EDITION_YEAR}`) }
   const sitemapHandles = new Set([...src.hombre, ...src.mujer].map((p) => p.handle))
 
   await mkdir(join(ROOT, "public"), { recursive: true })
@@ -1357,9 +1408,8 @@ async function main() {
     console.log(`[catalog] catalogo-es.pdf: ${plEs.pages.length} páginas`)
     runQa(plEs, "ES", sitemapHandles)
   }
-  if (en) {
-    // MISMA estructura que ES (mismos productos/orden/páginas); solo cambia el texto.
-    const plEn = injectAcc(relocalizeForEn(plEs, [...en.hombre, ...en.mujer]), accQr.en)
+  if (en && plEn) {
+    injectAcc(plEn, accQr.en)
     const doc = h(Document, { title: STR.en.docTitle, author: "BotasLeón" }, ...renderPageList(plEn.pages, { tr: STR.en, locale: "en-US", currency: "USD", brandLogos, qrMap: qrEn }))
     await pdfPkg.renderToFile(doc, join(ROOT, "public", "catalogo-en.pdf"))
     console.log(`[catalog] catalogo-en.pdf: ${plEn.pages.length} páginas`)
@@ -1368,12 +1418,13 @@ async function main() {
 
   // Visor HTML (móvil): páginas del PDF como imágenes → abre en TODOS los navegadores.
   if (await hasPdftoppm()) {
-    for (const [lang, data] of [["es", es], ["en", en]]) {
-      if (!data) continue
+    for (const [lang, pl] of [["es", plEs], ["en", plEn]]) {
+      if (!pl) continue
       const count = await pdfToWebp(join(ROOT, "public", `catalogo-${lang}.pdf`), join(ROOT, "public", "catalogo", lang))
+      const apertura = (g) => pl.pages.find((pg) => pg.type === "separator" && pg.data.genderKey === g)?.n ?? 1
       const html = viewerHtml({
         lang, tr: STR[lang], count,
-        hombreDivider: 2, mujerDivider: 2 + data.hombre.length + 1,
+        hombreDivider: apertura("hombre"), mujerDivider: apertura("mujer"),
         pdfHref: `/catalogo-${lang}.pdf`,
       })
       await writeFile(join(ROOT, "public", `catalogo-${lang}.html`), html)

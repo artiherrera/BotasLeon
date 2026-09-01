@@ -6,6 +6,7 @@ import { LocalizedLink as Link } from "@/components/LocalizedLink"
 import Image from "next/image"
 import { SocialIcons } from "./SocialIcons"
 import { useLocale } from "@/lib/i18n/context"
+import { isMX } from "@/lib/market"
 
 /**
  * MobileNav — hamburger + drawer lateral para navegación mobile.
@@ -97,7 +98,7 @@ const COMPANY_LINKS = [
 ]
 
 export function MobileNav() {
-  const { locale, t } = useLocale()
+  const { t } = useLocale()
   const [open, setOpen] = useState(false)
   const [mounted, setMounted] = useState(false)
   const hamburgerRef = useRef<HTMLButtonElement>(null)
@@ -269,7 +270,7 @@ export function MobileNav() {
             ))}
             {/* Catálogo — visor HTML (abre en todos los navegadores, no descarga) */}
             <a
-              href={locale === "en" ? "/catalogo-en.html" : "/catalogo-es.html"}
+              href={isMX ? "/catalogo-es.html" : "/catalogo-en.html"}
               target="_blank"
               rel="noopener noreferrer"
               onClick={close}
