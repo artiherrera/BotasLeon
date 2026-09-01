@@ -29,6 +29,16 @@ export const DICTIONARY: Record<string, Entry> = {
   "recent.eyebrow": { es: "Visto recientemente", en: "Recently viewed" },
   "recent.title": { es: "Sigue donde te quedaste", en: "Pick up where you left off" },
   "trust.exchange30": { es: "Garantía 15 días", en: "Ships to the USA" },
+
+  // Cambio de talla en modelos seleccionados (solo México — ver lib/exchange.ts).
+  // El plazo exacto NO se repite aquí: vive solo en /devoluciones, para que no
+  // haya dos números que puedan quedar desfasados.
+  "exchange.badge.title": { es: "Cambio de talla gratis", en: "Free size exchange" },
+  "exchange.badge.sub": {
+    es: "Si no es tu talla, la cambiamos. Nosotros cubrimos los dos envíos.",
+    en: "Wrong size? We swap it and cover both shipments.",
+  },
+  "exchange.badge.link": { es: "Ver condiciones", en: "See terms" },
   "trust.leather100": { es: "Cuero 100%", en: "100% leather" },
   "trust.madeInLeon": { es: "Hecho en León", en: "Made in León" },
   "trust.securePayment": { es: "Pago seguro", en: "Secure payment" },

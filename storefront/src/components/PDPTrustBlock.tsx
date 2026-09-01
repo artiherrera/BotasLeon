@@ -2,6 +2,8 @@
 
 import type { Product } from "@/lib/shopify/types"
 import { useT } from "@/lib/i18n/context"
+import { LocalizedLink as Link } from "@/components/LocalizedLink"
+import { admiteCambioDeTalla } from "@/lib/exchange"
 
 /**
  * PDPTrustBlock — strip de confianza bajo el CTA del PDP.
@@ -23,9 +25,35 @@ type Props = {
 
 export function PDPTrustBlock({ product }: Props) {
   const t = useT()
+  // Solo en los modelos etiquetados, y solo en México (ver lib/exchange.ts).
+  const cambioDeTalla = admiteCambioDeTalla(product.tags)
 
   return (
     <div className="mt-8 border border-border rounded-sm overflow-hidden bg-bg-alt/40">
+      {/* 0. Cambio de talla — va arriba y destacado porque es el argumento
+             que quita el miedo a comprar botas sin probárselas. */}
+      {cambioDeTalla && (
+        <div className="flex items-start gap-3 border-b border-border bg-leather/5 px-4 py-3">
+          <span className="w-5 h-5 shrink-0 text-leather mt-0.5" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M21 12a9 9 0 1 1-3-6.7L21 8" />
+              <path d="M21 3v5h-5" />
+            </svg>
+          </span>
+          <div>
+            <p className="text-sm font-medium text-text leading-tight">
+              {t("exchange.badge.title")}
+            </p>
+            <p className="text-xs text-text-muted leading-snug mt-0.5">
+              {t("exchange.badge.sub")}{" "}
+              <Link href="/devoluciones" className="text-leather underline underline-offset-2 hover:text-terracotta">
+                {t("exchange.badge.link")}
+              </Link>
+            </p>
+          </div>
+        </div>
+      )}
+
       {/* 1. Íconos de garantía */}
       <ul className="grid grid-cols-2 sm:grid-cols-4 divide-y sm:divide-y-0 sm:divide-x divide-border">
         <TrustItem

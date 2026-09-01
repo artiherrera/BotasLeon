@@ -2,6 +2,7 @@ import { ContentPage } from "@/components/ContentPage"
 import { LocalizedLink as Link } from "@/components/LocalizedLink"
 import { Localized } from "@/components/Localized"
 import { pageMetadata } from "@/lib/seo"
+import { DIAS_CAMBIO_TALLA, HAY_CAMBIO_DE_TALLA } from "@/lib/exchange"
 
 export default function DevolucionesPage() {
   return (
@@ -73,14 +74,25 @@ export default function DevolucionesPage() {
             </p>
 
             <h2>6. Cambios y devoluciones</h2>
-            <p>Se aceptan únicamente en caso de:</p>
+            <p>Se aceptan cambios en caso de:</p>
             <ul>
               <li>Defecto de fabricación.</li>
               <li>Error en el producto enviado.</li>
+              {HAY_CAMBIO_DE_TALLA && (
+                <li>
+                  <strong>Talla incorrecta</strong>, en los modelos marcados con{" "}
+                  <strong>Cambio de talla gratis</strong> (ver punto 7).
+                </li>
+              )}
             </ul>
             <p><strong>No se realizan reembolsos por:</strong></p>
             <ul>
-              <li>Talla incorrecta elegida por el cliente.</li>
+              <li>
+                Talla incorrecta elegida por el cliente
+                {HAY_CAMBIO_DE_TALLA
+                  ? " — en los modelos marcados se cambia la talla, no se devuelve el dinero."
+                  : "."}
+              </li>
               <li>Color o modelo seleccionado por el cliente.</li>
               <li>Preferencias personales.</li>
             </ul>
@@ -88,10 +100,38 @@ export default function DevolucionesPage() {
             <h2>7. Condiciones de cambio</h2>
             <ul>
               <li>1 cambio por pedido.</li>
-              <li>Dentro de 7 días naturales.</li>
+              <li>Dentro de {DIAS_CAMBIO_TALLA} días naturales.</li>
               <li>Producto sin uso exterior.</li>
               <li>En su empaque original.</li>
             </ul>
+
+            {HAY_CAMBIO_DE_TALLA && (
+              <>
+                <h3>Cambio de talla gratis</h3>
+                <p>
+                  Los modelos que muestran el aviso{" "}
+                  <strong>Cambio de talla gratis</strong> en su ficha se pueden
+                  cambiar por otra talla del mismo modelo{" "}
+                  <strong>sin costo para ti</strong>: nosotros cubrimos los dos
+                  envíos, el de regreso y el de la talla nueva.
+                </p>
+                <ul>
+                  <li>
+                    Dentro de <strong>{DIAS_CAMBIO_TALLA} días naturales</strong> a
+                    partir de la entrega.
+                  </li>
+                  <li>Un cambio por pedido.</li>
+                  <li>Mismo modelo y color: lo único que cambia es la talla.</li>
+                  <li>Producto sin uso exterior y en su empaque original.</li>
+                  <li>Sujeto a existencia de la talla que solicites.</li>
+                </ul>
+                <p>
+                  Si la ficha de un modelo no muestra ese aviso, ese modelo no
+                  admite cambio por talla. Aplican además las restricciones del
+                  punto 8.
+                </p>
+              </>
+            )}
 
             <h2>8. Restricciones</h2>
             <p>No hay cambios ni devoluciones en:</p>

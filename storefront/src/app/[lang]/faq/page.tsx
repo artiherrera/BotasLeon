@@ -2,6 +2,7 @@ import { ContentPage } from "@/components/ContentPage"
 import { LocalizedLink as Link } from "@/components/LocalizedLink"
 import { Localized } from "@/components/Localized"
 import { pageMetadata } from "@/lib/seo"
+import { DIAS_CAMBIO_TALLA, HAY_CAMBIO_DE_TALLA } from "@/lib/exchange"
 
 export default function FaqPage() {
   return (
@@ -39,15 +40,31 @@ export default function FaqPage() {
             </p>
 
             <h2>¿Aceptan cambios o devoluciones?</h2>
-            <p>
-              Solo aceptamos cambios por defecto de fabricación o error en el
-              envío (1 cambio por pedido, dentro de 7 días naturales, con el
-              producto sin uso y en su empaque original). No hacemos reembolsos
-              por talla, color o modelo mal elegidos, así que te recomendamos
-              revisar la <Link href="/guia-tallas">guía de tallas</Link> y
-              escribirnos si tienes dudas antes de comprar. Política completa en{" "}
-              <Link href="/devoluciones">Devoluciones</Link>.
-            </p>
+            {HAY_CAMBIO_DE_TALLA ? (
+              <p>
+                Los modelos marcados con <strong>Cambio de talla gratis</strong>{" "}
+                se pueden cambiar por otra talla del mismo modelo sin costo:
+                nosotros cubrimos los dos envíos. Tienes {DIAS_CAMBIO_TALLA} días
+                naturales desde la entrega, con la bota sin uso y en su empaque
+                original. En los demás modelos aceptamos cambios solo por defecto
+                de fabricación o error en el envío. No hacemos reembolsos de
+                dinero por talla, color o modelo mal elegidos. Revisa la{" "}
+                <Link href="/guia-tallas">guía de tallas</Link> antes de comprar y
+                escríbenos si tienes dudas. Política completa en{" "}
+                <Link href="/devoluciones">Devoluciones</Link>.
+              </p>
+            ) : (
+              <p>
+                Solo aceptamos cambios por defecto de fabricación o error en el
+                envío (1 cambio por pedido, dentro de {DIAS_CAMBIO_TALLA} días
+                naturales, con el producto sin uso y en su empaque original). No
+                hacemos reembolsos por talla, color o modelo mal elegidos, así que
+                te recomendamos revisar la{" "}
+                <Link href="/guia-tallas">guía de tallas</Link> y escribirnos si
+                tienes dudas antes de comprar. Política completa en{" "}
+                <Link href="/devoluciones">Devoluciones</Link>.
+              </p>
+            )}
 
             <h2>¿Qué métodos de pago aceptan?</h2>
             <p>
@@ -135,7 +152,7 @@ export default function FaqPage() {
               We do our best to photograph each product in neutral light and
               without heavy retouching. Screen colors can vary slightly. If the
               color of the boots you receive looks substantially different from
-              the photo, write to us — we'll make it right.
+              the photo, write to us — we&apos;ll make it right.
             </p>
 
             <h2>How do I care for my boots so they last?</h2>
@@ -155,7 +172,7 @@ export default function FaqPage() {
               under NDA.
             </p>
 
-            <h2>Don't see your question here?</h2>
+            <h2>Don&apos;t see your question here?</h2>
             <p>
               Email us at contacto@botasleon.com or head to{" "}
               <Link href="/contacto">Contact</Link>. We reply within 24 business hours.
