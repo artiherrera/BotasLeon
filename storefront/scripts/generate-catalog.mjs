@@ -100,6 +100,20 @@ const C = {
 
 // ── helpers de imagen (sharp → JPEG data-uri, con caché + paralelo) ───────
 const imgCache = new Map() // `${url}|${w}` → dataUri | null
+
+/**
+ * Fotos de producto: a estas —y solo a estas— se les recorta el margen.
+ *
+ * Las tomas de estudio traen alrededor de un 45% de aire alrededor de la bota.
+ * Metidas en un recuadro con `contain`, la bota salía diminuta y la página
+ * parecía vacía. Recortando ese borde uniforme la MISMA foto ocupa ~1.8× más
+ * área sin cortarle nada al producto, que es la diferencia entre una ficha que
+ * se ve y una que no.
+ *
+ * No se aplica a portadas, fotos de tienda ni logos: ahí el aire es parte de
+ * la composición y recortarlo sí estropearía la imagen.
+ */
+const FOTOS_PRODUCTO = new Set()
 function sizedUrl(url, w) {
   return url + (url.includes("?") ? "&" : "?") + `width=${w}`
 }
@@ -108,7 +122,19 @@ async function fetchJpeg(url, w) {
     const res = await fetch(sizedUrl(url, w), { signal: AbortSignal.timeout(20000) })
     if (!res.ok) return null
     const buf = Buffer.from(await res.arrayBuffer())
-    const jpg = await sharp(buf).flatten({ background: "#ffffff" }).jpeg({ quality: 76 }).toBuffer()
+    const plano = () => sharp(buf).flatten({ background: "#ffffff" })
+    let pipe = plano()
+    if (FOTOS_PRODUCTO.has(url)) {
+      // `trim` truena si la foto no tiene borde uniforme; en ese caso se usa
+      // la original, que es peor encuadre pero imagen al fin.
+      try {
+        const esquina = await plano().extract({ left: 2, top: 2, width: 4, height: 4 }).raw().toBuffer()
+        const fondo = { r: esquina[0], g: esquina[1], b: esquina[2] }
+        const recortada = await plano().trim({ background: fondo, threshold: 12 }).toBuffer()
+        pipe = sharp(recortada).extend({ top: 12, bottom: 12, left: 12, right: 12, background: fondo })
+      } catch { pipe = plano() }
+    }
+    const jpg = await pipe.jpeg({ quality: 78 }).toBuffer()
     return "data:image/jpeg;base64," + jpg.toString("base64")
   } catch {
     return null
@@ -329,7 +355,7 @@ function CoverMenu({ tr, covers, edition }) {
       h(Logo, { w: 250 }),
       h(Text, { style: { color: C.gold, fontSize: 11, letterSpacing: 4, marginTop: 14 } }, tr.coverEyebrow),
       h(Text, { style: { color: C.cream, fontSize: 13, marginTop: 6 } }, tr.coverTitle),
-      edition ? h(Text, { style: { color: C.subtle, fontSize: 9, letterSpacing: 2, marginTop: 6 } }, edition) : null),
+      edition ? h(Text, { style: { color: C.gold, fontSize: 9, letterSpacing: 2, marginTop: 6 } }, edition) : null),
     h(View, { style: { flexDirection: "row", height: COVER_TILE_H } }, tile(tr.men, covers.hombre, "sec-hombre"), tile(tr.women, covers.mujer, "sec-mujer")),
     h(View, { style: { height: 32, alignItems: "center", justifyContent: "center" } },
       h(Text, { style: { color: C.subtle, fontSize: 9 } }, tr.host)))
@@ -348,9 +374,14 @@ function Chip(label) {
     h(Text, { style: { color: C.leather, fontSize: 8.5, letterSpacing: 0.4 } }, label))
 }
 
-// Tile de foto: SIEMPRE contain (la bota completa, nunca recortada) sobre crema.
+/**
+ * Tile de foto: SIEMPRE `contain` — la bota completa, nunca recortada.
+ *
+ * El fondo va en crema porque ES el color del fondo de estudio (~#FAF7F1): la
+ * foto se funde con el recuadro y solo el filete marca el encuadre.
+ */
 function photoTile(src, style) {
-  return h(View, { style: { backgroundColor: C.creamSoft, borderRadius: 4, alignItems: "center", justifyContent: "center", padding: 6, ...style } },
+  return h(View, { style: { backgroundColor: C.creamSoft, border: `1px solid ${C.border}`, borderRadius: 3, alignItems: "center", justifyContent: "center", padding: 7, ...style } },
     src ? h(Image, { src, style: { width: "100%", height: "100%", objectFit: "contain" } }) : null)
 }
 
@@ -415,7 +446,7 @@ function buildCatalog({ hombre, mujer, brandLogos, covers, qrMap, tr, locale, cu
 
 const STR = {
   es: {
-    coverEyebrow: "CATÁLOGO", coverTitle: "Botas hechas en León, Guanajuato", men: "HOMBRE", women: "MUJER", tapToSee: "TOCA PARA VER", buy: "Comprar →", host: "botasleon.mx", shopOnline: "Compra en línea · Envío gratis a todo México", madeIn: "Hecho con orgullo en México", docTitle: "Catálogo BotasLeón", pageAlt: "Página", downloadPdf: "Descargar PDF", backToStore: "Ir a la tienda", langHref: "/catalogo-en.html", langLabel: "EN", htmlLang: "es",
+    coverEyebrow: "CATÁLOGO", coverTitle: "Botas hechas en León, Guanajuato", men: "HOMBRE", women: "MUJER", heroEyebrow: "PIEZA DESTACADA", masModelos: "+N más en este capítulo", tapToSee: "TOCA PARA VER", buy: "Comprar →", host: "botasleon.mx", shopOnline: "Compra en línea · Envío gratis a todo México", madeIn: "Hecho con orgullo en México", docTitle: "Catálogo BotasLeón", pageAlt: "Página", downloadPdf: "Descargar PDF", backToStore: "Ir a la tienda", langHref: "/catalogo-en.html", langLabel: "EN", htmlLang: "es",
     editionWord: "EDICIÓN", collectionLabel: "COLECCIÓN",
     historyEyebrow: "NUESTRA HISTORIA", historyTitle: "380 años de tradición en cuero",
     historyParas: [
@@ -454,7 +485,7 @@ const STR = {
     closingTitle: "Hecho en León, para ti", closingText: "Gracias por elegir tradición.",
   },
   en: {
-    coverEyebrow: "CATALOG", coverTitle: "Boots handcrafted in León, Mexico", men: "MEN", women: "WOMEN", tapToSee: "TAP TO VIEW", buy: "Shop →", host: "botasleon.com", shopOnline: "Shop online · Shipped across the USA", madeIn: "Proudly made in Mexico", docTitle: "BotasLeón Catalog", pageAlt: "Page", downloadPdf: "Download PDF", backToStore: "Go to store", langHref: "/catalogo-es.html", langLabel: "ES", htmlLang: "en",
+    coverEyebrow: "CATALOG", coverTitle: "Boots handcrafted in León, Mexico", men: "MEN", women: "WOMEN", heroEyebrow: "FEATURED PIECE", masModelos: "+N more in this chapter", tapToSee: "TAP TO VIEW", buy: "Shop →", host: "botasleon.com", shopOnline: "Shop online · Shipped across the USA", madeIn: "Proudly made in Mexico", docTitle: "BotasLeón Catalog", pageAlt: "Page", downloadPdf: "Download PDF", backToStore: "Go to store", langHref: "/catalogo-es.html", langLabel: "ES", htmlLang: "en",
     editionWord: "EDITION", collectionLabel: "COLLECTION",
     historyEyebrow: "OUR STORY", historyTitle: "380 years of leather tradition",
     historyParas: [
@@ -871,7 +902,14 @@ function fixText(s) {
 // Tags: máx 3, prioridad piel > horma > estilo; sin "Cuero"; Vaquero/a por género.
 function tagsFor(p, gender) {
   const noCuero = (arr) => (arr || []).filter((t) => t && !/^cuero$/i.test(t.trim()))
-  const unify = (t) => (/vaquer[oa]s?/i.test(t) ? (gender === "mujer" ? "Vaquera" : "Vaquero") : t)
+  // Shopify traduce el estilo sin mirar el sexo del producto, así que una bota
+  // de hombre salía etiquetada "Cowgirl". El idioma lo delata la propia
+  // etiqueta; el sexo lo pone la ficha.
+  const unify = (t) => {
+    if (/cowgirls?|cowboys?/i.test(t)) return gender === "mujer" ? "Cowgirl" : "Cowboy"
+    if (/vaquer[oa]s?/i.test(t)) return gender === "mujer" ? "Vaquera" : "Vaquero"
+    return t
+  }
   const ordered = [...noCuero(p.material), ...noCuero(p.horma), ...noCuero((p.styles || []).map(unify))]
   const out = []
   for (const raw of ordered) {
@@ -933,86 +971,137 @@ function needsToeCrop(chapter, p) {
 }
 
 // ── plantillas ──
-function ChapterTitlePage({ genderLabel, chapter, copy, range }) {
-  return h(Page, { size: "LETTER", style: { backgroundColor: C.leather, padding: 60, justifyContent: "center", fontFamily: "Inter" } },
-    h(Text, { style: { color: C.gold, fontSize: 12, letterSpacing: 5, marginBottom: 18 } }, genderLabel.toUpperCase()),
-    h(Text, { style: { color: C.cream, fontFamily: "Fraunces", fontSize: 44, lineHeight: 1.1, marginBottom: 22 } }, chapter),
-    h(View, { style: { width: 64, height: 3, backgroundColor: C.gold, marginBottom: 24 } }),
-    copy ? h(Text, { style: { color: C.cream, fontSize: 14, lineHeight: 1.55, maxWidth: 420, marginBottom: 30 } }, copy) : null)
+/**
+ * Portadilla de capítulo.
+ *
+ * Antes era una página entera de café con tres renglones de texto: ocho
+ * capítulos, ocho páginas casi vacías. Ahora además hace de contacto visual —
+ * todos los modelos del capítulo en miniatura— así que el lector ve de un
+ * golpe lo que viene y la página se gana su lugar.
+ */
+function ChapterTitlePage({ genderLabel, chapter, copy, range, items = [], mas = "+N" }) {
+  const TOPE = 16
+  const minis = (items || []).slice(0, TOPE)
+  const sobran = Math.max(0, (items || []).length - TOPE)
+  return h(Page, { size: "LETTER", style: { backgroundColor: C.leather, paddingHorizontal: 48, paddingVertical: 44, fontFamily: "Inter" } },
+    h(Text, { style: { color: C.gold, fontSize: 11, letterSpacing: 5, marginBottom: 14 } }, genderLabel.toUpperCase()),
+    h(Text, { style: { color: C.cream, fontFamily: "Fraunces", fontWeight: 700, fontSize: 42, lineHeight: 1.1, marginBottom: 16 } }, chapter),
+    h(View, { style: { width: 64, height: 3, backgroundColor: C.gold, marginBottom: 18 } }),
+    copy ? h(Text, { style: { color: C.cream, fontSize: 12.5, lineHeight: 1.55, maxWidth: 460 } }, copy) : null,
+    range ? h(Text, { style: { color: C.gold, fontSize: 10, letterSpacing: 1, marginTop: 10 } }, range) : null,
+    minis.length
+      ? h(View, { style: { flexDirection: "row", flexWrap: "wrap", gap: 10, marginTop: 26 } },
+          ...minis.map((t) => {
+            const foto = img(t.images[0], W.photo)
+            return h(View, { key: t.handle, style: { width: "22.7%" } },
+              photoTile(foto, { height: 88 }),
+              h(Text, { style: { color: C.cream, fontSize: 7.5, lineHeight: 1.3, marginTop: 5 } }, titleName(t)))
+          }))
+      : null,
+    sobran ? h(Text, { style: { color: C.gold, fontSize: 9, letterSpacing: 1, marginTop: 4 } }, mas.replace("N", String(sobran))) : null)
 }
 
-function HeroPage({ p, currency, locale, brandLogos, qrMap }) {
+/**
+ * HÉROE — la pieza destacada del capítulo.
+ *
+ * La versión anterior ponía la foto a sangre con `cover` y encima un panel
+ * café con el nombre: la bota salía recortada por arriba y por el costado, y
+ * el panel le tapaba justo el pie. Ahora la página se parte en dos columnas —
+ * bota completa a la izquierda, texto a la derecha— así que nada se recorta y
+ * nada se encima. El único recorte que queda es el macro de textura, que es
+ * un primer plano a propósito, no la silueta del producto.
+ */
+function HeroPage({ p, chapter, gender, tr, currency, locale, brandLogos, qrMap }) {
   const lateral = img(p.images[0], W.cover) || img(p.images[0], W.photo)
-  const detail = toeImg(p.images[0])
   const logo = img(brandLogos.get((p.vendor || "").trim().toLowerCase()), W.logo)
   const price = p.price ? money(p.price.amount, p.price.currencyCode || currency, locale) : ""
-  return h(Page, { size: "LETTER", style: { backgroundColor: C.creamSoft, fontFamily: "Inter" } },
-    h(View, { style: { position: "absolute", top: 0, left: 0, right: 0, height: 792, backgroundColor: C.creamSoft } },
-      lateral ? h(Image, { src: lateral, style: { width: "100%", height: "100%", objectFit: "cover" } }) : null),
-    detail ? h(View, { style: { position: "absolute", top: 40, right: 40, width: 150, height: 112, borderWidth: 3, borderColor: C.cream } },
-      h(Image, { src: detail, style: { width: "100%", height: "100%", objectFit: "cover" } })) : null,
-    h(View, { style: { position: "absolute", left: 40, right: 40, bottom: 44, backgroundColor: "rgba(75,46,31,0.92)", padding: 24 } },
-      logo ? h(Image, { src: logo, style: { height: 30, width: 130, objectFit: "contain", marginBottom: 10 } })
-           : h(Text, { style: { color: C.gold, fontFamily: "Fraunces", fontSize: 12, letterSpacing: 2, marginBottom: 10 } }, (p.vendor || "").toUpperCase()),
-      h(Text, { style: { color: C.cream, fontFamily: "Fraunces", fontWeight: 700, fontSize: 24, lineHeight: 1.1, marginBottom: 12 } }, titleName(p)),
-      h(View, { style: { flexDirection: "row", alignItems: "flex-end", justifyContent: "space-between" } },
-        h(Text, { style: { color: C.cream, fontFamily: "Fraunces", fontWeight: 700, fontSize: 22 } }, price || " "),
-        qrMap.get(p.handle) ? h(Image, { src: qrMap.get(p.handle), style: { width: 54, height: 54 } }) : null)))
+  const compareAt = isOutlet(p) && p.compareAt ? money(p.compareAt.amount, p.compareAt.currencyCode || currency, locale) : ""
+  const tags = tagsFor(p, gender)
+  const desc = fixText(truncateSentence(fixText(p.description), 240))
+  return h(Page, { size: "LETTER", style: { backgroundColor: C.creamSoft, flexDirection: "row", fontFamily: "Inter" } },
+    h(View, { style: { width: "55%", paddingHorizontal: 34, paddingVertical: 50 } },
+      lateral ? h(Image, { src: lateral, style: { width: "100%", height: "100%", objectFit: "contain" } }) : null),
+    h(View, { style: { width: 1, backgroundColor: C.border, marginVertical: 56 } }),
+    h(View, { style: { width: "45%", paddingHorizontal: 30, paddingVertical: 52, justifyContent: "center" } },
+      h(Text, { style: { color: C.gold, fontSize: 8.5, letterSpacing: 4, marginBottom: 14 } }, tr.heroEyebrow),
+      logo ? h(Image, { src: logo, style: { height: 32, width: 132, objectFit: "contain", marginBottom: 14, alignSelf: "flex-start" } })
+           : h(Text, { style: { color: C.brown, fontFamily: "Fraunces", fontSize: 12, letterSpacing: 2, marginBottom: 14 } }, (p.vendor || "").toUpperCase()),
+      h(Text, { style: { color: C.text, fontFamily: "Fraunces", fontWeight: 700, fontSize: 27, lineHeight: 1.12, marginBottom: 14 } }, titleName(p)),
+      h(View, { style: { width: 54, height: 2, backgroundColor: C.gold, marginBottom: 16 } }),
+      compareAt ? h(Text, { style: { color: C.subtle, fontSize: 11, textDecoration: "line-through", marginBottom: 3 } }, compareAt) : null,
+      price ? h(Text, { style: { color: C.text, fontFamily: "Fraunces", fontWeight: 700, fontSize: 25, marginBottom: 16 } }, price) : null,
+      desc ? h(Text, { style: { color: C.muted, fontSize: 10, lineHeight: 1.55, marginBottom: 14 } }, desc) : null,
+      tags.length ? h(View, { style: { flexDirection: "row", flexWrap: "wrap", marginBottom: 14 } }, ...tags.map((t) => Chip(t))) : null,
+      h(View, { style: { flexDirection: "row", alignItems: "flex-end", justifyContent: "space-between", borderTop: `1px solid ${C.border}`, paddingTop: 12 } },
+        h(Text, { style: { color: C.subtle, fontSize: 9, maxWidth: 130 } }, sizesLabel(p, locale)),
+        qrMap.get(p.handle) ? h(Image, { src: qrMap.get(p.handle), style: { width: 52, height: 52 } }) : null)))
 }
 
-// Media ficha para COMPACTA (lateral + par + datos).
+// Media ficha para COMPACTA (dos fotos + datos).
 function compactHalf(p, currency, locale, brandLogos, qrMap) {
   const lateral = img(p.images[0], W.photo)
   const par = img(p.images[2] || p.images[1], W.photo)
   const logo = img(brandLogos.get((p.vendor || "").trim().toLowerCase()), W.logo)
   const price = p.price ? money(p.price.amount, p.price.currencyCode || currency, locale) : ""
-  return h(View, { style: { height: 388, flexDirection: "row", padding: 26 } },
-    h(View, { style: { width: "52%", flexDirection: "row", gap: 8 } },
-      photoTile(lateral, { width: "48%", height: "100%" }),
-      photoTile(par, { width: "48%", height: "100%" })),
-    h(View, { style: { width: "48%", paddingLeft: 18, justifyContent: "center" } },
-      logo ? h(Image, { src: logo, style: { height: 26, width: 110, objectFit: "contain", marginBottom: 8, alignSelf: "flex-start" } })
-           : h(Text, { style: { color: C.brown, fontFamily: "Fraunces", fontSize: 10, letterSpacing: 2, marginBottom: 8 } }, (p.vendor || "").toUpperCase()),
-      h(Text, { style: { color: C.text, fontFamily: "Fraunces", fontWeight: 700, fontSize: 16, lineHeight: 1.15, marginBottom: 8 } }, titleName(p)),
-      price ? h(Text, { style: { color: C.text, fontFamily: "Fraunces", fontWeight: 700, fontSize: 15 } }, price) : null,
-      h(View, { style: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginTop: 12 } },
-        h(Text, { style: { color: C.subtle, fontSize: 8.5, maxWidth: 130 } }, sizesLabel(p, locale)),
+  const desc = fixText(truncateSentence(fixText(p.description), 150))
+  return h(View, { style: { height: 388, flexDirection: "row", paddingHorizontal: 30, paddingVertical: 20 } },
+    h(View, { style: { width: "56%", flexDirection: "row", gap: 10 } },
+      photoTile(lateral, { flex: 1, height: "100%" }),
+      photoTile(par, { flex: 1, height: "100%" })),
+    h(View, { style: { width: "44%", paddingLeft: 22, justifyContent: "center" } },
+      logo ? h(Image, { src: logo, style: { height: 26, width: 110, objectFit: "contain", marginBottom: 10, alignSelf: "flex-start" } })
+           : h(Text, { style: { color: C.brown, fontFamily: "Fraunces", fontSize: 10, letterSpacing: 2, marginBottom: 10 } }, (p.vendor || "").toUpperCase()),
+      h(Text, { style: { color: C.text, fontFamily: "Fraunces", fontWeight: 700, fontSize: 17, lineHeight: 1.15, marginBottom: 10 } }, titleName(p)),
+      price ? h(Text, { style: { color: C.text, fontFamily: "Fraunces", fontWeight: 700, fontSize: 17, marginBottom: 12 } }, price) : null,
+      h(View, { style: { width: 34, height: 2, backgroundColor: C.gold, marginBottom: 12 } }),
+      desc ? h(Text, { style: { color: C.muted, fontSize: 9, lineHeight: 1.5, marginBottom: 14 } }, desc) : null,
+      h(View, { style: { flexDirection: "row", alignItems: "center", justifyContent: "space-between" } },
+        h(Text, { style: { color: C.subtle, fontSize: 8.5, maxWidth: 118 } }, sizesLabel(p, locale)),
         qrMap.get(p.handle) ? h(Image, { src: qrMap.get(p.handle), style: { width: 46, height: 46 } }) : null)))
 }
 function CompactPage({ pair, currency, locale, brandLogos, qrMap }) {
   return h(Page, { size: "LETTER", style: { backgroundColor: C.white, fontFamily: "Inter" } },
     compactHalf(pair[0], currency, locale, brandLogos, qrMap),
-    h(View, { style: { height: 1, backgroundColor: C.border, marginHorizontal: 26 } }),
+    h(View, { style: { height: 1, backgroundColor: C.border, marginHorizontal: 30 } }),
     compactHalf(pair[1], currency, locale, brandLogos, qrMap))
 }
 
-// ESTÁNDAR — 2×2 con las reglas nuevas (4ª imagen, MSI, tachado solo Outlet, QR UTM, tags, truncado).
+/**
+ * ESTÁNDAR — una bota por página.
+ *
+ * Antes eran cuatro recuadros del mismo tamaño, y con el aire que traen las
+ * fotos la bota terminaba minúscula cuatro veces. Ahora manda una toma grande
+ * y las otras tres van de apoyo en una tira: misma información, jerarquía
+ * clara y el producto por fin se ve.
+ */
 function StandardPage({ p, chapter, gender, currency, locale, brandLogos, qrMap }) {
   const logo = img(brandLogos.get((p.vendor || "").trim().toLowerCase()), W.logo)
   const price = p.price ? money(p.price.amount, p.price.currencyCode || currency, locale) : ""
   const outlet = isOutlet(p)
   const compareAt = outlet && p.compareAt ? money(p.compareAt.amount, p.compareAt.currencyCode || currency, locale) : ""
   const tags = tagsFor(p, gender)
-  const desc = fixText(truncateSentence(fixText(p.description), 280))
-  // 4 imágenes: lateral, 3/4, par, (suela | crop de textura).
+  const desc = fixText(truncateSentence(fixText(p.description), 260))
+  const principal = img(p.images[0], W.photo)
+  // La cuarta es la suela, o un macro de textura donde la piel es el argumento.
   const cuarta = needsToeCrop(chapter, p) ? toeImg(p.images[0]) : img(p.images[3], W.photo)
-  const four = [img(p.images[0], W.photo), img(p.images[1], W.photo), img(p.images[2], W.photo), cuarta].filter(Boolean).slice(0, 4)
-  return h(Page, { size: "LETTER", style: { padding: 30, backgroundColor: C.white, flexDirection: "column", fontFamily: "Inter" } },
-    h(View, { style: { flexDirection: "row", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 12 } },
+  const tira = [img(p.images[1], W.photo), img(p.images[2], W.photo), cuarta].filter(Boolean).slice(0, 3)
+  return h(Page, { size: "LETTER", style: { padding: 34, backgroundColor: C.white, flexDirection: "column", fontFamily: "Inter" } },
+    h(View, { style: { flexDirection: "row", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 14 } },
       h(View, { style: { flex: 1, paddingRight: 12 } },
-        logo ? h(View, { style: { alignItems: "flex-start", marginBottom: 10 } }, h(Image, { src: logo, style: { height: 42, width: 170, objectFit: "contain" } }))
+        logo ? h(View, { style: { alignItems: "flex-start", marginBottom: 10 } }, h(Image, { src: logo, style: { height: 38, width: 155, objectFit: "contain" } }))
              : h(Text, { style: { color: C.brown, fontSize: 12, letterSpacing: 2, marginBottom: 8, fontFamily: "Fraunces" } }, (p.vendor || "").toUpperCase()),
-        h(Text, { style: { color: C.text, fontSize: 19, fontFamily: "Fraunces", fontWeight: 700, lineHeight: 1.15 } }, titleName(p))),
+        h(Text, { style: { color: C.text, fontSize: 20, fontFamily: "Fraunces", fontWeight: 700, lineHeight: 1.15 } }, titleName(p))),
       price ? h(View, { style: { alignItems: "flex-end" } },
         compareAt ? h(Text, { style: { color: C.subtle, fontSize: 10, textDecoration: "line-through", marginBottom: 2 } }, compareAt) : null,
-        h(Text, { style: { color: C.text, fontSize: 20, fontFamily: "Fraunces", fontWeight: 700 } }, price)) : null),
-    h(View, { style: { flexDirection: "row", flexWrap: "wrap", gap: 8, height: 452, alignContent: "flex-start", marginBottom: 10 } },
-      ...four.map((ph, i) => photoTile(ph, { width: "48.5%", height: 222 }))),
+        h(Text, { style: { color: C.text, fontSize: 21, fontFamily: "Fraunces", fontWeight: 700 } }, price)) : null),
+    photoTile(principal, { width: "100%", height: 344, marginBottom: 10 }),
+    tira.length ? h(View, { style: { flexDirection: "row", gap: 10, height: 122, marginBottom: 12 } },
+      ...tira.map((ph) => photoTile(ph, { flex: 1, height: "100%" }))) : null,
     tags.length ? h(View, { style: { flexDirection: "row", flexWrap: "wrap", marginBottom: 8 } }, ...tags.map((s) => Chip(s))) : null,
     desc ? h(Text, { style: { color: C.muted, fontSize: 10, lineHeight: 1.5 } }, desc) : null,
     h(View, { style: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginTop: "auto", borderTop: `1px solid ${C.border}`, paddingTop: 10 } },
       h(Text, { style: { color: C.subtle, fontSize: 9 } }, sizesLabel(p, locale)),
-      qrMap.get(p.handle) ? h(Image, { src: qrMap.get(p.handle), style: { width: 54, height: 54 } }) : null))
+      qrMap.get(p.handle) ? h(Image, { src: qrMap.get(p.handle), style: { width: 52, height: 52 } }) : null))
 }
 
 // Renderiza UN capítulo de muestra (portadilla + héroe + estándar + compactas).
@@ -1034,7 +1123,7 @@ async function renderSampleChapter(esData, gender, chapterName) {
   LOGO_WHITE = await loadWhiteLogo()
   const [brandLogos] = await Promise.all([getBrandLogos()])
   const jobs = []
-  for (const p of items) for (const u of p.images.slice(0, 4)) jobs.push({ url: u, w: W.photo })
+  for (const p of items) for (const u of p.images.slice(0, 4)) { jobs.push({ url: u, w: W.photo }); FOTOS_PRODUCTO.add(u) }
   jobs.push({ url: hero.images[0], w: W.cover })
   for (const logo of brandLogos.values()) jobs.push({ url: logo, w: W.logo })
   await prepareImages(jobs)
@@ -1048,8 +1137,8 @@ async function renderSampleChapter(esData, gender, chapterName) {
 
   const range = priceRangeStr(items, currency, locale)
   const doc = h(Document, { title: `Muestra ${chapterName}`, author: "BotasLeón" },
-    h(ChapterTitlePage, { key: "t", genderLabel: gender, chapter: chapterName, copy: chapterCopy(gender, chapterName), range }),
-    h(HeroPage, { key: "h", p: hero, currency, locale, brandLogos, qrMap }),
+    h(ChapterTitlePage, { key: "t", genderLabel: gender, chapter: chapterName, copy: chapterCopy(gender, chapterName), range, items, mas: STR.es.masModelos }),
+    h(HeroPage, { key: "h", p: hero, chapter: chapterName, gender, tr: STR.es, currency, locale, brandLogos, qrMap }),
     ...singles.map((p, i) => h(StandardPage, { key: "s" + i, p, chapter: chapterName, gender, currency, locale, brandLogos, qrMap })),
     ...pairs.map((pr, i) => h(CompactPage, { key: "c" + i, pair: pr, currency, locale, brandLogos, qrMap })))
 
@@ -1256,8 +1345,8 @@ function renderPageList(pages, ctx) {
       case "historia": return h(HistoriaPage, { key: k, tr, photo: d.photo })
       case "indice": return h(IndexPage, { key: k, tr, locale, chapterIndex: d.chapterIndex || [] })
       case "separator": return h(GenderOpener, { key: k, tr, photo: d.photo, label: d.genderKey === "mujer" ? tr.women : tr.men, dest: d.dest })
-      case "portadilla": return h(ChapterTitlePage, { key: k, genderLabel: d.genderKey === "mujer" ? tr.women : tr.men, chapter: chapterName(d.chapter, locale), copy: chapterCopyL(d.genderKey, d.chapter, locale), range: priceRangeStr(d.items || [], currency, locale) })
-      case "hero": return h(HeroPage, { key: k, p: d.p, currency, locale, brandLogos, qrMap })
+      case "portadilla": return h(ChapterTitlePage, { key: k, genderLabel: d.genderKey === "mujer" ? tr.women : tr.men, chapter: chapterName(d.chapter, locale), copy: chapterCopyL(d.genderKey, d.chapter, locale), range: priceRangeStr(d.items || [], currency, locale), items: d.items || [], mas: tr.masModelos })
+      case "hero": return h(HeroPage, { key: k, p: d.p, chapter: d.chapter, gender: d.genderKey, tr, currency, locale, brandLogos, qrMap })
       case "standard": return h(StandardPage, { key: k, p: d.p, chapter: d.chapter, gender: d.genderKey, currency, locale, brandLogos, qrMap })
       case "compact": return h(CompactPage, { key: k, pair: d.pair, currency, locale, brandLogos, qrMap })
       case "marcas": return h(MarcasPage, { key: k, tr, photo: d.photo, brands: d.brands || [] })
@@ -1379,6 +1468,7 @@ async function main() {
   }
   for (const logo of brandLogos.values()) jobs.push({ url: logo, w: W.logo })
   jobs.push({ url: covers.hombre, w: W.cover }, { url: covers.mujer, w: W.cover }) // mosaicos de portada
+  for (const p of [...src.hombre, ...src.mujer]) for (const u of p.images) FOTOS_PRODUCTO.add(u)
   await prepareImages(jobs)
   // Duotono de portadas de género + 3 fotos de tienda (separadores).
   await Promise.all([covers.hombre, covers.mujer, ...storePhotos.slice(0, 3)].map((u) => prepDuotone(u)))
