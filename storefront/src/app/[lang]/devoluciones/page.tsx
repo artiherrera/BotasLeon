@@ -80,8 +80,9 @@ export default function DevolucionesPage() {
               <li>Error en el producto enviado.</li>
               {HAY_CAMBIO_DE_TALLA && (
                 <li>
-                  <strong>Talla incorrecta</strong>, en los modelos marcados con{" "}
-                  <strong>Cambio de talla gratis</strong> (ver punto 7).
+                  <strong>Talla incorrecta</strong>, únicamente en los modelos
+                  seleccionados — los que muestran el aviso{" "}
+                  <strong>Cambio de talla gratis</strong> en su ficha (ver punto 7).
                 </li>
               )}
             </ul>
@@ -90,7 +91,7 @@ export default function DevolucionesPage() {
               <li>
                 Talla incorrecta elegida por el cliente
                 {HAY_CAMBIO_DE_TALLA
-                  ? " — en los modelos marcados se cambia la talla, no se devuelve el dinero."
+                  ? " — en los modelos seleccionados se cambia la talla, no se devuelve el dinero."
                   : "."}
               </li>
               <li>Color o modelo seleccionado por el cliente.</li>
@@ -109,7 +110,8 @@ export default function DevolucionesPage() {
               <>
                 <h3>Cambio de talla gratis</h3>
                 <p>
-                  Los modelos que muestran el aviso{" "}
+                  Aplica <strong>únicamente a los modelos seleccionados</strong>:
+                  los que muestran el aviso{" "}
                   <strong>Cambio de talla gratis</strong> en su ficha se pueden
                   cambiar por otra talla del mismo modelo{" "}
                   <strong>sin costo para ti</strong>: nosotros cubrimos los dos

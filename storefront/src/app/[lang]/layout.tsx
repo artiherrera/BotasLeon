@@ -4,6 +4,7 @@ import { KlaviyoLoader } from "@/components/KlaviyoLoader"
 import { CartProvider } from "@/components/CartProvider"
 import { CartDrawer } from "@/components/CartDrawer"
 import { Toast } from "@/components/Toast"
+import { MiniCarrito } from "@/components/MiniCarrito"
 import { RedireccionMercado } from "@/components/RedireccionMercado"
 import { CookiesBanner } from "@/components/CookiesBanner"
 import { GoogleAnalytics } from "@/components/GoogleAnalytics"
@@ -186,6 +187,7 @@ export default async function RootLayout({
           {children}
           <CartDrawer />
           <Toast />
+          <MiniCarrito />
         </CartProvider>
         <CookiesBanner />
 

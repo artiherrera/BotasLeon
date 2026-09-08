@@ -473,6 +473,13 @@ export const DICTIONARY: Record<string, Entry> = {
     en: "When you add boots, they'll show up here.",
   },
   "cart.viewCatalog": { es: "Ver catálogo", en: "Shop the catalog" },
+
+  // Mini-carrito persistente (components/MiniCarrito.tsx). "artículo" y no
+  // "par": un cinturón no es un par.
+  "minicart.label": { es: "Tu carrito", en: "Your cart" },
+  "minicart.item": { es: "artículo", en: "item" },
+  "minicart.items": { es: "artículos", en: "items" },
+  "minicart.view": { es: "Ver carrito", en: "View cart" },
   "cart.decrease": { es: "Disminuir cantidad", en: "Decrease quantity" },
   "cart.increase": { es: "Aumentar cantidad", en: "Increase quantity" },
   "cart.remove": { es: "Quitar", en: "Remove" },

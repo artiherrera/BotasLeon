@@ -42,8 +42,9 @@ export default function FaqPage() {
             <h2>¿Aceptan cambios o devoluciones?</h2>
             {HAY_CAMBIO_DE_TALLA ? (
               <p>
-                Los modelos marcados con <strong>Cambio de talla gratis</strong>{" "}
-                se pueden cambiar por otra talla del mismo modelo sin costo:
+                <strong>Únicamente los modelos seleccionados</strong> —los que
+                muestran el aviso <strong>Cambio de talla gratis</strong> en su
+                ficha— se pueden cambiar por otra talla del mismo modelo sin costo:
                 nosotros cubrimos los dos envíos. Tienes {DIAS_CAMBIO_TALLA} días
                 naturales desde la entrega, con la bota sin uso y en su empaque
                 original. En los demás modelos aceptamos cambios solo por defecto

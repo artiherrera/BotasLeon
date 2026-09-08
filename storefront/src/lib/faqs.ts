@@ -67,7 +67,7 @@ export const FAQS: FAQ[] = [
     // lib/exchange.ts): en México hay cambio de talla gratis en modelos
     // marcados; en EE.UU. no.
     answer: isMX
-      ? "Los modelos marcados con Cambio de talla gratis se pueden cambiar por otra talla del mismo modelo sin costo: nosotros cubrimos los dos envíos, dentro de 7 días naturales desde la entrega, con la bota sin uso y en su empaque original. En los demás modelos aceptamos cambios solo por defecto de fabricación o error en el envío. No hacemos reembolsos de dinero por talla, color o modelo mal elegidos; revisa la guía de tallas y escríbenos por WhatsApp si tienes dudas. Garantía de 15 días por defecto de fabricación confirmado."
+      ? "Únicamente los modelos seleccionados —los que muestran el aviso Cambio de talla gratis en su ficha— se pueden cambiar por otra talla del mismo modelo sin costo: nosotros cubrimos los dos envíos, dentro de 7 días naturales desde la entrega, con la bota sin uso y en su empaque original. En los demás modelos aceptamos cambios solo por defecto de fabricación o error en el envío. No hacemos reembolsos de dinero por talla, color o modelo mal elegidos; revisa la guía de tallas y escríbenos por WhatsApp si tienes dudas. Garantía de 15 días por defecto de fabricación confirmado."
       : "Solo aceptamos cambios por defecto de fabricación o error en el envío: 1 cambio por pedido, dentro de 7 días naturales, con el producto sin uso y en su empaque original. No hacemos reembolsos por talla, color o modelo mal elegidos, así que te recomendamos revisar la guía de tallas y escribirnos por WhatsApp si tienes dudas antes de comprar. Contamos con garantía de 15 días por defecto de fabricación confirmado.",
     questionEn: "Can I return or exchange my order?",
     answerEn:
