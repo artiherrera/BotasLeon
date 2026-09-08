@@ -8,7 +8,10 @@ import { Footer } from "@/components/Footer"
 import { useCart } from "@/components/CartProvider"
 import { PaymentBadges } from "@/components/PaymentBadges"
 import { CustomsTaxIdField } from "@/components/CustomsTaxIdField"
-import { useLocale } from "@/lib/i18n/context"
+import { useLocale, useT } from "@/lib/i18n/context"
+import { isMX } from "@/lib/market"
+import { admiteCambioDeTalla } from "@/lib/exchange"
+import { FreeShippingProgress } from "@/components/FreeShippingProgress"
 import { checkoutHref } from "@/lib/checkout"
 import { CartLineSize } from "@/components/CartLineSize"
 import { SIZE_ATTR, isDefaultOption, missingSizeLines } from "@/lib/cart/line-size"
@@ -33,6 +36,7 @@ import { gaEvent } from "@/lib/ga/events"
 export default function CartPage() {
   const { cart, ready, isPending, updateLine, removeLine, showToast } = useCart()
   const { locale } = useLocale()
+  const t = useT()
   const sizeBlocked = missingSizeLines(cart).length > 0 // sin talla no se puede surtir
   // El único candado que queda es la talla: sin ella el pedido no se puede
   // surtir. La aceptación de aranceles se retiró (estos productos no los causan).
@@ -117,18 +121,18 @@ export default function CartPage() {
                 <path d="M16 10a4 4 0 0 1-8 0" />
               </svg>
             </div>
-            <p className="eyebrow text-leather mb-3">Tu carrito</p>
+            <p className="eyebrow text-leather mb-3">{t("cart.title")}</p>
             <h1 className="font-display text-3xl md:text-4xl text-text mb-3">
-              Tu carrito está vacío
+              {t("cart.empty")}
             </h1>
             <p className="text-text-muted mb-10 max-w-md mx-auto">
-              Cuando agregues botas las verás aquí.
+              {t("cart.emptyDesc")}
             </p>
             <Link
               href="/products"
               className="inline-flex px-8 py-4 bg-text text-bg text-sm hover:bg-leather transition-colors"
             >
-              Ver catálogo
+              {t("cart.viewCatalog")}
             </Link>
           </div>
         </main>
@@ -142,9 +146,9 @@ export default function CartPage() {
       <Header />
       <main id="contenido" tabIndex={-1} className="flex-1">
         <div className="mx-auto max-w-5xl px-6 py-12 md:py-16">
-          <p className="eyebrow text-leather mb-2">Carrito</p>
+          <p className="eyebrow text-leather mb-2">{t("cart.title")}</p>
           <h1 className="font-display text-3xl md:text-4xl text-text mb-10">
-            Tu carrito
+            {t("cart.title")}
             {cart && cart.totalQuantity > 0 && (
               <span className="text-text-muted font-normal text-2xl ml-2">
                 ({cart.totalQuantity})
@@ -206,6 +210,9 @@ export default function CartPage() {
 
                       <div className="mt-2">
                         <CartLineSize line={line} />
+                        {admiteCambioDeTalla(v.product.tags) && (
+                          <p className="mt-1.5 text-xs text-leather">✓ {t("cart.lineExchange")}</p>
+                        )}
                       </div>
 
                       <div className="flex items-center justify-between mt-auto pt-3">
@@ -216,7 +223,7 @@ export default function CartPage() {
                               updateLine(line.id, Math.max(1, line.quantity - 1))
                             }
                             disabled={isPending || line.quantity <= 1}
-                            aria-label="Disminuir cantidad"
+                            aria-label={t("cart.decrease")}
                             className="w-9 h-9 flex items-center justify-center hover:bg-bg-alt disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
                           >
                             −
@@ -228,7 +235,7 @@ export default function CartPage() {
                             type="button"
                             onClick={() => updateLine(line.id, line.quantity + 1)}
                             disabled={isPending}
-                            aria-label="Aumentar cantidad"
+                            aria-label={t("cart.increase")}
                             className="w-9 h-9 flex items-center justify-center hover:bg-bg-alt disabled:opacity-40 transition-colors"
                           >
                             +
@@ -241,7 +248,7 @@ export default function CartPage() {
                           disabled={isPending}
                           className="text-xs text-text-subtle hover:text-terracotta uppercase tracking-wider transition-colors"
                         >
-                          Quitar
+                          {t("cart.remove")}
                         </button>
                       </div>
                     </div>
@@ -252,7 +259,7 @@ export default function CartPage() {
 
             {/* Sidebar — resumen + checkout */}
             <aside className="bg-bg-alt p-6 h-fit lg:sticky lg:top-24">
-              <h2 className="eyebrow text-leather mb-4">Resumen</h2>
+              <h2 className="eyebrow text-leather mb-4">{t("cart.summary")}</h2>
 
               <div className="space-y-2 mb-6">
                 <div className="flex justify-between text-sm text-text-muted">
@@ -268,13 +275,19 @@ export default function CartPage() {
                 <div className="flex justify-between text-sm text-text-muted">
                   <span>{locale === "en" ? "Shipping" : "Envío"}</span>
                   <span className="text-text">
-                    {locale === "en" ? "Calculated at checkout" : "Se calcula en el pago"}
+                    {isMX
+                      ? (locale === "en" ? "Free" : "Gratis")
+                      : (locale === "en" ? "Calculated at checkout" : "Se calcula en el pago")}
                   </span>
+                </div>
+                <div className="flex justify-between text-sm text-text-muted">
+                  <span>{t("cart.deliveryLabel")}</span>
+                  <span className="text-text">{t(isMX ? "cart.deliveryMx" : "cart.deliveryUs")}</span>
                 </div>
               </div>
 
               <div className="flex justify-between items-baseline pt-4 border-t border-border mb-6">
-                <span className="font-heading text-text">Total</span>
+                <span className="font-heading text-text">{isMX ? t("cart.total") : t("cart.subtotal")}</span>
                 <span className="font-display text-2xl text-text">
                   {cart &&
                     formatMoney(
@@ -288,14 +301,14 @@ export default function CartPage() {
                   no trae código */}
               <details className="mb-4 text-sm border-t border-border pt-4">
                 <summary className="cursor-pointer text-text-muted hover:text-text transition-colors select-none">
-                  ¿Tienes un código de descuento?
+                  {t("cart.promoToggle")}
                 </summary>
                 <form onSubmit={handleApplyCoupon} className="mt-3 flex gap-2">
                   <input
                     type="text"
                     value={couponInput}
                     onChange={(e) => setCouponInput(e.target.value)}
-                    placeholder="CÓDIGO"
+                    placeholder={t("cart.promoPlaceholder")}
                     aria-label="Código de descuento"
                     autoCapitalize="characters"
                     autoCorrect="off"
@@ -307,7 +320,7 @@ export default function CartPage() {
                     disabled={!couponInput.trim()}
                     className="px-4 py-2 bg-text text-bg text-xs hover:bg-leather transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                   >
-                    Aplicar
+                    {t("cart.apply")}
                   </button>
                 </form>
               </details>
@@ -318,6 +331,8 @@ export default function CartPage() {
                   <p className="text-bg/80 mt-0.5">{pendingDiscount}</p>
                 </div>
               )}
+
+              <FreeShippingProgress amount={subtotalNum} currency={subtotalCurrency} />
 
               <CustomsTaxIdField />
 
@@ -334,13 +349,9 @@ export default function CartPage() {
                       aria-disabled
                       className="block w-full text-center py-4 bg-border text-text-muted text-sm cursor-not-allowed"
                     >
-                      {locale === "en" ? "Checkout" : "Proceder al pago"}
+                      {t("cart.checkout")}
                     </button>
-                    <p className="text-xs text-terracotta text-center mt-2">
-                      {locale === "en"
-                        ? "Choose a size for each pair to continue."
-                        : "Elige la talla de cada par para continuar."}
-                    </p>
+                    <p className="text-xs text-terracotta text-center mt-2">{t("cart.sizeBlocked")}</p>
                   </>
                 ) : (
                   <a
@@ -348,13 +359,19 @@ export default function CartPage() {
                     onClick={handleCheckoutClick}
                     className="block w-full text-center py-4 bg-text text-bg text-sm hover:bg-leather transition-colors"
                   >
-                    {locale === "en" ? "Checkout" : "Proceder al pago"}
+                    {t("cart.checkout")}
                   </a>
                 )
               ) : null}
+              <Link
+                href="/products"
+                className="mt-2 block w-full text-center py-3 text-sm text-text-muted underline underline-offset-4 hover:text-text transition-colors"
+              >
+                {t("cart.keepShopping")}
+              </Link>
 
               <p className="text-xs text-text-muted text-center mt-3">
-                Pago seguro · Envío calculado en el pago · Garantía 15 días
+                {t("trust.securePayment")} · {t(isMX ? "cart.shippingTax" : "cart.shippingTaxUs")} · {t("trust.exchange30")}
               </p>
             </aside>
           </div>

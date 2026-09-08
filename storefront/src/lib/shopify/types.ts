@@ -195,7 +195,7 @@ export type Cart = {
     id: string
     quantity: number
     merchandise: ProductVariant & {
-      product: Pick<Product, "handle" | "title" | "productType"> & {
+      product: Pick<Product, "handle" | "title" | "productType" | "tags"> & {
         // Metacampos que el carrito necesita para su selector de talla:
         // la lista de tallas del producto y el sexo (conversión MX→US).
         targetGender?: Product["targetGender"]

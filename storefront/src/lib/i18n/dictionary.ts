@@ -487,7 +487,19 @@ export const DICTIONARY: Record<string, Entry> = {
     es: "¿Tienes un código de descuento?",
     en: "Have a discount code?",
   },
-  "cart.promoPlaceholder": { es: "Ej. BIENVENIDO10", en: "Enter your code" },
+  // Sin código de ejemplo: sugerir uno entrena a irse a buscarlo (Baymard).
+  "cart.promoPlaceholder": { es: "Tu código", en: "Your code" },
+  // El campo va escondido tras este enlace: mostrarlo por defecto sube el
+  // abandono — quien no trae código se va a buscar uno y no vuelve (Baymard).
+  "cart.promoToggle": { es: "¿Tienes un código de descuento?", en: "Have a discount code?" },
+  // Entrega estimada — cifras de /envios de cada mercado, no de aquí.
+  "cart.deliveryLabel": { es: "Entrega estimada", en: "Estimated delivery" },
+  "cart.deliveryMx": { es: "3–7 días hábiles", en: "3–7 business days" },
+  "cart.deliveryUs": { es: "7–10 días hábiles", en: "7–10 business days" },
+  // Por línea, solo en los modelos seleccionados (ver lib/exchange.ts).
+  "cart.lineExchange": { es: "Cambio de talla gratis", en: "Free size exchange" },
+  "cart.total": { es: "Total", en: "Total" },
+  "cart.summary": { es: "Resumen", en: "Summary" },
   "cart.apply": { es: "Aplicar", en: "Apply" },
   "cart.subtotal": { es: "Subtotal", en: "Subtotal" },
   "cart.discount": { es: "Descuento", en: "Discount" },
@@ -496,8 +508,8 @@ export const DICTIONARY: Record<string, Entry> = {
   // después de que la tienda ya cobraba pesos.
   // La usa el despliegue de México (botasleon.mx): ahí el precio lleva IVA.
   "cart.shippingTax": {
-    es: "Envío calculado en el pago · IVA incluido",
-    en: "Shipping calculated at checkout · VAT included",
+    es: "IVA incluido",
+    en: "VAT included",
   },
   // La usa botasleon.com: precios en USD, sin IVA mexicano.
   "cart.shippingTaxUs": {
@@ -505,7 +517,7 @@ export const DICTIONARY: Record<string, Entry> = {
     en: "Shipping and taxes calculated at checkout",
   },
   "cart.checkout": { es: "Pagar", en: "Checkout" },
-  // Envío gratis: SOLO existe en el mercado mexicano, a partir de $3,999 MXN
+  // Envío gratis: SOLO existe en el mercado mexicano, hoy sin monto mínimo
   // (ver lib/shipping-policy.ts). El sitio de EE.UU. no renderiza estas claves
   // porque allá el envío pasa de $100 USD y prometerlo gratis sería falso.
   // Van partidas en dos porque useT() no interpola: el monto se arma en JSX.
