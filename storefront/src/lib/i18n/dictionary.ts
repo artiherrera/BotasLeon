@@ -496,11 +496,6 @@ export const DICTIONARY: Record<string, Entry> = {
   "cart.deliveryLabel": { es: "Entrega estimada", en: "Estimated delivery" },
   "cart.deliveryMx": { es: "3–7 días hábiles", en: "3–7 business days" },
   "cart.deliveryUs": { es: "7–10 días hábiles", en: "7–10 business days" },
-  // Por línea, solo en los modelos seleccionados (ver lib/exchange.ts).
-  "cart.lineExchange": { es: "Cambio de talla gratis", en: "Free size exchange" },
-  // Línea general del pie (solo México): la política existe aunque el par en
-  // el carrito no sea de los seleccionados — antes no se veía nada de ella.
-  "cart.exchangeGeneral": { es: "Cambio de talla gratis en modelos seleccionados", en: "Free size exchange on selected styles" },
   "cart.total": { es: "Total", en: "Total" },
   "cart.summary": { es: "Resumen", en: "Summary" },
   "cart.apply": { es: "Aplicar", en: "Apply" },

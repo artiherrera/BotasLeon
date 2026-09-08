@@ -17,7 +17,6 @@ import { checkoutHref } from "@/lib/checkout"
 import { isMX } from "@/lib/market"
 import { CartLineSize } from "@/components/CartLineSize"
 import { SIZE_ATTR, isDefaultOption, missingSizeLines } from "@/lib/cart/line-size"
-import { HAY_CAMBIO_DE_TALLA, admiteCambioDeTalla } from "@/lib/exchange"
 
 /**
  * CartDrawer — sidebar lateral derecho con líneas del cart.
@@ -287,11 +286,6 @@ export function CartDrawer() {
 
                       <div className="mt-2">
                         <CartLineSize line={line} compact />
-                        {admiteCambioDeTalla(v.product.tags) && (
-                          <p className="mt-1.5 flex items-center gap-1 text-xs text-leather">
-                            <CheckIcon /> {t("cart.lineExchange")}
-                          </p>
-                        )}
                       </div>
 
                       <div className="flex items-center justify-between mt-3">
@@ -440,13 +434,9 @@ export function CartDrawer() {
               </p>
               {/* Entrega estimada: no saber cuándo llega es motivo de abandono
                   (Baymard). Cifras de /envios de cada mercado. */}
-              <p className="text-xs text-text-muted mt-1">
+              <p className="text-xs text-text-muted mt-1 mb-4">
                 {t("cart.deliveryLabel")}: {t(isMX ? "cart.deliveryMx" : "cart.deliveryUs")}
               </p>
-              {HAY_CAMBIO_DE_TALLA && (
-                <p className="text-xs text-text-muted mt-1 mb-4">{t("cart.exchangeGeneral")}</p>
-              )}
-              {!HAY_CAMBIO_DE_TALLA && <div className="mb-4" />}
 
               {/* Solo renderiza en el despliegue de México; en el de EE.UU. no
                   hay envío gratis y el componente devuelve null. */}

@@ -58,9 +58,6 @@ const CART_FRAGMENT = /* GraphQL */ `
                 # Decide si la talla se convierte a escala americana: solo el
                 # calzado. Un cinturón va en pulgadas. Ver lib/sizes.ts.
                 productType
-                # Para anunciar el cambio de talla gratis par por par: solo los
-                # modelos etiquetados lo tienen (ver lib/exchange.ts).
-                tags
                 # Para el selector de talla DENTRO del carrito: la lista de
                 # tallas del producto y el sexo (que decide la conversión
                 # MX→US: hombre −19, mujer −17).
