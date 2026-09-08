@@ -10,7 +10,7 @@ import { PaymentBadges } from "@/components/PaymentBadges"
 import { CustomsTaxIdField } from "@/components/CustomsTaxIdField"
 import { useLocale, useT } from "@/lib/i18n/context"
 import { isMX } from "@/lib/market"
-import { admiteCambioDeTalla } from "@/lib/exchange"
+import { HAY_CAMBIO_DE_TALLA, admiteCambioDeTalla } from "@/lib/exchange"
 import { FreeShippingProgress } from "@/components/FreeShippingProgress"
 import { checkoutHref } from "@/lib/checkout"
 import { CartLineSize } from "@/components/CartLineSize"
@@ -277,13 +277,16 @@ export default function CartPage() {
                   <span className="text-text">
                     {isMX
                       ? (locale === "en" ? "Free" : "Gratis")
-                      : (locale === "en" ? "Calculated at checkout" : "Se calcula en el pago")}
+                      : (locale === "en" ? "Across the USA" : "A todo Estados Unidos")}
                   </span>
                 </div>
                 <div className="flex justify-between text-sm text-text-muted">
                   <span>{t("cart.deliveryLabel")}</span>
                   <span className="text-text">{t(isMX ? "cart.deliveryMx" : "cart.deliveryUs")}</span>
                 </div>
+                {HAY_CAMBIO_DE_TALLA && (
+                  <p className="text-sm text-leather pt-1">{t("cart.exchangeGeneral")}</p>
+                )}
               </div>
 
               <div className="flex justify-between items-baseline pt-4 border-t border-border mb-6">

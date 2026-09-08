@@ -212,7 +212,7 @@ export const DICTIONARY: Record<string, Entry> = {
     en: "Every brand meets our standard",
   },
   "trust.shipping.title": { es: "Envío a Estados Unidos", en: "Ships across the USA" },
-  "trust.shipping.sub": { es: "Costo calculado en el pago", en: "Cost calculated at checkout" },
+  "trust.shipping.sub": { es: "Entrega en 7–10 días hábiles", en: "Delivery in 7–10 business days" },
   "trust.shipping.titleMx": { es: "Envío gratis a toda la República", en: "Free shipping across Mexico" },
   "trust.shipping.subMx": { es: "Sin monto mínimo", en: "No minimum order" },
   "trust.exchange.title": { es: "Garantía", en: "Built to last" },
@@ -498,6 +498,9 @@ export const DICTIONARY: Record<string, Entry> = {
   "cart.deliveryUs": { es: "7–10 días hábiles", en: "7–10 business days" },
   // Por línea, solo en los modelos seleccionados (ver lib/exchange.ts).
   "cart.lineExchange": { es: "Cambio de talla gratis", en: "Free size exchange" },
+  // Línea general del pie (solo México): la política existe aunque el par en
+  // el carrito no sea de los seleccionados — antes no se veía nada de ella.
+  "cart.exchangeGeneral": { es: "Cambio de talla gratis en modelos seleccionados", en: "Free size exchange on selected styles" },
   "cart.total": { es: "Total", en: "Total" },
   "cart.summary": { es: "Resumen", en: "Summary" },
   "cart.apply": { es: "Aplicar", en: "Apply" },
@@ -513,8 +516,8 @@ export const DICTIONARY: Record<string, Entry> = {
   },
   // La usa botasleon.com: precios en USD, sin IVA mexicano.
   "cart.shippingTaxUs": {
-    es: "Envío e impuestos calculados en el pago",
-    en: "Shipping and taxes calculated at checkout",
+    es: "Envío a todo Estados Unidos",
+    en: "Ships across the USA",
   },
   "cart.checkout": { es: "Pagar", en: "Checkout" },
   // Envío gratis: SOLO existe en el mercado mexicano, hoy sin monto mínimo
