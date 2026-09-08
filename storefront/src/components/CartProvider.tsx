@@ -23,7 +23,8 @@ import {
   clientUpdateLines,
   fijarIdiomaCarrito,
 } from "@/lib/cart/client"
-import { clearPendingDiscount } from "@/lib/discount/client"
+import { clearPendingDiscount, withDiscount } from "@/lib/discount/client"
+import { checkoutHref } from "@/lib/checkout"
 import { track } from "@/lib/klaviyo/client"
 import { pixelTrack, toContentId } from "@/lib/meta/pixel"
 import { gaEvent } from "@/lib/ga/events"
@@ -62,6 +63,12 @@ type CartContextValue = {
     quantity?: number,
     attributes?: Array<{ key: string; value: string }>
   ) => void
+  // "Comprar ahora": checkout directo con SOLO ese par. El carrito guardado no
+  // se toca — es el comportamiento de Amazon y del botón nativo de Shopify.
+  buyNow: (
+    merchandiseId: string,
+    attributes?: Array<{ key: string; value: string }>
+  ) => void
   updateLine: (lineId: string, quantity: number) => void
   // Fija/cambia la TALLA de una línea (atributo, no variante — ver
   // lib/cart/line-size.ts). Permite agregar sin talla y elegirla en el carrito.
@@ -75,6 +82,9 @@ type CartContextValue = {
   // Quita el/los código(s) de descuento del carrito.
   removeDiscount: () => void
   itemCount: number
+  // Título del par recién agregado — el cajón lo anuncia al abrir. Se borra
+  // al cerrar el cajón, así no reaparece en aperturas posteriores.
+  lastAdded: string | null
   toast: ToastMessage | null
   showToast: (msg: string, variant?: ToastVariant) => void
 }
@@ -87,6 +97,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const [isOpen, setIsOpen] = useState(false)
   const [isPending, startTransition] = useTransition()
   const [toast, setToast] = useState<ToastMessage | null>(null)
+  const [lastAdded, setLastAdded] = useState<string | null>(null)
   const cartIdRef = useRef<string | null>(null)
   const toastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
@@ -154,7 +165,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   }, [countryCode, ready, persist])
 
   const openCart = useCallback(() => setIsOpen(true), [])
-  const closeCart = useCallback(() => setIsOpen(false), [])
+  const closeCart = useCallback(() => { setIsOpen(false); setLastAdded(null) }, [])
   const toggleCart = useCallback(() => setIsOpen((v) => !v), [])
 
   const showToast = useCallback((msg: string, variant: ToastVariant = "info") => {
@@ -191,9 +202,10 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
             ? await clientAddLines(id, [line])
             : await clientCreateCart([line], countryRef.current)
           persist(updated)
+          const lastLine = updated.lines[updated.lines.length - 1]
+          setLastAdded(lastLine?.merchandise.product.title ?? null)
           setIsOpen(true)
           // Trigger Klaviyo event para que abandoned cart flow tenga data
-          const lastLine = updated.lines[updated.lines.length - 1]
           if (lastLine) {
             track("Added to Cart", {
               $value: parseFloat(updated.cost.subtotalAmount.amount),
@@ -249,6 +261,66 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       })
     },
     [persist, showToast]
+  )
+
+  /**
+   * Comprar ahora — se salta el carrito.
+   *
+   * Crea un carrito NUEVO y desechable con solo ese par, en el mercado del
+   * despliegue (pesos o dólares), y manda al comprador derecho al checkout en
+   * nuestro dominio, arrastrando el código de descuento pendiente si lo hay.
+   * Lo que ya tuviera en su carrito guardado sigue ahí intacto: si abandona el
+   * checkout y regresa, no perdió nada.
+   *
+   * Dispara los mismos eventos que "Pagar" desde el cajón, para que el embudo
+   * de Klaviyo / GA no vea un checkout salido de la nada.
+   */
+  const buyNow = useCallback(
+    (merchandiseId: string, attributes?: Array<{ key: string; value: string }>) => {
+      const line = attributes?.length
+        ? { merchandiseId, quantity: 1, attributes }
+        : { merchandiseId, quantity: 1 }
+      startTransition(async () => {
+        try {
+          const rapido = await clientCreateCart([line], countryRef.current)
+          const l = rapido.lines[0]
+          const valor = parseFloat(rapido.cost.subtotalAmount.amount)
+          const moneda = rapido.cost.subtotalAmount.currencyCode
+          if (l) {
+            track("Started Checkout", {
+              $value: valor,
+              currency: moneda,
+              ItemCount: rapido.totalQuantity,
+              items: [{
+                ProductName: l.merchandise.product.title,
+                ItemId: l.merchandise.id,
+                Quantity: l.quantity,
+                Price: parseFloat(l.cost.totalAmount.amount),
+                ProductCategories: [],
+                ProductURL: `/products/${l.merchandise.product.handle}`,
+              }],
+              CheckoutURL: rapido.checkoutUrl,
+            })
+            gaEvent("begin_checkout", {
+              currency: moneda,
+              value: valor,
+              items: [{
+                item_id: l.merchandise.product.handle,
+                item_name: l.merchandise.product.title,
+                price: parseFloat(l.merchandise.price.amount),
+                quantity: 1,
+              }],
+            })
+          }
+          window.location.assign(withDiscount(checkoutHref(rapido.checkoutUrl)))
+        } catch (e) {
+          const msg = e instanceof Error ? e.message : String(e)
+          console.error("[cart] buyNow falló:", e)
+          showToast(`No se pudo iniciar el pago: ${msg}`, "error")
+        }
+      })
+    },
+    [showToast]
   )
 
   const updateLine = useCallback(
@@ -376,6 +448,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         closeCart,
         toggleCart,
         addItem,
+        buyNow,
         setLineSize,
         updateLine,
         removeLine,
@@ -383,6 +456,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         applyDiscount,
         removeDiscount,
         itemCount,
+        lastAdded,
         toast,
         showToast,
       }}

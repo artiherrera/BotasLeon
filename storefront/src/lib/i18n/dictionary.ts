@@ -19,6 +19,14 @@ export const DICTIONARY: Record<string, Entry> = {
   "pdp.add": { es: "Agregar", en: "Add" },
   "pdp.addToCart": { es: "Agregar al carrito", en: "Add to cart" },
   "pdp.adding": { es: "Agregando…", en: "Adding…" },
+  // "Comprar ahora" — checkout directo, tipo Amazon. Ver CartProvider.buyNow.
+  "pdp.buyNow": { es: "Comprar ahora", en: "Buy now" },
+  "pdp.buying": { es: "Llevándote al pago…", en: "Taking you to checkout…" },
+  // Confirmación instantánea en el botón, antes de que Shopify conteste.
+  "pdp.added": { es: "✓ Agregado", en: "✓ Added" },
+  // Cajón: franja que dice que funcionó, y una salida que no sea la X.
+  "cart.addedBanner": { es: "Listo, ya está en tu carrito:", en: "Done, it's in your cart:" },
+  "cart.keepShopping": { es: "Seguir comprando", en: "Keep shopping" },
   "pdp.available": { es: "Disponible", en: "In stock" },
   "pdp.chooseSize": { es: "Elige talla", en: "Choose size" },
   "pdp.comboUnavailable": { es: "Combinación no disponible", en: "Combination unavailable" },

@@ -51,7 +51,7 @@ function isSizeOption(name: string): boolean {
 
 export function ProductOptions({ product }: Props) {
   const t = useT()
-  const { addItem, isPending } = useCart()
+  const { addItem, buyNow, isPending } = useCart()
   const { selection, setOption, activeVariant } = usePDPVariant()
 
   // Handle del metaobject "Sexo objetivo" — para conversión MX→US.
@@ -111,6 +111,12 @@ export function ProductOptions({ product }: Props) {
   // === Sticky mobile bar ===
   const ctaRef = useRef<HTMLButtonElement>(null)
   const [showSticky, setShowSticky] = useState(false)
+  // Confirmación optimista: el botón dice "✓ Agregado" en el mismo clic. La
+  // ida y vuelta a Shopify tarda ~800 ms y ese silencio era lo que hacía dudar
+  // si el clic entró. Si Shopify falla, el toast rojo lo dice igual.
+  const [justAdded, setJustAdded] = useState(false)
+  const addedTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+  useEffect(() => () => { if (addedTimer.current) clearTimeout(addedTimer.current) }, [])
   const [mounted, setMounted] = useState(false)
 
   useEffect(() => setMounted(true), [])
@@ -134,36 +140,71 @@ export function ProductOptions({ product }: Props) {
       sizeRef.current?.scrollIntoView({ behavior: "smooth", block: "center" })
       return
     }
+    const marcar = () => {
+      setJustAdded(true)
+      if (addedTimer.current) clearTimeout(addedTimer.current)
+      addedTimer.current = setTimeout(() => setJustAdded(false), 2000)
+    }
     if (sizeOption) {
-      if (activeVariant?.availableForSale) addItem(activeVariant.id, 1)
+      if (activeVariant?.availableForSale) { marcar(); addItem(activeVariant.id, 1) }
     } else if (metaSizes.length > 0 && metaSize) {
       // Talla de metacampo → guardarla como atributo de la línea del pedido.
       const v = product.variants[0]
-      if (v) addItem(v.id, 1, [{ key: "Talla", value: metaSize }])
+      if (v) { marcar(); addItem(v.id, 1, [{ key: "Talla", value: metaSize }]) }
     } else if (purchaseVariant?.availableForSale) {
-      addItem(purchaseVariant.id, 1)
+      marcar(); addItem(purchaseVariant.id, 1)
     }
   }
 
-  const ctaLabel = isPending
+  // Comprar ahora — mismo guardia de talla y misma resolución de línea que
+  // handleAdd; lo único distinto es a dónde va el par (checkout, no carrito).
+  const handleBuyNow = () => {
+    if (isPending) return
+    if (needsSize) {
+      setShowSizeError(true)
+      sizeRef.current?.scrollIntoView({ behavior: "smooth", block: "center" })
+      return
+    }
+    if (sizeOption) {
+      if (activeVariant?.availableForSale) buyNow(activeVariant.id)
+    } else if (metaSizes.length > 0 && metaSize) {
+      const v = product.variants[0]
+      if (v) buyNow(v.id, [{ key: "Talla", value: metaSize }])
+    } else if (purchaseVariant?.availableForSale) {
+      buyNow(purchaseVariant.id)
+    }
+  }
+
+  // Rótulos fijos aunque falte talla: con dos botones, repetir "Selecciona tu
+  // talla" en ambos no distingue nada, y el clic ya avisa y hace scroll. El
+  // aviso como rótulo se conserva solo en la barra pegajosa (un solo botón).
+  const buyLabel = isPending
+    ? t("pdp.buying")
+    : isUnknownCombo
+      ? t("pdp.comboUnavailable")
+      : !needsSize && !isAvailable
+        ? t("card.soldOut")
+        : t("pdp.buyNow")
+
+  const ctaLabel = justAdded
+    ? t("pdp.added")
+    : isPending
     ? t("pdp.adding")
-    : needsSize
-      ? t("pdp.selectSize")
-      : isUnknownCombo
-        ? t("pdp.comboUnavailable")
-        : !isAvailable
-          ? t("card.soldOut")
-          : t("pdp.addToCart")
+    : isUnknownCombo
+      ? t("pdp.comboUnavailable")
+      : !needsSize && !isAvailable
+        ? t("card.soldOut")
+        : t("pdp.addToCart")
 
   const stickyCtaLabel = isPending
-    ? "..."
+    ? "…"
     : needsSize
       ? t("pdp.chooseSize")
       : isUnknownCombo
         ? t("pdp.unavailable")
         : !isAvailable
           ? t("card.soldOut")
-          : t("pdp.add")
+          : t("pdp.buyNow")
 
   // El botón se deshabilita solo cuando NO falta talla y aun así no se puede
   // comprar (agotado / combinación inexistente). Si falta talla lo dejamos
@@ -229,10 +270,10 @@ export function ProductOptions({ product }: Props) {
         </div>
         <button
           type="button"
-          onClick={handleAdd}
+          onClick={handleBuyNow}
           disabled={ctaDisabled}
           aria-busy={isPending}
-          aria-label={ctaLabel}
+          aria-label={buyLabel}
           className="px-6 py-3.5 bg-text text-bg text-sm font-semibold hover:bg-leather disabled:bg-text-subtle disabled:cursor-not-allowed transition-colors whitespace-nowrap"
         >
           {stickyCtaLabel}
@@ -355,13 +396,24 @@ export function ProductOptions({ product }: Props) {
           ))}
       </div>
 
+      {/* Dos caminos, tipo Amazon: el que ya decidió paga de una; el que
+          quiere seguir viendo agrega. El principal es el que convierte. */}
       <button
         ref={ctaRef}
+        type="button"
+        onClick={handleBuyNow}
+        disabled={ctaDisabled}
+        aria-busy={isPending}
+        className="w-full py-5 bg-text text-bg text-base font-semibold tracking-wide shadow-sm hover:bg-leather hover:shadow-md disabled:bg-text-subtle disabled:shadow-none disabled:cursor-not-allowed transition-all"
+      >
+        {buyLabel}
+      </button>
+      <button
         type="button"
         onClick={handleAdd}
         disabled={ctaDisabled}
         aria-busy={isPending}
-        className="w-full py-5 bg-text text-bg text-base font-semibold tracking-wide shadow-sm hover:bg-leather hover:shadow-md disabled:bg-text-subtle disabled:shadow-none disabled:cursor-not-allowed transition-all"
+        className="w-full py-4 border border-text text-text text-base font-medium tracking-wide hover:bg-text hover:text-bg disabled:border-text-subtle disabled:text-text-subtle disabled:cursor-not-allowed transition-colors"
       >
         {ctaLabel}
       </button>

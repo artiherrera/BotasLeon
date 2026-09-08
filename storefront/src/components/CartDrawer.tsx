@@ -39,6 +39,7 @@ export function CartDrawer() {
     cart,
     isOpen,
     isPending,
+    lastAdded,
     closeCart,
     updateLine,
     removeLine,
@@ -189,6 +190,18 @@ export function CartDrawer() {
             </svg>
           </button>
         </div>
+
+        {/* Se acaba de agregar algo: dilo. Antes el cajón abría titulado
+            "Tu carrito" y el comprador tenía que deducir que había funcionado. */}
+        {lastAdded && !isEmpty && (
+          <div role="status" className="flex items-start gap-3 px-6 py-3 bg-emerald-50 border-b border-emerald-200 text-sm">
+            <span className="mt-0.5 text-emerald-700"><CheckIcon /></span>
+            <p className="text-text leading-snug">
+              <span className="text-emerald-800">{t("cart.addedBanner")}</span>{" "}
+              <span className="font-medium">{lastAdded}</span>
+            </p>
+          </div>
+        )}
 
         {/* Empty state */}
         {isEmpty ? (
@@ -443,6 +456,15 @@ export function CartDrawer() {
                   </a>
                 )
               ) : null}
+              {/* La otra salida. Sin esto, la única forma de "no pagar aún" era
+                  la X, y cerrar con la X se siente como cancelar. */}
+              <button
+                type="button"
+                onClick={closeCart}
+                className="mt-2 block w-full text-center py-3 text-sm text-text-muted underline underline-offset-4 hover:text-text transition-colors"
+              >
+                {t("cart.keepShopping")}
+              </button>
             </div>
           </>
         )}
