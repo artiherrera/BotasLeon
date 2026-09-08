@@ -10,13 +10,21 @@
  * ese cruce de boundary RSC.
  */
 
+import { isMX } from "@/lib/market"
+
 /**
  * BILINGÜE (aditivo): question/answer se mantienen EN ESPAÑOL — los consume
  * FAQJsonLd, que emite structured data en español para SEO (no tocar). Los
  * campos questionEn/answerEn traen la versión en inglés; FAQAccordion elige
- * según el idioma activo (useLocale). Público EN = Estados Unidos. En NINGÚN
- * idioma se promete envío gratis (el costo lo calcula el checkout) ni "meses
- * sin intereses".
+ * según el idioma activo (useLocale).
+ *
+ * DOS MERCADOS: el español se lee en botasleon.mx (pedido mexicano) y en
+ * botasleon.com/es (pedido estadounidense), y las políticas difieren. Las
+ * respuestas que dependen del mercado se eligen con `isMX` en tiempo de
+ * build; lo que se emite como JSON-LD es lo que Google indexa, así que tiene
+ * que coincidir con /envios y /devoluciones de ese mismo despliegue. En
+ * EE.UU. no se promete envío gratis ni meses sin intereses; en México sí,
+ * porque ahí lo son.
  */
 export type FAQ = {
   question: string
@@ -44,16 +52,23 @@ export const FAQS: FAQ[] = [
   },
   {
     question: "¿Cuánto tarda mi pedido?",
-    answer:
-      "Envíos a Estados Unidos: 7-10 días hábiles. Algunas piezas hechas a la medida pueden tomar 2-3 semanas adicionales; lo indicamos claramente en la página del producto.",
+    // El plazo mexicano sale de /envios ("entre 3 y 7 días hábiles según el
+    // destino"), no de aquí: si cambia allá, hay que cambiarlo aquí.
+    answer: isMX
+      ? "Envío gratis a toda la República: una vez despachado, tu pedido llega normalmente entre 3 y 7 días hábiles según el destino. Las piezas bajo pedido toman más tiempo; lo indicamos claramente en la página del producto."
+      : "Envíos a Estados Unidos: 7-10 días hábiles. Algunas piezas hechas a la medida pueden tomar 2-3 semanas adicionales; lo indicamos claramente en la página del producto.",
     questionEn: "How long will my order take?",
     answerEn:
       "Orders to the United States typically arrive within 7-10 business days. Some made-to-order pieces can take an additional 2-3 weeks, which we note clearly on the product page.",
   },
   {
     question: "¿Aceptan cambios o devoluciones?",
-    answer:
-      "Solo aceptamos cambios por defecto de fabricación o error en el envío: 1 cambio por pedido, dentro de 7 días naturales, con el producto sin uso y en su empaque original. No hacemos reembolsos por talla, color o modelo mal elegidos, así que te recomendamos revisar la guía de tallas y escribirnos por WhatsApp si tienes dudas antes de comprar. Contamos con garantía de 15 días por defecto de fabricación confirmado.",
+    // Misma política que /faq y /devoluciones de cada mercado (ver
+    // lib/exchange.ts): en México hay cambio de talla gratis en modelos
+    // marcados; en EE.UU. no.
+    answer: isMX
+      ? "Los modelos marcados con Cambio de talla gratis se pueden cambiar por otra talla del mismo modelo sin costo: nosotros cubrimos los dos envíos, dentro de 7 días naturales desde la entrega, con la bota sin uso y en su empaque original. En los demás modelos aceptamos cambios solo por defecto de fabricación o error en el envío. No hacemos reembolsos de dinero por talla, color o modelo mal elegidos; revisa la guía de tallas y escríbenos por WhatsApp si tienes dudas. Garantía de 15 días por defecto de fabricación confirmado."
+      : "Solo aceptamos cambios por defecto de fabricación o error en el envío: 1 cambio por pedido, dentro de 7 días naturales, con el producto sin uso y en su empaque original. No hacemos reembolsos por talla, color o modelo mal elegidos, así que te recomendamos revisar la guía de tallas y escribirnos por WhatsApp si tienes dudas antes de comprar. Contamos con garantía de 15 días por defecto de fabricación confirmado.",
     questionEn: "Can I return or exchange my order?",
     answerEn:
       "Orders shipped to the United States are final sale — we don't offer returns or size exchanges. Please check our size guide (Mexican cm, U.S., and EU) before ordering, and message us at contacto@botasleon.com if you're unsure about your size.",

@@ -12,6 +12,7 @@ import { formatMoney } from "@/lib/utils"
 import { COLOR_OPTION_NAMES, findVariantBySelection } from "@/lib/pdp/variants"
 import type { Product } from "@/lib/shopify/types"
 import { useT } from "@/lib/i18n/context"
+import { isMX } from "@/lib/market"
 import { LocalizedLink as Link } from "@/components/LocalizedLink"
 
 const SIZE_OPTION_NAMES = ["Talla", "Talla del calzado", "Size"]
@@ -384,7 +385,7 @@ export function ProductOptions({ product }: Props) {
           </div>
           {genderHandle && (
             <p className="text-xs text-text-subtle mt-2">
-              MX · US ·{" "}
+              {isMX ? "MX · US" : "US"} ·{" "}
               <Link href="/guia-tallas" className="underline hover:text-leather">
                 {t("help.sizeGuide")}
               </Link>
@@ -435,7 +436,7 @@ export function ProductOptions({ product }: Props) {
       </button>
 
       <p className="text-xs text-text-muted text-center">
-        {t("pdp.shippingNote")}
+        {t(isMX ? "pdp.shippingNoteMx" : "pdp.shippingNote")}
       </p>
 
       {mounted ? createPortal(stickyBar, document.body) : null}

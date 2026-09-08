@@ -14,13 +14,15 @@
 
 import { LocalizedLink as Link } from "@/components/LocalizedLink"
 import { useT } from "@/lib/i18n/context"
+import { isMX } from "@/lib/market"
 
-// Cada item es una LLAVE del diccionario. Mercado único: Estados Unidos (USD).
-// El cintillo NO promete envío gratis — solo dice que enviamos a EE.UU.
+// Cada item es una LLAVE del diccionario. Hay dos mercados: en EE.UU. el
+// cintillo solo dice que enviamos allá (el costo lo calcula el checkout); en
+// México sí promete envío gratis, porque lo es (ver lib/shipping-policy.ts).
 const MESSAGE_SPECS: Array<{ key: string; href?: string; vars?: Record<string, string> }> = [
   { key: "marquee.tradition" },
   { key: "marquee.leather" },
-  { key: "marquee.shipping" },
+  { key: isMX ? "marquee.shippingMx" : "marquee.shipping" },
   { key: "marquee.store", href: "/visitanos" },
 ]
 

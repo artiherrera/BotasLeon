@@ -197,7 +197,7 @@ export function MobileNav() {
 
         {/* Value prop band */}
         <div className="bg-text text-bg px-5 py-3 text-[11px] uppercase tracking-wider leading-relaxed">
-          <p>{t("promo.shipping")}</p>
+          <p>{t(isMX ? "promo.shippingMx" : "promo.shipping")}</p>
         </div>
 
         {/* Scrollable content */}

@@ -14,8 +14,8 @@ export default function ProveedoresPage() {
           <>
             <h2>Quiénes somos para ustedes</h2>
             <p>
-              Somos canal de venta directa al consumidor final, online, con foco en
-              Estados Unidos. No tenemos tienda
+              Somos canal de venta directa al consumidor final, online, en
+              México y Estados Unidos. No tenemos tienda
               física propia. Vendemos producto curado, con precios alineados al
               mercado y márgenes sanos.
             </p>
@@ -62,15 +62,15 @@ export default function ProveedoresPage() {
           <>
             <h2>Who we are, for you</h2>
             <p>
-              We're a direct-to-consumer online sales channel, focused on the
+              We&apos;re a direct-to-consumer online sales channel, focused on the
               United States. We
-              don't have our own brick-and-mortar store. We sell curated product,
+              don&apos;t have our own brick-and-mortar store. We sell curated product,
               with prices in line with the market and healthy margins.
             </p>
 
             <h2>What we offer</h2>
             <ul>
-              <li>Visibility in a curated catalog (we're not a marketplace)</li>
+              <li>Visibility in a curated catalog (we&apos;re not a marketplace)</li>
               <li>A professional photo shoot for each model (if you need one)</li>
               <li>Description and materials copy written by us</li>
               <li>SEO positioning and paid campaigns</li>
@@ -89,7 +89,7 @@ export default function ProveedoresPage() {
               <li>Consistency in sizing and finishes</li>
               <li>
                 Channel exclusivity: if you sell direct-to-consumer online yourself,
-                you're not a fit for us
+                you&apos;re not a fit for us
               </li>
             </ul>
 
@@ -104,7 +104,7 @@ export default function ProveedoresPage() {
               <li>Your current channels (stores, own website, etc.)</li>
             </ol>
             <p>
-              We'll reply within 5 business days with the next step: a catalog
+              We&apos;ll reply within 5 business days with the next step: a catalog
               shared under NDA, an exploratory call, and scheduling a visit to your
               workshop if we move forward.
             </p>

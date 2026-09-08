@@ -1,6 +1,7 @@
 "use client"
 
 import { useT } from "@/lib/i18n/context"
+import { isMX } from "@/lib/market"
 
 /**
  * TrustBadges — 4 promesas clave de BotasLeón.
@@ -25,8 +26,8 @@ const BADGES = [
   },
   {
     Icon: ShippingIcon,
-    titleKey: "trust.shipping.title",
-    subKey: "trust.shipping.sub",
+    titleKey: isMX ? "trust.shipping.titleMx" : "trust.shipping.title",
+    subKey: isMX ? "trust.shipping.subMx" : "trust.shipping.sub",
   },
   {
     Icon: ExchangeIcon,

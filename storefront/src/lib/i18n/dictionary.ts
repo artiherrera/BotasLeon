@@ -32,6 +32,10 @@ export const DICTIONARY: Record<string, Entry> = {
   "pdp.comboUnavailable": { es: "Combinación no disponible", en: "Combination unavailable" },
   "pdp.selectSize": { es: "Selecciona tu talla", en: "Select your size" },
   "pdp.shippingNote": { es: "Envío a todo Estados Unidos", en: "Ships anywhere in the USA" },
+  // Variante de México (se elige con isMX en el componente). Estos textos se
+  // escribieron cuando solo existía el sitio en dólares y quedaron fijos al
+  // pasar a dos mercados: la ficha de botasleon.mx prometía envío a EE.UU.
+  "pdp.shippingNoteMx": { es: "Envío gratis a toda la República", en: "Free shipping across Mexico" },
   "pdp.sizeError": { es: "Por favor selecciona tu talla.", en: "Please select your size." },
   "pdp.unavailable": { es: "No disponible", en: "Unavailable" },
   "recent.eyebrow": { es: "Visto recientemente", en: "Recently viewed" },
@@ -162,6 +166,7 @@ export const DICTIONARY: Record<string, Entry> = {
 
   // Banda de propuesta de valor (menú móvil)
   "promo.shipping": { es: "Envío a todo Estados Unidos", en: "Shipping across the USA" },
+  "promo.shippingMx": { es: "Envío gratis a toda la República", en: "Free shipping across Mexico" },
 
   // Secciones de ayuda / empresa
   "nav.help": { es: "Ayuda", en: "Help" },
@@ -208,6 +213,8 @@ export const DICTIONARY: Record<string, Entry> = {
   },
   "trust.shipping.title": { es: "Envío a Estados Unidos", en: "Ships across the USA" },
   "trust.shipping.sub": { es: "Costo calculado en el pago", en: "Cost calculated at checkout" },
+  "trust.shipping.titleMx": { es: "Envío gratis a toda la República", en: "Free shipping across Mexico" },
+  "trust.shipping.subMx": { es: "Sin monto mínimo", en: "No minimum order" },
   "trust.exchange.title": { es: "Garantía", en: "Built to last" },
   "trust.exchange.sub": {
     es: "15 días por defecto de fábrica",
@@ -404,6 +411,7 @@ export const DICTIONARY: Record<string, Entry> = {
     es: "Enviamos a todo Estados Unidos",
     en: "We ship anywhere in the USA",
   },
+  "marquee.shippingMx": { es: "Envío gratis a toda la República", en: "Free shipping across Mexico" },
   "marquee.store": { es: "Tienda física en León →", en: "Visit our store in León →" },
 
   // ── Footer ────────────────────────────────────────────────────────────

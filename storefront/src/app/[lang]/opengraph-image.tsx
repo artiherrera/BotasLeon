@@ -2,6 +2,7 @@ import { readFile } from "node:fs/promises"
 import { join } from "node:path"
 import { ImageResponse } from "next/og"
 import { LOCALES } from "@/lib/i18n/config"
+import { isMX } from "@/lib/market"
 
 /**
  * Open Graph image — la miniatura que aparece al compartir el link en
@@ -25,8 +26,10 @@ import { LOCALES } from "@/lib/i18n/config"
 
 export const size = { width: 1200, height: 630 }
 export const contentType = "image/png"
-export const alt =
-  "BotasLeón — 380 años de tradición. Botas hechas en León, para Estados Unidos."
+// El alt dice para quién es este despliegue: la .mx no vende "para Estados Unidos".
+export const alt = isMX
+  ? "BotasLeón — 380 años de tradición. Botas hechas en León, para todo México."
+  : "BotasLeón — 380 años de tradición. Botas hechas en León, para Estados Unidos."
 
 // Genera la OG para ambos idiomas (es/en) en el build estático.
 export function generateStaticParams() {
