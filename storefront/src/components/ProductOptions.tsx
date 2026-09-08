@@ -116,7 +116,26 @@ export function ProductOptions({ product }: Props) {
   // si el clic entró. Si Shopify falla, el toast rojo lo dice igual.
   const [justAdded, setJustAdded] = useState(false)
   const addedTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
-  useEffect(() => () => { if (addedTimer.current) clearTimeout(addedTimer.current) }, [])
+  // Clic sin talla: además del aviso junto al selector, el propio botón tocado
+  // dice "Selecciona tu talla" un momento. Antes la única respuesta era una
+  // frase chica tres elementos más arriba, y el clic parecía no hacer nada.
+  const [sizeNudge, setSizeNudge] = useState(false)
+  const nudgeTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+  useEffect(() => () => {
+    if (addedTimer.current) clearTimeout(addedTimer.current)
+    if (nudgeTimer.current) clearTimeout(nudgeTimer.current)
+  }, [])
+
+  // Un solo gesto para los dos botones: enciende el selector, lo trae al
+  // frente (start, no center: en escritorio "center" apenas movía 16 px) y
+  // hace que el botón responda.
+  const pedirTalla = () => {
+    setShowSizeError(true)
+    setSizeNudge(true)
+    if (nudgeTimer.current) clearTimeout(nudgeTimer.current)
+    nudgeTimer.current = setTimeout(() => setSizeNudge(false), 1600)
+    sizeRef.current?.scrollIntoView({ behavior: "smooth", block: "start" })
+  }
   const [mounted, setMounted] = useState(false)
 
   useEffect(() => setMounted(true), [])
@@ -134,12 +153,7 @@ export function ProductOptions({ product }: Props) {
 
   const handleAdd = () => {
     if (isPending) return
-    // Obligar a elegir talla — si falta, avisamos y hacemos scroll al selector.
-    if (needsSize) {
-      setShowSizeError(true)
-      sizeRef.current?.scrollIntoView({ behavior: "smooth", block: "center" })
-      return
-    }
+    if (needsSize) { pedirTalla(); return }
     const marcar = () => {
       setJustAdded(true)
       if (addedTimer.current) clearTimeout(addedTimer.current)
@@ -160,11 +174,7 @@ export function ProductOptions({ product }: Props) {
   // handleAdd; lo único distinto es a dónde va el par (checkout, no carrito).
   const handleBuyNow = () => {
     if (isPending) return
-    if (needsSize) {
-      setShowSizeError(true)
-      sizeRef.current?.scrollIntoView({ behavior: "smooth", block: "center" })
-      return
-    }
+    if (needsSize) { pedirTalla(); return }
     if (sizeOption) {
       if (activeVariant?.availableForSale) buyNow(activeVariant.id)
     } else if (metaSizes.length > 0 && metaSize) {
@@ -178,7 +188,9 @@ export function ProductOptions({ product }: Props) {
   // Rótulos fijos aunque falte talla: con dos botones, repetir "Selecciona tu
   // talla" en ambos no distingue nada, y el clic ya avisa y hace scroll. El
   // aviso como rótulo se conserva solo en la barra pegajosa (un solo botón).
-  const buyLabel = isPending
+  const buyLabel = sizeNudge
+    ? t("pdp.selectSize")
+    : isPending
     ? t("pdp.buying")
     : isUnknownCombo
       ? t("pdp.comboUnavailable")
@@ -186,7 +198,9 @@ export function ProductOptions({ product }: Props) {
         ? t("card.soldOut")
         : t("pdp.buyNow")
 
-  const ctaLabel = justAdded
+  const ctaLabel = sizeNudge
+    ? t("pdp.selectSize")
+    : justAdded
     ? t("pdp.added")
     : isPending
     ? t("pdp.adding")
@@ -196,7 +210,9 @@ export function ProductOptions({ product }: Props) {
         ? t("card.soldOut")
         : t("pdp.addToCart")
 
-  const stickyCtaLabel = isPending
+  const stickyCtaLabel = sizeNudge
+    ? t("pdp.selectSize")
+    : isPending
     ? "…"
     : needsSize
       ? t("pdp.chooseSize")
@@ -330,7 +346,7 @@ export function ProductOptions({ product }: Props) {
       {/* Selector de TALLA unificado (variante o metacampo shopify.shoe-size) */}
       {hasSizes && (
         <div ref={sizeRef} className="scroll-mt-24">
-          <p className="eyebrow text-text-muted text-xs mb-3">
+          <p className={`eyebrow text-xs mb-3 ${showSizeError && needsSize ? "text-terracotta" : "text-text-muted"}`}>
             {t("filters.size")}
             {sizeOption && selection[sizeOption.name] && (
               <span className="ml-2 text-text normal-case tracking-normal font-medium">
@@ -343,7 +359,12 @@ export function ProductOptions({ product }: Props) {
               </span>
             )}
           </p>
-          <div className="flex flex-wrap gap-2">
+          {showSizeError && needsSize && (
+            <p className="text-base font-semibold text-terracotta mb-3" role="alert">
+              {t("pdp.sizeError")} ↓
+            </p>
+          )}
+          <div className={`flex flex-wrap gap-2 rounded-sm transition-shadow ${showSizeError && needsSize ? "ring-2 ring-terracotta ring-offset-4 ring-offset-bg" : ""}`}>
             {sizeOption
               ? sizeOption.values.map((value) => {
                   const candidateSel = { ...selection, [sizeOption.name]: value }
@@ -372,11 +393,6 @@ export function ProductOptions({ product }: Props) {
 
           {/* Buscador de talla (marca conocida / medir el pie) */}
           <SizeFinder genderHandle={genderHandle} />
-          {showSizeError && needsSize && (
-            <p className="text-sm text-terracotta font-medium mt-2" role="alert">
-              {t("pdp.sizeError")}
-            </p>
-          )}
         </div>
       )}
 
