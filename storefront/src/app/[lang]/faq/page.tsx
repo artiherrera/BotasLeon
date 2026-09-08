@@ -33,7 +33,7 @@ export default function FaqPage() {
 
             <h2>¿Cuánto tarda mi pedido?</h2>
             <p>
-              Envíos a Estados Unidos: 7-10 días hábiles. Algunas piezas hechas a la
+              Envíos a Estados Unidos: 2–3 días hábiles. Algunas piezas hechas a la
               medida pueden tomar 2-3 semanas adicionales; lo indicamos
               claramente en la página del producto. Más detalles en la página de{" "}
               <Link href="/envios">Envíos</Link>.
@@ -127,7 +127,7 @@ export default function FaqPage() {
 
             <h2>How long will my order take?</h2>
             <p>
-              Orders to the United States typically arrive within 7-10 business
+              Orders to the United States typically arrive within 2–3 business
               days. Some made-to-order pieces can take an additional 2-3 weeks,
               which we note clearly on the product page. See our{" "}
               <Link href="/envios">Shipping</Link> page for more details.

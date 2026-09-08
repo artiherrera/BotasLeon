@@ -212,7 +212,7 @@ export const DICTIONARY: Record<string, Entry> = {
     en: "Every brand meets our standard",
   },
   "trust.shipping.title": { es: "Envío a Estados Unidos", en: "Ships across the USA" },
-  "trust.shipping.sub": { es: "Entrega en 7–10 días hábiles", en: "Delivery in 7–10 business days" },
+  "trust.shipping.sub": { es: "Entrega en 2–3 días hábiles", en: "Delivery in 2–3 business days" },
   "trust.shipping.titleMx": { es: "Envío gratis a toda la República", en: "Free shipping across Mexico" },
   "trust.shipping.subMx": { es: "Sin monto mínimo", en: "No minimum order" },
   "trust.exchange.title": { es: "Garantía", en: "Built to last" },
@@ -495,7 +495,7 @@ export const DICTIONARY: Record<string, Entry> = {
   // Entrega estimada — cifras de /envios de cada mercado, no de aquí.
   "cart.deliveryLabel": { es: "Entrega estimada", en: "Estimated delivery" },
   "cart.deliveryMx": { es: "3–7 días hábiles", en: "3–7 business days" },
-  "cart.deliveryUs": { es: "7–10 días hábiles", en: "7–10 business days" },
+  "cart.deliveryUs": { es: "2–3 días hábiles", en: "2–3 business days" },
   "cart.total": { es: "Total", en: "Total" },
   "cart.summary": { es: "Resumen", en: "Summary" },
   "cart.apply": { es: "Aplicar", en: "Apply" },

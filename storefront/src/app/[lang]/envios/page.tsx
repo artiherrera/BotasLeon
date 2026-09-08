@@ -116,7 +116,7 @@ function EnviosEstadosUnidos() {
 
           <h2>Tiempos de entrega</h2>
           <ul>
-            <li><strong>Estados Unidos:</strong> 7-10 días hábiles</li>
+            <li><strong>Estados Unidos:</strong> 2–3 días hábiles</li>
           </ul>
           <p>
             Los tiempos comienzan a contar desde que tu pedido es enviado (no desde
@@ -166,7 +166,7 @@ function EnviosEstadosUnidos() {
 
           <h2>Delivery times</h2>
           <ul>
-            <li><strong>United States:</strong> estimated 7-10 business days</li>
+            <li><strong>United States:</strong> 2–3 business days</li>
           </ul>
           <p>
             Transit times start counting once your order ships (not when you place

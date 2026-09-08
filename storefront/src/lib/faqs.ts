@@ -56,10 +56,10 @@ export const FAQS: FAQ[] = [
     // destino"), no de aquí: si cambia allá, hay que cambiarlo aquí.
     answer: isMX
       ? "Envío gratis a toda la República: una vez despachado, tu pedido llega normalmente entre 3 y 7 días hábiles según el destino. Las piezas bajo pedido toman más tiempo; lo indicamos claramente en la página del producto."
-      : "Envíos a Estados Unidos: 7-10 días hábiles. Algunas piezas hechas a la medida pueden tomar 2-3 semanas adicionales; lo indicamos claramente en la página del producto.",
+      : "Envíos a Estados Unidos: 2–3 días hábiles. Algunas piezas hechas a la medida pueden tomar 2-3 semanas adicionales; lo indicamos claramente en la página del producto.",
     questionEn: "How long will my order take?",
     answerEn:
-      "Orders to the United States typically arrive within 7-10 business days. Some made-to-order pieces can take an additional 2-3 weeks, which we note clearly on the product page.",
+      "Orders to the United States typically arrive within 2–3 business days. Some made-to-order pieces can take an additional 2-3 weeks, which we note clearly on the product page.",
   },
   {
     question: "¿Aceptan cambios o devoluciones?",
