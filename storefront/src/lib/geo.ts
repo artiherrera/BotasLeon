@@ -89,6 +89,27 @@ const BOTS =
 
 export const esRastreador = (ua: string | null): boolean => BOTS.test(ua || "")
 
+/**
+ * Dominios donde la tienda vende de verdad.
+ *
+ * La redirección por país manda a https://botasleon.mx, que es un sitio EN
+ * VIVO. Si se dispara desde una copia local o desde una vista previa, saca de
+ * su propia pantalla a quien está revisando y lo deposita en producción — y
+ * como pasa a los pocos milisegundos de cargar, lo que parece es que el sitio
+ * local "no tiene ninguno de los cambios". Pasó de verdad, revisando el
+ * rediseño desde México: se veía un instante la tipografía nueva y enseguida
+ * el sitio viejo.
+ *
+ * Por eso solo se redirige desde los dominios de venta. Una vista previa de
+ * Amplify tampoco debe rebotar: quien la abre quiere ver ESA rama.
+ */
+const DOMINIOS_PUBLICADOS = ["botasleon.com", "botasleon.mx"]
+
+export function esSitioPublicado(hostname: string): boolean {
+  const h = (hostname || "").toLowerCase()
+  return DOMINIOS_PUBLICADOS.some((d) => h === d || h.endsWith("." + d))
+}
+
 /** Cookie que recuerda "me quedo en este sitio". */
 export const COOKIE_MERCADO = "botasleon:mercado-elegido"
 
