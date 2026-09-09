@@ -3,6 +3,7 @@
 import { useEffect } from "react"
 import Script from "next/script"
 import { usePathname } from "next/navigation"
+import { CLAVE_CONSENTIMIENTO, PIDE_CONSENTIMIENTO } from "@/lib/consentimiento"
 
 /**
  * GoogleAnalytics — GA4 con Consent Mode v2 + LFPDPPP friendly.
@@ -29,7 +30,6 @@ import { usePathname } from "next/navigation"
  */
 
 const GA_ID = process.env.NEXT_PUBLIC_GA_ID ?? "G-4E2K7VX0WZ"
-const CONSENT_KEY = "botasleon:cookies-accepted"
 
 declare global {
   interface Window {
@@ -102,9 +102,14 @@ export function GoogleAnalytics() {
           window.gtag = gtag;
 
           (function(){
-            var saved = null;
-            try { saved = localStorage.getItem("${CONSENT_KEY}"); } catch (e) {}
-            var granted = saved === "all";
+            var granted = true;
+            ${PIDE_CONSENTIMIENTO ? `
+            // Mercado con aviso: hasta que el visitante conteste, denegado.
+            granted = false;
+            try { granted = localStorage.getItem("${CLAVE_CONSENTIMIENTO}") === "all"; } catch (e) {}
+            ` : `
+            // Mercado sin aviso: no hay a quién preguntarle, así que se mide.
+            `}
 
             gtag('consent', 'default', {
               ad_storage: 'denied',

@@ -4,6 +4,7 @@ import { useEffect, useRef, useSyncExternalStore } from "react"
 import Script from "next/script"
 import { usePathname } from "next/navigation"
 import { META_PIXEL_ID } from "@/lib/meta/pixel"
+import { hayConsentimiento } from "@/lib/consentimiento"
 
 /**
  * MetaPixel — carga el Pixel de Meta SOLO con consentimiento "all".
@@ -20,7 +21,6 @@ import { META_PIXEL_ID } from "@/lib/meta/pixel"
  * `botasleon:consent-change`, sin setState-en-effect.
  */
 
-const CONSENT_KEY = "botasleon:cookies-accepted"
 
 function subscribe(onChange: () => void) {
   window.addEventListener("botasleon:consent-change", onChange)
@@ -32,13 +32,9 @@ function subscribe(onChange: () => void) {
   }
 }
 
-function isAllowed(): boolean {
-  try {
-    return window.localStorage.getItem(CONSENT_KEY) === "all"
-  } catch {
-    return false
-  }
-}
+// El permiso lo decide lib/consentimiento: en el mercado sin banner devuelve
+// true, porque no hay a quién preguntarle.
+const isAllowed = hayConsentimiento
 
 export function MetaPixel() {
   // getServerSnapshot = false: en SSR no hay consentimiento todavía.

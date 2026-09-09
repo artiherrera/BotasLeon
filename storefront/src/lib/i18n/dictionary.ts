@@ -608,6 +608,15 @@ export const DICTIONARY: Record<string, Entry> = {
     en: "Accept all cookies",
   },
   "cookies.necessary": { es: "Solo las necesarias", en: "Only necessary" },
+  // La barra dice lo justo: quien quiera el detalle entra al aviso de
+  // privacidad. Un párrafo largo en una franja de tres renglones no lo lee
+  // nadie y sí estorba.
+  "cookies.barra": {
+    es: "Usamos cookies para recordar tu carrito y mejorar la tienda. Lee nuestro",
+    en: "We use cookies to remember your cart and improve the store. Read our",
+  },
+  "cookies.accept": { es: "Aceptar", en: "Accept" },
+  "cookies.reject": { es: "Rechazar", en: "Decline" },
 
   // ══ Sistema visual v3 (informe de rediseño, sep 2026) ═════════════════
   // Todas las llaves nuevas viven aquí y se añaden de una sola vez, para que

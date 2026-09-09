@@ -2,6 +2,7 @@
 
 import { useSyncExternalStore } from "react"
 import Script from "next/script"
+import { hayConsentimiento } from "@/lib/consentimiento"
 
 /**
  * KlaviyoLoader — carga el snippet onsite de Klaviyo SOLO con consentimiento.
@@ -17,7 +18,6 @@ import Script from "next/script"
  */
 
 const PUBLIC_KEY = process.env.NEXT_PUBLIC_KLAVIYO_PUBLIC_KEY
-const CONSENT_KEY = "botasleon:cookies-accepted"
 
 function subscribe(onChange: () => void) {
   window.addEventListener("botasleon:consent-change", onChange)
@@ -29,13 +29,9 @@ function subscribe(onChange: () => void) {
   }
 }
 
-function isAllowed(): boolean {
-  try {
-    return window.localStorage.getItem(CONSENT_KEY) === "all"
-  } catch {
-    return false
-  }
-}
+// El permiso lo decide lib/consentimiento: en el mercado sin banner devuelve
+// true, porque no hay a quién preguntarle.
+const isAllowed = hayConsentimiento
 
 export function KlaviyoLoader() {
   // getServerSnapshot = false: en SSR no hay consentimiento todavía.

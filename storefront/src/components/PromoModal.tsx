@@ -4,6 +4,11 @@ import { useEffect, useState } from "react"
 import { PROMO } from "@/lib/promo"
 import { setPendingDiscount } from "@/lib/discount/client"
 import { useT } from "@/lib/i18n/context"
+import {
+  CLAVE_CONSENTIMIENTO,
+  hayConsentimiento,
+  PIDE_CONSENTIMIENTO,
+} from "@/lib/consentimiento"
 
 /**
  * PromoModal — ventana emergente de la promo temporal + auto-aplicación a TODOS.
@@ -17,7 +22,6 @@ import { useT } from "@/lib/i18n/context"
  *
  * Para apagar todo: PROMO.active = false en @/lib/promo.
  */
-const CONSENT_KEY = "botasleon:cookies-accepted"
 const DISMISS_KEY = "botasleon:promo-seen"
 
 export function PromoModal() {
@@ -43,10 +47,14 @@ export function PromoModal() {
     }
 
     // ¿Ya decidió cookies? Muéstrala pronto; si no, espera a que decida.
-    let hasConsent = false
-    try {
-      hasConsent = !!localStorage.getItem(CONSENT_KEY)
-    } catch {}
+    // En el mercado sin aviso no hay nada que esperar: hayConsentimiento
+    // devuelve true y la promo puede salir de una vez.
+    let hasConsent = hayConsentimiento()
+    if (PIDE_CONSENTIMIENTO) {
+      try {
+        hasConsent = !!localStorage.getItem(CLAVE_CONSENTIMIENTO)
+      } catch {}
+    }
 
     if (hasConsent) {
       reveal()
