@@ -117,7 +117,7 @@ export function Header() {
             role="search"
             action={`/${locale}/search`}
             method="get"
-            className="hidden xl:block mr-1"
+            className="relative mr-1 hidden xl:block"
           >
             <input
               ref={searchFieldRef}
@@ -127,8 +127,18 @@ export function Header() {
               placeholder={t("search.headerPlaceholder")}
               aria-label={t("a11y.search")}
               autoComplete="off"
-              className="campo h-10 w-60"
+              className="campo h-10 w-60 pr-9"
             />
+            {/* La lupa va DENTRO del campo, a la derecha, como en la referencia:
+                sin ella la caja se lee como un campo de correo cualquiera. Es
+                decorativa —el campo ya tiene su aria-label y su role de
+                búsqueda—, así que no recibe foco ni se anuncia dos veces. */}
+            <span
+              aria-hidden
+              className="pointer-events-none absolute inset-y-0 right-3 flex items-center text-text-muted"
+            >
+              <SearchIcon />
+            </span>
           </form>
 
           {/* El cambio de idioma se queda en la barra: en botasleon.com es la
