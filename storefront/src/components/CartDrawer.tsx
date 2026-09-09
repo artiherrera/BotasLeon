@@ -249,7 +249,7 @@ export function CartDrawer() {
                     <Link
                       href={`/products/${v.product.handle}`}
                       onClick={closeCart}
-                      className="plato block w-[100px] shrink-0"
+                      className="plato block w-[100px] shrink-0 self-start"
                     >
                       {v.image ? (
                         <Image

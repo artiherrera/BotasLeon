@@ -173,7 +173,7 @@ export default function CartPage() {
                   <div key={line.id} className="py-6 flex gap-4">
                     <Link
                       href={`/products/${v.product.handle}`}
-                      className="plato block w-28 sm:w-32 shrink-0"
+                      className="plato block w-28 sm:w-32 shrink-0 self-start"
                     >
                       {v.image ? (
                         <Image
