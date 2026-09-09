@@ -207,3 +207,25 @@ export type Cart = {
     attributes: Array<{ key: string; value: string | null }>
   }>
 }
+
+/**
+ * Ventana emergente de la portada, editable desde Shopify (metaobjeto `popup`).
+ *
+ * Existe para que el dueño pueda anunciar algo —una promoción, una temporada,
+ * un modelo nuevo— subiendo una imagen y escribiendo cuatro campos, sin tocar
+ * el código ni esperar un despliegue.
+ */
+export type Popup = {
+  id: string
+  handle: string
+  eyebrow: string
+  title: string
+  message: string
+  ctaLabel: string
+  ctaHref: string
+  image: Image | null
+  /** Código de descuento a sembrar, si lo lleva. Debe existir en Shopify. */
+  discountCode: string
+  /** "todos" | "mx" | "us" — en qué sitio se muestra. */
+  mercado: string
+}

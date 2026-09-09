@@ -469,3 +469,33 @@ export const SHOP_INFO_QUERY = /* GraphQL */ `
     }
   }
 `
+
+/**
+ * Ventana emergente editable desde el admin (metaobjeto `popup`).
+ *
+ * Se piden varias por si hay una por mercado o una programada: el filtro de
+ * activa y de mercado se hace en JS, no en la consulta, porque la Storefront
+ * API no filtra metaobjetos por el valor de un campo.
+ */
+export const GET_POPUP_QUERY = /* GraphQL */ `
+  query GetPopup {
+    metaobjects(type: "popup", first: 10) {
+      edges {
+        node {
+          id
+          handle
+          fields {
+            key
+            value
+            reference {
+              ... on MediaImage {
+                image { ...ImageFields }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  ${IMAGE_FRAGMENT}
+`

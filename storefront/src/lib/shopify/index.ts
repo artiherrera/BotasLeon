@@ -7,6 +7,7 @@
  */
 
 import { cache } from "react"
+import { MARKET } from "@/lib/market"
 import { shopifyFetch } from "./client"
 import {
   GET_PRODUCTS_QUERY,
@@ -15,6 +16,7 @@ import {
   GET_COLLECTION_BY_HANDLE_QUERY,
   GET_PRODUCTS_WITH_TAXONOMY_QUERY,
   GET_HERO_SLIDES_QUERY,
+  GET_POPUP_QUERY,
   GET_BRANDS_QUERY,
   GET_CATEGORY_CARDS_QUERY,
   GET_STORE_PHOTOS_QUERY,
@@ -26,7 +28,8 @@ import {
   isAccessory,
   isBoot,
 } from "./taxonomy"
-import type { Product, Collection, HeroSlide, Image, Brand, CategoryCard, PageInfo } from "./types"
+import type {
+  Popup, Product, Collection, HeroSlide, Image, Brand, CategoryCard, PageInfo } from "./types"
 
 // Logs de diagnóstico solo en dev. En producción (Amplify) ensucian los
 // logs de build/runtime y computan trabajo inútil (ej. el droppedReport de
@@ -646,4 +649,66 @@ export async function getShopInfo() {
     cache: "no-store",
   })
   return data.shop
+}
+
+// === Ventana emergente (Metaobject `popup`) ===
+
+/**
+ * La ventana emergente que el dueño edita desde Shopify.
+ *
+ * Devuelve null cuando no hay ninguna activa, cuando el metaobjeto todavía no
+ * existe en el admin o cuando Shopify falla: la ventana es un extra y jamás
+ * debe impedir que la tienda cargue.
+ *
+ * El filtro por MERCADO se hace aquí y no en la consulta porque la Storefront
+ * API no sabe filtrar metaobjetos por el valor de un campo. Importa: una promo
+ * en pesos anunciada en el sitio en dólares es una promesa falsa.
+ */
+export async function getPopup(): Promise<Popup | null> {
+  type Resp = { metaobjects: Edge<MetaobjectNode> | null }
+  let data: Resp
+  try {
+    data = await shopifyFetch<Resp>(GET_POPUP_QUERY, undefined, { revalidate: 60 })
+  } catch (e) {
+    // Lo más probable la primera vez: el metaobjeto `popup` aún no existe en
+    // el admin y Shopify contesta con error. No es un fallo del sitio.
+    if (DEBUG) console.error("[getPopup]", e instanceof Error ? e.message : e)
+    return null
+  }
+
+  const nodes = data.metaobjects?.edges?.map((e) => e.node) ?? []
+  const mercadoActual = MARKET.toLowerCase()
+
+  for (const node of nodes) {
+    const campos = new Map(node.fields.map((f) => [f.key, f] as const))
+    const get = (k: string) => (campos.get(k)?.value ?? "").trim()
+
+    // Por omisión está activa: si el dueño creó la entrada, es porque la quiere.
+    if (get("is_active") === "false") continue
+
+    const mercado = (get("mercado") || "todos").toLowerCase()
+    if (mercado !== "todos" && mercado !== mercadoActual) continue
+
+    // Sin título ni imagen no hay nada que enseñar.
+    const image = campos.get("image")?.reference?.image ?? null
+    const title = get("title")
+    if (!title && !image) continue
+
+    return {
+      id: node.id,
+      handle: node.handle,
+      eyebrow: get("eyebrow"),
+      title,
+      message: get("message"),
+      ctaLabel: get("cta_label"),
+      // El campo de URL de Shopify guarda un enlace absoluto; parseHrefFromLinkField
+      // lo deja en ruta relativa para que LocalizedLink le ponga el idioma.
+      ctaHref: parseHrefFromLinkField(get("cta_url")),
+      image,
+      discountCode: get("discount_code").toUpperCase(),
+      mercado,
+    }
+  }
+
+  return null
 }

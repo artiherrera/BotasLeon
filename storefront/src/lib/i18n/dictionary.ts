@@ -585,8 +585,10 @@ export const DICTIONARY: Record<string, Entry> = {
     en: "Our first boots are on the way. Check back soon.",
   },
 
-  // ── Promo modal (PromoModal) ─────────────────────────────────────────
-  // El contenido de la promo (eyebrow/título/mensaje/CTA) vive en lib/promo.ts.
+  // ── Ventana emergente (PopupPromo) ───────────────────────────────────
+  // El CONTENIDO (imagen, eyebrow, título, mensaje, botón y código) sale del
+  // metaobjeto `popup` de Shopify, no de aquí: aquí solo vive el chrome, que
+  // sí hay que traducir.
   "promo.dialogLabel": {
     es: "Promoción de inauguración",
     en: "Grand opening promotion",

@@ -10,7 +10,8 @@ import { CookiesBanner } from "@/components/CookiesBanner"
 import { GoogleAnalytics } from "@/components/GoogleAnalytics"
 import { MetaPixel } from "@/components/MetaPixel"
 import { OrganizationJsonLd, WebsiteJsonLd } from "@/components/StructuredData"
-import { PromoModal } from "@/components/PromoModal"
+import { PopupPromo } from "@/components/PopupPromo"
+import { getPopup } from "@/lib/shopify"
 import { notFound } from "next/navigation"
 import { LocaleProvider } from "@/lib/i18n/context"
 import { LOCALES, isLocale, type Locale } from "@/lib/i18n/config"
@@ -139,6 +140,11 @@ export default async function RootLayout({
   if (!isLocale(lang)) notFound()
   const locale = lang as Locale
 
+  // La ventana emergente se lee aquí, en el layout, para que salga en toda la
+  // tienda y no solo en la portada. Devuelve null si no hay ninguna activa (o
+  // si el metaobjeto todavía no existe en el admin), y entonces no se pinta.
+  const popup = await getPopup()
+
   // El idioma sale del segmento [lang]: SSR ya en el idioma correcto. Las rutas
   // siguen siendo estáticas (generateStaticParams pre-genera es y en); Amplify
   // las sirve sin 500.
@@ -163,10 +169,11 @@ export default async function RootLayout({
             que las rutas siguen siendo estáticas. */}
         <LocaleProvider initialLocale={locale}>
 
-        {/* Ventana de promo temporal (PROMO en @/lib/promo). Anuncia el
-            descuento y lo auto-aplica a todos. Aparece tras el aviso de cookies.
-            Apagar con PROMO.active = false. (Se renderiza como overlay fijo.) */}
-        <PromoModal />
+        {/* Ventana emergente editable desde Shopify (metaobjeto `popup`).
+            Imagen, textos, botón y código de descuento salen del admin: para
+            anunciar algo no hace falta un despliegue. Sin entrada activa no se
+            pinta nada. Aparece tras el aviso de cookies, donde lo hay. */}
+        <PopupPromo popup={popup} />
 
         {/* JSON-LD Schema.org global — Organization + WebSite con search */}
         <OrganizationJsonLd />
