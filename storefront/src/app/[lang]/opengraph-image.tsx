@@ -39,13 +39,15 @@ export function generateStaticParams() {
   return LOCALES.map((lang) => ({ lang }))
 }
 
-// Paleta cuero (globals.css @theme)
-const CUERO_DARK = "#2A1A12"
-const CUERO = "#3A2317"
-const CUERO_2 = "#4B2E1F"
-const GOLD = "#C9A24A"
+// Paleta del sistema visual v3 (los mismos seis colores de globals.css). Esta
+// imagen es lo que se ve al compartir el sitio en WhatsApp o Facebook: es la
+// primera impresión de la marca, y hasta ahora iba en oro con degradados,
+// que el sistema no tiene. El acento es cuero y no hay más.
+const TINTA = "#191A19"
+const CUERO = "#2A1A12" // banda del pie, un tono por encima de la tinta
+const GOLD = "#B08A5F" // acento sobre fondo oscuro: el cuero #6B4A2E no contrasta
 const CREAM = "#FBF8F1"
-const CREAM_SOFT = "#EFE5D0"
+const CREAM_SOFT = "#E7E1D3"
 
 // Geometría del díptico (1200 de ancho). Anchos EXPLÍCITOS — Satori no expande
 // bien `flex:1`, así que sumamos a mano: 384 + 432 + 384 = 1200.
@@ -128,22 +130,20 @@ async function getCoverUrls(): Promise<{ hombre: string; mujer: string }> {
   return out
 }
 
-async function loadGoogleFont(family: string, weight: number, text: string) {
+/**
+ * Lee una tipografía de scripts/fonts en TTF. Antes se bajaba de Google en
+ * tiempo de build; se dejó de hacer porque un deploy real se cayó cuando
+ * fonts.gstatic.com devolvió 404 a media compilación. Y tiene que ser TTF:
+ * Satori (next/og) no lee WOFF2, así que los archivos de src/fonts que usa el
+ * sitio no sirven aquí.
+ */
+async function loadLocalFont(file: string): Promise<ArrayBuffer | null> {
   try {
-    const url = `https://fonts.googleapis.com/css2?family=${encodeURIComponent(
-      family
-    )}:wght@${weight}&text=${encodeURIComponent(text)}`
-    const css = await fetch(url, {
-      headers: {
-        "User-Agent":
-          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
-      },
-    }).then((r) => r.text())
-    const fontUrlMatch = css.match(
-      /src: url\(([^)]+)\) format\('(opentype|truetype)'\)/
-    )
-    if (!fontUrlMatch) return null
-    return await fetch(fontUrlMatch[1]).then((r) => r.arrayBuffer())
+    const buffer = await readFile(join(process.cwd(), "scripts", "fonts", file))
+    return buffer.buffer.slice(
+      buffer.byteOffset,
+      buffer.byteOffset + buffer.byteLength
+    ) as ArrayBuffer
   } catch {
     return null
   }
@@ -200,8 +200,7 @@ function CenterBand({
         height: size.height,
         padding: "0 44px",
         position: "relative",
-        backgroundColor: CUERO,
-        backgroundImage: `linear-gradient(180deg, ${CUERO_2} 0%, ${CUERO} 52%, ${CUERO_DARK} 100%)`,
+        backgroundColor: TINTA,
       }}
     >
       {/* Highlight superior sutil para profundidad */}
@@ -233,7 +232,7 @@ function CenterBand({
         <Ornament />
       </div>
 
-      {/* Wordmark blanco (imagen). Fallback: texto Fraunces. */}
+      {/* Wordmark blanco (imagen). Si no carga, cae al texto en la serif. */}
       {logo ? (
         <img
           src={logo}
@@ -341,14 +340,11 @@ export default async function OpengraphImage({
 }) {
   const resolved = params ? await params : undefined
   const texts = resolved?.lang === "es" ? TEXTS.es : TEXTS.en
-  const wordmarkFallback = "BotasLeón"
-  const allText =
-    texts.eyebrow + texts.taglineA + texts.taglineB + texts.ship + wordmarkFallback
 
   const covers = await getCoverUrls()
-  const [frauncesSemi, interMedium, logo, hombre, mujer] = await Promise.all([
-    loadGoogleFont("Fraunces", 600, allText),
-    loadGoogleFont("Inter", 500, allText),
+  const [serifDisplay, sansMedium, logo, hombre, mujer] = await Promise.all([
+    loadLocalFont("InstrumentSerif-Regular.ttf"),
+    loadLocalFont("InstrumentSans-Medium.ttf"),
     loadPublicImage("logo_botasleon_white.png"),
     fetchImageDataUrl(covers.hombre),
     fetchImageDataUrl(covers.mujer),
@@ -360,13 +356,15 @@ export default async function OpengraphImage({
     weight: 400 | 500 | 600 | 700
     style: "normal"
   }> = []
-  if (frauncesSemi)
-    fonts.push({ name: "Fraunces", data: frauncesSemi, weight: 600, style: "normal" })
-  if (interMedium)
-    fonts.push({ name: "Inter", data: interMedium, weight: 500, style: "normal" })
+  // Instrument Serif solo existe en 400: pedirle 600 haría que Satori lo
+  // engordara a la fuerza, que es justo lo que se ve barato.
+  if (serifDisplay)
+    fonts.push({ name: "Instrument Serif", data: serifDisplay, weight: 400, style: "normal" })
+  if (sansMedium)
+    fonts.push({ name: "Instrument Sans", data: sansMedium, weight: 500, style: "normal" })
 
-  const displayFont = frauncesSemi ? "Fraunces" : "serif"
-  const bodyFont = interMedium ? "Inter" : "sans-serif"
+  const displayFont = serifDisplay ? "Instrument Serif" : "serif"
+  const bodyFont = sansMedium ? "Instrument Sans" : "sans-serif"
 
   // Díptico solo si AMBAS fotos cargaron; si no, banda de cuero a todo lo ancho.
   const diptico = Boolean(hombre && mujer)

@@ -1,22 +1,22 @@
 "use client"
 
 import type { Product } from "@/lib/shopify/types"
-import { useT } from "@/lib/i18n/context"
-import { LocalizedLink as Link } from "@/components/LocalizedLink"
-import { admiteCambioDeTalla } from "@/lib/exchange"
+import { useLocale, useT } from "@/lib/i18n/context"
+import { promesasDeFicha, type Promesa } from "@/lib/promesas"
+import { whatsappHref } from "@/lib/whatsapp"
 
 /**
- * PDPTrustBlock — strip de confianza bajo el CTA del PDP.
+ * Las promesas de venta, bajo los botones de compra.
  *
- * Tres módulos compactos apilados:
- *   1. Strip de 4 íconos: materiales, origen, devoluciones, pago seguro
- *   2. Bloque "Taller" con vendor en font-heading
+ * Antes aquí había cuatro íconos genéricos —Cuero 100%, Hecho en León,
+ * Garantía 15 días, Pago seguro— dentro de una caja con borde: decían lo mismo
+ * en las 103 fichas y no ayudaban a decidir. Los dos que sí son un dato del
+ * producto (cuero y origen) bajaron al acordeón "Detalles"; los otros dos eran
+ * ruido.
  *
- * Server component — no necesita interactividad. Mostrarlo en el column
- * derecho del PDP, debajo de ProductOptions y arriba de la descripción.
- *
- * Inspiración: trust strip de Tecovas, donde reforzar confianza justo
- * después del CTA reduce fricción de compra en categorías premium.
+ * Lo que va aquí son razones para comprar HOY, y cada una la decide
+ * promesasDeFicha() por mercado y por producto: el envío gratis solo es cierto
+ * en México y el cambio de talla solo en los modelos etiquetados en Shopify.
  */
 
 type Props = {
@@ -25,97 +25,89 @@ type Props = {
 
 export function PDPTrustBlock({ product }: Props) {
   const t = useT()
-  // Solo en los modelos etiquetados, y solo en México (ver lib/exchange.ts).
-  const cambioDeTalla = admiteCambioDeTalla(product.tags)
+  const { locale } = useLocale()
+  const promesas = promesasDeFicha(product.tags)
+
+  // Mensaje GENÉRICO, el que ya vive en lib/whatsapp.ts en los dos idiomas.
+  // Lo suyo sería precargar el modelo ("me interesa la {bota}, ¿qué talla?"),
+  // pero ese texto no tiene llave en el diccionario y escribirlo a mano aquí
+  // sería inventar una cadena visible en dos idiomas.
+  const wa = whatsappHref(locale)
 
   return (
-    <div className="mt-8 border border-border rounded-sm overflow-hidden bg-bg-alt/40">
-      {/* 0. Cambio de talla — va arriba y destacado porque es el argumento
-             que quita el miedo a comprar botas sin probárselas. */}
-      {cambioDeTalla && (
-        <div className="flex items-start gap-3 border-b border-border bg-leather/5 px-4 py-3">
-          <span className="w-5 h-5 shrink-0 text-leather mt-0.5" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M21 12a9 9 0 1 1-3-6.7L21 8" />
-              <path d="M21 3v5h-5" />
-            </svg>
+    <ul className="mt-8 space-y-3.5">
+      {promesas.map((p) => (
+        <li key={p.llave} className="flex items-start gap-3">
+          <Icono nombre={p.icono} />
+          <span className="cuerpo text-text">
+            {p.icono === "whatsapp" ? (
+              <a
+                href={wa}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-leather underline underline-offset-4 transition-colors duration-[180ms] hover:text-text"
+              >
+                {t(p.llave)}
+              </a>
+            ) : (
+              t(p.llave)
+            )}
+            {p.nota && <span className="nota block">{t(p.nota)}</span>}
           </span>
-          <div>
-            <p className="text-sm font-medium text-text leading-tight">
-              {t("exchange.badge.title")}
-            </p>
-            <p className="text-xs text-text-muted leading-snug mt-0.5">
-              {t("exchange.badge.sub")}{" "}
-              <Link href="/devoluciones" className="text-leather underline underline-offset-2 hover:text-terracotta">
-                {t("exchange.badge.link")}
-              </Link>
-            </p>
-          </div>
-        </div>
-      )}
-
-      {/* 1. Íconos de garantía */}
-      <ul className="grid grid-cols-2 sm:grid-cols-4 divide-y sm:divide-y-0 sm:divide-x divide-border">
-        <TrustItem
-          label={t("trust.leather100")}
-          icon={
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-              <path d="M20 6 9 17l-5-5" />
-            </svg>
-          }
-        />
-        <TrustItem
-          label={t("trust.madeInLeon")}
-          icon={
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-              <path d="M3 21h18" />
-              <path d="M3 10l9-6 9 6" />
-              <path d="M5 21V10" />
-              <path d="M19 21V10" />
-              <path d="M9 21v-7h6v7" />
-            </svg>
-          }
-        />
-        <TrustItem
-          label={t("trust.exchange30")}
-          icon={
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-              <path d="M21 12a9 9 0 1 1-3-6.7L21 8" />
-              <path d="M21 3v5h-5" />
-            </svg>
-          }
-        />
-        <TrustItem
-          label={t("trust.securePayment")}
-          icon={
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-              <rect x="4" y="11" width="16" height="10" rx="1.5" />
-              <path d="M8 11V7a4 4 0 0 1 8 0v4" />
-            </svg>
-          }
-        />
-      </ul>
-
-      {/* 2. Hecho por: vendor */}
-      {product.vendor && (
-        <div className="border-t border-border px-4 py-3">
-          <p className="eyebrow text-leather text-xs mb-0.5">{t("trust.workshop")}</p>
-          <p className="font-heading text-base text-text leading-tight">
-            {product.vendor}
-          </p>
-        </div>
-      )}
-    </div>
+        </li>
+      ))}
+    </ul>
   )
 }
 
-function TrustItem({ label, icon }: { label: string; icon: React.ReactNode }) {
+/**
+ * Un solo set de trazo: 20px, grosor 1.5, color tinta. En el sitio convivían
+ * seis grosores distintos y eso es lo que hacía que un ícono se leyera como
+ * decoración y no como parte del mismo idioma.
+ */
+function Icono({ nombre }: { nombre: Promesa["icono"] }) {
+  const comun = {
+    width: 20,
+    height: 20,
+    viewBox: "0 0 24 24",
+    fill: "none",
+    stroke: "currentColor",
+    strokeWidth: 1.5,
+    strokeLinecap: "round" as const,
+    strokeLinejoin: "round" as const,
+    "aria-hidden": true,
+    className: "mt-0.5 shrink-0 text-text",
+  }
+
+  if (nombre === "whatsapp") {
+    return (
+      <svg {...comun}>
+        <path d="M21 11.5a8.4 8.4 0 0 1-9 8.4 8.9 8.9 0 0 1-3.9-.9L3 20.5l1.6-4.9A8.4 8.4 0 0 1 12 3.1a8.4 8.4 0 0 1 9 8.4Z" />
+      </svg>
+    )
+  }
+  if (nombre === "envio") {
+    return (
+      <svg {...comun}>
+        <path d="M3 7h11v9H3z" />
+        <path d="M14 10h4l3 3v3h-7z" />
+        <circle cx="7" cy="18" r="1.8" />
+        <circle cx="17" cy="18" r="1.8" />
+      </svg>
+    )
+  }
+  if (nombre === "cambio") {
+    return (
+      <svg {...comun}>
+        <path d="M21 12a9 9 0 1 1-3-6.7L21 8" />
+        <path d="M21 3v5h-5" />
+      </svg>
+    )
+  }
   return (
-    <li className="flex flex-col items-center justify-center text-center gap-2 px-3 py-4">
-      <span className="w-5 h-5 text-leather" aria-hidden="true">
-        {icon}
-      </span>
-      <span className="text-xs text-text-muted leading-tight">{label}</span>
-    </li>
+    <svg {...comun}>
+      <rect x="3" y="6" width="12" height="12" rx="1.5" />
+      <path d="m15 10 6-3v10l-6-3z" />
+    </svg>
   )
 }

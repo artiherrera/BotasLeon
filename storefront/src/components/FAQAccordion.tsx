@@ -11,10 +11,15 @@ export { FAQS } from "@/lib/faqs"
 export type { FAQ } from "@/lib/faqs"
 
 /**
- * FAQAccordion — sección de preguntas frecuentes en el home.
+ * FAQAccordion — preguntas frecuentes de la portada.
  *
- * Patrón estándar: acordeón vertical, una pregunta abierta a la vez.
- * Click expande/colapsa. Iconos +/- para affordance visual.
+ * Se queda en el home a propósito: el <FAQJsonLd> de la página declara estas
+ * mismas preguntas a Google, y datos estructurados sin el contenido a la vista
+ * es justo lo que se penaliza.
+ *
+ * Patrón estándar: acordeón vertical, una pregunta abierta a la vez. La
+ * pregunta va en sans de 15px (.acordeon-fila), no en serif: repetida siete
+ * veces seguidas, la serif deja de leerse como jerarquía y se vuelve textura.
  */
 
 export function FAQAccordion() {
@@ -23,16 +28,14 @@ export function FAQAccordion() {
   const isEn = locale === "en"
 
   return (
-    <section className="bg-bg-alt py-20 md:py-28">
-      <div className="mx-auto max-w-3xl px-6">
-        <div className="text-center mb-12">
-          <p className="eyebrow text-leather mb-3">{t("faq.home.eyebrow")}</p>
-          <h2 className="font-heading text-3xl md:text-4xl text-text">
-            {t("faq.home.title")}
-          </h2>
+    <section className="contenedor seccion">
+      <div className="max-w-3xl">
+        <div className="mb-8 border-b border-border pb-4">
+          <p className="eyebrow text-text-muted mb-2">{t("faq.home.eyebrow")}</p>
+          <h2 className="display-m">{t("faq.home.title")}</h2>
         </div>
 
-        <div className="divide-y divide-border border-y border-border">
+        <div className="border-t border-border">
           {FAQS.map((faq, idx) => {
             const isOpen = idx === openIdx
             return (
@@ -40,15 +43,15 @@ export function FAQAccordion() {
                 <button
                   type="button"
                   onClick={() => setOpenIdx(isOpen ? null : idx)}
-                  className="w-full flex items-center justify-between gap-4 py-6 text-left group"
+                  className="acordeon-fila cursor-pointer"
                   aria-expanded={isOpen}
                   aria-controls={`faq-answer-${idx}`}
                 >
-                  <h3 className="font-heading text-lg md:text-xl text-text group-hover:text-leather transition-colors">
+                  <h3 className="cuerpo font-medium">
                     {isEn ? faq.questionEn : faq.question}
                   </h3>
                   <span
-                    className={`flex-shrink-0 w-6 h-6 flex items-center justify-center text-leather transition-transform ${
+                    className={`flex h-5 w-5 shrink-0 items-center justify-center text-text transition-transform duration-[180ms] ${
                       isOpen ? "rotate-45" : ""
                     }`}
                     aria-hidden="true"
@@ -59,7 +62,7 @@ export function FAQAccordion() {
                       viewBox="0 0 24 24"
                       fill="none"
                       stroke="currentColor"
-                      strokeWidth="2"
+                      strokeWidth="1.5"
                       strokeLinecap="round"
                       strokeLinejoin="round"
                     >
@@ -69,14 +72,14 @@ export function FAQAccordion() {
                 </button>
                 <div
                   id={`faq-answer-${idx}`}
-                  className={`grid transition-all duration-300 ${
+                  className={`grid transition-all duration-[180ms] ${
                     isOpen
-                      ? "grid-rows-[1fr] opacity-100 pb-6"
+                      ? "grid-rows-[1fr] pb-6 opacity-100"
                       : "grid-rows-[0fr] opacity-0"
                   }`}
                 >
                   <div className="overflow-hidden">
-                    <p className="text-text-muted leading-relaxed pr-8">
+                    <p className="cuerpo medida-lectura pt-3 text-text-muted">
                       {isEn ? faq.answerEn : faq.answer}
                     </p>
                   </div>
@@ -86,11 +89,11 @@ export function FAQAccordion() {
           })}
         </div>
 
-        <p className="text-center text-sm text-text-muted mt-10">
+        <p className="cuerpo mt-8 text-text-muted">
           {t("faq.home.notFound")}{" "}
           <a
             href="mailto:contacto@botasleon.com"
-            className="text-leather hover:text-terracotta transition-colors font-medium"
+            className="text-leather underline-offset-4 transition-colors duration-[180ms] hover:underline"
           >
             {t("faq.home.writeUs")}
           </a>

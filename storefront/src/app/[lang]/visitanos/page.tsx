@@ -15,8 +15,16 @@ export const revalidate = 60
  * hero + dirección + mapa embebido de Google + CTAs (cómo llegar / agendar por
  * WhatsApp). El iframe de Maps requiere frame-src google en la CSP (next.config).
  *
- * NOTA: horario es un valor por defecto — confirmar/ajustar con el dueño. La
- * foto del hero está pendiente (por ahora usa degradado de marca).
+ * NOTA: horario es un valor por defecto — confirmar/ajustar con el dueño.
+ *
+ * FOTO DEL HERO: no hay. El hero apuntaba por CSS a /tienda-hero.jpg, un archivo
+ * que nunca se subió, así que cada visita se comía un 404 y el fondo real era el
+ * degradado de respaldo. Ese degradado tampoco era degradado: el tema remapea
+ * leather-light al mismo #6B4A2E del cuero y leather-dark ni existe. Mientras no
+ * haya foto, el hero es plato liso con la tinta encima; cuando llegue la foto se
+ * mete con <Image> y la clase .plato-foto (nunca .plato a secas: el multiply
+ * sobre una toma de ambiente apaga los medios tonos y le mete dominante
+ * amarilla).
  */
 
 const ADDRESS_LINE = "Blvd. Hilario Medina 407, 2º piso"
@@ -60,29 +68,16 @@ export default async function VisitanosPage({
     <>
       <Header />
       <main id="contenido" tabIndex={-1} className="flex-1">
-        {/* Hero. Para poner la foto del local: sube el archivo a
-            public/tienda-hero.jpg (horizontal, ~2400×1350). Aparece sola vía
-            background CSS — sin tocar código. Mientras no exista, se ve el
-            degradado de cuero de fondo. */}
-        <section className="relative overflow-hidden bg-gradient-to-br from-leather via-leather-light to-leather-dark text-bg">
-          <div
-            aria-hidden
-            className="absolute inset-0 bg-cover bg-center"
-            style={{ backgroundImage: "url('/tienda-hero.jpg')" }}
-          />
-          {/* Scrim inferior — legibilidad del texto sobre cualquier foto. */}
-          <div
-            aria-hidden
-            className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/25 to-transparent"
-          />
-          <div className="relative mx-auto max-w-7xl px-6 py-20 md:py-28">
-            <p className="eyebrow text-bg mb-4 drop-shadow-[0_1px_6px_rgba(0,0,0,0.5)]">
+        {/* Hero sobre plato. */}
+        <section className="bg-plate text-text border-b border-border-plate">
+          <div className="contenedor py-20 md:py-28">
+            <p className="eyebrow text-text-muted mb-4">
               <T k="page.visitanos.eyebrow" />
             </p>
-            <h1 className="font-display text-4xl md:text-6xl leading-[1.05] mb-4 max-w-3xl drop-shadow-[0_2px_12px_rgba(0,0,0,0.45)]">
+            <h1 className="display-l text-text mb-4 max-w-3xl">
               <T k="page.visitanos.heroTitle" />
             </h1>
-            <p className="text-bg/90 text-lg max-w-xl drop-shadow-[0_1px_8px_rgba(0,0,0,0.45)]">
+            <p className="cuerpo-l medida-lectura text-text-muted">
               <Localized
                 es={
                   <>
@@ -102,29 +97,29 @@ export default async function VisitanosPage({
         </section>
 
         {/* Datos + mapa */}
-        <section className="mx-auto max-w-7xl px-6 py-14 md:py-20">
+        <section className="contenedor py-14 md:py-20">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-start">
             <div>
-              <h2 className="font-heading text-2xl text-text mb-6">
+              <h2 className="display-m text-text mb-6">
                 <T k="page.visitanos.findUs" />
               </h2>
 
               <div className="space-y-6">
                 <div>
-                  <p className="eyebrow text-leather mb-1">
+                  <p className="eyebrow text-text-muted mb-1">
                     <T k="page.visitanos.labelAddress" />
                   </p>
-                  <p className="text-text text-lg leading-snug">
+                  <p className="cuerpo-l text-text">
                     {ADDRESS_LINE}
                     <br />
                     {ADDRESS_AREA}
                   </p>
                 </div>
                 <div>
-                  <p className="eyebrow text-leather mb-1">
+                  <p className="eyebrow text-text-muted mb-1">
                     <T k="page.visitanos.labelHours" />
                   </p>
-                  <p className="text-text-muted">
+                  <p className="cuerpo text-text-muted">
                     <Localized
                       es={<>Lunes a sábado · 10:00 – 19:00</>}
                       en={<>Monday to Saturday · 10 a.m. – 7 p.m.</>}
@@ -132,10 +127,10 @@ export default async function VisitanosPage({
                   </p>
                 </div>
                 <div>
-                  <p className="eyebrow text-leather mb-1">
+                  <p className="eyebrow text-text-muted mb-1">
                     <T k="page.visitanos.labelContact" />
                   </p>
-                  <p className="text-text-muted">WhatsApp: +52 479 303 2457</p>
+                  <p className="cuerpo text-text-muted">WhatsApp: +52 479 303 2457</p>
                 </div>
               </div>
 
@@ -144,7 +139,7 @@ export default async function VisitanosPage({
                   href={MAPS_DIR}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 px-6 py-3 bg-text text-bg text-sm hover:bg-leather transition-colors"
+                  className="btn"
                 >
                   <T k="page.visitanos.ctaDirections" /> →
                 </a>
@@ -152,7 +147,7 @@ export default async function VisitanosPage({
                   href={whatsappHref(locale, storeVisitWhatsappMessage(locale))}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 px-6 py-3 border border-leather text-leather text-sm hover:bg-text hover:text-bg transition-colors"
+                  className="btn btn-sec"
                 >
                   <T k="page.visitanos.ctaSchedule" />
                 </a>
@@ -160,7 +155,7 @@ export default async function VisitanosPage({
             </div>
 
             {/* Mapa embebido (Google Maps, sin API key) */}
-            <div className="w-full aspect-[4/3] lg:aspect-auto lg:h-[440px] overflow-hidden rounded-sm border border-border bg-bg-alt">
+            <div className="w-full aspect-[4/3] lg:aspect-auto lg:h-[440px] overflow-hidden border border-border bg-plate">
               <iframe
                 title="Ubicación de BotasLeón en Google Maps"
                 src={MAPS_EMBED}
@@ -177,15 +172,15 @@ export default async function VisitanosPage({
         {/* Galería del local — metaobjeto "store_photo". Se oculta si aún no
             hay fotos subidas desde Shopify. */}
         {photos.length > 0 && (
-          <section className="mx-auto max-w-7xl px-6 pb-16 md:pb-20">
-            <h2 className="font-heading text-2xl text-text mb-6">
+          <section className="contenedor pb-16 md:pb-20">
+            <h2 className="display-m text-text mb-6">
               <T k="page.visitanos.insideTitle" />
             </h2>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4">
               {photos.map((p) => (
                 <div
                   key={p.handle}
-                  className="relative aspect-[4/3] overflow-hidden rounded-sm bg-bg-alt"
+                  className="plato plato-foto aspect-[4/3]"
                 >
                   <Image
                     src={p.image.url}
@@ -194,7 +189,6 @@ export default async function VisitanosPage({
                     }
                     fill
                     sizes="(max-width: 768px) 50vw, 33vw"
-                    className="object-cover"
                   />
                 </div>
               ))}

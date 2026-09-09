@@ -22,15 +22,15 @@ import "./globals.css"
 
 // Locales, como el resto del sitio: esta página se sirve suelta y tampoco tiene
 // por qué depender de que Google responda durante el build.
-const fraunces = localFont({
-  src: "../fonts/fraunces.woff2",
-  variable: "--font-fraunces",
-  weight: "300 700",
+const instrumentSerif = localFont({
+  src: "../fonts/instrument-serif.woff2",
+  variable: "--font-instrument-serif",
+  weight: "400",
   display: "swap",
 })
-const inter = localFont({
-  src: "../fonts/inter.woff2",
-  variable: "--font-inter",
+const instrumentSans = localFont({
+  src: "../fonts/instrument-sans.woff2",
+  variable: "--font-instrument-sans",
   weight: "400 700",
   display: "swap",
 })
@@ -44,14 +44,17 @@ const LINKS = [
   { href: "/en/products", en: "Browse the catalog", es: "Ver el catálogo" },
   { href: "/en/hombre", en: "Men's boots", es: "Botas hombre" },
   { href: "/en/mujer", en: "Women's boots", es: "Botas mujer" },
-  { href: "/en/outlet", en: "Outlet", es: "Outlet" },
+  // Era /en/outlet. Esa página está vacía (ningún producto trae
+  // compareAtPrice), y un 404 que manda a otra página en blanco pierde al
+  // visitante dos veces. /hombre/exoticas es el destino que ya usa la portada.
+  { href: "/en/hombre/exoticas", en: "Exotics", es: "Exóticas" },
 ]
 
 export default function GlobalNotFound() {
   return (
     <html
       lang="en"
-      className={`${fraunces.variable} ${inter.variable} h-full antialiased`}
+      className={`${instrumentSerif.variable} ${instrumentSans.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-bg text-text">
         <main className="flex-1 mx-auto w-full max-w-3xl px-6 py-20 md:py-28">
@@ -68,14 +71,14 @@ export default function GlobalNotFound() {
             />
           </a>
 
-          <p className="eyebrow text-leather mb-3">Error 404</p>
-          <h1 className="font-display text-4xl md:text-5xl text-text mb-4">
+          <p className="eyebrow text-text-muted mb-3">Error 404</p>
+          <h1 className="display-l text-text mb-4">
             This page doesn&apos;t exist
           </h1>
-          <p className="text-text-muted max-w-xl mb-2">
+          <p className="cuerpo-l medida-lectura text-text-muted mb-2">
             The link you followed has a typo, or the page is no longer available.
           </p>
-          <p lang="es" className="text-text-muted max-w-xl mb-10">
+          <p lang="es" className="cuerpo-l medida-lectura text-text-muted mb-10">
             El link que seguiste tiene un typo, o la página ya no está disponible.{" "}
             <a href="/es" className="text-leather underline underline-offset-4">
               Ver el sitio en español
@@ -89,9 +92,10 @@ export default function GlobalNotFound() {
                 key={link.href}
                 href={link.href}
                 className={
-                  i === 0
-                    ? "inline-flex items-center justify-center px-6 py-3 bg-text text-bg text-sm hover:bg-leather-light transition-colors"
-                    : "inline-flex items-center justify-center px-6 py-3 border border-leather text-leather text-sm hover:bg-text hover:text-bg transition-colors"
+                  // Un solo primario por pantalla: el catálogo. El resto en
+                  // contorno de tinta (el contorno cuero era un uso de más del
+                  // acento).
+                  i === 0 ? "btn" : "btn btn-sec"
                 }
               >
                 {link.en}
@@ -99,7 +103,7 @@ export default function GlobalNotFound() {
             ))}
           </div>
 
-          <p className="mt-8 text-sm text-text-muted">
+          <p className="cuerpo mt-8 text-text-muted">
             Looking for a specific pair?{" "}
             <a href="/en/search" className="text-leather underline underline-offset-4">
               Search by name

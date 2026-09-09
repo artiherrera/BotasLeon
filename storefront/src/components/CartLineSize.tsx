@@ -39,7 +39,7 @@ export function CartLineSize({
 
   if (current && !open) {
     return (
-      <p className={compact ? "text-xs text-text-muted" : "text-sm text-text-muted"}>
+      <p className={compact ? "nota" : "cuerpo text-text-muted"}>
         {t("filters.size")}:{" "}
         <span className="text-text">{formatSizeWithUs(current, gender, tipo)}</span>{" "}
         <button
@@ -54,10 +54,10 @@ export function CartLineSize({
   }
 
   return (
-    <div className={current ? "" : "border-l-2 border-leather pl-2"}>
+    <div className={current ? "" : "border-l-2 border-text pl-2"}>
       <p
-        className={`${compact ? "text-xs" : "text-sm"} font-medium ${
-          current ? "text-text-muted" : "text-leather"
+        className={`${compact ? "text-xs" : "cuerpo"} font-medium ${
+          current ? "text-text-muted" : "text-text"
         } mb-1.5`}
       >
         {current ? t("cart.changeSizeTitle") : t("cart.chooseSize")}
@@ -75,10 +75,10 @@ export function CartLineSize({
                 setLineSize(line.id, size)
                 setOpen(false)
               }}
-              className={`px-2.5 py-1 rounded-full text-xs border transition-colors disabled:opacity-50 ${
+              className={`inline-flex h-11 min-w-[44px] items-center justify-center px-3 text-sm border transition-colors duration-[180ms] disabled:opacity-50 ${
                 active
-                  ? "border-leather bg-text text-bg"
-                  : "border-border text-text hover:border-leather"
+                  ? "border-text bg-text text-bg"
+                  : "border-border text-text hover:border-text"
               }`}
             >
               {formatSizeWithUs(size, gender, tipo)}

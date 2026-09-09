@@ -1,14 +1,13 @@
-import type { CSSProperties } from "react"
 import { notFound } from "next/navigation"
 import { LocalizedLink as Link } from "@/components/LocalizedLink"
-import Image from "next/image"
-import { brandTitleFontClass } from "@/lib/brand-fonts"
 import { Header } from "@/components/Header"
 import { Footer } from "@/components/Footer"
 import { ProductGalleryConnected } from "@/components/ProductGalleryConnected"
 import { ProductOptions } from "@/components/ProductOptions"
 import { PDPVariantProvider } from "@/components/PDPVariantContext"
 import { PDPTrustBlock } from "@/components/PDPTrustBlock"
+import { PDPMarca } from "@/components/PDPMarca"
+import { PDPAcordeones } from "@/components/PDPAcordeones"
 import { ProductReviewBlock } from "@/components/ProductReviewBlock"
 import { RelatedProducts } from "@/components/RelatedProducts"
 import { RecentlyViewed } from "@/components/RecentlyViewed"
@@ -17,7 +16,6 @@ import { ProductViewedTracker } from "@/components/ProductViewedTracker"
 import { getProductByHandle, getProducts, getBrands } from "@/lib/shopify"
 import {
   LocalizedProductTitle,
-  LocalizedProductDescription,
   LocalizedPrice,
 } from "@/components/LocalizedProductContent"
 import { absoluteUrl } from "@/lib/seo"
@@ -114,13 +112,10 @@ export default async function ProductPage({ params }: Props) {
     ? brands.find((b) => b.name.trim().toLowerCase() === vendorKey)
     : undefined
 
-  // Identidad de la marca en su producto: el acento tiñe el CTA del chip
-  // (default = terracota si la marca no definió color) y el nombre puede usar
-  // la fuente propia de la marca.
-  const brandTitleFont = brandTitleFontClass(brand?.titleFont)
-  const chipAccentStyle = {
-    "--brand-accent": brand?.accentColor || "var(--color-terracotta)",
-  } as CSSProperties
+  // Ni el acento ni la fuente propia de la marca se usan en la ficha: el
+  // sistema visual tiene UN acento (el cuero) y dos fuentes, y catorce
+  // identidades compitiendo dentro de la columna de compra era justo lo que
+  // hacía que ninguna se leyera. La identidad de la marca vive en su página.
 
   const price = product.priceRange.minVariantPrice
   const compareAt = product.compareAtPriceRange?.minVariantPrice
@@ -142,11 +137,17 @@ export default async function ProductPage({ params }: Props) {
 
       <Header />
       <main id="contenido" tabIndex={-1} className="flex-1">
-        <div className="mx-auto max-w-7xl px-6 py-8 md:py-12">
-          <nav className="mb-8 text-sm text-text-muted">
-            <Link href="/" className="hover:text-leather">Inicio</Link>
+        <div className="contenedor py-8 md:py-12">
+          {/* El breadcrumb salía en español también en /en, aunque el JSON-LD
+              de tres líneas más arriba ya se traducía con este mismo `isEn`. */}
+          <nav className="nota mb-8">
+            <Link href="/" className="hover:text-leather">
+              {isEn ? "Home" : "Inicio"}
+            </Link>
             <span className="mx-2">/</span>
-            <Link href="/products" className="hover:text-leather">Catálogo</Link>
+            <Link href="/products" className="hover:text-leather">
+              {isEn ? "Catalog" : "Catálogo"}
+            </Link>
             <span className="mx-2">/</span>
             <span className="text-text">{product.title}</span>
           </nav>
@@ -154,72 +155,33 @@ export default async function ProductPage({ params }: Props) {
           {/* Provider envuelve SOLO el grid Gallery+Info. RelatedProducts y
               RecentlyViewed quedan fuera y siguen siendo independientes. */}
           <PDPVariantProvider product={product}>
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16">
-              {/* Galería acotada (estilo Amazon): no pasa de ~½ de la altura
-                  de pantalla y va centrada, para que el bloque de compra suba
-                  y quepa sin tanto scroll en móvil/tablet. En desktop 2-col
-                  llena su columna. */}
+            {/* 55/45: la foto es lo que vende una bota que no te puedes probar,
+                así que se lleva la mitad grande. La columna de compra se queda
+                fija mientras la galería se desplaza. */}
+            <div className="grid grid-cols-1 lg:grid-cols-[55fr_45fr] gap-8 lg:gap-16">
+              {/* Galería acotada: no pasa de ~½ de la altura de pantalla y va
+                  centrada, para que el bloque de compra suba y quepa sin tanto
+                  scroll en móvil/tablet. El tope de 50vh está calculado para una
+                  caja 1:1, que es lo que sigue siendo el plato. */}
               <div className="mx-auto w-full max-w-[min(90vw,50vh)] lg:mx-0 lg:max-w-none">
                 <ProductGalleryConnected />
               </div>
 
-              <div className="lg:sticky lg:top-24 lg:self-start">
-                {/* Marca clickeable como CHIP: logo (o monograma) + nombre +
-                    "Ver todas →". La forma de pastilla con borde comunica que
-                    es tocable SIN depender del hover (funciona igual en móvil);
-                    el fallback plano (vendor sin página de marca) es texto
-                    simple, y ese contraste refuerza que el chip sí se toca. */}
-                {product.vendor &&
-                  (brand ? (
-                    <Link
-                      href={`/marcas/${brand.handle}`}
-                      aria-label={`Ver todas las botas de ${product.vendor}`}
-                      style={chipAccentStyle}
-                      className="group mb-3 inline-flex items-center gap-2.5 rounded-full border border-border bg-bg-alt py-1.5 pl-1.5 pr-3.5 transition-colors hover:border-border-strong focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cognac focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
-                    >
-                      {brand.logo ? (
-                        <span className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-full border border-border bg-bg">
-                          <Image
-                            src={brand.logo.url}
-                            alt={brand.logo.altText || product.vendor}
-                            width={brand.logo.width || 36}
-                            height={brand.logo.height || 36}
-                            className="h-full w-full object-contain p-0.5"
-                          />
-                        </span>
-                      ) : (
-                        <span
-                          aria-hidden
-                          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-border-strong bg-bg font-display text-base leading-none text-leather"
-                        >
-                          {product.vendor.charAt(0)}
-                        </span>
-                      )}
-                      <span className="flex flex-col leading-tight">
-                        <span
-                          className={
-                            brandTitleFont
-                              ? `${brandTitleFont} text-sm leading-none text-leather`
-                              : "eyebrow text-leather"
-                          }
-                        >
-                          {product.vendor}
-                        </span>
-                        <span className="text-xs font-medium text-[color:var(--brand-accent)]">
-                          Ver todas
-                          <span className="ml-1 inline-block transition-transform group-hover:translate-x-0.5">
-                            →
-                          </span>
-                        </span>
-                      </span>
-                    </Link>
-                  ) : (
-                    <p className="eyebrow text-leather mb-3">{product.vendor}</p>
-                  ))}
+              {/* 88px = cabecera de 72 + 16 de aire. */}
+              {/* 108px de cromo fijo (36 de avisos + 72 de cabecera) + 16 de aire. Con el
+                  88 de antes, el nombre del producto quedaba medio tapado al
+                  llegar la columna al tope. */}
+              <div className="lg:sticky lg:top-[124px] lg:self-start">
+                <PDPMarca
+                  vendor={product.vendor}
+                  brandHandle={brand?.handle}
+                  brandName={brand?.name}
+                />
+
                 <LocalizedProductTitle
                   handle={product.handle}
                   fallback={product.title}
-                  className="font-heading text-3xl md:text-4xl text-text mb-4 leading-tight"
+                  className="display-l text-text mb-4"
                 />
 
                 <div className="mb-8">
@@ -235,16 +197,9 @@ export default async function ProductPage({ params }: Props) {
 
                 <PDPTrustBlock product={product} />
 
+                <PDPAcordeones product={product} brand={brand ?? null} />
+
                 <ProductReviewBlock product={product} />
-
-                <LocalizedProductDescription
-                  handle={product.handle}
-                  fallbackHtml={product.descriptionHtml ?? ""}
-                />
-
-                <div className="mt-8 pt-6 border-t border-border text-sm text-text-subtle space-y-1">
-                  {product.productType && <p>Tipo: {product.productType}</p>}
-                </div>
               </div>
             </div>
           </PDPVariantProvider>

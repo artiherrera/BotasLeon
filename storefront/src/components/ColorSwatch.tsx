@@ -3,15 +3,15 @@
 import { lookupColor } from "@/lib/pdp/colorLut"
 
 /**
- * ColorSwatch — botón circular con relleno del HEX correspondiente al color.
+ * ColorSwatch — botón cuadrado con relleno del HEX correspondiente al color.
  *
  * Reemplaza el botón-texto genérico cuando la opción es "Color". Funciona
  * con cualquier color del LUT (negro, café, tabaco, cognac, etc.). Si el
  * color no está mapeado, fallback a gris neutro + label.
  *
  * Estados visuales:
- *   - Default: círculo lleno con HEX, borde sutil
- *   - Active: anillo grueso color leather rodeando
+ *   - Default: cuadro lleno con HEX, borde sutil
+ *   - Active: anillo de tinta rodeando
  *   - Unavailable: opacity reducida + diagonal slash overlay
  *   - Light colors (blanco, hueso): borde interno extra para contraste sobre fondo claro
  *
@@ -43,26 +43,22 @@ export function ColorSwatch({ value, isActive, isAvailable, onClick }: Props) {
       aria-pressed={isActive}
       aria-label={ariaLabel}
       title={value}
-      className={`relative inline-flex items-center justify-center transition-all ${
-        isActive
-          ? "scale-110"
-          : isAvailable
-            ? "hover:scale-105 cursor-pointer"
-            : "opacity-40 cursor-not-allowed"
+      className={`relative inline-flex items-center justify-center transition-colors duration-[180ms] ${
+        isAvailable || isActive ? "cursor-pointer" : "opacity-40 cursor-not-allowed"
       }`}
     >
       {/* Outer ring — visible solo en estado activo */}
       <span
         aria-hidden
-        className={`absolute inset-0 rounded-full transition-all ${
-          isActive ? "ring-2 ring-leather ring-offset-2 ring-offset-bg" : ""
+        className={`absolute inset-0 transition-colors duration-[180ms] ${
+          isActive ? "ring-2 ring-text ring-offset-2 ring-offset-bg" : ""
         }`}
       />
 
-      {/* Círculo de color */}
+      {/* Cuadro de color */}
       <span
         aria-hidden
-        className={`block w-10 h-10 md:w-11 md:h-11 rounded-full border ${
+        className={`block w-11 h-11 border ${
           isLight ? "border-border-strong/40" : "border-black/20"
         } ${isLight && !isActive ? "shadow-inner" : ""}`}
         style={{ backgroundColor: hex }}

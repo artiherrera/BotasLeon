@@ -29,25 +29,32 @@ export function generateStaticParams() {
 }
 
 /**
- * Tipografías — Kit de Marca v2 (sobrio, estilo Tecovas):
- *  - Fraunces: serif display para H1–H3, nombres de producto y cifras.
- *  - Inter: sans-serif para cuerpo, navegación, botones, formularios y eyebrows.
+ * Tipografías — sistema visual v3 (informe de rediseño, sep 2026):
+ *  - Instrument Serif: display. Cinco lugares y ninguno más — hero, títulos de
+ *    página y de sección, nombre del producto en la ficha, cifras grandes y la
+ *    frase de marca. Solo existe en peso 400 (ver font-synthesis en globals).
+ *  - Instrument Sans: todo lo demás — cuerpo, tarjetas, navegación, botones,
+ *    precios, filtros, formularios y eyebrows.
+ *
+ * Sustituyen a Fraunces + Inter. Fraunces se usaba a peso 600 con el eje SOFT
+ * alto —su versión más redonda— y en once roles distintos: cuando llegaba el
+ * título que sí importaba, ya no sorprendía. Inter hacía legible cualquier cosa
+ * y no decía nada, y el cuerpo de texto es la mitad de la página.
  *
  * Se cargan como CSS variables y se conectan al @theme de globals.css.
- * (Antes: Bevan + Zilla Slab — retirados por completo.)
  */
 // Archivos locales (src/fonts, subconjunto latino): el build no depende de que
-// Google responda. Son variables, así que un solo archivo cubre todo el rango
-// de pesos que usa el sitio.
-const fraunces = localFont({
-  src: "../../fonts/fraunces.woff2",
-  variable: "--font-fraunces",
-  weight: "300 700",
+// Google responda. Un deploy real falló porque fonts.gstatic.com devolvió 404
+// a medio compilar y Turbopack no pudo resolver la fuente.
+const instrumentSerif = localFont({
+  src: "../../fonts/instrument-serif.woff2",
+  variable: "--font-instrument-serif",
+  weight: "400",
   display: "swap",
 })
-const inter = localFont({
-  src: "../../fonts/inter.woff2",
-  variable: "--font-inter",
+const instrumentSans = localFont({
+  src: "../../fonts/instrument-sans.woff2",
+  variable: "--font-instrument-sans",
   weight: "400 700",
   display: "swap",
 })
@@ -138,7 +145,7 @@ export default async function RootLayout({
   return (
     <html
       lang={locale}
-      className={`${fraunces.variable} ${inter.variable} h-full antialiased`}
+      className={`${instrumentSerif.variable} ${instrumentSans.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-bg text-text">
         {/* Saltar al contenido — primer tab para usuarios de teclado, salta

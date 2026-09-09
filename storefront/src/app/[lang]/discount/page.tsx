@@ -43,7 +43,7 @@ function LoadingShell() {
     <>
       <Header />
       <main id="contenido" tabIndex={-1} className="flex-1 flex items-center justify-center px-6 py-20">
-        <p className="text-text-muted">Cargando...</p>
+        <p className="cuerpo text-text-muted">Cargando...</p>
       </main>
       <Footer />
     </>
@@ -78,15 +78,15 @@ function DiscountHandler() {
         <Header />
         <main id="contenido" tabIndex={-1} className="flex-1 flex items-center justify-center px-6 py-20">
           <div className="max-w-md text-center">
-            <h1 className="font-heading text-2xl text-text mb-3">
+            <h1 className="display-l text-text mb-3">
               Código no válido
             </h1>
-            <p className="text-text-muted mb-6">
+            <p className="cuerpo-l medida-lectura mx-auto text-text-muted mb-6">
               El link de descuento parece incompleto.
             </p>
             <Link
               href="/products"
-              className="inline-flex px-6 py-3 bg-text text-bg text-sm hover:bg-leather"
+              className="btn"
             >
               Ver catálogo
             </Link>
@@ -102,25 +102,25 @@ function DiscountHandler() {
       <Header />
       <main id="contenido" tabIndex={-1} className="flex-1 flex items-center justify-center px-6 py-20">
         <div className="max-w-md text-center">
-          <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-text text-bg flex items-center justify-center">
-            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <div className="w-12 h-12 mx-auto mb-6 bg-text text-bg flex items-center justify-center">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
               <path d="M20 6 9 17l-5-5" />
             </svg>
           </div>
-          <p className="eyebrow text-leather mb-2">Descuento aplicado</p>
-          <h1 className="font-display text-3xl text-text mb-3">
+          <p className="eyebrow text-text-muted mb-2">Descuento aplicado</p>
+          <h1 className="display-l text-text mb-3">
             ¡Listo!
           </h1>
-          <p className="text-text-muted mb-2">
+          <p className="cuerpo text-text-muted mb-2">
             Tu código <strong className="text-text">{code}</strong> está
             guardado y se aplica al pagar.
           </p>
-          <p className="text-xs text-text-subtle mb-6">
+          <p className="nota mb-6">
             Te llevamos al catálogo...
           </p>
           <Link
             href={redirect}
-            className="inline-flex px-6 py-3 bg-text text-bg text-sm hover:bg-leather"
+            className="btn"
           >
             Ver catálogo
           </Link>

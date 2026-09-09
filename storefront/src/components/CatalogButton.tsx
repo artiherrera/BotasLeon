@@ -18,20 +18,22 @@ export function CatalogButton({ className = "" }: { className?: string }) {
   // en dólares, y mandarlo al catálogo en pesos le cotiza mal cada bota.
   const href = isMX ? "/catalogo-es.html" : "/catalogo-en.html"
 
+  // El hover anterior repetía el mismo bg-text: no pasaba nada al pasar el
+  // cursor. .btn sí cambia a cuero.
   return (
     <a
       href={href}
       target="_blank"
       rel="noopener noreferrer"
-      className={`inline-flex items-center gap-2 bg-text px-6 py-3 text-sm text-bg hover:bg-text transition-colors ${className}`}
+      className={`btn ${className}`}
     >
       <svg
-        width="18"
-        height="18"
+        width="20"
+        height="20"
         viewBox="0 0 24 24"
         fill="none"
         stroke="currentColor"
-        strokeWidth="2"
+        strokeWidth="1.5"
         strokeLinecap="round"
         strokeLinejoin="round"
         aria-hidden="true"

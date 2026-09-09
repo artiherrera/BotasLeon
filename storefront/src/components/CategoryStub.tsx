@@ -49,7 +49,7 @@ export async function CategoryStub({
     <>
       <Header />
       <main id="contenido" tabIndex={-1} className="flex-1">
-        <div className="mx-auto max-w-7xl px-6 py-12 md:py-16">
+        <div className="contenedor seccion">
           <CategoryHeader eyebrow={eyebrow} title={title} description={description} />
 
           {products.length === 0 ? (
@@ -72,16 +72,16 @@ export async function CategoryStub({
 function EmptyState({ configHint }: { configHint: string }) {
   return (
     <div className="border border-border bg-bg-alt p-10 max-w-2xl">
-      <p className="eyebrow text-leather mb-2">Aún sin productos</p>
-      <h2 className="font-heading text-2xl text-text mb-3">
+      <p className="eyebrow text-xs text-text-muted mb-2">Aún sin productos</p>
+      <h2 className="display-s text-text mb-3">
         Sección en construcción
       </h2>
-      <p className="text-text-muted mb-5">
+      <p className="cuerpo medida-lectura text-text-muted mb-5">
         Estamos cargando primeras botas. Mientras tanto, explora el resto
         del catálogo.
       </p>
       {process.env.NODE_ENV === "development" && (
-        <details className="text-sm text-text-muted">
+        <details className="cuerpo text-text-muted">
           <summary className="cursor-pointer font-medium">
             Detalles técnicos para el admin
           </summary>
@@ -97,7 +97,7 @@ function EmptyState({ configHint }: { configHint: string }) {
       <div className="mt-6">
         <Link
           href="/products"
-          className="inline-flex px-6 py-3 border border-leather text-leather text-sm hover:bg-text hover:text-bg transition-colors"
+          className="btn btn-sec"
         >
           Ver catálogo completo →
         </Link>

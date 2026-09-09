@@ -89,3 +89,24 @@ export function formatSizeWithUs(
   if (!us) return mxSize
   return isMX ? `${mxSize} · US ${us}` : `US ${us}`
 }
+
+/**
+ * Talla como se etiqueta en el FILTRO del listado.
+ *
+ * No es lo mismo que `formatSizeWithUs`: ahí caben las dos escalas ("26 · US 7")
+ * porque es una sola talla en la ficha; aquí son quince casillas en una barra
+ * angosta y hay que elegir una. En México se compra por la mexicana, así que va
+ * la mexicana; en el sitio en dólares va la US, o el filtro diría "22, 23, 24"
+ * mientras la ficha del mismo par dice "US 6" — y quien filtra por su talla se
+ * llevaría a casa una bota tres números más chica.
+ */
+export function etiquetaTallaFiltro(
+  mxSize: string,
+  gender: GenderHandle,
+  productType?: string | null
+): string {
+  if (isMX) return mxSize
+  if (!usaEscalaDeCalzado(productType)) return mxSize
+  const us = mxToUs(mxSize, gender)
+  return us ? `US ${us}` : mxSize
+}

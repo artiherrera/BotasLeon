@@ -192,7 +192,7 @@ export function SearchOverlay({ open, onClose }: Props) {
         role="dialog"
         aria-modal="true"
         aria-label={t("a11y.search")}
-        className="relative mx-auto mt-20 w-full max-w-2xl bg-bg rounded-sm shadow-2xl p-6 max-h-[calc(100vh-6rem)] overflow-y-auto"
+        className="relative mx-auto mt-20 w-full max-w-2xl bg-bg border border-border p-6 max-h-[calc(100vh-6rem)] overflow-y-auto"
       >
         {/* Header del modal: input + cerrar */}
         <form
@@ -208,7 +208,7 @@ export function SearchOverlay({ open, onClose }: Props) {
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
-              strokeWidth="2"
+              strokeWidth="1.5"
               strokeLinecap="round"
               strokeLinejoin="round"
             >
@@ -225,11 +225,11 @@ export function SearchOverlay({ open, onClose }: Props) {
               inputMode="search"
               enterKeyHint="search"
               aria-label={t("search.term")}
-              className="w-full pl-12 pr-4 py-3 text-base border border-border focus:border-leather focus:outline-none bg-bg transition-colors rounded-sm"
+              className="campo h-12 pl-12 pr-4"
             />
             {loading && (
               <span
-                className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 border-2 border-border border-t-leather rounded-full animate-spin"
+                className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 border border-border border-t-leather rounded-full animate-spin"
                 aria-label={t("search.searching")}
               />
             )}
@@ -238,9 +238,9 @@ export function SearchOverlay({ open, onClose }: Props) {
             type="button"
             onClick={onClose}
             aria-label={t("search.close")}
-            className="p-2 hover:bg-bg-alt rounded transition-colors cursor-pointer"
+            className="p-3 hover:bg-plate transition-colors duration-[180ms] cursor-pointer"
           >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
               <path d="M18 6 6 18" />
               <path d="m6 6 12 12" />
             </svg>
@@ -250,14 +250,14 @@ export function SearchOverlay({ open, onClose }: Props) {
         {/* Cuerpo: estados */}
         {!query.trim() ? (
           <div>
-            <p className="eyebrow text-text-muted text-xs mb-3">{t("search.popular")}</p>
+            <p className="eyebrow text-text-muted mb-3">{t("search.popular")}</p>
             <div className="flex flex-wrap gap-2">
               {POPULAR_SEARCHES.map((item) => (
                 <Link
                   key={item.query}
                   href={`/search?q=${encodeURIComponent(item.query)}`}
                   onClick={onClose}
-                  className="px-4 py-2 border border-border text-sm hover:border-leather hover:text-leather transition-colors rounded-sm"
+                  className="cuerpo inline-flex h-11 items-center px-4 border border-border transition-colors duration-[180ms] hover:border-text"
                 >
                   {item.labelKey ? t(item.labelKey) : item.label}
                 </Link>
@@ -266,7 +266,7 @@ export function SearchOverlay({ open, onClose }: Props) {
           </div>
         ) : loading && results.length === 0 ? (
           <div className="py-8 flex items-center justify-center" aria-live="polite">
-            <span className="w-6 h-6 border-2 border-border border-t-leather rounded-full animate-spin" />
+            <span className="w-6 h-6 border border-border border-t-leather rounded-full animate-spin" />
           </div>
         ) : submitted && results.length === 0 ? (
           <div className="py-8 text-center" aria-live="polite">
@@ -282,11 +282,11 @@ export function SearchOverlay({ open, onClose }: Props) {
                 <SearchResultCard key={p.id} product={p} onSelect={onClose} />
               ))}
             </div>
-            <div className="mt-6 pt-4 border-t border-border/40 text-center">
+            <div className="mt-6 pt-4 border-t border-border">
               <Link
                 href={`/search?q=${encodeURIComponent(query.trim())}`}
                 onClick={onClose}
-                className="inline-flex text-sm uppercase tracking-wider text-leather hover:underline"
+                className="nav-label inline-flex text-leather hover:underline"
               >
                 {t("search.viewAll")}
               </Link>
@@ -324,10 +324,10 @@ function SearchResultCard({
     <Link
       href={`/products/${handle}`}
       onClick={onSelect}
-      className="group flex items-center gap-3 p-2 hover:bg-bg-alt rounded-sm transition-colors"
+      className="group flex items-center gap-3 p-2 hover:bg-plate transition-colors duration-[180ms]"
       aria-label={t("search.viewProduct").replace("{title}", title)}
     >
-      <div className="w-16 h-16 flex-shrink-0 overflow-hidden bg-bg-alt rounded-sm">
+      <div className="w-16 h-16 flex-shrink-0 overflow-hidden bg-plate">
         {featuredImage ? (
           <Image
             src={shopifyThumb(featuredImage.url, 128)}
@@ -335,18 +335,18 @@ function SearchResultCard({
             width={64}
             height={64}
             unoptimized
-            className="h-full w-full object-cover"
+            className="h-full w-full object-contain mix-blend-multiply"
           />
         ) : null}
       </div>
       <div className="min-w-0 flex-1">
         {vendor && (
-          <p className="eyebrow text-text-subtle text-[10px] mb-0.5 truncate">{vendor}</p>
+          <p className="eyebrow text-text-muted mb-0.5 truncate">{vendor}</p>
         )}
-        <h4 className="font-heading text-sm text-text leading-tight truncate group-hover:text-leather transition-colors">
+        <h4 className="nombre-producto text-sm text-text truncate">
           {title}
         </h4>
-        <p className="text-text-muted text-xs mt-0.5">
+        <p className="precio text-sm mt-0.5">
           {formatMoney(minPrice.amount, minPrice.currencyCode)}
         </p>
       </div>

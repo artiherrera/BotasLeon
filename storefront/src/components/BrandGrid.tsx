@@ -2,106 +2,96 @@ import { LocalizedLink as Link } from "@/components/LocalizedLink"
 import Image from "next/image"
 import { T } from "@/components/T"
 import { getBrands } from "@/lib/shopify"
+import { logoNecesitaInvertirse } from "@/lib/logos-talleres"
 
 type Brand = Awaited<ReturnType<typeof getBrands>>[number]
 
 /**
- * BrandGrid — sección "Marcas que comercializamos" en el home.
+ * BrandGrid — la frase de marca de la portada: "Las mejores casas de León,
+ * bajo un mismo techo", con los logos de los talleres debajo.
  *
- * Cintillo (marquee) horizontal de desplazamiento LENTO con TODAS las marcas
- * dadas de alta en Shopify. Cada logo enlaza a /marcas/[handle] (las botas de
- * esa marca). CSS-only, mismo patrón que MarqueeBar: items duplicados 2× y la
- * animación va a -50% para loop perfecto; pausa al hover (para poder hacer
- * clic) y respeta prefers-reduced-motion (ahí queda scrollable a mano).
+ * Antes era un cintillo animado de logos a color repetidos hasta llenar la
+ * pantalla, que se leía como un directorio. Aquí no se está listando a los
+ * proveedores: se está diciendo qué hace la tienda, que es escoger entre esas
+ * casas. Por eso es la ÚNICA sección centrada de la página — y por eso se nota.
+ *
+ * Los logos van en fila estática con .logos-talleres (40px, escala de grises,
+ * multiply sobre la crema) para que se lean como una sola firma y no como once
+ * identidades peleando entre sí.
  *
  * Se omite si no hay marcas (mejor cero que una sección vacía).
  */
-
-// Rellenamos cada "mitad" hasta >= MIN para que el cintillo llene pantallas
-// anchas sin dejar hueco en el punto de loop: como la animación va a -50%,
-// cada mitad debe ser al menos tan ancha como el viewport.
-const MIN_PER_HALF = 12
-
 export async function BrandGrid() {
   const brands = await getBrands()
   if (brands.length === 0) return null
 
-  // Una mitad = las marcas reales repetidas hasta MIN; el track son 2 mitades.
-  const half: Brand[] = []
-  while (half.length < MIN_PER_HALF) half.push(...brands)
-  const track = [...half, ...half]
-
   return (
-    <section className="py-20 md:py-28">
-      <div className="mx-auto max-w-7xl px-6 text-center mb-12">
-        <p className="eyebrow text-leather mb-3">
-          <T k="brand.eyebrow" />
-        </p>
-        <h2 className="font-heading text-3xl md:text-4xl text-text mb-3 whitespace-pre-line">
-          <T k="brand.headline" />
-        </h2>
-        <p className="text-text-muted max-w-2xl mx-auto">
-          <T k="brand.subtitle" />
-        </p>
-      </div>
+    <section className="contenedor seccion text-center">
+      <p className="eyebrow text-leather mb-3">
+        <T k="brand.phraseEyebrow" />
+      </p>
+      {/* whitespace-pre-line: la llave trae el salto de renglón para que la
+          frase caiga en dos líneas donde el autor quiso. */}
+      <h2 className="display-m mx-auto max-w-3xl whitespace-pre-line">
+        <T k="brand.headline" />
+      </h2>
 
-      {/* Cintillo full-bleed con desvanecido en los bordes */}
-      <div className="brand-marquee-wrap relative">
-        <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-10 md:w-32 bg-gradient-to-r from-bg to-transparent" />
-        <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-10 md:w-32 bg-gradient-to-l from-bg to-transparent" />
-        <div className="brand-marquee flex w-max items-center gap-4 md:gap-6">
-          {track.map((b, idx) => (
-            <BrandLogo key={idx} brand={b} decorative={idx >= brands.length} />
-          ))}
-        </div>
-      </div>
+      <ul className="logos-talleres mt-10 flex list-none flex-wrap items-center justify-center gap-x-8 gap-y-6 p-0 md:mt-12 md:gap-x-12">
+        {brands.map((b) => (
+          <li key={b.handle}>
+            <BrandLogo brand={b} />
+          </li>
+        ))}
+      </ul>
 
-      <div className="mx-auto max-w-7xl px-6 text-center mt-12">
+      <div className="mt-10">
         <Link
           href="/marcas"
-          className="inline-flex items-center text-leather font-medium hover:text-terracotta transition-colors"
+          className="cuerpo -my-3 inline-block py-3 text-leather underline-offset-4 transition-colors duration-[180ms] hover:underline"
         >
           <T k="nav.brands.all" />
-          <span className="ml-2" aria-hidden>→</span>
+          <span className="ml-1.5" aria-hidden>→</span>
         </Link>
       </div>
     </section>
   )
 }
 
-/**
- * Un logo del cintillo. `decorative` marca las copias visuales (relleno + la
- * 2ª mitad): siguen siendo clickeables con mouse pero se ocultan a lectores
- * de pantalla y al teclado, para que solo las marcas reales estén una vez.
- */
-function BrandLogo({ brand: b, decorative }: { brand: Brand; decorative: boolean }) {
+function BrandLogo({ brand: b }: { brand: Brand }) {
+  if (!b.logo) {
+    // Marca sin logo cargado: el nombre en su lugar, a la misma altura de
+    // renglón que los logos para que la fila no se descuadre.
+    return (
+      <Link
+        href={`/marcas/${b.handle}`}
+        className="nav-label flex min-h-11 items-center text-text-muted transition-colors duration-[180ms] hover:text-text"
+      >
+        {b.name}
+      </Link>
+    )
+  }
   return (
     <Link
       href={`/marcas/${b.handle}`}
-      aria-label={decorative ? undefined : `Ver botas de ${b.name}`}
-      aria-hidden={decorative || undefined}
-      tabIndex={decorative ? -1 : undefined}
-      className="group relative block aspect-square w-28 shrink-0 overflow-hidden rounded-sm bg-bg-alt md:w-36"
+      aria-label={`Ver botas de ${b.name}`}
+      // .logos-talleres deja el logo en 40px de alto; min-h-11 sube el objetivo
+      // táctil a los 44 de móvil sin agrandar la imagen.
+      className="flex min-h-11 items-center"
     >
-      {b.logo ? (
-        <Image
-          src={b.logo.url}
-          alt={decorative ? "" : b.logo.altText || b.name}
-          fill
-          sizes="144px"
-          className="object-cover transition-transform duration-500 group-hover:scale-105"
-        />
-      ) : (
-        <div className="absolute inset-0 flex items-center justify-center bg-text p-3">
-          <span className="font-display text-base md:text-lg text-bg text-center leading-tight">
-            {b.name}
-          </span>
-        </div>
-      )}
-
-      <div className="absolute inset-x-0 bottom-0 p-2 bg-gradient-to-t from-black/80 to-transparent opacity-0 transition-opacity group-hover:opacity-100">
-        <p className="truncate text-center text-xs font-medium text-bg">{b.name}</p>
-      </div>
+      {/* Los logos del metaobjeto son cuadrados (1:1), no apaisados: a 40px de
+          alto medirían 40 de ancho y el nombre de dentro no se leería. Por eso
+          la franja va a 56px (44 en móvil).
+          Seis de los catorce vienen sobre fondo oscuro o de color y el multiply
+          los dejaría como cuadros negros; a esos se les invierte primero (ver
+          lib/logos-talleres.ts, con la medición). */}
+      <Image
+        src={b.logo.url}
+        alt={b.logo.altText || b.name}
+        width={b.logo.width ?? 120}
+        height={b.logo.height ?? 120}
+        sizes="120px"
+        className={logoNecesitaInvertirse(b.handle) ? "logo-invertido" : undefined}
+      />
     </Link>
   )
 }

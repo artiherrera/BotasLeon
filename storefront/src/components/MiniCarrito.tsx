@@ -75,7 +75,7 @@ export function MiniCarrito() {
     })
   }
 
-  const botonPagar = "px-5 py-2.5 bg-text text-bg text-sm font-semibold hover:bg-leather transition-colors whitespace-nowrap"
+  const botonPagar = "btn shrink-0"
 
   return (
     <div
@@ -84,11 +84,11 @@ export function MiniCarrito() {
       data-minicarrito
       className={`${enFicha ? "hidden md:flex" : "flex"} fixed z-40 items-center gap-3 bg-bg/95 backdrop-blur-xl border-border shadow-[0_-8px_24px_rgba(0,0,0,0.08)]
         inset-x-0 bottom-0 border-t px-4 py-3
-        md:inset-x-auto md:right-6 md:bottom-6 md:rounded-full md:border md:px-5 md:py-2.5 md:shadow-2xl`}
+        md:inset-x-auto md:right-6 md:bottom-6 md:border md:px-5 md:py-3`}
       style={{ paddingBottom: "max(0.75rem, env(safe-area-inset-bottom))" }}
     >
-      <span className="w-5 h-5 shrink-0 text-leather" aria-hidden="true">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <span className="w-5 h-5 shrink-0 text-text" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
           <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z" />
           <path d="M3 6h18" />
           <path d="M16 10a4 4 0 0 1-8 0" />
@@ -102,7 +102,7 @@ export function MiniCarrito() {
       <button
         type="button"
         onClick={openCart}
-        className="text-sm text-text underline underline-offset-4 hover:text-leather transition-colors whitespace-nowrap"
+        className="btn btn-ter min-h-11 text-sm whitespace-nowrap"
       >
         {t("minicart.view")}
       </button>

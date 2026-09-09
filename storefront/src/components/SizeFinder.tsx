@@ -39,30 +39,34 @@ export function SizeFinder({
   const T = en ? EN : ES
 
   return (
-    <div className="mt-3">
+    <div className="mt-4">
+      {/* La tarjeta va sobre el plato (el mismo fondo de las fotos), con la
+          esquina recta y sin sombra ni rebote: es una ayuda, no un anuncio.
+          El ícono deja de ser un círculo negro y pasa a trazo, del mismo set
+          y grosor que el resto de la ficha. */}
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="group flex w-full items-center gap-3 rounded-xl border border-border bg-bg-alt px-4 py-3 text-left transition-all hover:border-leather hover:shadow-sm active:scale-[0.99]"
+        className="group flex min-h-[44px] w-full items-center gap-3 border border-border bg-plate px-4 py-3 text-left transition-colors duration-[180ms] hover:border-text"
       >
-        <span className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-text text-bg transition-transform group-hover:scale-105">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+        <span className="flex h-10 w-10 flex-shrink-0 items-center justify-center text-text">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
             <rect x="2.5" y="8" width="19" height="8" rx="1.5" />
             <path d="M7 8v3M11 8v4M15 8v3M19 8v3" />
           </svg>
         </span>
         <span className="flex-1 leading-tight">
-          <span className="block text-sm font-semibold text-text">{T.trigger}</span>
-          <span className="block text-xs text-text-subtle mt-0.5">{T.triggerSub}</span>
+          <span className="block text-sm font-medium text-text">{T.trigger}</span>
+          <span className="nota mt-0.5 block">{T.triggerSub}</span>
         </span>
-        <svg className="flex-shrink-0 text-text-subtle transition-all group-hover:text-leather group-hover:translate-x-0.5" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+        <svg className="flex-shrink-0 text-text-muted transition-colors duration-[180ms] group-hover:text-text" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
           <path d="M9 18l6-6-6-6" />
         </svg>
       </button>
 
       {mounted && open &&
         createPortal(
-          <Modal onClose={() => setOpen(false)} en={en} T={T} genderHandle={genderHandle} fitNote={fitNote} />,
+          <Modal onClose={() => setOpen(false)} T={T} genderHandle={genderHandle} fitNote={fitNote} />,
           document.body
         )}
     </div>
@@ -71,13 +75,11 @@ export function SizeFinder({
 
 function Modal({
   onClose,
-  en,
   T,
   genderHandle,
   fitNote,
 }: {
   onClose: () => void
-  en: boolean
   T: typeof ES
   genderHandle?: string | null
   fitNote?: string | null
@@ -111,13 +113,13 @@ function Modal({
       aria-label={T.title}
     >
       <div
-        className="w-full sm:max-w-md max-h-[92vh] overflow-y-auto bg-bg rounded-t-2xl sm:rounded-2xl shadow-xl"
+        className="w-full sm:max-w-md max-h-[92vh] overflow-y-auto border border-border bg-bg"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="sticky top-0 bg-bg border-b border-border px-5 py-4 flex items-center justify-between">
-          <h2 className="font-heading text-lg text-text">{T.title}</h2>
-          <button type="button" onClick={onClose} aria-label={T.close} className="text-text-subtle hover:text-text p-1">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M18 6L6 18M6 6l12 12" /></svg>
+          <h2 className="display-s text-text">{T.title}</h2>
+          <button type="button" onClick={onClose} aria-label={T.close} className="flex h-11 w-11 items-center justify-center text-text-muted transition-colors duration-[180ms] hover:text-text">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6L6 18M6 6l12 12" /></svg>
           </button>
         </div>
 
@@ -129,8 +131,8 @@ function Modal({
                 key={g}
                 type="button"
                 onClick={() => { setGender(g); setResult(null) }}
-                className={`flex-1 py-2 text-sm rounded-full border transition-colors ${
-                  gender === g ? "border-leather bg-text text-bg" : "border-border text-text-muted hover:border-leather"
+                className={`min-h-[44px] flex-1 border text-sm transition-colors duration-[180ms] ${
+                  gender === g ? "border-text bg-text text-bg" : "border-border text-text-muted hover:border-text"
                 }`}
               >
                 {g === "men" ? T.men : T.women}
@@ -139,14 +141,14 @@ function Modal({
           </div>
 
           {/* Tabs */}
-          <div className="flex rounded-lg bg-bg-alt p-1 mb-4">
+          <div className="mb-4 flex border-b border-border">
             {tabs.map((tb) => (
               <button
                 key={tb.id}
                 type="button"
                 onClick={() => { setTab(tb.id); setResult(null) }}
-                className={`flex-1 py-2 text-sm rounded-md transition-colors ${
-                  tab === tb.id ? "bg-bg text-text shadow-sm font-medium" : "text-text-muted"
+                className={`min-h-[44px] flex-1 -mb-px border-b-2 text-sm transition-colors duration-[180ms] ${
+                  tab === tb.id ? "border-text font-medium text-text" : "border-transparent text-text-muted hover:text-text"
                 }`}
               >
                 {tb.label}
@@ -160,7 +162,7 @@ function Modal({
           {result && <ResultBox result={result} T={T} fitNote={fitNote} />}
 
           <details className="mt-4">
-            <summary className="text-xs text-text-subtle cursor-pointer hover:text-text">{T.showTable}</summary>
+            <summary className="nota cursor-pointer hover:text-text">{T.showTable}</summary>
             <div className="mt-2 overflow-x-auto">
               <table className="w-full text-xs text-text-muted">
                 <thead><tr className="text-text-subtle"><th className="text-left py-1">MX</th><th className="text-left">US</th><th className="text-left">EU</th><th className="text-left">{T.footCm}</th></tr></thead>
@@ -186,20 +188,20 @@ function KnownTab({ gender, T, onResult }: { gender: Gender; T: typeof ES; onRes
   const calc = () => onResult(sizeFromScale(parseFloat(value.replace(",", ".")), scale, gender))
   return (
     <div>
-      <p className="text-sm text-text-muted mb-3">{T.knownHelp}</p>
+      <p className="cuerpo text-text-muted mb-3">{T.knownHelp}</p>
       <div className="flex gap-2">
         <input
           type="number" inputMode="decimal" step="0.5" value={value}
           onChange={(e) => setValue(e.target.value)} onKeyDown={(e) => e.key === "Enter" && calc()}
           placeholder={T.knownPh}
-          className="flex-1 px-3 py-2 bg-bg border border-border text-text focus:outline-none focus:border-leather"
+          className="campo flex-1"
         />
-        <select value={scale} onChange={(e) => setScale(e.target.value as SizeScale)} className="px-3 py-2 bg-bg border border-border text-text focus:outline-none focus:border-leather">
+        <select value={scale} onChange={(e) => setScale(e.target.value as SizeScale)} className="campo w-auto">
           <option value="US">US</option><option value="MX">MX</option><option value="EU">EU</option>
         </select>
       </div>
-      <p className="text-xs text-text-subtle mt-2">{T.knownTip}</p>
-      <button type="button" onClick={calc} className="mt-3 w-full py-2.5 bg-text text-bg text-sm hover:bg-leather transition-colors">{T.calc}</button>
+      <p className="nota mt-2">{T.knownTip}</p>
+      <button type="button" onClick={calc} className="btn mt-3 w-full">{T.calc}</button>
     </div>
   )
 }
@@ -209,7 +211,7 @@ function MeasureTab({ gender, T, onResult }: { gender: Gender; T: typeof ES; onR
   const calc = () => onResult(sizeFromCm(parseFloat(cm.replace(",", ".")), gender))
   return (
     <div>
-      <ol className="text-sm text-text-muted list-decimal pl-4 space-y-1 mb-3">
+      <ol className="cuerpo text-text-muted list-decimal pl-4 space-y-1 mb-3">
         <li>{T.measure1}</li><li>{T.measure2}</li><li>{T.measure3}</li>
       </ol>
       <div className="flex items-center gap-2">
@@ -217,28 +219,29 @@ function MeasureTab({ gender, T, onResult }: { gender: Gender; T: typeof ES; onR
           type="number" inputMode="decimal" step="0.1" value={cm}
           onChange={(e) => setCm(e.target.value)} onKeyDown={(e) => e.key === "Enter" && calc()}
           placeholder={T.measurePh}
-          className="flex-1 px-3 py-2 bg-bg border border-border text-text focus:outline-none focus:border-leather"
+          className="campo flex-1"
         />
-        <span className="text-sm text-text-muted">cm</span>
+        <span className="cuerpo text-text-muted">cm</span>
       </div>
-      <button type="button" onClick={calc} className="mt-3 w-full py-2.5 bg-text text-bg text-sm hover:bg-leather transition-colors">{T.calc}</button>
+      <button type="button" onClick={calc} className="btn mt-3 w-full">{T.calc}</button>
     </div>
   )
 }
 
 function ResultBox({ result, T, fitNote }: { result: SizeResult; T: typeof ES; fitNote?: string | null }) {
   return (
-    <div className="mt-4 rounded-lg border border-leather bg-bg-alt p-4">
-      <p className="text-xs text-text-subtle uppercase tracking-wider mb-1">{T.yourSize}</p>
-      <p className="font-heading text-2xl text-text">
-        MX {fmt(result.mx)} <span className="text-text-subtle text-lg">· US {fmt(result.us)}{result.eu ? ` · EU ${fmt(result.eu)}` : ""}</span>
+    <div className="mt-4 border border-border bg-plate p-4">
+      <p className="eyebrow text-text-muted mb-1">{T.yourSize}</p>
+      <p className="display-m text-text">
+        MX {fmt(result.mx)} <span className="text-text-muted">· US {fmt(result.us)}{result.eu ? ` · EU ${fmt(result.eu)}` : ""}</span>
       </p>
-      <p className="text-xs text-text-subtle mt-1">{T.footEst}: {result.cm} cm</p>
-      {result.between && <p className="text-sm text-terracotta mt-2">{T.between(fmt(result.mx + 0.5))}</p>}
-      {result.outOfRange === "small" && <p className="text-sm text-terracotta mt-2">{T.tooSmall}</p>}
-      {result.outOfRange === "large" && <p className="text-sm text-terracotta mt-2">{T.tooLarge}</p>}
-      {fitNote && <p className="text-sm text-text-muted mt-2">👢 {fitNote}</p>}
-      <p className="text-[11px] text-text-subtle mt-3">{T.disclaimer}</p>
+      <p className="nota mt-1">{T.footEst}: {result.cm} cm</p>
+      {result.between && <p className="cuerpo text-leather mt-2">{T.between(fmt(result.mx + 0.5))}</p>}
+      {result.outOfRange === "small" && <p className="cuerpo text-leather mt-2">{T.tooSmall}</p>}
+      {result.outOfRange === "large" && <p className="cuerpo text-leather mt-2">{T.tooLarge}</p>}
+      {fitNote && <p className="cuerpo text-text-muted mt-2">{fitNote}</p>}
+      {/* Nada por debajo de 12px: el text-[11px] de antes no se leía en móvil. */}
+      <p className="nota mt-3">{T.disclaimer}</p>
     </div>
   )
 }

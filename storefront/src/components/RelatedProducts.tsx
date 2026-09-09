@@ -73,11 +73,14 @@ export async function RelatedProducts({
         : "related.alsoLike"
 
   return (
-    <section className="mx-auto max-w-7xl px-6 py-12 md:py-16 border-t border-border mt-12">
-      <p className="eyebrow text-leather mb-2">
+    <section className="contenedor seccion border-t border-border">
+      {/* "Te puede interesar" es un eyebrow genérico y va en gris: el cuero
+          está reservado al del taller, a los enlaces, a las estrellas y al
+          hover del botón primario. */}
+      <p className="eyebrow text-xs text-text-muted mb-2">
         <T k="related.eyebrow" />
       </p>
-      <h2 className="font-heading text-2xl md:text-3xl text-text mb-8">
+      <h2 className="display-m text-text mb-8">
         <T k={headingKey} />
       </h2>
       <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8">

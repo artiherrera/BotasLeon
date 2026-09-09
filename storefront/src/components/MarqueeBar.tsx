@@ -1,65 +1,45 @@
 /**
- * MarqueeBar — cintillo horizontal scrolling con mensajes de trust.
+ * Barra de avisos del sitio. UN mensaje y UN enlace, quietos.
  *
- * Reemplaza el TrustBadges estático. CSS-only animation, sin deps.
- * Para loop seamless duplicamos los items 2x en JSX — cuando el primer
- * set scroll-out, el segundo queda exactamente en la misma posición
- * en que arrancó el primero. Animación define `to: -50%` (la mitad
- * del contenido duplicado = la longitud original).
+ * Antes era una marquesina negra con cuatro mensajes en bucle: cuatro
+ * promesas rotando roban la atención de la portada y ninguna se lee entera
+ * (la línea que te interesa ya se fue). Aquí queda un solo mensaje, el que de
+ * verdad decide la compra en cada mercado, sobre el plato y con la misma
+ * línea de 1px que separa la cabecera.
  *
- * Pause-on-hover para que el lector pueda parar a leer un mensaje.
+ * El mensaje y el destino los resuelve AVISO (src/lib/promesas.ts) por
+ * MERCADO, no por idioma: botasleon.com/es vende a Estados Unidos, y "envío
+ * gratis a toda la República" ahí sería una promesa falsa.
+ *
+ * Conserva el nombre MarqueeBar aunque ya no haya marquesina: el archivo
+ * todavía lo importa la portada, y renombrarlo desde aquí la rompería.
  */
 
 "use client"
 
 import { LocalizedLink as Link } from "@/components/LocalizedLink"
 import { useT } from "@/lib/i18n/context"
-import { isMX } from "@/lib/market"
-
-// Cada item es una LLAVE del diccionario. Hay dos mercados: en EE.UU. el
-// cintillo solo dice que enviamos allá (el costo lo calcula el checkout); en
-// México sí promete envío gratis, porque lo es (ver lib/shipping-policy.ts).
-const MESSAGE_SPECS: Array<{ key: string; href?: string; vars?: Record<string, string> }> = [
-  { key: "marquee.tradition" },
-  { key: "marquee.leather" },
-  { key: isMX ? "marquee.shippingMx" : "marquee.shipping" },
-  { key: "marquee.store", href: "/visitanos" },
-]
-
-const ITEM_CLS =
-  "px-12 text-base md:text-lg font-medium tracking-wide whitespace-nowrap"
+import { AVISO } from "@/lib/promesas"
 
 export function MarqueeBar() {
   const t = useT()
-  const MESSAGES = MESSAGE_SPECS.map((spec) => {
-    let text = t(spec.key)
-    if (spec.vars) {
-      for (const [k, v] of Object.entries(spec.vars)) text = text.replace(`{${k}}`, v)
-    }
-    return { text, href: spec.href }
-  })
+
   return (
-    <div className="overflow-hidden bg-text text-bg border-y border-leather-light/20">
-      <div className="marquee-track flex w-max py-5">
-        {/* Items duplicados 2x para loop seamless */}
-        {[...MESSAGES, ...MESSAGES].map((msg, idx) => {
-          const dup = idx >= MESSAGES.length
-          return msg.href ? (
-            <Link
-              key={idx}
-              href={msg.href}
-              aria-hidden={dup}
-              tabIndex={dup ? -1 : undefined}
-              className={`${ITEM_CLS} text-bg hover:text-bg transition-colors`}
-            >
-              {msg.text}
-            </Link>
-          ) : (
-            <span key={idx} className={ITEM_CLS} aria-hidden={dup}>
-              {msg.text}
-            </span>
-          )
-        })}
+    <div className="bg-plate border-b border-border-plate">
+      {/* Alto MÍNIMO de 36px, no fijo, y el mensaje envuelve en vez de cortarse.
+          Medido con la fuente real a 13px: el aviso de EE.UU. mide 361px y el
+          de México 299, más el enlace; en un teléfono de 360px el .contenedor
+          deja 312 de ancho útil, así que con `truncate` la única promesa de la
+          cabecera salía cortada con puntos suspensivos en TODOS los teléfonos.
+          En escritorio cabe en un renglón y la barra sigue midiendo 36px. */}
+      <div className="contenedor flex min-h-9 flex-wrap items-center justify-center gap-x-2 py-1.5 text-center">
+        <p className="text-[13px] leading-snug text-text">{t(AVISO.texto)}</p>
+        <Link
+          href={AVISO.enlace}
+          className="text-[13px] leading-snug text-text underline underline-offset-4 whitespace-nowrap transition-colors duration-[180ms] hover:text-leather"
+        >
+          {t(AVISO.enlaceTexto)}
+        </Link>
       </div>
     </div>
   )

@@ -84,11 +84,11 @@ export function RecentlyViewed({ currentHandle, currentTitle, currentImage }: Pr
   if (others.length < 1) return null
 
   return (
-    <section className="mx-auto max-w-7xl px-6 py-12 md:py-16 border-t border-border">
-      <p className="eyebrow text-leather mb-2">{t("recent.eyebrow")}</p>
-      <h3 className="font-heading text-xl md:text-2xl text-text mb-6">
-        {t("recent.title")}
-      </h3>
+    <section className="contenedor seccion border-t border-border">
+      {/* Eyebrow genérico: va en gris. El cuero está reservado al eyebrow del
+          taller, a los enlaces, a las estrellas y al hover del botón primario. */}
+      <p className="eyebrow text-xs text-text-muted mb-2">{t("recent.eyebrow")}</p>
+      <h3 className="display-m text-text mb-6">{t("recent.title")}</h3>
       <ul className="grid grid-cols-3 md:grid-cols-6 gap-4 md:gap-6">
         {others.map((item) => (
           <RecentItem key={item.handle} item={item} />
@@ -114,36 +114,15 @@ function RecentItem({ item }: { item: ViewedItem }) {
         className="group block"
         aria-label={`${t("card.view")} ${title}`}
       >
-        <div className="relative aspect-square overflow-hidden bg-bg-alt rounded-sm mb-2">
-          {item.image ? (
-            <Image
-              src={item.image}
-              alt={title}
-              fill
-              sizes="(max-width: 768px) 33vw, 16vw"
-              className="object-cover group-hover:scale-105 transition-transform duration-500"
-            />
-          ) : (
-            <div className="absolute inset-0 flex items-center justify-center text-text-subtle">
-              <svg
-                width="32"
-                height="32"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                aria-hidden="true"
-              >
-                <rect width="18" height="18" x="3" y="3" rx="2" ry="2" />
-                <circle cx="9" cy="9" r="2" />
-                <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21" />
-              </svg>
-            </div>
+        {/* El plato pintado ES el marcador de posición: cuando localStorage
+            devuelve una foto que aún no carga, se ve el fondo cálido y no un
+            cuadro blanco, así que el SVG de silueta que había aquí sobra. */}
+        <div className="plato mb-2">
+          {item.image && (
+            <Image src={item.image} alt={title} fill sizes="(max-width: 768px) 33vw, 16vw" />
           )}
         </div>
-        <p className="text-xs text-text-muted leading-tight line-clamp-2 group-hover:text-leather transition-colors">
+        <p className="nota text-text line-clamp-2 group-hover:underline underline-offset-4">
           {title}
         </p>
       </Link>

@@ -95,6 +95,11 @@ export function CustomsTaxIdField() {
         missing: "Ingresa tu Tax ID para continuar al pago (pedidos ≥ $800 a EE.UU.).",
       }
 
+  // En México no hay aduana que declarar: sin este corte, el envoltorio pintaba
+  // igual su border-t y sus 32px de aire, o sea una regla horizontal suelta en
+  // medio del carrito de la .mx con nada debajo.
+  if (!requiresUsCustoms) return null
+
   return (
     <div className="border-t border-border pt-4 mb-4 text-sm">
       {/* El destino NO se pregunta: el mercado del despliegue ya lo fija
@@ -104,9 +109,9 @@ export function CustomsTaxIdField() {
           despliegue en pesos. */}
       {requiresUsCustoms && (
         <div className="mt-3">
-          <label htmlFor="us-tax-id" className="block text-text-muted mb-1.5 text-xs">
+          <label htmlFor="us-tax-id" className="block nota mb-1.5">
             {S.label}{" "}
-            <span className={needsTaxId ? "text-terracotta" : "text-text-subtle"}>
+            <span className={needsTaxId ? "font-semibold text-text" : "text-text-subtle"}>
               {needsTaxId ? S.req : S.opt}
             </span>
           </label>
@@ -121,11 +126,11 @@ export function CustomsTaxIdField() {
             autoCorrect="off"
             spellCheck={false}
             aria-invalid={taxMissing}
-            className={`w-full px-3 py-2 bg-bg border text-sm text-text focus:outline-none disabled:opacity-50 ${
-              taxMissing ? "border-terracotta focus:border-terracotta" : "border-border focus:border-leather"
+            className={`campo disabled:opacity-50 ${
+              taxMissing ? "border-text" : ""
             }`}
           />
-          <p className={`text-xs mt-1.5 ${taxMissing ? "text-terracotta" : "text-text-subtle"}`}>
+          <p className={`nota mt-1.5 ${taxMissing ? "font-semibold text-text" : "text-text-subtle"}`}>
             {taxMissing ? S.missing : S.help}
           </p>
 

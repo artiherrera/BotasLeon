@@ -102,16 +102,24 @@ export function PrintSelectionButton({
     }
   }
 
+  // Terciario, no botón de contorno: esto vive DEBAJO del grid y no debe
+  // competir con el producto. La descarga de la selección es herramienta de
+  // venta (mandar por WhatsApp lo que el cliente acaba de filtrar), no una
+  // acción de compra.
+  // `min-h-11`: .btn-ter deja la altura en auto y el enlace quedaba en ~20px
+  // de alto, la mitad del objetivo táctil de 44px en móvil. `cuerpo` no se
+  // pone aquí porque .btn se define después y le gana el tamaño; el 14px de
+  // .btn es el que manda.
   const btnClass =
-    "inline-flex items-center gap-1.5 border border-border px-3 py-1.5 text-xs uppercase tracking-wider text-text-muted hover:border-leather hover:text-leather transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+    "btn btn-ter min-h-11 text-text-muted hover:text-leather disabled:opacity-50 disabled:cursor-not-allowed"
 
   const Spinner = () => (
-    <svg className="animate-spin" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <svg className="animate-spin" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
       <path d="M21 12a9 9 0 1 1-6.219-8.56" />
     </svg>
   )
   const DownloadIcon = () => (
-    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
       <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
       <polyline points="7 10 12 15 17 10" />
       <line x1="12" y1="15" x2="12" y2="3" />
@@ -119,7 +127,7 @@ export function PrintSelectionButton({
   )
 
   return (
-    <div className="inline-flex items-center gap-2">
+    <div className="inline-flex items-center gap-5">
       <button
         type="button"
         onClick={() => download("pdf")}

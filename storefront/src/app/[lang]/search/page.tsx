@@ -85,19 +85,21 @@ function SearchResults({ initialQuery }: { initialQuery: string }) {
     <>
       <Header />
       <main id="contenido" tabIndex={-1} className="flex-1">
-        <div className="mx-auto max-w-5xl px-6 py-12 md:py-16">
-          <div className="mb-8 text-center">
-            <p className="eyebrow text-leather mb-2">Búsqueda</p>
-            <h1 className="font-display text-4xl md:text-5xl text-text mb-3">
+        <div className="contenedor seccion">
+          {/* Encabezado de página como el de cualquier listado: a la izquierda.
+              El centrado se reserva a la frase de marca. */}
+          <div className="mb-8">
+            <p className="eyebrow text-xs text-text-muted mb-2">Búsqueda</p>
+            <h1 className="display-l text-text mb-3">
               ¿Qué buscas?
             </h1>
-            <p className="text-text-muted">
+            <p className="cuerpo-l medida-lectura text-text-muted">
               Busca por nombre, marca, tipo o material.
             </p>
           </div>
 
-          {/* Input grande */}
-          <div className="relative max-w-2xl mx-auto mb-12">
+          {/* Campo de búsqueda */}
+          <div className="relative max-w-2xl mb-12">
             <input
               type="search"
               value={query}
@@ -108,16 +110,16 @@ function SearchResults({ initialQuery }: { initialQuery: string }) {
               inputMode="search"
               enterKeyHint="search"
               aria-label="Buscar productos por nombre, marca, tipo o material"
-              className="w-full pl-14 pr-6 py-5 text-lg border-2 border-border focus:border-leather focus:outline-none bg-bg transition-colors"
+              className="campo pl-12 pr-28"
             />
             <svg
-              className="absolute left-5 top-1/2 -translate-y-1/2 text-text-subtle"
-              width="22"
-              height="22"
+              className="absolute left-4 top-1/2 -translate-y-1/2 text-text-subtle"
+              width="20"
+              height="20"
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
-              strokeWidth="2"
+              strokeWidth="1.5"
               strokeLinecap="round"
               strokeLinejoin="round"
             >
@@ -125,7 +127,7 @@ function SearchResults({ initialQuery }: { initialQuery: string }) {
               <path d="m21 21-4.3-4.3" />
             </svg>
             {loading && (
-              <span className="absolute right-5 top-1/2 -translate-y-1/2 text-xs uppercase tracking-wider text-text-muted">
+              <span className="absolute right-4 top-1/2 -translate-y-1/2 nota">
                 Buscando...
               </span>
             )}
@@ -133,8 +135,8 @@ function SearchResults({ initialQuery }: { initialQuery: string }) {
 
           {/* Resultados */}
           {error ? (
-            <div className="border border-red-300 bg-red-50 text-red-900 rounded-sm p-6 max-w-2xl mx-auto">
-              <p className="font-medium mb-2">Error al buscar</p>
+            <div className="border border-red-300 bg-red-50 text-red-900 p-6 max-w-2xl">
+              <p className="cuerpo font-medium mb-2">Error al buscar</p>
               <p className="text-sm font-mono break-all">{error}</p>
             </div>
           ) : loading && results.length === 0 ? (
@@ -144,10 +146,10 @@ function SearchResults({ initialQuery }: { initialQuery: string }) {
           ) : !submitted ? (
             // Shortcuts mientras no ha buscado nada
             <div>
-              <p className="eyebrow text-text-muted text-xs text-center mb-4">
+              <p className="eyebrow text-xs text-text-muted mb-4">
                 Explora por categoría
               </p>
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 max-w-2xl mx-auto">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 max-w-2xl">
                 {[
                   { label: "Hombre", href: "/hombre" },
                   { label: "Mujer", href: "/mujer" },
@@ -156,7 +158,7 @@ function SearchResults({ initialQuery }: { initialQuery: string }) {
                   <Link
                     key={item.href}
                     href={item.href}
-                    className="border border-border py-4 text-center text-sm uppercase tracking-wider hover:border-leather hover:text-leather transition-colors"
+                    className="btn btn-sec w-full"
                   >
                     {item.label}
                   </Link>
@@ -164,37 +166,43 @@ function SearchResults({ initialQuery }: { initialQuery: string }) {
               </div>
             </div>
           ) : results.length === 0 ? (
-            <div className="text-center py-12 max-w-2xl mx-auto">
-              <p className="font-heading text-xl text-text mb-2">
+            <div className="py-12 max-w-2xl">
+              <p className="display-s text-text mb-2">
                 Sin resultados para &ldquo;{query}&rdquo;
               </p>
-              <p className="text-text-muted mb-6">
+              <p className="cuerpo medida-lectura text-text-muted mb-6">
                 Intenta con menos palabras o palabras más generales (ej. solo
                 &ldquo;vaquera&rdquo; en lugar de &ldquo;vaquera café avestruz&rdquo;).
               </p>
               <Link
                 href="/products"
-                className="inline-flex px-6 py-3 border border-leather text-leather text-sm hover:bg-text hover:text-bg transition-colors"
+                className="btn btn-sec"
               >
                 Ver catálogo completo
               </Link>
             </div>
           ) : (
             <div>
-              <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
-                <p className="text-sm text-text-muted">
+              <div className="mb-6 pb-4 border-b border-border">
+                <p className="nota">
                   {results.length} resultado{results.length === 1 ? "" : "s"} para{" "}
                   <strong className="text-text">&ldquo;{query}&rdquo;</strong>
                 </p>
+              </div>
+              <div className="grid grid-cols-2 gap-x-3 gap-y-8 md:grid-cols-3 md:gap-x-6 md:gap-y-10 lg:grid-cols-4">
+                {results.map((p) => (
+                  <ProductCard key={p.id} product={p} />
+                ))}
+              </div>
+
+              {/* La descarga de la selección baja del encabezado a debajo del
+                  grid, en terciario: mismo sitio y mismo peso que en las
+                  páginas de colección. */}
+              <div className="mt-10 pt-6 border-t border-border">
                 <PrintSelectionButton
                   products={results}
                   contexto={`${locale === "en" ? "Search" : "Búsqueda"}: "${query}"`}
                 />
-              </div>
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-6 gap-y-10">
-                {results.map((p) => (
-                  <ProductCard key={p.id} product={p} />
-                ))}
               </div>
             </div>
           )}

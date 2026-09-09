@@ -5,10 +5,10 @@ import { getActiveSocialLinks, type SocialPlatform } from "@/lib/social"
  *
  * Server component. Lee solo de SOCIAL_LINKS activos. Cada icono es
  * SVG inline (sin deps externas, sin fonts custom). Color heredado vía
- * `text-current` para integrarse con paletas claras (Footer cuero) o
- * oscuras (futuros usos).
+ * `text-current` para integrarse con la superficie que lo monte (el pie sobre
+ * plato, el drawer sobre crema).
  *
- * Acessibilidad: cada link tiene aria-label con plataforma + "perfil oficial",
+ * Accesibilidad: cada link tiene aria-label con plataforma + "perfil oficial",
  * target="_blank" + rel="noopener noreferrer" para apertura segura.
  *
  * Variantes de tamaño: 'sm' (16px) | 'md' (20px, default) | 'lg' (24px).
@@ -35,7 +35,7 @@ export function SocialIcons({ size = "md", className = "" }: Props) {
 
   return (
     <ul
-      className={`flex items-center gap-4 list-none p-0 m-0 ${className}`}
+      className={`flex items-center gap-1 list-none p-0 m-0 ${className}`}
       aria-label="Redes sociales BotasLeón"
     >
       {links.map((link) => (
@@ -45,7 +45,7 @@ export function SocialIcons({ size = "md", className = "" }: Props) {
             target="_blank"
             rel="noopener noreferrer"
             aria-label={`${link.label} — perfil oficial BotasLeón`}
-            className="inline-flex items-center justify-center p-1.5 hover:opacity-70 transition-opacity"
+            className="inline-flex h-11 w-11 items-center justify-center hover:opacity-70 transition-opacity duration-[180ms]"
           >
             <Icon platform={link.platform} size={px} />
           </a>
@@ -65,7 +65,7 @@ function Icon({ platform, size }: { platform: SocialPlatform; size: number }) {
           viewBox="0 0 24 24"
           fill="none"
           stroke="currentColor"
-          strokeWidth="2"
+          strokeWidth="1.5"
           strokeLinecap="round"
           strokeLinejoin="round"
           aria-hidden="true"

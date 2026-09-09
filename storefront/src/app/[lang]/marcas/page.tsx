@@ -44,13 +44,13 @@ export default async function MarcasPage() {
     <>
       <Header />
       <main id="contenido" tabIndex={-1} className="flex-1">
-        <div className="mx-auto max-w-7xl px-6 py-12 md:py-16">
-          <div className="mb-12 max-w-2xl">
-            <p className="eyebrow text-leather mb-2">Curaduría</p>
-            <h1 className="font-display text-4xl md:text-5xl text-text mb-3">
+        <div className="contenedor seccion">
+          <div className="mb-12">
+            <p className="eyebrow text-xs text-text-muted mb-2">Curaduría</p>
+            <h1 className="display-l text-text mb-3">
               Las marcas que comercializamos
             </h1>
-            <p className="text-text-muted">
+            <p className="cuerpo-l medida-lectura text-text-muted">
               Trabajamos directamente con talleres y casas de León. Cada marca
               pasa nuestro filtro de calidad antes de entrar al catálogo.
             </p>
@@ -67,31 +67,40 @@ export default async function MarcasPage() {
                     key={b.handle}
                     href={`/marcas/${b.handle}`}
                     aria-label={b.name}
-                    className="group relative aspect-square bg-bg-alt overflow-hidden"
+                    className="group block"
                   >
+                    {/* El logo es el CONTENIDO de esta página, así que no se
+                        recorta: caja de plato y `object-contain`. Va con
+                        .plato-foto porque un logo no es una toma de estudio
+                        sobre fondo claro — con multiply, uno de fondo oscuro
+                        se ensuciaría. */}
                     {b.logo ? (
-                      <div className="absolute inset-0">
+                      <div className="plato plato-foto">
                         <Image
                           src={b.logo.url}
                           alt={b.logo.altText || b.name}
                           fill
                           sizes="(max-width: 640px) 33vw, (max-width: 1024px) 25vw, 16vw"
-                          className="object-cover transition-transform duration-500 group-hover:scale-105"
+                          className="object-contain p-4"
                         />
                       </div>
                     ) : (
-                      <div className="absolute inset-0 flex items-center justify-center bg-text p-2">
-                        <h3 className="font-display text-base md:text-lg text-bg text-center leading-tight">
+                      <div className="plato flex items-center justify-center bg-text p-2">
+                        {/* La tarjeta mide ~100px de ancho en móvil y .plato
+                            recorta lo que se salga: a 22px fijos un nombre como
+                            "FORAJIDAS" se cortaba contra el borde. El tamaño
+                            vuelve a escalar con la tarjeta. */}
+                        <h3 className="display-s text-base md:text-lg leading-tight break-words text-bg text-center">
                           {b.name}
                         </h3>
                       </div>
                     )}
 
-                    <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 to-transparent p-2">
-                      <p className="text-bg text-xs font-medium text-center truncate">
-                        {b.name}
-                      </p>
-                      <p className="text-bg/70 text-[10px] text-center">
+                    {/* El rótulo baja bajo la caja: encima del plato, el
+                        degradado negro de antes tapaba parte del logo. */}
+                    <div className="mt-3">
+                      <p className="nombre-producto text-sm truncate">{b.name}</p>
+                      <p className="nota">
                         {count} {count === 1 ? "producto" : "productos"}
                       </p>
                     </div>
@@ -110,19 +119,19 @@ export default async function MarcasPage() {
 function ConfigBanner() {
   return (
     <div className="border border-amber-300 bg-amber-50 p-8 max-w-2xl">
-      <p className="eyebrow text-amber-900 mb-2">Configuración pendiente</p>
-      <h2 className="font-heading text-2xl text-text mb-3">
+      <p className="eyebrow text-xs text-amber-900 mb-2">Configuración pendiente</p>
+      <h2 className="display-s text-text mb-3">
         Aún sin marcas definidas
       </h2>
-      <p className="text-text-muted mb-4">
+      <p className="cuerpo text-text-muted mb-4">
         Para mostrar tus marcas con logo y orden controlado, crea un
-        metaobject tipo <code className="bg-bg px-1.5 py-0.5 rounded text-leather">brand</code> en Shopify admin →
+        metaobject tipo <code className="bg-bg px-1.5 py-0.5 text-leather">brand</code> en Shopify admin →
         Settings → Custom data → Metaobjects → Add definition.
       </p>
-      <p className="text-sm text-text-muted">
+      <p className="cuerpo text-text-muted">
         Mientras tanto, las marcas de tus productos aparecen automáticamente en
         el catálogo (ver{" "}
-        <Link href="/products" className="text-leather hover:text-terracotta">
+        <Link href="/products" className="text-leather hover:underline underline-offset-4">
           todas las botas
         </Link>{" "}
         y usa el filtro "Marca" del sidebar).

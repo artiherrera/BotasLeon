@@ -40,7 +40,7 @@ export const DICTIONARY: Record<string, Entry> = {
   "pdp.unavailable": { es: "No disponible", en: "Unavailable" },
   "recent.eyebrow": { es: "Visto recientemente", en: "Recently viewed" },
   "recent.title": { es: "Sigue donde te quedaste", en: "Pick up where you left off" },
-  "trust.exchange30": { es: "Garantía 15 días", en: "Ships to the USA" },
+  "trust.exchange30": { es: "Garantía 15 días", en: "15-day warranty" },
 
   // Cambio de talla en modelos seleccionados (solo México — ver lib/exchange.ts).
   // El plazo exacto NO se repite aquí: vive solo en /devoluciones, para que no
@@ -258,7 +258,7 @@ export const DICTIONARY: Record<string, Entry> = {
   "filters.title": { es: "Filtros", en: "Filters" },
   "filters.close": { es: "Cerrar filtros", en: "Close filters" },
   "filters.clear": { es: "Limpiar", en: "Clear" },
-  "filters.clearAll": { es: "Limpiar filtros", en: "Clear filters" },
+  "filters.clearAll": { es: "Limpiar todo", en: "Clear all" },
   "filters.size": { es: "Talla", en: "Size" },
   "filters.brand": { es: "Marca", en: "Brand" },
   "filters.style": { es: "Estilo", en: "Style" },
@@ -608,5 +608,134 @@ export const DICTIONARY: Record<string, Entry> = {
     en: "Accept all cookies",
   },
   "cookies.necessary": { es: "Solo las necesarias", en: "Only necessary" },
+
+  // ══ Sistema visual v3 (informe de rediseño, sep 2026) ═════════════════
+  // Todas las llaves nuevas viven aquí y se añaden de una sola vez, para que
+  // ningún lote del rediseño tenga que abrir este archivo y pisar a otro.
+  //
+  // OJO CON EL MERCADO: lo que solo es cierto en México va envuelto en el
+  // componente con isMX / ENVIO_GRATIS_SIEMPRE / HAY_MSI / admiteCambioDeTalla,
+  // NUNCA con locale === "es" — botasleon.com/es es venta de Estados Unidos.
+
+  // ── Barra de avisos (sustituye a la marquesina negra) ─────────────────
+  "aviso.mx": {
+    es: "Envío gratis a toda la República, sin monto mínimo.",
+    en: "Free shipping anywhere in Mexico, no minimum.",
+  },
+  "aviso.us": {
+    es: "Enviamos a todo Estados Unidos. Entrega en 2–3 días hábiles.",
+    en: "We ship anywhere in the USA. Delivered in 2–3 business days.",
+  },
+  "aviso.enlace": { es: "Ver envíos", en: "Shipping details" },
+
+  // ── Tarjeta de producto ──────────────────────────────────────────────
+  // El botón "Agregar" se retiró de la tarjeta: competía con la foto y creaba
+  // carritos sin talla que no podían pagar. Al pasar el cursor aparece esto.
+  "card.chooseSize": { es: "Elegir talla", en: "Choose size" },
+  "card.badgeNew": { es: "Nueva", en: "New" },
+  // El badge de outlet se deriva de compareAtPrice (ver lib/utils saleInfo).
+  // Hoy no se pinta en ninguna tarjeta: los 103 productos tienen el precio de
+  // comparación en 0. Se pintará solo en cuanto el dueño capture uno.
+  "card.badgeOutlet": { es: "Outlet", en: "Outlet" },
+
+  // ── Encabezado de sección y buscador ─────────────────────────────────
+  "search.headerPlaceholder": {
+    es: "¿Qué bota buscas?",
+    en: "Which boot are you looking for?",
+  },
+  "latest.title": { es: "Lo más nuevo", en: "New arrivals" },
+  "brand.phraseEyebrow": { es: "Nuestros talleres", en: "Our workshops" },
+
+  // ── Filtros de colección ─────────────────────────────────────────────
+  "filters.activeTitle": { es: "Filtros activos", en: "Active filters" },
+  "filters.removeAria": {
+    es: "Quitar el filtro {label}",
+    en: "Remove the {label} filter",
+  },
+  // La unidad cambia según lo que se esté listando: en /accesorios y en la
+  // página de una marca de cintos, "pares" sería mentira.
+  "listing.pairs": { es: "pares", en: "pairs" },
+  "listing.pair": { es: "par", en: "pair" },
+  "listing.pieces": { es: "piezas", en: "items" },
+  "listing.piece": { es: "pieza", en: "item" },
+
+  // ── Ficha: acordeones ────────────────────────────────────────────────
+  // "Detalles", NO "Detalles y medidas": comprobado contra la Storefront API
+  // que altura de caña, altura de tacón, vira y peso NO existen como dato en
+  // ninguno de los 103 productos. Prometer medidas y no darlas sería peor que
+  // no tener el acordeón.
+  "pdp.acc.details": { es: "Detalles", en: "Details" },
+  "pdp.acc.workshop": { es: "El taller", en: "The workshop" },
+  "pdp.acc.shipping": { es: "Envíos y cambios", en: "Shipping & exchanges" },
+  "pdp.detailToe": { es: "Horma", en: "Toe shape" },
+  "pdp.detailLeather": { es: "Piel", en: "Leather" },
+  "pdp.detailStyle": { es: "Estilo", en: "Style" },
+  "pdp.detailColor": { es: "Color", en: "Color" },
+  "pdp.seeAllFrom": { es: "Ver todas de {marca}", en: "See all from {marca}" },
+
+  // ── Ficha: promesas bajo el botón de compra ──────────────────────────
+  // Sustituyen a los cuatro íconos genéricos. Cada una se pinta solo si es
+  // verdad en ese mercado y para ese producto.
+  "promesa.whatsapp": {
+    es: "Asesoría de talla por WhatsApp antes de pagar",
+    en: "Size advice over WhatsApp before you pay",
+  },
+  "promesa.envioMx": {
+    es: "Envío gratis a toda la República",
+    en: "Free shipping anywhere in Mexico",
+  },
+  "promesa.envioUs": {
+    es: "Entrega en Estados Unidos en 2–3 días hábiles",
+    en: "Delivered in the USA in 2–3 business days",
+  },
+  "promesa.cambio": {
+    es: "Cambio de talla sin costo si no te queda",
+    en: "Free size exchange if it doesn't fit",
+  },
+  "promesa.cambioNota": {
+    es: "Sin estrenar · modelos seleccionados",
+    en: "Unworn · selected models",
+  },
+  // Quinta promesa, APAGADA por defecto (PROMESA_VIDEO en lib/promesas.ts).
+  // El informe la propone, pero no consta en ninguna parte del repo ni de las
+  // políticas que el video se mande siempre: encenderla es decisión del dueño,
+  // porque se estaría prometiendo en 103 fichas.
+  "promesa.video": {
+    es: "Te mandamos video del par exacto antes de enviarlo",
+    en: "We send you a video of your exact pair before it ships",
+  },
+
+  // ── Ficha: complemento con cinto ─────────────────────────────────────
+  "cintos.eyebrow": { es: "Va bien con", en: "Goes well with" },
+  "cintos.title": { es: "Complementa con un cinto", en: "Finish it with a belt" },
+  "cintos.cta": { es: "Ver los cintos", en: "Shop belts" },
+  "cintos.desc": {
+    es: "Piel labrada a mano en León, del mismo oficio que tu bota.",
+    en: "Leather hand-tooled in León, from the same craft as your boots.",
+  },
+
+  // ── Reseñas ──────────────────────────────────────────────────────────
+  // El resumen de estrellas se oculta cuando no hay ninguna, pero el enlace
+  // para escribir la primera se queda: con 8 reseñas en toda la tienda, esa
+  // es la única vía de que el número crezca.
+  "review.beFirst": { es: "Sé el primero en reseñarla", en: "Be the first to review it" },
+  "review.onModel": { es: "Sobre {modelo}", en: "On {modelo}" },
+
+  // ── Pie y mapa ───────────────────────────────────────────────────────
+  "footer.catalogDownload": {
+    es: "Descargar catálogo (PDF)",
+    en: "Download catalog (PDF)",
+  },
+  "store.mapPlaceholder": { es: "Toca para ver el mapa", en: "Tap to load the map" },
+
+  // ── Tercera tarjeta del trío de la portada ───────────────────────────
+  // Era Outlet y llevaba a una página vacía: los 103 productos tienen el
+  // precio de comparación en 0, así que /outlet no lista ni una bota.
+  "cat.exotic.eyebrow": { es: "Categoría", en: "Category" },
+  "cat.exotic.title": { es: "Exóticas", en: "Exotics" },
+  "cat.exotic.desc": {
+    es: "Pitón, caimán, avestruz y mantarraya. Lo más fino del taller.",
+    en: "Python, alligator, ostrich and stingray. The finest work in the shop.",
+  },
 
 }

@@ -41,22 +41,28 @@ export function ProductReviews({ handle }: { handle: string }) {
         <div key={r.id} className="border-b border-border/60 pb-6 last:border-0">
           <div className="mb-1 flex items-center gap-2">
             <Stars n={r.rating} />
+            {/* Ningún texto por debajo de 12px: el 10px de antes no se leía en
+                móvil, que es donde se leen las reseñas. */}
             {r.verified && (
-              <span className="text-[10px] uppercase tracking-wider text-leather">
+              <span className="eyebrow text-text-muted">
                 {t("review.verified")}
               </span>
             )}
           </div>
-          <p className="text-sm font-medium text-text">
+          <p className="cuerpo font-medium text-text">
             {r.author || t("review.anonymous")}
             {r.date && (
-              <span className="font-normal text-text-subtle"> · {fmtDate(r.date, dateLocale)}</span>
+              <span className="font-normal text-text-muted"> · {fmtDate(r.date, dateLocale)}</span>
             )}
           </p>
-          {r.title && <p className="font-heading text-text mt-1">{r.title}</p>}
+          {/* El título de reseña es uno de los cinco lugares de la serif. */}
+          {r.title && <p className="display-s text-text mt-1">{r.title}</p>}
           {r.body && (
-            <p className="mt-1 text-sm leading-relaxed text-text-muted">{r.body}</p>
+            <p className="cuerpo medida-lectura mt-1 text-text-muted">{r.body}</p>
           )}
+          {/* plato-foto y no plato a secas: la foto la tomó el cliente con su
+              teléfono, no es una toma de estudio sobre fondo claro, y el
+              multiply sobre medios tonos la ensucia. */}
           {r.photos.length > 0 && (
             <div className="mt-3 flex flex-wrap gap-2">
               {r.photos.map((src, i) => (
@@ -65,10 +71,10 @@ export function ProductReviews({ handle }: { handle: string }) {
                   href={src.replace(/([?&])width=\d+/, "$1width=1200")}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="block h-16 w-16 overflow-hidden rounded-sm border border-border transition-opacity hover:opacity-80"
+                  className="plato plato-foto block h-16 w-16 transition-opacity duration-[180ms] hover:opacity-80"
                 >
                   {/* eslint-disable-next-line @next/next/no-img-element -- imagen servida por Judge.me */}
-                  <img src={src} alt={t("review.photoAlt")} className="h-full w-full object-cover" />
+                  <img src={src} alt={t("review.photoAlt")} />
                 </a>
               ))}
             </div>

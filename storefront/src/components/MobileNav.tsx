@@ -11,17 +11,19 @@ import { isMX } from "@/lib/market"
 /**
  * MobileNav — hamburger + drawer lateral para navegación mobile.
  *
- * Solo se ve en mobile (md:hidden). Desktop usa MegaMenu.
+ * Se ve hasta 1100px: de ahí para arriba manda MegaMenu. El corte estaba en
+ * md (768px) y luego en lg (1024px), pero medido con la fuente real la fila
+ * de la cabecera pide ~977px y a 1024 solo hay 944 (el .contenedor come 40px
+ * de aire por lado, no 24). El número exacto y su cuenta están en Header.tsx.
  *
  * Estructura: TODO desplegado, sin acordeón. Cada categoría grande
  * (HOMBRE / MUJER / NIÑOS) actúa como header de sección, con sus
  * subcategorías visibles debajo. El usuario ve toda la navegación
  * de un vistazo sin tener que hacer tap para expandir nada.
  *
- * Panel casi opaco (bg-bg/92-95) + scrim oscuro (bg-black/50) detrás:
- * la versión translúcida se confundía con la página. Mantiene un blur
- * sutil en los bordes pero prioriza que el menú se lea como una
- * superficie distinta y sólida.
+ * Panel OPACO + scrim oscuro (bg-black/50) detrás: la versión translúcida
+ * se confundía con la página, y el blur creaba un containing block que ya
+ * obligó una vez a portar este drawer a document.body.
  *
  * No duplicamos accesos que ya viven en el Header (Buscar, Mi
  * cuenta, Carrito están como íconos a la derecha del hamburger).
@@ -78,9 +80,9 @@ const CATEGORIES: Category[] = [
   },
 ]
 
-const QUICK_LINKS: Array<{ label: string; href: string; highlight?: boolean }> = [
+const QUICK_LINKS: Array<{ label: string; href: string }> = [
   { label: "nav.brands", href: "/marcas" },
-  { label: "nav.outlet", href: "/outlet", highlight: true },
+  { label: "nav.outlet", href: "/outlet" },
   { label: "nav.visit", href: "/visitanos" },
 ]
 
@@ -104,11 +106,11 @@ export function MobileNav() {
   const hamburgerRef = useRef<HTMLButtonElement>(null)
   const closeButtonRef = useRef<HTMLButtonElement>(null)
 
-  // El drawer se monta vía portal en document.body para escapar el
-  // backdrop-filter del Header. Cualquier ancestro con backdrop-filter,
-  // transform, filter, perspective o contain se vuelve containing
-  // block de los descendientes `position: fixed`, lo que rompía
-  // `h-full` del drawer (medía la altura del Header, no del viewport).
+  // El drawer se monta vía portal en document.body. Cualquier ancestro con
+  // backdrop-filter, transform, filter, perspective o contain se vuelve
+  // containing block de los descendientes `position: fixed`, y entonces el
+  // alto del drawer mide la cabecera y no el viewport. La cabecera ya no lleva
+  // blur, pero el portal es lo que garantiza que no vuelva a pasar.
   useEffect(() => {
     setMounted(true)
   }, [])
@@ -152,7 +154,7 @@ export function MobileNav() {
       <div
         onClick={close}
         aria-hidden={!open}
-        className={`md:hidden fixed inset-0 bg-black/50 z-50 transition-opacity duration-300 ${
+        className={`min-[1100px]:hidden fixed inset-0 bg-black/50 z-50 transition-opacity duration-[180ms] ${
           open ? "opacity-100" : "opacity-0 pointer-events-none"
         }`}
       />
@@ -162,14 +164,14 @@ export function MobileNav() {
         aria-modal="true"
         aria-label={t("a11y.nav")}
         inert={!open}
-        className={`md:hidden fixed inset-y-0 left-0 w-[90%] max-w-sm bg-bg/95 backdrop-blur-xl backdrop-saturate-150 supports-[backdrop-filter]:bg-bg/92
-          border-r border-leather/30 shadow-2xl
-          z-50 flex flex-col transition-transform duration-300 ${
+        className={`min-[1100px]:hidden fixed inset-y-0 left-0 w-[90%] max-w-sm bg-bg
+          border-r border-border
+          z-50 flex flex-col transition-transform duration-[180ms] ${
             open ? "translate-x-0" : "-translate-x-full"
           }`}
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-5 py-4 border-b border-border/40">
+        <div className="flex items-center justify-between px-5 py-4 border-b border-border">
           <Link
             href="/"
             onClick={close}
@@ -189,14 +191,14 @@ export function MobileNav() {
             type="button"
             onClick={close}
             aria-label={t("a11y.closeMenu")}
-            className="p-2 -mr-2 hover:bg-bg-alt/70 rounded transition-colors"
+            className="p-3 -mr-3 hover:bg-plate transition-colors duration-[180ms]"
           >
             <CloseIcon />
           </button>
         </div>
 
         {/* Value prop band */}
-        <div className="bg-text text-bg px-5 py-3 text-[11px] uppercase tracking-wider leading-relaxed">
+        <div className="bg-plate text-text px-5 py-3 nav-label leading-relaxed">
           <p>{t(isMX ? "promo.shippingMx" : "promo.shipping")}</p>
         </div>
 
@@ -206,19 +208,23 @@ export function MobileNav() {
           <div className="px-5 pt-6 pb-2 space-y-7">
             {CATEGORIES.map((cat) => (
               <section key={cat.label}>
-                {/* Header de categoría grande */}
+                {/* Header de categoría grande. font-body NO es decorativo: la
+                    regla base de globals.css pone la serif en todo h1–h4, así
+                    que sin esta clase el nombre de la categoría sale en
+                    Instrument Serif — serif en el menú, justo lo que el
+                    sistema prohíbe. */}
                 <Link
                   href={cat.href}
                   onClick={close}
                   className="block mb-3 group"
                 >
-                  <h3 className="font-display text-2xl text-text group-hover:text-leather transition-colors leading-none">
+                  <h3 className="font-body text-[18px] font-medium uppercase tracking-[0.08em] text-text leading-none underline-offset-4 group-hover:underline">
                     {t(cat.label)}
                   </h3>
                 </Link>
 
                 {/* Sublinks visibles siempre */}
-                <ul className="space-y-2.5 border-l-2 border-leather/20 pl-4">
+                <ul className="space-y-2.5 border-l border-border pl-4">
                   {cat.sublinks.map((sub) => (
                     <li key={sub.label}>
                       <Link
@@ -226,11 +232,11 @@ export function MobileNav() {
                         onClick={close}
                         className="block group"
                       >
-                        <span className="block text-sm font-medium text-text group-hover:text-leather transition-colors">
+                        <span className="block text-sm font-medium text-text underline-offset-4 group-hover:underline">
                           {t(sub.label)}
                         </span>
                         {sub.description && (
-                          <span className="block text-[11px] text-text-muted mt-0.5 leading-snug">
+                          <span className="block text-xs text-text-muted mt-0.5 leading-snug">
                             {t(sub.description)}
                           </span>
                         )}
@@ -243,7 +249,7 @@ export function MobileNav() {
                 <Link
                   href={cat.href}
                   onClick={close}
-                  className="mt-3 ml-4 inline-flex items-center gap-1.5 text-[11px] uppercase tracking-wider text-leather hover:text-text transition-colors"
+                  className="nav-label mt-3 ml-4 inline-flex items-center gap-1.5 text-leather transition-colors duration-[180ms] hover:text-text"
                 >
                   <span>{t(cat.ctaLabel)}</span>
                   <span>→</span>
@@ -253,17 +259,13 @@ export function MobileNav() {
           </div>
 
           {/* Quick links: Marcas + Outlet */}
-          <div className="px-5 pt-6 pb-2 border-t border-border/40 mt-2">
+          <div className="px-5 pt-6 pb-2 border-t border-border mt-2">
             {QUICK_LINKS.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
                 onClick={close}
-                className={`block py-3.5 font-display text-xl border-b border-border/30 transition-colors ${
-                  link.highlight
-                    ? "text-terracotta hover:text-terracotta-dark"
-                    : "text-text hover:text-leather"
-                }`}
+                className="block py-3.5 text-base font-medium uppercase tracking-[0.08em] text-text border-b border-border underline-offset-4 hover:underline"
               >
                 {t(link.label)}
               </Link>
@@ -274,7 +276,7 @@ export function MobileNav() {
               target="_blank"
               rel="noopener noreferrer"
               onClick={close}
-              className="block py-3.5 font-display text-xl border-b border-border/30 text-text hover:text-leather transition-colors"
+              className="block py-3.5 text-base font-medium uppercase tracking-[0.08em] text-text border-b border-border underline-offset-4 hover:underline"
             >
               {t("catalog.nav")}
             </a>
@@ -282,14 +284,14 @@ export function MobileNav() {
 
           {/* Ayuda */}
           <div className="px-5 pt-6 pb-2">
-            <p className="eyebrow text-text-subtle mb-3 text-[10px]">{t("nav.help")}</p>
+            <p className="eyebrow text-text-muted mb-3">{t("nav.help")}</p>
             <ul className="space-y-0">
               {HELP_LINKS.map((link) => (
                 <li key={link.href}>
                   <Link
                     href={link.href}
                     onClick={close}
-                    className="block py-2.5 border-b border-border/25 text-sm text-text-muted hover:text-leather transition-colors"
+                    className="cuerpo block py-2.5 border-b border-border text-text-muted underline-offset-4 hover:text-text hover:underline"
                   >
                     {t(link.label)}
                   </Link>
@@ -300,14 +302,14 @@ export function MobileNav() {
 
           {/* Empresa */}
           <div className="px-5 pt-6 pb-8">
-            <p className="eyebrow text-text-subtle mb-3 text-[10px]">{t("nav.company")}</p>
+            <p className="eyebrow text-text-muted mb-3">{t("nav.company")}</p>
             <ul className="space-y-0">
               {COMPANY_LINKS.map((link) => (
                 <li key={link.href}>
                   <Link
                     href={link.href}
                     onClick={close}
-                    className="block py-2.5 border-b border-border/25 text-sm text-text-muted hover:text-leather transition-colors"
+                    className="cuerpo block py-2.5 border-b border-border text-text-muted underline-offset-4 hover:text-text hover:underline"
                   >
                     {t(link.label)}
                   </Link>
@@ -318,21 +320,21 @@ export function MobileNav() {
         </div>
 
         {/* Footer: contacto + redes sociales + branding */}
-        <div className="border-t border-border/40 bg-bg-alt/40 px-5 py-5 space-y-3">
+        <div className="border-t border-border bg-plate px-5 py-5 space-y-3">
           <a
             href="mailto:contacto@botasleon.com"
-            className="flex items-center gap-3 text-sm text-text hover:text-leather transition-colors"
+            className="cuerpo flex items-center gap-3 text-text underline-offset-4 hover:underline"
           >
             <MailIcon />
             <span>contacto@botasleon.com</span>
           </a>
 
           {/* Redes sociales */}
-          <div className="text-text-muted hover:[&_a]:text-leather">
+          <div className="text-text-muted">
             <SocialIcons size="md" />
           </div>
 
-          <p className="text-[11px] text-text-subtle pt-1">
+          <p className="nota pt-1">
             {t("brand.taglineShort")}
           </p>
         </div>
@@ -348,7 +350,7 @@ export function MobileNav() {
         onClick={() => setOpen(true)}
         aria-label={t("a11y.openMenu")}
         aria-expanded={open}
-        className="md:hidden p-2 -ml-2 hover:bg-bg-alt rounded transition-colors"
+        className="min-[1100px]:hidden p-3 -ml-3 hover:bg-plate transition-colors duration-[180ms]"
       >
         <HamburgerIcon />
       </button>
@@ -359,7 +361,7 @@ export function MobileNav() {
 
 function HamburgerIcon() {
   return (
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
       <line x1="4" y1="6" x2="20" y2="6" />
       <line x1="4" y1="12" x2="20" y2="12" />
       <line x1="4" y1="18" x2="20" y2="18" />
@@ -369,7 +371,7 @@ function HamburgerIcon() {
 
 function CloseIcon() {
   return (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
       <path d="M18 6 6 18M6 6l12 12" />
     </svg>
   )
@@ -377,7 +379,7 @@ function CloseIcon() {
 
 function MailIcon() {
   return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
       <rect width="20" height="16" x="2" y="4" rx="2" />
       <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
     </svg>

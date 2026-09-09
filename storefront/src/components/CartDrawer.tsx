@@ -157,7 +157,7 @@ export function CartDrawer() {
       <div
         onClick={closeCart}
         aria-hidden={!isOpen}
-        className={`fixed inset-0 bg-black/40 z-50 transition-opacity duration-300 ${
+        className={`fixed inset-0 bg-black/40 z-50 transition-opacity duration-[180ms] ${
           isOpen ? "opacity-100" : "opacity-0 pointer-events-none"
         }`}
       />
@@ -168,13 +168,13 @@ export function CartDrawer() {
         aria-modal="true"
         aria-label={t("cart.ariaLabel")}
         inert={!isOpen}
-        className={`fixed top-0 right-0 h-full w-full sm:w-[28rem] bg-bg border-l border-border z-50 shadow-2xl transition-transform duration-300 flex flex-col ${
+        className={`fixed top-0 right-0 h-full w-full sm:w-[28rem] bg-bg border-l border-border z-50 transition-transform duration-[180ms] flex flex-col ${
           isOpen ? "translate-x-0" : "translate-x-full"
         }`}
       >
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-5 border-b border-border">
-          <h2 className="font-heading text-xl text-text">
+          <h2 className="font-body text-base font-medium text-text">
             {t("cart.title")}
             {cart && cart.totalQuantity > 0 && (
               <span className="text-text-muted font-normal ml-2">
@@ -186,9 +186,9 @@ export function CartDrawer() {
             onClick={closeCart}
             aria-label={t("cart.close")}
             data-autofocus
-            className="p-2 -mr-2 hover:bg-bg-alt rounded transition-colors"
+            className="p-3 -mr-3 hover:bg-bg-alt rounded transition-colors"
           >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
               <path d="M18 6 6 18M6 6l12 12" />
             </svg>
           </button>
@@ -197,10 +197,10 @@ export function CartDrawer() {
         {/* Se acaba de agregar algo: dilo. Antes el cajón abría titulado
             "Tu carrito" y el comprador tenía que deducir que había funcionado. */}
         {lastAdded && !isEmpty && (
-          <div role="status" className="flex items-start gap-3 px-6 py-3 bg-emerald-50 border-b border-emerald-200 text-sm">
-            <span className="mt-0.5 text-emerald-700"><CheckIcon /></span>
+          <div role="status" className="flex items-start gap-3 px-6 py-3 bg-bg-alt border-b border-border cuerpo">
+            <span className="mt-0.5 text-text"><CheckIcon /></span>
             <p className="text-text leading-snug">
-              <span className="text-emerald-800">{t("cart.addedBanner")}</span>{" "}
+              <span className="text-text-muted">{t("cart.addedBanner")}</span>{" "}
               <span className="font-medium">{lastAdded}</span>
             </p>
           </div>
@@ -210,22 +210,22 @@ export function CartDrawer() {
         {isEmpty ? (
           <div className="flex-1 flex flex-col items-center justify-center text-center px-6 py-16">
             <div className="w-20 h-20 mb-6 text-text-subtle">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z" />
                 <path d="M3 6h18" />
                 <path d="M16 10a4 4 0 0 1-8 0" />
               </svg>
             </div>
-            <p className="font-heading text-lg text-text mb-2">
+            <p className="cuerpo-l text-text mb-2">
               {t("cart.empty")}
             </p>
-            <p className="text-sm text-text-muted mb-6 max-w-xs">
+            <p className="cuerpo text-text-muted mb-6 max-w-xs">
               {t("cart.emptyDesc")}
             </p>
             <Link
               href="/products"
               onClick={closeCart}
-              className="inline-flex px-6 py-3 bg-text text-bg text-sm hover:bg-leather transition-colors"
+              className="btn"
             >
               {t("cart.viewCatalog")}
             </Link>
@@ -249,18 +249,15 @@ export function CartDrawer() {
                     <Link
                       href={`/products/${v.product.handle}`}
                       onClick={closeCart}
-                      className="block w-20 h-20 flex-shrink-0 bg-bg-alt overflow-hidden"
+                      className="plato block w-[100px] shrink-0"
                     >
                       {v.image ? (
-                        <div className="relative w-full h-full">
-                          <Image
-                            src={v.image.url}
-                            alt={v.image.altText || v.product.title}
-                            fill
-                            sizes="80px"
-                            className="object-cover"
-                          />
-                        </div>
+                        <Image
+                          src={v.image.url}
+                          alt={v.image.altText || v.product.title}
+                          fill
+                          sizes="100px"
+                        />
                       ) : null}
                     </Link>
 
@@ -269,11 +266,11 @@ export function CartDrawer() {
                         <Link
                           href={`/products/${v.product.handle}`}
                           onClick={closeCart}
-                          className="font-heading text-sm text-text leading-snug hover:text-leather line-clamp-2"
+                          className="nombre-producto text-sm text-text leading-snug hover:underline underline-offset-4 line-clamp-2"
                         >
                           {v.product.title}
                         </Link>
-                        <p className="font-medium text-sm text-text whitespace-nowrap">
+                        <p className="precio text-sm text-text whitespace-nowrap">
                           {formatMoney(
                             line.cost.totalAmount.amount,
                             line.cost.totalAmount.currencyCode
@@ -281,7 +278,7 @@ export function CartDrawer() {
                         </p>
                       </div>
                       {subtitle && (
-                        <p className="text-xs text-text-muted mt-1">{subtitle}</p>
+                        <p className="nota mt-1">{subtitle}</p>
                       )}
 
                       <div className="mt-2">
@@ -319,7 +316,7 @@ export function CartDrawer() {
                           type="button"
                           onClick={() => removeLine(line.id)}
                           disabled={isPending}
-                          className="text-xs text-text-subtle hover:text-terracotta uppercase tracking-wider transition-colors"
+                          className="nota inline-flex h-11 items-center underline underline-offset-4 hover:text-text transition-colors"
                         >
                           {t("cart.remove")}
                         </button>
@@ -332,7 +329,7 @@ export function CartDrawer() {
 
             {/* Footer con totales + checkout */}
             <div
-              className="border-t border-border px-6 pt-4 bg-bg-alt"
+              className="shrink-0 border-t border-border px-6 pt-4 bg-bg-alt"
               style={{
                 paddingBottom: "calc(1.25rem + env(safe-area-inset-bottom))",
               }}
@@ -345,13 +342,13 @@ export function CartDrawer() {
                   {appliedCodes.map((d) => (
                     <div
                       key={d.code}
-                      className="flex items-center justify-between gap-2 rounded-sm border border-leather/30 bg-text/10 px-3 py-2"
+                      className="flex items-center justify-between gap-2 border border-border bg-bg px-3 py-2"
                     >
-                      <span className="flex items-center gap-2 text-sm font-medium text-leather">
+                      <span className="flex items-center gap-2 text-sm font-medium text-text">
                         <CheckIcon />
                         {d.code}
                         {discountTotal > 0 && (
-                          <span className="font-normal text-text-muted">
+                          <span className="nota">
                             (−{formatMoney(String(discountTotal), subtotalCurrency)})
                           </span>
                         )}
@@ -360,7 +357,7 @@ export function CartDrawer() {
                         type="button"
                         onClick={removeDiscount}
                         disabled={isPending}
-                        className="text-xs uppercase tracking-wider text-text-subtle hover:text-terracotta disabled:opacity-40 transition-colors"
+                        className="nota underline underline-offset-4 hover:text-text disabled:opacity-40 transition-colors"
                       >
                         {t("cart.remove")}
                       </button>
@@ -371,13 +368,13 @@ export function CartDrawer() {
                 <button
                   type="button"
                   onClick={() => setMostrarCupon(true)}
-                  className="mb-3 text-xs text-text-muted underline underline-offset-4 hover:text-text transition-colors"
+                  className="mb-3 nota underline underline-offset-4 hover:text-text transition-colors"
                 >
                   {t("cart.promoToggle")}
                 </button>
               ) : (
                 <form onSubmit={handleApplyCode} className="mb-3">
-                  <label htmlFor="promo-code" className="mb-1.5 block text-xs text-text-muted">
+                  <label htmlFor="promo-code" className="mb-1.5 block nota">
                     {t("cart.promoLabel")}
                   </label>
                   <div className="flex gap-2">
@@ -393,18 +390,18 @@ export function CartDrawer() {
                       autoComplete="off"
                       autoCapitalize="characters"
                       spellCheck={false}
-                      className="min-w-0 flex-1 rounded-sm border border-border bg-bg px-3 py-2 text-sm uppercase focus:border-leather focus:outline-none"
+                      className="campo min-w-0 flex-1 uppercase"
                     />
                     <button
                       type="submit"
                       disabled={applyingCode || !codeInput.trim()}
-                      className="whitespace-nowrap rounded-sm border border-leather px-4 py-2 text-sm uppercase tracking-wider text-leather hover:bg-text hover:text-bg disabled:cursor-not-allowed disabled:opacity-40 transition-colors"
+                      className="btn btn-sec whitespace-nowrap"
                     >
                       {applyingCode ? "..." : t("cart.apply")}
                     </button>
                   </div>
                   {codeError && (
-                    <p className="mt-1.5 text-xs text-terracotta" aria-live="polite">
+                    <p className="mt-1.5 nota font-semibold text-text" aria-live="polite">
                       {codeError}
                     </p>
                   )}
@@ -412,8 +409,8 @@ export function CartDrawer() {
               )}
 
               <div className="flex justify-between items-baseline mt-2 mb-1">
-                <span className="text-sm text-text-muted">{t("cart.subtotal")}</span>
-                <span className="font-heading text-lg text-text">
+                <span className="cuerpo text-text-muted">{t("cart.subtotal")}</span>
+                <span className="precio text-text">
                   {cart &&
                     formatMoney(
                       cart.cost.subtotalAmount.amount,
@@ -423,18 +420,18 @@ export function CartDrawer() {
               </div>
               {discountTotal > 0 && (
                 <div className="flex justify-between items-baseline mb-1">
-                  <span className="text-sm text-leather">{t("cart.discount")}</span>
-                  <span className="text-sm font-medium text-leather">
+                  <span className="cuerpo text-text-muted">{t("cart.discount")}</span>
+                  <span className="precio text-sm text-text">
                     −{formatMoney(String(discountTotal), subtotalCurrency)}
                   </span>
                 </div>
               )}
-              <p className="text-xs text-text-muted mt-1">
+              <p className="nota mt-1">
                 {t(isMX ? "cart.shippingTax" : "cart.shippingTaxUs")}
               </p>
               {/* Entrega estimada: no saber cuándo llega es motivo de abandono
                   (Baymard). Cifras de /envios de cada mercado. */}
-              <p className="text-xs text-text-muted mt-1 mb-4">
+              <p className="nota mt-1 mb-4">
                 {t("cart.deliveryLabel")}: {t(isMX ? "cart.deliveryMx" : "cart.deliveryUs")}
               </p>
 
@@ -455,18 +452,18 @@ export function CartDrawer() {
                       type="button"
                       disabled
                       aria-disabled
-                      className="block w-full text-center py-4 bg-border text-text-muted text-sm cursor-not-allowed"
+                      className="btn w-full"
                     >
                       {t("cart.checkout")}
                     </button>
                     {/* La talla manda: sin ella el pedido no se puede surtir. */}
-                    <p className="text-xs text-terracotta text-center mt-2">{t("cart.sizeBlocked")}</p>
+                    <p className="nota font-semibold text-text text-center mt-2">{t("cart.sizeBlocked")}</p>
                   </>
                 ) : (
                   <a
                     href={withDiscount(checkoutHref(cart.checkoutUrl))}
                     onClick={handleCheckoutClick}
-                    className="block w-full text-center py-4 bg-text text-bg text-sm hover:bg-leather transition-colors"
+                    className="btn w-full"
                   >
                     {t("cart.checkout")}
                   </a>
@@ -477,7 +474,7 @@ export function CartDrawer() {
               <button
                 type="button"
                 onClick={closeCart}
-                className="mt-2 block w-full text-center py-3 text-sm text-text-muted underline underline-offset-4 hover:text-text transition-colors"
+                className="btn btn-ter mt-2 block w-full text-center py-3 text-sm text-text-muted hover:text-text transition-colors"
               >
                 {t("cart.keepShopping")}
               </button>
@@ -492,12 +489,12 @@ export function CartDrawer() {
 function CheckIcon() {
   return (
     <svg
-      width="14"
-      height="14"
+      width="16"
+      height="16"
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
-      strokeWidth="3"
+      strokeWidth="1.5"
       strokeLinecap="round"
       strokeLinejoin="round"
       aria-hidden="true"

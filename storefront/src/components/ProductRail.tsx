@@ -48,8 +48,14 @@ export function ProductRail({
     el.scrollBy({ left: dir * el.clientWidth * 0.85, behavior: "smooth" })
   }
 
+  // Cuadrada y de 44px: es el objetivo táctil mínimo, y el kit no tiene ni
+  // círculos ni sombras. El cuero se reserva a sus cuatro usos, así que al
+  // pasar el cursor la flecha se invierte a tinta en vez de teñirse el borde.
+  // `transition` a secas y no `transition-opacity`: aquí cambian DOS cosas —
+  // la opacidad cuando la flecha se deshabilita y el fondo/color al pasar el
+  // cursor. Con transition-opacity la inversión a tinta salía de golpe.
   const arrowCls =
-    "hidden md:flex absolute top-[38%] z-10 h-10 w-10 items-center justify-center rounded-full border border-border bg-bg text-text shadow-sm transition-opacity hover:border-leather disabled:opacity-0 disabled:pointer-events-none"
+    "hidden md:flex absolute top-[38%] z-10 h-11 w-11 items-center justify-center border border-border bg-bg text-text transition duration-[180ms] hover:bg-text hover:text-bg disabled:opacity-0 disabled:pointer-events-none"
 
   return (
     <div className="relative">

@@ -3,7 +3,6 @@
 import { useEffect, useRef, useState } from "react"
 import { LocalizedLink as Link } from "@/components/LocalizedLink"
 import { useLocale } from "@/lib/i18n/context"
-import { isMX } from "@/lib/market"
 
 /**
  * MegaMenu — navegación principal con dropdowns full-width.
@@ -12,8 +11,14 @@ import { isMX } from "@/lib/market"
  * header. ESC cierra. Mouse leave del panel cierra (con pequeño delay
  * para no cerrarse al cruzar el gap).
  *
- * Mobile: el nav se oculta (hidden md:flex) — futuro hamburger menu
- * va a tomar este rol en otro sprint.
+ * Hasta 1100px el nav se oculta y manda MobileNav. El número está medido, no
+ * elegido: con Instrument Sans Medium a 13px y tracking .08em las seis
+ * etiquetas en mayúsculas miden 564px (ES, que es el caso peor) con el padding
+ * px-2 y los cuatro chevrones. Sumando logo (116), los dos gap-4 (32) y el
+ * grupo derecho de la cabecera —conmutador de idioma 117, tres botones de 44 y
+ * sus gaps: 265— la fila pide 977px, y el .contenedor solo deja 944 a 1024px.
+ * Por eso el padding se queda en px-2 también en xl: con px-3 la fila pedía
+ * 1225 y a 1280 solo hay 1200.
  *
  * Las sub-categorías (Vaqueras, Clásicas, etc.) viven en sub-rutas
  * estáticas /hombre/[estilo], /mujer/[estilo], /nino/[estilo] —
@@ -29,7 +34,6 @@ type Section = {
 type MenuItem = {
   label: string
   href: string
-  highlight?: boolean // estilo terracota para "Outlet"
   sections?: Section[]
   ctaHref?: string
   ctaLabel?: string
@@ -110,7 +114,6 @@ const MENU: MenuItem[] = [
   {
     label: "nav.outlet",
     href: "/outlet",
-    highlight: true, // estilo terracota — resalta como sección de ofertas
   },
   {
     label: "nav.visit",
@@ -156,7 +159,7 @@ export function MegaMenu() {
   return (
     <>
       <nav
-        className="hidden md:flex items-center gap-1 lg:gap-2 font-medium"
+        className="hidden min-[1100px]:flex items-center"
         onMouseLeave={scheduleClose}
       >
         {MENU.map((item, idx) => (
@@ -168,27 +171,25 @@ export function MegaMenu() {
             <Link
               href={item.href}
               onClick={() => setOpenIdx(null)}
-              className={`relative flex items-center gap-1 px-3.5 py-2 text-[15px] tracking-normal transition-colors after:pointer-events-none after:absolute after:inset-x-3.5 after:bottom-1 after:h-[2px] after:origin-left after:scale-x-0 after:bg-text after:transition-transform after:duration-300 hover:after:scale-x-100 ${
-                item.highlight
-                  ? "text-terracotta hover:text-terracotta-dark"
-                  : "hover:text-leather"
-              } ${openIdx === idx ? "text-leather after:scale-x-100" : ""}`}
+              className={`nav-label relative flex items-center gap-1 whitespace-nowrap px-2 py-2 text-text after:pointer-events-none after:absolute after:inset-x-2 after:bottom-1 after:h-px after:origin-left after:scale-x-0 after:bg-text after:transition-transform after:duration-[180ms] hover:after:scale-x-100 ${
+                openIdx === idx ? "after:scale-x-100" : ""
+              }`}
               aria-expanded={openIdx === idx && !!item.sections}
               aria-haspopup={item.sections ? "true" : undefined}
             >
               {t(item.label)}
               {item.sections && (
                 <svg
-                  width="11"
-                  height="11"
+                  width="12"
+                  height="12"
                   viewBox="0 0 24 24"
                   fill="none"
                   stroke="currentColor"
-                  strokeWidth="2.5"
+                  strokeWidth="1.5"
                   strokeLinecap="round"
                   strokeLinejoin="round"
                   aria-hidden="true"
-                  className={`opacity-50 transition-transform duration-200 ${openIdx === idx ? "rotate-180" : ""}`}
+                  className={`opacity-60 transition-transform duration-[180ms] ${openIdx === idx ? "rotate-180" : ""}`}
                 >
                   <path d="M6 9l6 6 6-6" />
                 </svg>
@@ -202,30 +203,19 @@ export function MegaMenu() {
             )}
           </div>
         ))}
-        <a
-          href={isMX ? "/catalogo-es.html" : "/catalogo-en.html"}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="relative block px-3.5 py-2 text-[15px] tracking-normal transition-colors hover:text-leather"
-        >
-          {t("catalog.nav")}
-        </a>
       </nav>
 
-      {/* Panel desplegable — full-width debajo del header.
-          Frost denso: bg-bg/95 SIEMPRE (sin override transparente del
-          supports-) + blur para el efecto vidrio esmerilado. Panel
-          se ve sólido, solo con un toque de blur del contenido detrás
-          en los bordes. Header sí baja a /55 porque es sticky chico,
-          el MegaMenu es panel grande y necesita más cuerpo visual. */}
+      {/* Panel desplegable — full-width debajo de la cabecera. Fondo sólido y
+          una línea de 1px, sin sombra: la sombra era la única del sistema y
+          servía para despegar el panel de un fondo que ya es distinto. */}
       {showPanel && activeItem && (
         <div
           className="absolute left-0 right-0 top-full
-            bg-bg border-b border-border shadow-2xl z-30"
+            bg-bg border-b border-border z-30"
           onMouseEnter={cancelClose}
           onMouseLeave={scheduleClose}
         >
-          <div className="mx-auto max-w-7xl px-6 py-8 grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-10">
+          <div className="contenedor py-8 grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-10">
             {/* Sections — el title del section ("Por estilo") se omite
                 porque es redundante con los sub-items que claramente son
                 estilos. Si en el futuro hay sections distintas (ej.
@@ -238,7 +228,7 @@ export function MegaMenu() {
               <Link
                 href={activeItem.href}
                 onClick={() => setOpenIdx(null)}
-                className="group mb-6 inline-flex items-center gap-1.5 text-sm font-medium uppercase tracking-wider text-leather hover:text-terracotta transition-colors"
+                className="nav-label group mb-6 inline-flex items-center gap-1.5 text-leather transition-colors duration-[180ms] hover:text-text"
               >
                 {t(activeItem.ctaLabel ?? "nav.seeAll")}
                 <span aria-hidden className="transition-transform group-hover:translate-x-1">→</span>
@@ -254,7 +244,7 @@ export function MegaMenu() {
                           onClick={() => setOpenIdx(null)}
                           className="group block"
                         >
-                          <span className="text-base font-medium text-text group-hover:text-leather transition-colors">
+                          <span className="text-base font-medium text-text underline-offset-4 group-hover:underline">
                             {t(link.label)}
                           </span>
                           {link.description && (
@@ -271,32 +261,26 @@ export function MegaMenu() {
               </div>
             </div>
 
-            {/* CTA visual */}
+            {/* CTA visual. Era una tarjeta oscura con dos degradados radiales
+                encima: segunda superficie oscura del sitio y el único
+                degradado que quedaba. Ahora es plato con tinta, que es la
+                misma superficie de la foto de producto. */}
             {activeItem.ctaHref && (
               <Link
                 href={activeItem.ctaHref}
                 onClick={() => setOpenIdx(null)}
-                className="relative group bg-text text-bg p-8 flex flex-col justify-between min-h-[180px] overflow-hidden"
+                className="group bg-plate text-text p-8 flex flex-col justify-between min-h-[180px]"
               >
-                <div
-                  className="absolute inset-0 opacity-20 mix-blend-overlay pointer-events-none"
-                  style={{
-                    backgroundImage: `
-                      radial-gradient(circle at 30% 20%, rgba(255,255,255,0.4) 0%, transparent 55%),
-                      radial-gradient(circle at 70% 80%, rgba(0,0,0,0.4) 0%, transparent 60%)
-                    `,
-                  }}
-                />
-                <p className="eyebrow text-bg text-xs relative">
+                <p className="eyebrow text-text-muted">
                   {t(activeItem.label)}
                 </p>
-                <div className="relative">
-                  <p className="font-display text-2xl mb-2 leading-tight">
+                <div>
+                  <p className="text-base font-medium mb-2 leading-tight">
                     {activeItem.ctaLabel ? t(activeItem.ctaLabel) : t("nav.explore")}
                   </p>
-                  <span className="inline-flex items-center text-bg/80 text-sm group-hover:text-bg transition-colors">
+                  <span className="nav-label inline-flex items-center text-leather">
                     {t("nav.seeAll")}
-                    <span className="ml-2 transition-transform group-hover:translate-x-1">
+                    <span className="ml-2 transition-transform duration-[180ms] group-hover:translate-x-1">
                       →
                     </span>
                   </span>

@@ -89,6 +89,25 @@ export const PRODUCT_CARD_FRAGMENT = /* GraphQL */ `
         edges { node { ... on Metaobject { handle fields { key value } } } }
       }
     }
+    # Tallas. Van en el fragmento de la TARJETA, no solo en el de la ficha,
+    # porque el filtro de Talla del listado leía la opción de variante y en 101
+    # de 103 productos la variante es "Default Title": la talla vive en este
+    # metacampo. Sin esto, marcar una talla en el filtro no encontraba una sola
+    # bota. Cobertura real: 101/103.
+    shoeSizes: metafield(namespace: "shopify", key: "shoe-size") {
+      references(first: 30) {
+        edges { node { ... on Metaobject { handle fields { key value } } } }
+      }
+    }
+    # Sexo objetivo. Hace falta en la TARJETA, no solo en la ficha, porque la
+    # conversión de talla mexicana a US depende de él (hombre −19, mujer −17):
+    # sin esto, el filtro de talla del sitio en dólares no puede etiquetarse en
+    # la escala en la que el comprador conoce su pie.
+    targetGender: metafield(namespace: "shopify", key: "target-gender") {
+      references(first: 5) {
+        edges { node { ... on Metaobject { handle } } }
+      }
+    }
     # Judge.me metafields — solo existen DESPUÉS de la primera reseña recibida.
     # Mientras la tienda no tenga reseñas, todos devuelven null y el frontend
     # debe fallar graceful ("Sin reseñas aún"). Probamos ambos namespaces
@@ -134,6 +153,32 @@ export const PRODUCT_DETAIL_FRAGMENT = /* GraphQL */ `
     targetGender: metafield(namespace: "shopify", key: "target-gender") {
       references(first: 5) {
         edges { node { ... on Metaobject { handle } } }
+      }
+    }
+    # Horma, piel, estilo y color. Estaban SOLO en el fragmento de la tarjeta,
+    # así que la ficha no podía pintarlos aunque el dato existiera en Shopify:
+    # es justo lo que necesita el acordeón "Detalles", que es lo único con lo
+    # que se puede llenar — altura de caña, tacón, vira y peso no existen en
+    # ninguno de los 103 productos (comprobado contra la Storefront API).
+    # Cobertura real: horma 98/103, piel 98/103, estilo 93/103, color 103/103.
+    color: metafield(namespace: "shopify", key: "color-pattern") {
+      references(first: 5) {
+        edges { node { ... on Metaobject { handle fields { key value } } } }
+      }
+    }
+    material: metafield(namespace: "shopify", key: "footwear-material") {
+      references(first: 5) {
+        edges { node { ... on Metaobject { handle fields { key value } } } }
+      }
+    }
+    bootStyle: metafield(namespace: "shopify", key: "boot-style") {
+      references(first: 5) {
+        edges { node { ... on Metaobject { handle fields { key value } } } }
+      }
+    }
+    toeStyle: metafield(namespace: "shopify", key: "toe-style") {
+      references(first: 5) {
+        edges { node { ... on Metaobject { handle fields { key value } } } }
       }
     }
     # Tallas como metacampo de categoría (shopify.shoe-size) — para productos

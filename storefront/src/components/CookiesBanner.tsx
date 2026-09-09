@@ -79,7 +79,7 @@ export function CookiesBanner() {
       role="dialog"
       aria-modal="true"
       aria-label={t("cookies.dialogLabel")}
-      className={`fixed inset-0 z-[60] flex items-end justify-center sm:items-center p-4 transition-opacity duration-300 ${
+      className={`fixed inset-0 z-[60] flex items-end justify-center sm:items-center p-4 transition-opacity duration-[180ms] ${
         open ? "opacity-100" : "opacity-0 pointer-events-none"
       }`}
     >
@@ -88,23 +88,25 @@ export function CookiesBanner() {
 
       {/* Tarjeta */}
       <div
-        className={`relative w-full max-w-md bg-bg text-text rounded-lg shadow-2xl border border-border p-6 sm:p-8 transition-transform duration-300 ${
+        className={`relative w-full max-w-md bg-bg text-text rounded-lg border border-border p-6 sm:p-8 transition-transform duration-[180ms] ${
           open ? "translate-y-0" : "translate-y-4"
         }`}
         style={{ marginBottom: "env(safe-area-inset-bottom)" }}
       >
         <div className="mb-5 flex items-center gap-3">
-          <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-text text-bg">
+          <span className="flex h-11 w-11 shrink-0 items-center justify-center bg-text text-bg">
             <CookieIcon />
           </span>
-          <h2 className="font-heading text-lg text-text">{t("cookies.title")}</h2>
+          {/* Un modal es interfaz, no un titular: el título va en sans 500, no
+              en la serif de display. */}
+          <h2 className="font-body font-medium text-base text-text">{t("cookies.title")}</h2>
         </div>
 
-        <p className="text-sm text-text-muted leading-relaxed mb-6">
+        <p className="cuerpo text-text-muted mb-6">
           {t("cookies.body")}{" "}
           <Link
             href="/privacidad"
-            className="underline underline-offset-2 text-leather hover:text-terracotta"
+            className="text-leather underline underline-offset-4 hover:no-underline"
           >
             {t("cookies.privacyLink")}
           </Link>
@@ -115,7 +117,7 @@ export function CookiesBanner() {
         <button
           type="button"
           onClick={() => accept("all")}
-          className="block w-full py-3.5 bg-text text-bg text-sm font-medium hover:bg-leather transition-colors"
+          className="btn flex w-full"
         >
           {t("cookies.acceptAll")}
         </button>
@@ -124,7 +126,7 @@ export function CookiesBanner() {
         <button
           type="button"
           onClick={() => accept("necessary")}
-          className="block w-full mt-3 text-xs uppercase tracking-wider text-text-subtle hover:text-text transition-colors"
+          className="btn btn-ter flex w-full mt-3 py-4"
         >
           {t("cookies.necessary")}
         </button>
@@ -135,7 +137,7 @@ export function CookiesBanner() {
 
 function CookieIcon() {
   return (
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
       <path d="M12 2a10 10 0 1 0 10 10 4 4 0 0 1-5-5 4 4 0 0 1-5-5" />
       <path d="M8.5 8.5v.01" />
       <path d="M16 15.5v.01" />

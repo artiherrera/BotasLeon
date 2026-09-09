@@ -10,9 +10,9 @@ import { useT } from "@/lib/i18n/context"
  * párrafos + bloque visual gradient. Misma narrativa en 3 columnas
  * compactas (~200px tall): tradición · origen · curaduría.
  *
- * Mantiene fondo leather + texto cream del original para consistency,
- * sin tomar tanto scroll. CTA "Conoce nuestra historia" sigue presente
- * al final.
+ * Es la ÚNICA banda oscura de la portada: con el pie ya sobre plato, esta
+ * franja es lo que corta el crema de arriba abajo. Las cifras van en la serif
+ * a su único peso (400), no en la Fraunces 600 de antes.
  */
 export function HechoEnLeonStrip() {
   const t = useT()
@@ -29,34 +29,34 @@ export function HechoEnLeonStrip() {
         }}
       />
 
-      <div className="relative mx-auto max-w-6xl px-6 py-12 md:py-16">
+      <div className="relative contenedor py-12 md:py-16">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12 items-start">
           <div>
-            <p className="font-display text-4xl md:text-5xl text-bg leading-none mb-2">
+            <p className="display-l text-bg mb-2">
               380
             </p>
-            <p className="eyebrow text-bg text-[11px] mb-1">{t("trust.yearsTradition")}</p>
-            <p className="text-bg-alt text-sm leading-relaxed">
+            <p className="eyebrow text-bg mb-1">{t("trust.yearsTradition")}</p>
+            <p className="cuerpo text-bg/80">
               {t("trust.leonDesc")}
             </p>
           </div>
 
           <div>
-            <p className="font-display text-4xl md:text-5xl text-bg leading-none mb-2">
+            <p className="display-l text-bg mb-2">
               {t("trust.mexicanBootsStat")}
             </p>
-            <p className="eyebrow text-bg text-[11px] mb-1">{t("trust.mexicanBoots")}</p>
-            <p className="text-bg-alt text-sm leading-relaxed">
+            <p className="eyebrow text-bg mb-1">{t("trust.mexicanBoots")}</p>
+            <p className="cuerpo text-bg/80">
               {t("trust.mexicanBootsDesc")}
             </p>
           </div>
 
           <div>
-            <p className="font-display text-4xl md:text-5xl text-bg leading-none mb-2">
+            <p className="display-l text-bg mb-2">
               100%
             </p>
-            <p className="eyebrow text-bg text-[11px] mb-1">{t("trust.genuineLeather")}</p>
-            <p className="text-bg-alt text-sm leading-relaxed">
+            <p className="eyebrow text-bg mb-1">{t("trust.genuineLeather")}</p>
+            <p className="cuerpo text-bg/80">
               {t("trust.genuineLeatherDesc")}
             </p>
           </div>
@@ -65,10 +65,10 @@ export function HechoEnLeonStrip() {
         <div className="mt-8 md:mt-10 text-center md:text-left">
           <Link
             href="/nosotros"
-            className="inline-flex items-center text-bg/90 hover:text-bg text-sm uppercase tracking-wider transition-colors"
+            className="nav-label group inline-flex items-center text-bg/90 hover:text-bg transition-colors duration-[180ms]"
           >
             {t("trust.ourStory")}
-            <span className="ml-2 transition-transform group-hover:translate-x-1">→</span>
+            <span className="ml-2 transition-transform duration-[180ms] group-hover:translate-x-1">→</span>
           </Link>
         </div>
       </div>

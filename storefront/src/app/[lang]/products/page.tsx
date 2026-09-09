@@ -2,6 +2,7 @@ import { Suspense } from "react"
 import { Header } from "@/components/Header"
 import { Footer } from "@/components/Footer"
 import { ProductsListing } from "@/components/ProductsListing"
+import { CategoryHeader } from "@/components/CategoryHeader"
 import { CatalogButton } from "@/components/CatalogButton"
 import { getProducts } from "@/lib/shopify"
 import type { Product, PageInfo } from "@/lib/shopify/types"
@@ -33,24 +34,28 @@ export default async function ProductsPage() {
     <>
       <Header />
       <main id="contenido" tabIndex={-1} className="flex-1">
-        <div className="mx-auto max-w-7xl px-6 py-12 md:py-16">
-          <div className="mb-10">
-            <p className="eyebrow text-leather mb-2">Catálogo</p>
-            <h1 className="font-display text-4xl md:text-5xl text-text mb-3">
-              Todas las botas
-            </h1>
-            <p className="text-text-muted max-w-xl">
-              Curadas directamente de los talleres de León. Cada par verificado
-              en cuero, costuras y construcción antes de llegar a tu puerta.
-            </p>
-            <div className="mt-6">
-              <CatalogButton />
-            </div>
+        <div className="contenedor seccion">
+          {/* Sin llaves de diccionario todavía (cat.all.*): CategoryHeader
+              traduce con t(), que devuelve la cadena tal cual cuando no es una
+              llave conocida, así que el texto sale igual que antes. */}
+          <CategoryHeader
+            eyebrow="Catálogo"
+            title="Todas las botas"
+            description="Curadas directamente de los talleres de León. Cada par verificado en cuero, costuras y construcción antes de llegar a tu puerta."
+          />
+
+          {/* El visor del catálogo deja de ser el botón sólido que competía con
+              las botas, pero NO desaparece: en terciario. El pie enlaza el PDF
+              directo, que Chrome/Android y los navegadores de IG y FB DESCARGAN
+              en vez de abrir; este visor HTML es el que abre en todos, y sin
+              este enlace se quedaba sin una sola puerta de entrada en el sitio. */}
+          <div className="-mt-6 mb-10">
+            <CatalogButton className="btn-ter min-h-11" />
           </div>
 
           {fetchError ? (
-            <div className="border border-red-300 bg-red-50 text-red-900 rounded-sm p-6">
-              <p className="font-medium mb-2">Error al cargar productos</p>
+            <div className="border border-red-300 bg-red-50 text-red-900 p-6">
+              <p className="cuerpo font-medium mb-2">Error al cargar productos</p>
               <p className="text-sm font-mono break-all">{fetchError}</p>
             </div>
           ) : (

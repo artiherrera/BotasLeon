@@ -95,30 +95,32 @@ export function PromoModal() {
       />
 
       {/* Tarjeta */}
-      <div className="relative w-full max-w-md overflow-hidden rounded-lg border border-border bg-bg text-text shadow-2xl">
-        {/* Cabecera de color con el gancho del descuento. */}
-        <div className="relative bg-terracotta text-bg px-6 pt-7 pb-6 text-center">
+      <div className="relative w-full max-w-md overflow-hidden rounded-lg border border-border bg-bg text-text">
+        {/* Cabecera en tinta con el gancho del descuento. */}
+        <div className="relative bg-text text-bg px-6 pt-7 pb-6 text-center">
           <button
             type="button"
             onClick={close}
             aria-label={t("promo.close")}
-            className="absolute right-2 top-2 rounded p-1.5 text-bg/90 hover:bg-black/10 transition-colors"
+            className="absolute right-1 top-1 p-3 text-bg/90 hover:text-bg transition-colors duration-[180ms]"
           >
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
               <path d="M18 6 6 18M6 6l12 12" />
             </svg>
           </button>
-          <p className="eyebrow text-gold mb-2">{PROMO.eyebrow}</p>
-          <p className="font-display text-5xl leading-none">15%</p>
-          <p className="mt-1 text-sm uppercase tracking-[0.2em] text-bg/90">
+          <p className="eyebrow text-bg/70 mb-2">{PROMO.eyebrow}</p>
+          {/* Cifra grande: uno de los cinco lugares donde la serif sí va. */}
+          <p className="display-l">15%</p>
+          <p className="eyebrow text-bg/90 mt-2">
             {t("promo.off")}
           </p>
         </div>
 
         {/* Cuerpo */}
         <div className="px-6 py-6 text-center">
-          <h2 className="font-heading text-xl text-text mb-2">{PROMO.title}</h2>
-          <p className="text-sm text-text-muted leading-relaxed mb-6">
+          {/* Un modal es interfaz: el título va en sans 500, no en serif. */}
+          <h2 className="font-body font-medium text-base text-text mb-2">{PROMO.title}</h2>
+          <p className="cuerpo text-text-muted mb-6">
             {PROMO.message}
           </p>
 
@@ -127,7 +129,7 @@ export function PromoModal() {
           <button
             type="button"
             onClick={close}
-            className="block w-full py-3.5 bg-text text-bg text-sm font-medium hover:bg-leather transition-colors"
+            className="btn flex w-full"
           >
             {PROMO.cta}
           </button>

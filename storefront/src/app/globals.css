@@ -1,36 +1,61 @@
 @import "tailwindcss";
 
 /**
- * BotasLeón — Kit de Marca v2
- * Sobrio, tinta sobre crema (referencia: Tecovas). El western lo ponen el logo
- * y las fotos; la tipografía y la UI son sobrias. Un solo acento: cuero.
+ * BotasLeón — Sistema visual v3 (informe de rediseño, 9 sep 2026)
+ *
+ * La base no cambia: tinta sobre crema, un solo acento (cuero), esquinas
+ * rectas. Lo que cambia es la DISCIPLINA. Antes la serif aparecía en once
+ * roles y en ninguno pesaba; ahora tiene cinco lugares y ninguno más.
+ * Referencia: tecovas.com.
  */
 
 @theme {
   /* === Color === */
   --color-bg: #FBF8F1;          /* crema oficial — NO cambia */
-  --color-bg-alt: #FFFFFF;      /* tarjetas y paneles */
+  /* Fue #FFFFFF y era la fuente de las cajas blancas sobre crema: un panel
+     blanco dentro de un fondo cálido se lee como un parche, no como una
+     superficie. Ahora es el mismo plato del producto, así que todo lo que
+     "flota" (estados vacíos, resúmenes, miniaturas, hover) queda en la misma
+     familia. --color-white sigue existiendo para lo que sí deba ser blanco. */
+  --color-bg-alt: #F3EEE4;
+  --color-plate: #F3EEE4;       /* "plato": fondo de TODA foto de producto,
+                                   de la barra de avisos y del pie. Es lo que
+                                   hace que una foto con fondo blanco se funda
+                                   (multiply) en vez de dejar una caja blanca. */
   --color-white: #FFFFFF;
-  --color-text: #191A19;        /* tinta: texto, botones, líneas fuertes */
+  --color-text: #191A19;        /* tinta: texto, botón primario, banda de datos */
   --color-ink: #191A19;
-  --color-text-muted: #7A7265;  /* secundario (≥14px) */
-  --color-text-subtle: #7A7265;
-  --color-muted: #7A7265;
-  --color-leather: #6B4A2E;     /* ÚNICO acento: eyebrows, enlaces, detalles */
-  --color-border: #E7E1D3;      /* bordes y divisores */
+  /* Gris cálido. El informe pide #7A7265, pero medido da 4.11:1 sobre el plato
+     y 4.48:1 sobre la crema — las dos por debajo del 4.5:1 de WCAG AA, y el
+     rediseño mueve MÁS texto gris al plato (pie, avisos, MSI, conteos). Este
+     tono da 4.9:1 y 5.3:1, y a simple vista no se distingue del otro. */
+  --color-text-muted: #6E6659;
+  --color-text-subtle: #6E6659;
+  --color-muted: #6E6659;
+  --color-leather: #6B4A2E;     /* ÚNICO acento. Cinco usos: eyebrow del taller,
+                                   enlaces "Ver todo →" y enlaces en texto,
+                                   estrellas, estado activo/hover del primario,
+                                   badge "Más vendida". Nada más. */
+  --color-border: #E7E1D3;      /* bordes y divisores — siempre 1px */
+  /* La misma línea sobre el plato da 1.13:1: no se ve. Este tono se usa para
+     las reglas de sección dentro de bloques con fondo plato. */
+  --color-border-plate: #D9D0BC;
   --color-line: #E7E1D3;
   --color-border-strong: #191A19;
 
-  /* Legacy remapeados al sistema sobrio (sin rojos/dorados/degradados): todo
-     tono decorativo cae a tinta o cuero para no romper usos existentes. */
+  /* Legacy remapeados al sistema sobrio (sin rojos/dorados/degradados). */
   --color-leather-light: #6B4A2E;
   --color-terracotta: #6B4A2E;
   --color-terracotta-dark: #191A19;
   --color-cognac: #6B4A2E;
   --color-gold: #6B4A2E;
 
-  /* === Forma — esquinas RECTAS (radius 0). --radius-full se conserva para
-     círculos genuinos (avatares, botón flotante). === */
+  /* === Forma — esquinas RECTAS. --radius-full se conserva para círculos
+     genuinos (avatar, botón flotante de WhatsApp, puntos indicadores). === */
+  /* `rounded` a secas NO lee --radius-sm: sale de un bloque aparte de Tailwind
+     (@theme default inline reference). Con --radius: 0 el token gana y los 19
+     `rounded` sueltos del JSX se aplanan solos. Verificado compilando. */
+  --radius: 0;
   --radius-xs: 0;
   --radius-sm: 0;
   --radius-md: 0;
@@ -39,10 +64,19 @@
   --radius-2xl: 0;
   --radius-3xl: 0;
 
+  /* === Ritmo === */
+  /* El contenedor del sitio pasa de 1280 a 1440px. Como `max-w-7xl` se usa en
+     27 lugares como caja de página, redefinir el token los mueve todos a la
+     vez. Con 1440 la bota de una tarjeta crece ~60% sin cambiar de foto. */
+  --container-7xl: 1440px;
+
   /* === Tipografía === */
-  --font-display: var(--font-fraunces);
-  --font-heading: var(--font-fraunces);
-  --font-body: var(--font-inter);
+  /* Instrument Serif (display) + Instrument Sans (todo lo demás), en archivos
+     locales de src/fonts. NO se bajan de Google en el build: un deploy real
+     falló porque fonts.gstatic.com devolvió 404 a medio compilar. */
+  --font-display: var(--font-instrument-serif);
+  --font-heading: var(--font-instrument-serif);
+  --font-body: var(--font-instrument-sans);
 }
 
 body {
@@ -51,68 +85,358 @@ body {
   font-family: var(--font-body);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  /* Instrument Serif solo existe en peso 400. Sin esto, cualquier
+     `font-semibold` heredado sobre un título le pediría al navegador un
+     falso negrita: letras engordadas a la fuerza, que es justo lo que se ve
+     barato. Apagado el sintético, un 600 sobre la serif cae a su 400 real.
+     Instrument Sans sí es variable 400–700, así que ahí no se pierde nada. */
+  font-synthesis-weight: none;
 }
 
-/* Foco de teclado visible y consistente en toda la UI (botones-ícono,
-   enlaces y demás que no definen su propio estado de foco). Solo :focus-visible
-   para no mostrar el anillo en clicks de mouse. */
+/* Foco de teclado visible y consistente. Solo :focus-visible para no
+   mostrar el anillo en clicks de mouse. */
 :focus-visible {
   outline: 2px solid var(--color-leather);
   outline-offset: 2px;
 }
 
-/* Jerarquía v2: H1–H4 en Fraunces 600 (nunca mayúsculas forzadas, tracking
-   negativo sutil). Eyebrows en Inter 600 caps. */
-h1, .h1, h2, .h2, h3, .h3, h4, .h4 {
-  font-family: var(--font-display);
-  font-weight: 600;
-  line-height: 1.15;
-  letter-spacing: -0.01em;
-  text-transform: none;
-}
-h1, .h1 { line-height: 1.1; }
-h5, .h5, h6, .h6, .eyebrow {
-  font-family: var(--font-body);
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.14em;
+/* Jerarquía: los encabezados van en la serif a su único peso, 400, con el
+   tracking apenas negativo. (Antes: Fraunces 600.) Sin mayúsculas forzadas.
+ *
+ * VA EN @layer base A PROPÓSITO. Antes esta regla estaba suelta, fuera de toda
+ * capa, y en CSS lo que no está en capa le gana a TODAS las capas sin importar
+ * la especificidad. Con la regla suelta, poner `.nombre-producto` sobre un <h3>
+ * no hacía absolutamente nada: el nombre de la tarjeta seguía saliendo en
+ * serif, que es justo lo que el sistema prohíbe. Dentro de `base`, las clases
+ * de rol (@layer components) y las utilidades de Tailwind (@layer utilities)
+ * ganan, que es como tiene que ser. */
+@layer base {
+  h1, .h1, h2, .h2, h3, .h3, h4, .h4 {
+    font-family: var(--font-display);
+    font-weight: 400;
+    line-height: 1.15;
+    letter-spacing: -0.005em;
+    text-transform: none;
+    text-wrap: balance;
+  }
+  h1, .h1 { line-height: 1.05; }
+  h5, .h5, h6, .h6, .eyebrow {
+    font-family: var(--font-body);
+    font-weight: 600;
+    /* El tamaño hay que fijarlo: sin él, .eyebrow hereda el del padre y el
+       nombre del taller salía a 16px en mayúsculas, no a 12. */
+    font-size: 0.75rem;
+    line-height: 1.2;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+  }
 }
 
-/* Ken Burns — zoom sutil para el hero. Dura lo mismo que el slide activo
-   (8s, sincronizado con AUTO_ROTATE_MS en HeroCarousel). Aplicar solo
-   al slide visible — al rotar pierde la clase y la animación se reinicia
-   en el próximo slide que la reciba. */
-@keyframes hero-ken-burns {
-  from { transform: scale(1); }
-  to   { transform: scale(1.08); }
-}
-.hero-ken-burns {
-  animation: hero-ken-burns 8s ease-out forwards;
+/* ────────────────────────────────────────────────────────────────────────
+   Roles tipográficos, superficies y controles.
+   Van en @layer components a propósito: así una utilidad de Tailwind puesta
+   en el JSX (text-sm, text-leather, py-3…) le sigue ganando a la clase, y
+   estas quedan como punto de partida, no como camisa de fuerza.
+   ──────────────────────────────────────────────────────────────────────── */
+@layer components {
+
+  /* === Display: la serif. Cinco lugares y ninguno más. === */
+
+  /* Solo el hero de la home. 64px en escritorio, 44 en móvil. */
+  .display-xl {
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: clamp(2.75rem, 5.4vw, 4rem);
+    line-height: 1;
+    letter-spacing: -0.005em;
+    text-wrap: balance;
+  }
+  /* Título de página, nombre del producto en la ficha, cifras grandes. */
+  .display-l {
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: clamp(2.125rem, 3.6vw, 2.75rem);
+    line-height: 1.05;
+    letter-spacing: -0.005em;
+    text-wrap: balance;
+  }
+  /* Títulos de sección. */
+  .display-m {
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: clamp(1.625rem, 2.6vw, 2rem);
+    line-height: 1.1;
+    letter-spacing: -0.005em;
+    text-wrap: balance;
+  }
+  /* Títulos de reseña y de tarjeta de categoría. */
+  .display-s {
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: 1.375rem;
+    line-height: 1.2;
+    letter-spacing: -0.005em;
+    text-wrap: balance;
+  }
+
+  /* === Sans: todo lo demás. === */
+
+  /* Descripción de ficha, intro de colección, bloque "Visítanos". */
+  .cuerpo-l {
+    font-family: var(--font-body);
+    font-weight: 400;
+    font-size: 1rem;
+    line-height: 1.55;
+  }
+  @media (min-width: 768px) {
+    .cuerpo-l { font-size: 1.0625rem; }
+  }
+  /* Filtros, acordeones, reseñas, pie. */
+  .cuerpo {
+    font-family: var(--font-body);
+    font-weight: 400;
+    font-size: 0.9375rem;
+    line-height: 1.5;
+  }
+  /* Una columna de texto no debe pasar de ~62 caracteres: más allá, el ojo
+     pierde el renglón al volver. */
+  .medida-lectura { max-width: 62ch; }
+
+  /* Nombre del producto EN TARJETAS. Nunca en serif: repetida sesenta veces
+     en un grid, la serif deja de ser especial y se vuelve textura. */
+  .nombre-producto {
+    font-family: var(--font-body);
+    font-weight: 500;
+    font-size: 1rem;
+    line-height: 1.3;
+  }
+  /* tabular-nums: sin esto, una columna de precios queda dentada porque el
+     "1" mide menos que el "8". */
+  .precio {
+    font-family: var(--font-body);
+    font-weight: 600;
+    font-size: 1rem;
+    line-height: 1.2;
+    font-variant-numeric: tabular-nums;
+  }
+  .precio-ficha { font-size: 1.5rem; }
+
+  /* Menú principal y pie. Las mayúsculas se quedan en las etiquetas; los
+     titulares van siempre en tipo oración. */
+  .nav-label {
+    font-family: var(--font-body);
+    font-weight: 500;
+    font-size: 0.8125rem;
+    line-height: 1.2;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+  /* MSI, conteos, fechas, avisos bajo los campos. */
+  .nota {
+    font-family: var(--font-body);
+    font-weight: 400;
+    font-size: 0.78125rem;
+    line-height: 1.4;
+    color: var(--color-text-muted);
+  }
+
+  /* === Superficies === */
+
+  /* El plato. Resuelve de un golpe el problema visual más repetido del sitio:
+     fotos con fondo blanco dentro de cajas blancas sobre un fondo crema.
+     Con multiply, el blanco de la foto se funde con el plato y la bota queda
+     "puesta" sobre una superficie cálida. Las fotos no se tocan. Y como el
+     plato ya está pintado antes de que la imagen llegue, se acabaron los
+     rectángulos blancos mientras carga. */
+  /* CUADRADO, no 4/5. El informe pide 4/5, pero medí las 103 fotos del catálogo
+     con sharp: todas son 900×900 y la bota ocupa de media el 65% del ancho y el
+     81% del alto, con el fondo de estudio en 250,247,242 y uniforme (las cuatro
+     esquinas difieren ≤2). En un marco 4/5 con `contain`, esa foto cuadrada
+     entra por el ancho y deja dos bandas de plato: la bota bajaría del 52% del
+     área del marco al 41%. Se vería MÁS CHICA. Lo que la hace verse grande es
+     que la tarjeta pasa de 245 a ~340px al ensanchar el contenedor. */
+  .plato {
+    background-color: var(--color-plate);
+    aspect-ratio: 1 / 1;
+    overflow: hidden;
+    position: relative;
+    /* Sin esto, el multiply de la foto se mezcla contra el fondo del contexto
+       de apilamiento más cercano, que no tiene por qué ser el plato: basta un
+       ancestro con transform o con opacity para que la bota se funda contra la
+       página. `isolate` crea el contexto aquí y encierra la mezcla. */
+    isolation: isolate;
+  }
+  .plato img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    mix-blend-mode: multiply;
+  }
+  /* Para fotos que NO tienen fondo de estudio (tienda, estilo de vida,
+     retratos): mismo plato, sin multiply y a sangre, porque ahí el multiply
+     ensuciaría los medios tonos. */
+  .plato-foto img {
+    object-fit: cover;
+    mix-blend-mode: normal;
+  }
+  /* El multiply solo es seguro contra un fondo claro. Sobre el negro del zoom
+     (bg-black/95) la foto saldría NEGRA, sin error de consola: la lupa, que es
+     lo que sustituye al probador físico en una venta a distancia, quedaría
+     inservible. Esta clase es la red por si alguien generaliza la regla. */
+  .sin-multiply img { mix-blend-mode: normal; }
+
+  /* Los logos de los talleres dejan de ser un directorio de once colores y se
+     leen como una sola firma. */
+  .logos-talleres img {
+    height: 44px;
+    width: auto;
+    filter: grayscale(1);
+    opacity: 0.85;
+    mix-blend-mode: multiply;
+  }
+  @media (min-width: 768px) {
+    .logos-talleres img { height: 56px; }
+  }
+  /* Logo que viene sobre fondo oscuro o de color: se invierte antes de pasarlo
+     a gris, para que la marca quede oscura sobre claro y el multiply la funda
+     con la crema en vez de pintar un rectángulo negro. La lista de cuáles está
+     medida en lib/logos-talleres.ts. */
+  .logos-talleres img.logo-invertido {
+    filter: invert(1) grayscale(1);
+  }
+
+  /* === Ritmo === */
+
+  /* Caja de página: 1440px con 24px de aire lateral en móvil y 40 en
+     escritorio. Sustituye a `mx-auto max-w-7xl px-6`. */
+  .contenedor {
+    width: 100%;
+    max-width: var(--container-7xl);
+    margin-inline: auto;
+    padding-inline: 1.5rem;
+  }
+  @media (min-width: 768px) {
+    .contenedor { padding-inline: 2.5rem; }
+  }
+  /* 64px entre secciones en móvil, 96 en escritorio. Un solo ritmo para toda
+     la página: hoy conviven py-12, py-16 y py-20 en secciones seguidas. */
+  .seccion { padding-block: 4rem; }
+  @media (min-width: 768px) {
+    .seccion { padding-block: 6rem; }
+  }
+
+  /* === Controles: tres botones, y solo tres. === */
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    height: 3rem;
+    padding-inline: 1.5rem;
+    font-family: var(--font-body);
+    font-weight: 500;
+    font-size: 0.875rem;
+    line-height: 1;
+    letter-spacing: 0.01em;
+    text-align: center;
+    border: 1px solid var(--color-text);
+    background: var(--color-text);
+    color: var(--color-bg);
+    border-radius: 0;
+    cursor: pointer;
+    transition: background-color 180ms ease, color 180ms ease, border-color 180ms ease;
+  }
+  .btn:hover:not(:disabled) {
+    background: var(--color-leather);
+    border-color: var(--color-leather);
+    color: var(--color-bg);
+  }
+  .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  /* Contorno. Se rellena al pasar el cursor. */
+  .btn-sec {
+    background: transparent;
+    color: var(--color-text);
+    border-color: var(--color-text);
+  }
+  .btn-sec:hover:not(:disabled) {
+    background: var(--color-text);
+    border-color: var(--color-text);
+    color: var(--color-bg);
+  }
+
+  /* Texto subrayado. Para todo lo que no merece una caja.
+     Se declara entera y no como modificador de .btn: en el árbol conviven
+     `btn btn-ter` y `btn-ter` a secas, y si solo sobreescribiera, la segunda
+     forma saldría sin tipografía ni alineación. */
+  .btn-ter {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.375rem;
+    font-family: var(--font-body);
+    font-weight: 500;
+    font-size: 0.875rem;
+    letter-spacing: 0.01em;
+    cursor: pointer;
+    transition: color 180ms ease;
+    height: auto;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--color-text);
+    text-decoration: underline;
+    text-underline-offset: 4px;
+  }
+  .btn-ter:hover:not(:disabled) {
+    background: none;
+    color: var(--color-leather);
+  }
+
+  /* Campos: 48px, 1px de línea, sin radio. */
+  .campo {
+    height: 3rem;
+    width: 100%;
+    padding-inline: 0.875rem;
+    font-family: var(--font-body);
+    font-size: 0.9375rem;
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
+    border-radius: 0;
+    color: var(--color-text);
+  }
+  .campo:focus {
+    outline: none;
+    border-color: var(--color-text);
+  }
+
+  /* Fila de acordeón. */
+  .acordeon-fila {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    width: 100%;
+    min-height: 3rem;
+    padding-block: 0.75rem;
+    font-family: var(--font-body);
+    font-weight: 500;
+    font-size: 0.9375rem;
+    text-align: left;
+    border-bottom: 1px solid var(--color-border);
+  }
 }
 
-/* Marquee — cintillo horizontal scrolling. Items se duplican 2x en JSX
-   y la animación va de 0% a -50% para loop perfecto. Pausa al hover
-   para que el usuario pueda leer un mensaje específico. */
+/* Cintillo de MARCAS (BrandGrid). La marquesina de mensajes que compartía este
+   keyframe desapareció con el rediseño: la sustituyó una barra de avisos
+   estática de un solo mensaje. Pausa al hover para poder hacer clic en un logo;
+   en reduced-motion se detiene y el cintillo queda scrollable a mano, para no
+   ocultar marcas. */
 @keyframes marquee-scroll {
   from { transform: translateX(0); }
   to   { transform: translateX(-50%); }
 }
-.marquee-track {
-  animation: marquee-scroll 40s linear infinite;
-}
-.marquee-track:hover {
-  animation-play-state: paused;
-}
-@media (prefers-reduced-motion: reduce) {
-  .marquee-track {
-    animation: none;
-  }
-}
-
-/* Cintillo de MARCAS — mismo keyframe (marquee-scroll: items 2× + -50%) pero
-   más lento (60s). Pausa al hover para poder hacer clic en un logo. En
-   reduced-motion se detiene y el cintillo queda scrollable a mano para no
-   ocultar marcas. */
 .brand-marquee-wrap {
   overflow: hidden;
 }

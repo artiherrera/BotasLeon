@@ -105,8 +105,8 @@ export function ProductGallery({ images, title }: Props) {
 
   if (images.length === 0) {
     return (
-      <div className="aspect-square bg-bg-alt flex items-center justify-center text-text-subtle">
-        <p className="text-sm">Sin imágenes disponibles</p>
+      <div className="plato flex items-center justify-center text-text-muted">
+        <p className="cuerpo">Sin imágenes disponibles</p>
       </div>
     )
   }
@@ -135,7 +135,7 @@ export function ProductGallery({ images, title }: Props) {
                 onMouseEnter={() => setActiveIdx(idx)}
                 aria-label={`Ver imagen ${idx + 1}`}
                 aria-current={idx === activeIdx}
-                className={`relative aspect-square bg-bg-alt overflow-hidden rounded-md transition-all ${
+                className={`plato transition-opacity duration-[180ms] ${
                   idx === activeIdx
                     ? "ring-2 ring-leather"
                     : "opacity-60 hover:opacity-100"
@@ -146,7 +146,6 @@ export function ProductGallery({ images, title }: Props) {
                   alt={img.altText || `${title} ${idx + 1}`}
                   fill
                   sizes="64px"
-                  className="object-cover"
                 />
               </button>
             ))}
@@ -157,7 +156,7 @@ export function ProductGallery({ images, title }: Props) {
           type="button"
           onClick={() => openLightbox(activeIdx)}
           aria-label="Ampliar imagen"
-          className="relative aspect-square flex-1 min-w-0 bg-bg-alt overflow-hidden rounded-lg block cursor-zoom-in"
+          className="plato block flex-1 min-w-0 cursor-zoom-in"
         >
           <Image
             key={active.url}
@@ -165,8 +164,7 @@ export function ProductGallery({ images, title }: Props) {
             alt={active.altText || title}
             fill
             preload
-            sizes="(max-width: 1024px) 100vw, 45vw"
-            className="object-contain"
+            sizes="(max-width: 1024px) 100vw, 55vw"
           />
         </button>
       </div>
@@ -197,7 +195,7 @@ export function ProductGallery({ images, title }: Props) {
                 type="button"
                 onClick={() => openLightbox(idx)}
                 aria-label={`Ampliar imagen ${idx + 1}`}
-                className="relative aspect-square bg-bg-alt overflow-hidden w-full block cursor-zoom-in"
+                className="plato block w-full cursor-zoom-in"
               >
                 <Image
                   src={img.url}
@@ -205,15 +203,17 @@ export function ProductGallery({ images, title }: Props) {
                   fill
                   preload={idx === 0}
                   sizes="100vw"
-                  className="object-contain"
                 />
               </button>
             </div>
           ))}
         </div>
 
+        {/* El punto sigue midiendo 2px de alto, pero el botón que lo lleva mide
+            44 POR 44: en móvil se toca con el pulgar, no con la punta de un
+            lápiz, y 44 de alto por 24 de ancho seguía siendo medio objetivo. */}
         {hasMultiple && (
-          <div className="flex justify-center gap-2 mt-4" role="tablist" aria-label="Imágenes del producto">
+          <div className="mt-1 flex flex-wrap justify-center" role="tablist" aria-label="Imágenes del producto">
             {images.map((img, idx) => (
               <button
                 key={img.url}
@@ -222,10 +222,14 @@ export function ProductGallery({ images, title }: Props) {
                 aria-selected={idx === activeIdx}
                 aria-label={`Ir a imagen ${idx + 1}`}
                 onClick={() => scrollToIdx(idx)}
-                className={`h-2 rounded-full transition-all ${
-                  idx === activeIdx ? "w-6 bg-text" : "w-2 bg-border-strong/60"
-                }`}
-              />
+                className="flex h-11 w-11 items-center justify-center"
+              >
+                <span
+                  className={`h-2 rounded-full transition-all duration-[180ms] ${
+                    idx === activeIdx ? "w-6 bg-text" : "w-2 bg-border-strong/60"
+                  }`}
+                />
+              </button>
             ))}
           </div>
         )}
@@ -269,13 +273,16 @@ function Lightbox({
   // Foco atrapado dentro del lightbox y restaurado a la miniatura al cerrar.
   const dialogRef = useFocusTrap<HTMLDivElement>(true, onClose)
 
+  // sin-multiply es la red de seguridad del zoom: el multiply del plato sobre
+  // este fondo negro dejaría la foto NEGRA, sin un solo error en consola, y la
+  // lupa es lo que sustituye al probador físico en una venta a distancia.
   return (
     <div
       ref={dialogRef}
       role="dialog"
       aria-modal="true"
       aria-label={`Imagen ampliada ${idx + 1} de ${images.length}`}
-      className="fixed inset-0 z-[100] bg-black/95 flex items-center justify-center"
+      className="sin-multiply fixed inset-0 z-[100] bg-black/95 flex items-center justify-center"
       onClick={onClose}
     >
       {/* Cerrar */}
@@ -287,9 +294,9 @@ function Lightbox({
         }}
         aria-label="Cerrar"
         data-autofocus
-        className="absolute top-4 right-4 z-10 w-10 h-10 flex items-center justify-center text-white/90 hover:text-white text-2xl bg-black/40 rounded-full"
+        className="absolute top-4 right-4 z-10 flex h-11 w-11 items-center justify-center bg-black/40 text-white/90 transition-colors duration-[180ms] hover:text-white"
       >
-        ×
+        <IconoZoom d="M18 6 6 18M6 6l12 12" />
       </button>
 
       {/* Imagen — sin stopPropagation envolvente para que click en backdrop cierre */}
@@ -313,9 +320,9 @@ function Lightbox({
               onPrev()
             }}
             aria-label="Imagen anterior"
-            className="absolute left-2 md:left-6 top-1/2 -translate-y-1/2 w-12 h-12 flex items-center justify-center text-white/90 hover:text-white text-3xl bg-black/40 rounded-full"
+            className="absolute left-2 md:left-6 top-1/2 -translate-y-1/2 flex h-12 w-12 items-center justify-center bg-black/40 text-white/90 transition-colors duration-[180ms] hover:text-white"
           >
-            ‹
+            <IconoZoom d="M15 18l-6-6 6-6" />
           </button>
           <button
             type="button"
@@ -324,17 +331,37 @@ function Lightbox({
               onNext()
             }}
             aria-label="Imagen siguiente"
-            className="absolute right-2 md:right-6 top-1/2 -translate-y-1/2 w-12 h-12 flex items-center justify-center text-white/90 hover:text-white text-3xl bg-black/40 rounded-full"
+            className="absolute right-2 md:right-6 top-1/2 -translate-y-1/2 flex h-12 w-12 items-center justify-center bg-black/40 text-white/90 transition-colors duration-[180ms] hover:text-white"
           >
-            ›
+            <IconoZoom d="M9 18l6-6-6-6" />
           </button>
 
           {/* Counter */}
-          <div className="absolute bottom-6 left-1/2 -translate-x-1/2 text-white/80 text-sm font-body tabular-nums">
+          <div className="absolute bottom-6 left-1/2 -translate-x-1/2 nota text-white/80 tabular-nums">
             {idx + 1} / {images.length}
           </div>
         </>
       )}
     </div>
+  )
+}
+
+/** Un solo set de trazo también dentro del zoom: 20px, grosor 1.5. Antes eran
+ *  los glifos ×, ‹ y ›, que cambian de forma y de peso según la fuente. */
+function IconoZoom({ d }: { d: string }) {
+  return (
+    <svg
+      width={20}
+      height={20}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={1.5}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <path d={d} />
+    </svg>
   )
 }

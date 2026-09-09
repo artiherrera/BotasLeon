@@ -12,6 +12,10 @@ import { useT } from "@/lib/i18n/context"
  * Mercado Pago / OXXO / SPEI omitidos hasta tener los SVGs oficiales
  * de cada uno — preferimos ausencia clean a aproximaciones que digan
  * "es brand asset hecho por mi sobrino".
+ *
+ * Vive sobre PLATO, con la nota en tinta gris. Los tres SVG ya son tarjetas
+ * de color a sangre, así que no necesitan el recuadro blanco que llevaban:
+ * ese recuadro era el único blanco puro que quedaba en el sitio.
  */
 
 type Method = {
@@ -40,7 +44,7 @@ export function PaymentBadges() {
             <span
               aria-label={label}
               title={label}
-              className="inline-flex items-center justify-center w-12 h-8 bg-white rounded shadow-sm overflow-hidden"
+              className="inline-flex items-center justify-center w-12 h-8 overflow-hidden"
             >
               <Image
                 src={src}
@@ -54,7 +58,7 @@ export function PaymentBadges() {
           </li>
         ))}
       </ul>
-      <p className="text-[11px] text-bg-alt/70">
+      <p className="nota">
         {t("pay.secureNote")}
       </p>
     </div>

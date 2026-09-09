@@ -31,58 +31,62 @@ export default function GuiaTallasPage() {
             <p>Todas nuestras botas se manejan en talla mexicana. Si conoces tu talla en otra escala, esta tabla te orienta:</p>
 
             <h3>Hombre</h3>
-            <table className="w-full border-collapse my-4 text-sm">
-              <thead className="bg-bg-alt text-text">
-                <tr><th scope="col" className="border border-border p-2 text-left">MX (cm)</th><th scope="col" className="border border-border p-2 text-left">US</th><th scope="col" className="border border-border p-2 text-left">EU</th></tr>
-              </thead>
-              <tbody>
-                {[
-                  ["25", "6", "39"],
-                  ["25.5", "6.5", "40"],
-                  ["26", "7", "41"],
-                  ["26.5", "7.5", "41.5"],
-                  ["27", "8", "42"],
-                  ["27.5", "8.5", "42.5"],
-                  ["28", "9", "43"],
-                  ["28.5", "9.5", "44"],
-                  ["29", "10", "45"],
-                  ["30", "11", "46"],
-                ].map(([mx, us, eu]) => (
-                  <tr key={mx}>
-                    <td className="border border-border p-2">{mx}</td>
-                    <td className="border border-border p-2">{us}</td>
-                    <td className="border border-border p-2">{eu}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+            <div className="my-4 overflow-x-auto">
+              <table className="w-full border-collapse text-sm">
+                <thead className="bg-plate text-text">
+                  <tr><th scope="col" className="border border-border p-2 text-left">MX (cm)</th><th scope="col" className="border border-border p-2 text-left">US</th><th scope="col" className="border border-border p-2 text-left">EU</th></tr>
+                </thead>
+                <tbody>
+                  {[
+                    ["25", "6", "39"],
+                    ["25.5", "6.5", "40"],
+                    ["26", "7", "41"],
+                    ["26.5", "7.5", "41.5"],
+                    ["27", "8", "42"],
+                    ["27.5", "8.5", "42.5"],
+                    ["28", "9", "43"],
+                    ["28.5", "9.5", "44"],
+                    ["29", "10", "45"],
+                    ["30", "11", "46"],
+                  ].map(([mx, us, eu]) => (
+                    <tr key={mx}>
+                      <td className="border border-border p-2">{mx}</td>
+                      <td className="border border-border p-2">{us}</td>
+                      <td className="border border-border p-2">{eu}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
 
             <h3>Mujer</h3>
-            <table className="w-full border-collapse my-4 text-sm">
-              <thead className="bg-bg-alt text-text">
-                <tr><th scope="col" className="border border-border p-2 text-left">MX (cm)</th><th scope="col" className="border border-border p-2 text-left">US</th><th scope="col" className="border border-border p-2 text-left">EU</th></tr>
-              </thead>
-              <tbody>
-                {[
-                  ["22", "5", "35"],
-                  ["22.5", "5.5", "36"],
-                  ["23", "6", "36.5"],
-                  ["23.5", "6.5", "37"],
-                  ["24", "7", "37.5"],
-                  ["24.5", "7.5", "38"],
-                  ["25", "8", "39"],
-                  ["25.5", "8.5", "39.5"],
-                  ["26", "9", "40"],
-                  ["27", "10", "41"],
-                ].map(([mx, us, eu]) => (
-                  <tr key={mx}>
-                    <td className="border border-border p-2">{mx}</td>
-                    <td className="border border-border p-2">{us}</td>
-                    <td className="border border-border p-2">{eu}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+            <div className="my-4 overflow-x-auto">
+              <table className="w-full border-collapse text-sm">
+                <thead className="bg-plate text-text">
+                  <tr><th scope="col" className="border border-border p-2 text-left">MX (cm)</th><th scope="col" className="border border-border p-2 text-left">US</th><th scope="col" className="border border-border p-2 text-left">EU</th></tr>
+                </thead>
+                <tbody>
+                  {[
+                    ["22", "5", "35"],
+                    ["22.5", "5.5", "36"],
+                    ["23", "6", "36.5"],
+                    ["23.5", "6.5", "37"],
+                    ["24", "7", "37.5"],
+                    ["24.5", "7.5", "38"],
+                    ["25", "8", "39"],
+                    ["25.5", "8.5", "39.5"],
+                    ["26", "9", "40"],
+                    ["27", "10", "41"],
+                  ].map(([mx, us, eu]) => (
+                    <tr key={mx}>
+                      <td className="border border-border p-2">{mx}</td>
+                      <td className="border border-border p-2">{us}</td>
+                      <td className="border border-border p-2">{eu}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
 
             <h2>Ajuste de las botas vaqueras</h2>
             <p>
@@ -124,58 +128,62 @@ export default function GuiaTallasPage() {
             <p>All of our boots use Mexican sizing. If you know your size on another scale, this chart will point you to the right fit:</p>
 
             <h3>Men</h3>
-            <table className="w-full border-collapse my-4 text-sm">
-              <thead className="bg-bg-alt text-text">
-                <tr><th scope="col" className="border border-border p-2 text-left">MX (cm)</th><th scope="col" className="border border-border p-2 text-left">US</th><th scope="col" className="border border-border p-2 text-left">EU</th></tr>
-              </thead>
-              <tbody>
-                {[
-                  ["25", "6", "39"],
-                  ["25.5", "6.5", "40"],
-                  ["26", "7", "41"],
-                  ["26.5", "7.5", "41.5"],
-                  ["27", "8", "42"],
-                  ["27.5", "8.5", "42.5"],
-                  ["28", "9", "43"],
-                  ["28.5", "9.5", "44"],
-                  ["29", "10", "45"],
-                  ["30", "11", "46"],
-                ].map(([mx, us, eu]) => (
-                  <tr key={mx}>
-                    <td className="border border-border p-2">{mx}</td>
-                    <td className="border border-border p-2">{us}</td>
-                    <td className="border border-border p-2">{eu}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+            <div className="my-4 overflow-x-auto">
+              <table className="w-full border-collapse text-sm">
+                <thead className="bg-plate text-text">
+                  <tr><th scope="col" className="border border-border p-2 text-left">MX (cm)</th><th scope="col" className="border border-border p-2 text-left">US</th><th scope="col" className="border border-border p-2 text-left">EU</th></tr>
+                </thead>
+                <tbody>
+                  {[
+                    ["25", "6", "39"],
+                    ["25.5", "6.5", "40"],
+                    ["26", "7", "41"],
+                    ["26.5", "7.5", "41.5"],
+                    ["27", "8", "42"],
+                    ["27.5", "8.5", "42.5"],
+                    ["28", "9", "43"],
+                    ["28.5", "9.5", "44"],
+                    ["29", "10", "45"],
+                    ["30", "11", "46"],
+                  ].map(([mx, us, eu]) => (
+                    <tr key={mx}>
+                      <td className="border border-border p-2">{mx}</td>
+                      <td className="border border-border p-2">{us}</td>
+                      <td className="border border-border p-2">{eu}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
 
             <h3>Women</h3>
-            <table className="w-full border-collapse my-4 text-sm">
-              <thead className="bg-bg-alt text-text">
-                <tr><th scope="col" className="border border-border p-2 text-left">MX (cm)</th><th scope="col" className="border border-border p-2 text-left">US</th><th scope="col" className="border border-border p-2 text-left">EU</th></tr>
-              </thead>
-              <tbody>
-                {[
-                  ["22", "5", "35"],
-                  ["22.5", "5.5", "36"],
-                  ["23", "6", "36.5"],
-                  ["23.5", "6.5", "37"],
-                  ["24", "7", "37.5"],
-                  ["24.5", "7.5", "38"],
-                  ["25", "8", "39"],
-                  ["25.5", "8.5", "39.5"],
-                  ["26", "9", "40"],
-                  ["27", "10", "41"],
-                ].map(([mx, us, eu]) => (
-                  <tr key={mx}>
-                    <td className="border border-border p-2">{mx}</td>
-                    <td className="border border-border p-2">{us}</td>
-                    <td className="border border-border p-2">{eu}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+            <div className="my-4 overflow-x-auto">
+              <table className="w-full border-collapse text-sm">
+                <thead className="bg-plate text-text">
+                  <tr><th scope="col" className="border border-border p-2 text-left">MX (cm)</th><th scope="col" className="border border-border p-2 text-left">US</th><th scope="col" className="border border-border p-2 text-left">EU</th></tr>
+                </thead>
+                <tbody>
+                  {[
+                    ["22", "5", "35"],
+                    ["22.5", "5.5", "36"],
+                    ["23", "6", "36.5"],
+                    ["23.5", "6.5", "37"],
+                    ["24", "7", "37.5"],
+                    ["24.5", "7.5", "38"],
+                    ["25", "8", "39"],
+                    ["25.5", "8.5", "39.5"],
+                    ["26", "9", "40"],
+                    ["27", "10", "41"],
+                  ].map(([mx, us, eu]) => (
+                    <tr key={mx}>
+                      <td className="border border-border p-2">{mx}</td>
+                      <td className="border border-border p-2">{us}</td>
+                      <td className="border border-border p-2">{eu}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
 
             <h2>How cowboy boots fit</h2>
             <p>

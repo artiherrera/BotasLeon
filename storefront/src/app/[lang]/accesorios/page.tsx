@@ -3,6 +3,7 @@ import { Header } from "@/components/Header"
 import { Footer } from "@/components/Footer"
 import { ProductsListing } from "@/components/ProductsListing"
 import { EmptyProductsState } from "@/components/EmptyState"
+import { CategoryHeader } from "@/components/CategoryHeader"
 import { getAccessories } from "@/lib/shopify"
 import { pageMetadata } from "@/lib/seo"
 
@@ -26,18 +27,14 @@ export default async function AccesoriosPage() {
     <>
       <Header />
       <main id="contenido" tabIndex={-1} className="flex-1">
-        <div className="mx-auto max-w-7xl px-6 py-12 md:py-16">
-          <div className="mb-8">
-            <p className="eyebrow text-leather mb-2">Accesorios</p>
-            <h1 className="font-display text-4xl md:text-5xl text-text mb-3">
-              Para complementar tu vestir
-            </h1>
-            <p className="text-text-muted max-w-xl">
-              Cinturones piteados, sombreros vaqueros, carteras de piel y
-              productos para cuidar tu cuero. Curados de los mismos talleres
-              de León que hacen nuestras botas.
-            </p>
-          </div>
+        <div className="contenedor seccion">
+          {/* accessories.eyebrow y accessories.title SÍ existen en el
+              diccionario; la descripción larga todavía no tiene llave. */}
+          <CategoryHeader
+            eyebrow="accessories.eyebrow"
+            title="accessories.title"
+            description="Cinturones piteados, sombreros vaqueros, carteras de piel y productos para cuidar tu cuero. Curados de los mismos talleres de León que hacen nuestras botas."
+          />
 
           {products.length === 0 ? (
             <EmptyProductsState
@@ -46,7 +43,8 @@ export default async function AccesoriosPage() {
             />
           ) : (
             <Suspense fallback={<div className="min-h-[400px]" />}>
-              <ProductsListing products={products} />
+              {/* Un cinto no se cuenta en pares. */}
+              <ProductsListing products={products} unidad="piezas" />
             </Suspense>
           )}
         </div>

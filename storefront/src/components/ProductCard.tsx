@@ -6,23 +6,40 @@ import { LocalizedLink as Link } from "@/components/LocalizedLink"
 import type { Product, Image as ShopifyImage } from "@/lib/shopify/types"
 import { JudgemeStars } from "./JudgemeStars"
 import { LocalizedPrice, useProductTranslation } from "./LocalizedProductContent"
-import { useT } from "@/lib/i18n/context"
-import { useCart } from "@/components/CartProvider"
+import { useLocale, useT } from "@/lib/i18n/context"
+import { atributosDeTarjeta } from "@/lib/shopify/facets"
+import { facetLabel } from "@/lib/facets-i18n"
+import { saleInfo } from "@/lib/utils"
 
 /**
  * Tarjeta de producto para grids (home, listing, marca page).
  *
  * La miniatura es un mini-carrusel: en móvil se hace SWIPE (scroll-snap nativo),
  * en desktop aparecen flechas discretas al pasar el mouse + puntos indicadores.
- * La foto y el texto siguen siendo enlace al PDP (deslizar o usar las flechas
- * NO navega).
+ * La tarjeta entera es el enlace al PDP (deslizar o usar las flechas NO navega).
  *
- * COMPRA DIRECTA: el botón "Agregar" mete la bota al carrito sin pasar por la
- * ficha. Puede hacerlo porque TODO el catálogo es de variante única — la talla
- * no es variante, vive en un metacampo y viaja como atributo de línea — así que
- * se elige después, en el carrito (ver CartLineSize). El botón va FUERA del
- * <a> del enlace: un <button> dentro de un <a> es HTML inválido.
+ * SIN compra rápida: la talla de 101 de los 103 productos no es variante sino
+ * metacampo, así que agregar desde el grid creaba una línea sin talla que no
+ * podía pagar hasta elegirla en el carrito. Se elige en la ficha, que es donde
+ * vive el selector. (El candado de talla del carrito NO se toca: hay carritos
+ * en localStorage creados antes de este cambio.)
  */
+
+/**
+ * Una bota es "nueva" durante 30 días. Medido sobre el catálogo real: con 30
+ * días la insignia marca 12 de 103 productos; con 60 marcaría 63, o sea más de
+ * la mitad del catálogo, y dejaría de querer decir nada.
+ */
+const DIAS_NUEVA = 30
+const MS_POR_DIA = 24 * 60 * 60 * 1000
+
+function esNueva(createdAt?: string | null): boolean {
+  if (!createdAt) return false
+  const alta = Date.parse(createdAt)
+  if (Number.isNaN(alta)) return false
+  return Date.now() - alta < DIAS_NUEVA * MS_POR_DIA
+}
+
 export function ProductCard({
   product,
   singleImage = false,
@@ -36,6 +53,7 @@ export function ProductCard({
   singleImage?: boolean
 }) {
   const t = useT()
+  const { locale } = useLocale()
   const { handle, title, vendor, featuredImage, priceRange } = product
   const loc = useProductTranslation(handle)
   const displayTitle = loc?.title?.trim() || title
@@ -49,53 +67,70 @@ export function ProductCard({
     .filter((im) => (seen.has(im.url) ? false : (seen.add(im.url), true)))
     .slice(0, 6)
 
-  const { addItem, isPending } = useCart()
-  const variantId = product.variants?.[0]?.id ?? null
-  const canQuickAdd = !!variantId && product.availableForSale
+  /* "Horma · Piel": los dos únicos atributos que existen en los 103 productos
+     (la suela no está capturada en ninguno). Vienen de Shopify en español, así
+     que en el sitio en inglés hay que pasarlos por facetLabel. */
+  const atributos = atributosDeTarjeta(product)
+    .map((label) => facetLabel(label, locale))
+    .join(" · ")
+
+  const { onSale } = saleInfo(minPrice.amount, compareAt?.amount)
+  const nueva = esNueva(product.createdAt)
 
   return (
-    <div className="group flex h-full flex-col">
     <Link
       href={`/products/${handle}`}
-      className="flex flex-1 flex-col"
+      className="group flex h-full flex-col"
       aria-label={
         product.availableForSale
           ? `${t("card.view")} ${displayTitle}`
           : `${t("card.view")} ${displayTitle} ${t("card.soldOutParen")}`
       }
     >
-      <div className="relative aspect-square shrink-0 overflow-hidden bg-bg-alt rounded-sm mb-3">
+      <div className="plato shrink-0 mb-3">
         {gallery.length === 0 ? (
           <PlaceholderImage />
         ) : singleImage ? (
-          <Image
-            src={gallery[0].url}
-            alt={gallery[0].altText || title}
-            fill
-            sizes={SIZES}
-            className="object-cover transition-transform duration-500 group-hover:scale-105"
-          />
+          <Image src={gallery[0].url} alt={gallery[0].altText || title} fill sizes={SIZES} />
         ) : (
           <CardGallery images={gallery} alt={title} />
         )}
-        {!product.availableForSale && (
-          <div className="absolute top-3 left-3 z-20 bg-text/90 text-bg eyebrow text-xs px-2 py-1 rounded">
-            {t("card.soldOut")}
-          </div>
-        )}
+        {/* Las insignias se apilan arriba a la izquierda. El agotado es el único
+            en tinta sólida: es un estado que impide comprar, no un adorno.
+            "Nueva" solo se pinta si la bota no está ya marcada por otra cosa —
+            tres etiquetas encima de la foto serían ruido. */}
+        <div className="absolute top-3 left-3 z-20 flex flex-col items-start gap-1">
+          {!product.availableForSale && (
+            <span className="bg-text/90 text-bg eyebrow text-xs px-2 py-1">
+              {t("card.soldOut")}
+            </span>
+          )}
+          {onSale && (
+            <span className="bg-bg text-text border border-border eyebrow text-xs px-2 py-1">
+              {t("card.badgeOutlet")}
+            </span>
+          )}
+          {nueva && product.availableForSale && !onSale && (
+            <span className="bg-bg text-text border border-border eyebrow text-xs px-2 py-1">
+              {t("card.badgeNew")}
+            </span>
+          )}
+        </div>
       </div>
 
       <div className="flex flex-1 flex-col px-1">
         {/* El renglón de marca se pinta SIEMPRE, con un espacio duro cuando el
             producto no la trae: si desaparece, esa tarjeta sube todo lo de
             abajo y deja de cuadrar con sus vecinas. */}
-        <p className="eyebrow text-text-subtle group-hover:text-leather transition-colors mb-1">
-          {vendor || "\u00A0"}
-        </p>
+        <p className="eyebrow text-xs text-leather mb-1">{vendor || " "}</p>
         {/* line-clamp-2: un nombre muy largo estiraba su tarjeta sola. */}
-        <h3 className="font-heading text-lg text-text leading-tight mb-1 line-clamp-2">
+        <h3 className="nombre-producto text-text mb-1 line-clamp-2 group-hover:underline underline-offset-4">
           {displayTitle}
         </h3>
+        {/* Mismo motivo que el vendor: 5 de los 103 productos no traen ni horma
+            ni piel, y sin el espacio duro su precio subiría un renglón y
+            rompería la línea base de la fila. */}
+        <p className="nota mb-1">{atributos || " "}</p>
         {product.judgemeRating != null && product.judgemeRating > 0 && (
           <div className="mb-1">
             <JudgemeStars
@@ -114,53 +149,32 @@ export function ProductCard({
             compareAt={compareAt?.amount}
             size="card"
           />
+          {/* Invitación que aparece al pasar el cursor. aria-hidden porque el
+              enlace ya se anuncia como "Ver {título}" y si no, el lector de
+              pantalla diría dos cosas por tarjeta. En móvil no se pinta: no hay
+              hover y la tarjeta entera ya es el enlace. */}
+          <span
+            aria-hidden
+            className="btn-ter hidden md:inline-block mt-2 text-sm opacity-0 transition duration-[180ms] group-hover:opacity-100"
+          >
+            {t("card.chooseSize")}
+          </span>
         </div>
       </div>
     </Link>
-
-    {canQuickAdd ? (
-      <button
-        type="button"
-        disabled={isPending}
-        aria-label={t("card.addAria").replace("{title}", displayTitle)}
-        onClick={() => addItem(variantId, 1)}
-        className="mt-3 w-full px-1 py-2.5 border border-text text-text text-sm font-medium hover:bg-text hover:text-bg disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-      >
-        {t("card.add")}
-      </button>
-    ) : (
-      /* Un agotado no pinta botón, y sin este hueco su tarjeta quedaba más
-         corta que las demás. Replica la caja del botón (mismo padding, borde
-         y tamaño de texto) en vez de fijar una altura en píxeles, para que no
-         se despegue si el botón cambia. */
-      <div
-        aria-hidden
-        className="mt-3 select-none border border-transparent px-1 py-2.5 text-sm font-medium"
-      >
-        &nbsp;
-      </div>
-    )}
-    </div>
   )
 }
 
 const SIZES = "(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
 
 function CardGallery({ images, alt }: { images: ShopifyImage[]; alt: string }) {
+  const t = useT()
   const trackRef = useRef<HTMLDivElement>(null)
   const [idx, setIdx] = useState(0)
   const count = images.length
 
   if (count === 1) {
-    return (
-      <Image
-        src={images[0].url}
-        alt={images[0].altText || alt}
-        fill
-        sizes={SIZES}
-        className="object-cover transition-transform duration-500 group-hover:scale-105"
-      />
-    )
+    return <Image src={images[0].url} alt={images[0].altText || alt} fill sizes={SIZES} />
   }
 
   const onScroll = () => {
@@ -186,7 +200,7 @@ function CardGallery({ images, alt }: { images: ShopifyImage[]; alt: string }) {
       role="button"
       aria-label={label}
       onClick={go(dir)}
-      className={`hidden md:flex absolute top-1/2 -translate-y-1/2 z-10 h-8 w-8 items-center justify-center rounded-full bg-bg/80 text-text shadow-md backdrop-blur-sm cursor-pointer opacity-0 transition-opacity duration-200 group-hover:opacity-100 hover:bg-bg ${
+      className={`hidden md:flex absolute top-1/2 -translate-y-1/2 z-10 h-10 w-10 items-center justify-center border border-border bg-bg/90 text-text cursor-pointer opacity-0 transition duration-[180ms] group-hover:opacity-100 hover:bg-text hover:text-bg ${
         dir === -1 ? "left-2" : "right-2"
       }`}
     >
@@ -199,7 +213,7 @@ function CardGallery({ images, alt }: { images: ShopifyImage[]; alt: string }) {
       <div
         ref={trackRef}
         onScroll={onScroll}
-        className="flex h-full w-full snap-x snap-mandatory overflow-x-auto scroll-smooth [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        className="flex h-full w-full snap-x snap-mandatory overflow-x-auto scroll-smooth motion-reduce:scroll-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
       >
         {images.map((im, i) => (
           <div key={i} className="relative h-full w-full flex-shrink-0 snap-center">
@@ -209,22 +223,22 @@ function CardGallery({ images, alt }: { images: ShopifyImage[]; alt: string }) {
               fill
               sizes={SIZES}
               loading={i === 0 ? undefined : "lazy"}
-              className="object-cover"
             />
           </div>
         ))}
       </div>
 
-      {idx > 0 && <Arrow dir={-1} label="Anterior" />}
-      {idx < count - 1 && <Arrow dir={1} label="Siguiente" />}
+      {idx > 0 && <Arrow dir={-1} label={t("rail.prev")} />}
+      {idx < count - 1 && <Arrow dir={1} label={t("rail.next")} />}
 
-      {/* Puntos indicadores */}
+      {/* Puntos indicadores. Aquí el rounded-full se queda: son círculos de
+          verdad, no una caja redondeada. */}
       <div className="pointer-events-none absolute bottom-2 left-0 right-0 z-10 flex justify-center gap-1.5">
         {images.map((_, i) => (
           <span
             key={i}
-            className={`h-1.5 w-1.5 rounded-full shadow-[0_0_2px_rgba(0,0,0,0.5)] transition-colors ${
-              i === idx ? "bg-white" : "bg-white/50"
+            className={`h-1.5 w-1.5 rounded-full transition-colors duration-[180ms] ${
+              i === idx ? "bg-text" : "bg-text/30"
             }`}
           />
         ))}
@@ -236,8 +250,8 @@ function CardGallery({ images, alt }: { images: ShopifyImage[]; alt: string }) {
 function PlaceholderImage() {
   return (
     <div className="absolute inset-0 flex items-center justify-center text-text-subtle">
-      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
-        <rect width="18" height="18" x="3" y="3" rx="2" ry="2" />
+      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+        <rect width="18" height="18" x="3" y="3" />
         <circle cx="9" cy="9" r="2" />
         <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21" />
       </svg>

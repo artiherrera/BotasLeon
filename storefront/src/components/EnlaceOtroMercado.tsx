@@ -18,7 +18,7 @@ export function EnlaceOtroMercado({ className = "" }: { className?: string }) {
   return (
     <a
       href="https://botasleon.com/en?mercado=us"
-      className={`text-xs underline underline-offset-4 hover:text-bg transition-colors ${className}`}
+      className={`text-xs underline underline-offset-4 hover:text-text transition-colors duration-[180ms] ${className}`}
     >
       Shop in USD · United States
     </a>

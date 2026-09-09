@@ -21,10 +21,13 @@ export function CategoryHeader({
 }) {
   const t = useT()
   return (
-    <div className="mb-8">
-      <p className="eyebrow text-leather mb-2">{t(eyebrow)}</p>
-      <h1 className="font-display text-4xl md:text-5xl text-text mb-3">{t(title)}</h1>
-      <p className="text-text-muted max-w-xl">{t(description)}</p>
+    <div className="mb-10">
+      {/* El eyebrow de una categoría es genérico ("Hombre", "Catálogo"): va en
+          gris. El cuero queda reservado a sus cuatro usos, y uno repetido en
+          cada listado deja de leerse como acento. */}
+      <p className="eyebrow text-xs text-text-muted mb-2">{t(eyebrow)}</p>
+      <h1 className="display-l text-text mb-3">{t(title)}</h1>
+      <p className="cuerpo-l medida-lectura text-text-muted">{t(description)}</p>
     </div>
   )
 }

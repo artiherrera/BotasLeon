@@ -21,15 +21,22 @@ import { useT } from "@/lib/i18n/context"
 // silencio (por el mode:"no-cors"). Verificado a mano con la API de Judge.me.
 const JUDGEME_SHOP_DOMAIN = "na4ngw-dn.myshopify.com"
 
-const inputCls =
-  "w-full rounded-sm border border-border bg-bg px-3 py-2 text-sm focus:border-leather focus:outline-none"
+const inputCls = "campo"
 
 export function ReviewForm({
   productId,
   productTitle,
+  triggerKey = "review.write",
 }: {
   productId: string
   productTitle: string
+  /**
+   * Llave del rótulo del enlace que abre el formulario. Con reseñas dice
+   * "Escribir una reseña"; sin ninguna —98 de 103 fichas, donde el resumen de
+   * estrellas ya no se pinta— dice "Sé el primero en reseñarla", que es la
+   * única invitación que queda en esa página.
+   */
+  triggerKey?: string
 }) {
   const t = useT()
   const [open, setOpen] = useState(false)
@@ -142,7 +149,7 @@ export function ReviewForm({
 
   if (sent) {
     return (
-      <div className="mt-4 rounded-sm border border-leather/30 bg-text/5 p-4 text-sm text-text">
+      <div className="mt-4 border border-border bg-plate p-4 cuerpo text-text">
         {t("review.thanks")}
       </div>
     )
@@ -153,18 +160,21 @@ export function ReviewForm({
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="mt-2 inline-flex self-start border border-leather px-5 py-2.5 text-sm text-leather hover:bg-text hover:text-bg transition-colors"
+        className="btn btn-ter cuerpo"
       >
-        {t("review.write")}
+        {t(triggerKey)}
       </button>
     )
   }
 
   return (
-    <form onSubmit={submit} className="mt-4 space-y-3 rounded-sm border border-border p-4">
+    <form onSubmit={submit} className="mt-4 space-y-3 border border-border p-4">
       <div>
-        <span className="mb-1 block text-xs text-text-muted">{t("review.yourRating")}</span>
-        <div className="flex gap-1" onMouseLeave={() => setHover(0)}>
+        <span className="nota mb-1 block">{t("review.yourRating")}</span>
+        {/* 44px de lado por estrella: el glifo seguía midiendo 24 y era el
+            control más fallado del formulario en móvil. No crece la estrella,
+            crece el área que se toca. */}
+        <div className="-ml-2.5 flex" onMouseLeave={() => setHover(0)}>
           {[1, 2, 3, 4, 5].map((n) => (
             <button
               key={n}
@@ -174,7 +184,7 @@ export function ReviewForm({
               aria-label={t("review.starAria")
                 .replace("{n}", String(n))
                 .replace("{s}", n > 1 ? "s" : "")}
-              className="text-2xl leading-none"
+              className="flex h-11 w-11 items-center justify-center text-2xl leading-none"
             >
               <span className={(hover || rating) >= n ? "text-gold" : "text-border"}>★</span>
             </button>
@@ -204,7 +214,7 @@ export function ReviewForm({
         onChange={(e) => setTitle(e.target.value)}
       />
       <textarea
-        className={`${inputCls} resize-none`}
+        className={`${inputCls} h-auto resize-none py-2.5`}
         rows={4}
         placeholder={t("review.phBody").replace("{title}", productTitle)}
         value={body}
@@ -214,24 +224,26 @@ export function ReviewForm({
       {/* Fotos (solo si Cloudinary está configurado) */}
       {cloudinaryEnabled() && (
         <div>
-          <span className="mb-1.5 block text-xs text-text-muted">
+          <span className="nota mb-1.5 block">
             {t("review.photoOptional")}
           </span>
           <div className="flex flex-wrap gap-2">
             {photos.map((url) => (
               <div
                 key={url}
-                className="relative h-16 w-16 overflow-hidden rounded-sm border border-border"
+                className="relative h-16 w-16 overflow-hidden border border-border"
               >
                 {/* eslint-disable-next-line @next/next/no-img-element -- imagen de Cloudinary subida por el usuario */}
                 <img src={url} alt={t("review.photoAlt")} className="h-full w-full object-cover" />
+                {/* Ni pastilla redonda ni grosor 3: el mismo trazo 1.5 del
+                    resto de la ficha, en un cuadro de 28px que sí se toca. */}
                 <button
                   type="button"
                   onClick={() => removePhoto(url)}
                   aria-label={t("review.removePhoto")}
-                  className="absolute right-0.5 top-0.5 flex h-5 w-5 items-center justify-center rounded-full bg-black/60 text-bg"
+                  className="absolute right-0 top-0 flex h-7 w-7 items-center justify-center bg-text text-bg transition-colors duration-[180ms] hover:bg-leather"
                 >
-                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18M6 6l12 12" /></svg>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18M6 6l12 12" /></svg>
                 </button>
               </div>
             ))}
@@ -240,13 +252,13 @@ export function ReviewForm({
                 type="button"
                 onClick={() => fileRef.current?.click()}
                 disabled={uploading}
-                className="flex h-16 w-16 items-center justify-center rounded-sm border border-dashed border-border text-text-subtle hover:border-leather hover:text-leather disabled:opacity-40 transition-colors"
+                className="flex h-16 w-16 items-center justify-center border border-dashed border-border text-text-muted transition-colors duration-[180ms] hover:border-text hover:text-text disabled:opacity-40"
                 aria-label={t("review.addPhoto")}
               >
                 {uploading ? (
                   <span className="h-4 w-4 animate-spin rounded-full border-2 border-border border-t-leather" />
                 ) : (
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 5v14M5 12h14" /></svg>
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 5v14M5 12h14" /></svg>
                 )}
               </button>
             )}
@@ -264,25 +276,22 @@ export function ReviewForm({
         </div>
       )}
 
-      {error && <p className="text-xs text-terracotta">{error}</p>}
+      {error && <p className="nota text-leather">{error}</p>}
 
       <div className="flex items-center gap-2">
-        <button
-          type="submit"
-          disabled={sending || uploading}
-          className=" bg-text px-5 py-2.5 text-sm text-bg hover:bg-text disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
-        >
+        <button type="submit" disabled={sending || uploading} className="btn">
           {sending ? t("review.sending") : t("review.submit")}
         </button>
         <button
           type="button"
           onClick={() => setOpen(false)}
-          className="rounded-full px-4 py-2.5 text-sm text-text-muted hover:text-text transition-colors"
+          className="btn btn-ter cuerpo text-text-muted"
         >
           {t("review.cancel")}
         </button>
       </div>
-      <p className="text-[11px] text-text-subtle">{t("review.disclaimer")}</p>
+      {/* Nada por debajo de 12px. */}
+      <p className="nota">{t("review.disclaimer")}</p>
     </form>
   )
 }

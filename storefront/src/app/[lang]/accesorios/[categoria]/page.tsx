@@ -4,6 +4,7 @@ import { Header } from "@/components/Header"
 import { Footer } from "@/components/Footer"
 import { ProductsListing } from "@/components/ProductsListing"
 import { EmptyProductsState } from "@/components/EmptyState"
+import { CategoryHeader } from "@/components/CategoryHeader"
 import { getAccessories } from "@/lib/shopify"
 import { ACCESSORY_SLUG_TO_TYPE, ACCESSORY_SLUGS } from "@/lib/shopify/taxonomy"
 import { pageMetadata } from "@/lib/seo"
@@ -75,14 +76,12 @@ export default async function AccesorioCategoriaPage({ params }: Props) {
     <>
       <Header />
       <main id="contenido" tabIndex={-1} className="flex-1">
-        <div className="mx-auto max-w-7xl px-6 py-12 md:py-16">
-          <div className="mb-8">
-            <p className="eyebrow text-leather mb-2">{meta.eyebrow}</p>
-            <h1 className="font-display text-4xl md:text-5xl text-text mb-3">
-              {meta.title}
-            </h1>
-            <p className="text-text-muted max-w-xl">{meta.description}</p>
-          </div>
+        <div className="contenedor seccion">
+          <CategoryHeader
+            eyebrow={meta.eyebrow}
+            title={meta.title}
+            description={meta.description}
+          />
 
           {products.length === 0 ? (
             <EmptyProductsState
@@ -95,7 +94,8 @@ export default async function AccesorioCategoriaPage({ params }: Props) {
             />
           ) : (
             <Suspense fallback={<div className="min-h-[400px]" />}>
-              <ProductsListing products={products} />
+              {/* Cinturones, sombreros, carteras y cuidado del cuero: piezas. */}
+              <ProductsListing products={products} unidad="piezas" />
             </Suspense>
           )}
         </div>

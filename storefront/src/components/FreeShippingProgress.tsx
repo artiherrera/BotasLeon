@@ -26,7 +26,7 @@ export function FreeShippingProgress({
   // 100% en todos los carritos es ruido.
   if (ENVIO_GRATIS_SIEMPRE) {
     return (
-      <p className="mb-4 text-xs font-medium text-leather">
+      <p className="mb-4 nota font-medium text-text">
         {t("cart.freeShippingAlways")}
       </p>
     )
@@ -36,9 +36,9 @@ export function FreeShippingProgress({
 
   return (
     <div className="mb-4">
-      <p className="text-xs text-text-muted mb-2">
+      <p className="nota mb-2">
         {qualifies ? (
-          <span className="text-leather font-medium">
+          <span className="text-text font-medium">
             {t("cart.freeShippingQualified")}
           </span>
         ) : (
@@ -58,7 +58,7 @@ export function FreeShippingProgress({
         className="h-1 w-full bg-border overflow-hidden"
       >
         <div
-          className="h-full bg-leather transition-[width] duration-500 ease-out"
+          className="h-full bg-text transition-[width] duration-[180ms] ease-out motion-reduce:transition-none"
           style={{ width: `${ratio * 100}%` }}
         />
       </div>

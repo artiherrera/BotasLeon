@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { useLocale, useT } from "@/lib/i18n/context"
+import { useLocale } from "@/lib/i18n/context"
 import { PriceMSI } from "./PriceMSI"
 import { inContext } from "@/lib/market"
 
@@ -145,26 +145,27 @@ export function LocalizedProductTitle({
   return <h1 className={className}>{t?.title?.trim() || fallback}</h1>
 }
 
-/** Bloque de descripción — encabezado traducido + HTML en inglés cuando aplica. */
-export function LocalizedProductDescription({
+/**
+ * Solo el CUERPO de la descripción — inglés cuando aplica, español (SSG) como
+ * base. Sin encabezado ni regla propia: la descripción dejó de ir suelta al
+ * final de la columna y ahora es la primera fila del acordeón, que ya pone el
+ * título y la línea.
+ */
+export function ProductDescriptionBody({
   handle,
   fallbackHtml,
 }: {
   handle: string
   fallbackHtml: string
 }) {
-  const tr = useT()
   const t = useProductTranslation(handle)
   const html = t?.descriptionHtml?.trim() ? t.descriptionHtml : fallbackHtml
   if (!html) return null
   return (
-    <div className="mt-12 pt-8 border-t border-border">
-      <h2 className="eyebrow text-leather mb-4">{tr("product.description")}</h2>
-      <div
-        className="prose prose-sm max-w-none text-text-muted leading-relaxed [&_p]:mb-3"
-        dangerouslySetInnerHTML={{ __html: html }}
-      />
-    </div>
+    <div
+      className="cuerpo-l medida-lectura text-text-muted [&_a]:text-leather [&_a]:underline [&_p]:mb-3 [&_p:last-child]:mb-0"
+      dangerouslySetInnerHTML={{ __html: html }}
+    />
   )
 }
 

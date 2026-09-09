@@ -114,22 +114,22 @@ export default function CartPage() {
         <main id="contenido" tabIndex={-1} className="flex-1">
           <div className="mx-auto max-w-2xl px-6 py-20 md:py-28 text-center">
             <div className="w-20 h-20 mx-auto mb-6 text-text-subtle">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z" />
                 <path d="M3 6h18" />
                 <path d="M16 10a4 4 0 0 1-8 0" />
               </svg>
             </div>
-            <p className="eyebrow text-leather mb-3">{t("cart.title")}</p>
-            <h1 className="font-display text-3xl md:text-4xl text-text mb-3">
+            <p className="eyebrow text-text-muted mb-3">{t("cart.title")}</p>
+            <h1 className="display-l text-text mb-3">
               {t("cart.empty")}
             </h1>
-            <p className="text-text-muted mb-10 max-w-md mx-auto">
+            <p className="cuerpo-l text-text-muted mb-10 max-w-md mx-auto">
               {t("cart.emptyDesc")}
             </p>
             <Link
               href="/products"
-              className="inline-flex px-8 py-4 bg-text text-bg text-sm hover:bg-leather transition-colors"
+              className="btn"
             >
               {t("cart.viewCatalog")}
             </Link>
@@ -145,8 +145,8 @@ export default function CartPage() {
       <Header />
       <main id="contenido" tabIndex={-1} className="flex-1">
         <div className="mx-auto max-w-5xl px-6 py-12 md:py-16">
-          <p className="eyebrow text-leather mb-2">{t("cart.title")}</p>
-          <h1 className="font-display text-3xl md:text-4xl text-text mb-10">
+          <p className="eyebrow text-text-muted mb-2">{t("cart.title")}</p>
+          <h1 className="display-l text-text mb-10">
             {t("cart.title")}
             {cart && cart.totalQuantity > 0 && (
               <span className="text-text-muted font-normal text-2xl ml-2">
@@ -173,18 +173,15 @@ export default function CartPage() {
                   <div key={line.id} className="py-6 flex gap-4">
                     <Link
                       href={`/products/${v.product.handle}`}
-                      className="block w-24 h-24 sm:w-28 sm:h-28 flex-shrink-0 bg-bg-alt overflow-hidden"
+                      className="plato block w-28 sm:w-32 shrink-0"
                     >
                       {v.image ? (
-                        <div className="relative w-full h-full">
-                          <Image
-                            src={v.image.url}
-                            alt={v.image.altText || v.product.title}
-                            fill
-                            sizes="120px"
-                            className="object-cover"
-                          />
-                        </div>
+                        <Image
+                          src={v.image.url}
+                          alt={v.image.altText || v.product.title}
+                          fill
+                          sizes="128px"
+                        />
                       ) : null}
                     </Link>
 
@@ -192,11 +189,11 @@ export default function CartPage() {
                       <div className="flex justify-between gap-3">
                         <Link
                           href={`/products/${v.product.handle}`}
-                          className="font-heading text-base text-text leading-snug hover:text-leather"
+                          className="nombre-producto text-text leading-snug hover:underline underline-offset-4"
                         >
                           {v.product.title}
                         </Link>
-                        <p className="font-medium text-text whitespace-nowrap">
+                        <p className="precio text-text whitespace-nowrap">
                           {formatMoney(
                             line.cost.totalAmount.amount,
                             line.cost.totalAmount.currencyCode
@@ -204,7 +201,7 @@ export default function CartPage() {
                         </p>
                       </div>
                       {subtitle && (
-                        <p className="text-sm text-text-muted mt-1">{subtitle}</p>
+                        <p className="cuerpo text-text-muted mt-1">{subtitle}</p>
                       )}
 
                       <div className="mt-2">
@@ -220,11 +217,11 @@ export default function CartPage() {
                             }
                             disabled={isPending || line.quantity <= 1}
                             aria-label={t("cart.decrease")}
-                            className="w-9 h-9 flex items-center justify-center hover:bg-bg-alt disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                            className="w-11 h-11 flex items-center justify-center hover:bg-bg-alt disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
                           >
                             −
                           </button>
-                          <span className="w-9 text-center text-sm">
+                          <span className="w-9 text-center cuerpo">
                             {line.quantity}
                           </span>
                           <button
@@ -232,7 +229,7 @@ export default function CartPage() {
                             onClick={() => updateLine(line.id, line.quantity + 1)}
                             disabled={isPending}
                             aria-label={t("cart.increase")}
-                            className="w-9 h-9 flex items-center justify-center hover:bg-bg-alt disabled:opacity-40 transition-colors"
+                            className="w-11 h-11 flex items-center justify-center hover:bg-bg-alt disabled:opacity-40 transition-colors"
                           >
                             +
                           </button>
@@ -242,7 +239,7 @@ export default function CartPage() {
                           type="button"
                           onClick={() => removeLine(line.id)}
                           disabled={isPending}
-                          className="text-xs text-text-subtle hover:text-terracotta uppercase tracking-wider transition-colors"
+                          className="nota inline-flex h-11 items-center underline underline-offset-4 hover:text-text transition-colors"
                         >
                           {t("cart.remove")}
                         </button>
@@ -255,10 +252,10 @@ export default function CartPage() {
 
             {/* Sidebar — resumen + checkout */}
             <aside className="bg-bg-alt p-6 h-fit lg:sticky lg:top-24">
-              <h2 className="eyebrow text-leather mb-4">{t("cart.summary")}</h2>
+              <h2 className="eyebrow text-text-muted mb-4">{t("cart.summary")}</h2>
 
               <div className="space-y-2 mb-6">
-                <div className="flex justify-between text-sm text-text-muted">
+                <div className="flex justify-between cuerpo text-text-muted">
                   <span>Subtotal</span>
                   <span className="text-text">
                     {cart &&
@@ -268,7 +265,7 @@ export default function CartPage() {
                       )}
                   </span>
                 </div>
-                <div className="flex justify-between text-sm text-text-muted">
+                <div className="flex justify-between cuerpo text-text-muted">
                   <span>{locale === "en" ? "Shipping" : "Envío"}</span>
                   <span className="text-text">
                     {isMX
@@ -276,15 +273,15 @@ export default function CartPage() {
                       : (locale === "en" ? "Across the USA" : "A todo Estados Unidos")}
                   </span>
                 </div>
-                <div className="flex justify-between text-sm text-text-muted">
+                <div className="flex justify-between cuerpo text-text-muted">
                   <span>{t("cart.deliveryLabel")}</span>
                   <span className="text-text">{t(isMX ? "cart.deliveryMx" : "cart.deliveryUs")}</span>
                 </div>
               </div>
 
               <div className="flex justify-between items-baseline pt-4 border-t border-border mb-6">
-                <span className="font-heading text-text">{isMX ? t("cart.total") : t("cart.subtotal")}</span>
-                <span className="font-display text-2xl text-text">
+                <span className="text-sm font-medium text-text">{isMX ? t("cart.total") : t("cart.subtotal")}</span>
+                <span className="precio precio-ficha text-text">
                   {cart &&
                     formatMoney(
                       cart.cost.subtotalAmount.amount,
@@ -295,8 +292,8 @@ export default function CartPage() {
 
               {/* Cupón manual — desplegable para no añadir ruido visual a quien
                   no trae código */}
-              <details className="mb-4 text-sm border-t border-border pt-4">
-                <summary className="cursor-pointer text-text-muted hover:text-text transition-colors select-none">
+              <details className="mb-4 cuerpo border-t border-border pt-4">
+                <summary className="cursor-pointer py-3 text-text-muted hover:text-text transition-colors select-none">
                   {t("cart.promoToggle")}
                 </summary>
                 <form onSubmit={handleApplyCoupon} className="mt-3 flex gap-2">
@@ -309,12 +306,12 @@ export default function CartPage() {
                     autoCapitalize="characters"
                     autoCorrect="off"
                     spellCheck={false}
-                    className="flex-1 min-w-0 px-3 py-2 bg-bg border border-border text-sm text-text uppercase tracking-wider focus:outline-none focus:border-leather"
+                    className="campo flex-1 min-w-0 uppercase tracking-wider"
                   />
                   <button
                     type="submit"
                     disabled={!couponInput.trim()}
-                    className="px-4 py-2 bg-text text-bg text-xs hover:bg-leather transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                    className="btn btn-sec shrink-0"
                   >
                     {t("cart.apply")}
                   </button>
@@ -322,9 +319,9 @@ export default function CartPage() {
               </details>
 
               {pendingDiscount && (
-                <div className="mb-3 p-3 bg-text text-bg text-xs rounded-sm">
-                  <p className="font-medium">Descuento aplicado al pagar</p>
-                  <p className="text-bg/80 mt-0.5">{pendingDiscount}</p>
+                <div className="mb-3 border border-border bg-bg p-3">
+                  <p className="text-sm font-medium text-text">Descuento aplicado al pagar</p>
+                  <p className="nota mt-0.5">{pendingDiscount}</p>
                 </div>
               )}
 
@@ -343,17 +340,17 @@ export default function CartPage() {
                       type="button"
                       disabled
                       aria-disabled
-                      className="block w-full text-center py-4 bg-border text-text-muted text-sm cursor-not-allowed"
+                      className="btn w-full"
                     >
                       {t("cart.checkout")}
                     </button>
-                    <p className="text-xs text-terracotta text-center mt-2">{t("cart.sizeBlocked")}</p>
+                    <p className="nota font-semibold text-text text-center mt-2">{t("cart.sizeBlocked")}</p>
                   </>
                 ) : (
                   <a
                     href={withDiscount(checkoutHref(cart.checkoutUrl), pendingDiscount)}
                     onClick={handleCheckoutClick}
-                    className="block w-full text-center py-4 bg-text text-bg text-sm hover:bg-leather transition-colors"
+                    className="btn w-full"
                   >
                     {t("cart.checkout")}
                   </a>
@@ -361,12 +358,12 @@ export default function CartPage() {
               ) : null}
               <Link
                 href="/products"
-                className="mt-2 block w-full text-center py-3 text-sm text-text-muted underline underline-offset-4 hover:text-text transition-colors"
+                className="btn btn-ter mt-2 block w-full text-center py-3 text-sm text-text-muted hover:text-text transition-colors"
               >
                 {t("cart.keepShopping")}
               </Link>
 
-              <p className="text-xs text-text-muted text-center mt-3">
+              <p className="nota text-center mt-3">
                 {t("trust.securePayment")} · {t(isMX ? "cart.shippingTax" : "cart.shippingTaxUs")} · {t("trust.exchange30")}
               </p>
             </aside>

@@ -26,14 +26,14 @@ export default function NotFound() {
       <Header />
       <main id="contenido" tabIndex={-1} className="flex-1">
         <div className="mx-auto max-w-3xl px-6 py-20 md:py-28">
-          <p className="eyebrow text-leather mb-3">Error 404</p>
-          <h1 className="font-display text-4xl md:text-5xl text-text mb-4">
+          <p className="eyebrow text-text-muted mb-3">Error 404</p>
+          <h1 className="display-l text-text mb-4">
             <Localized
               es={<>Esta página no existe</>}
               en={<>This page doesn&apos;t exist</>}
             />
           </h1>
-          <p className="text-text-muted max-w-xl mb-10">
+          <p className="cuerpo-l medida-lectura text-text-muted mb-10">
             <Localized
               es={
                 <>
@@ -53,31 +53,37 @@ export default function NotFound() {
           <div className="flex flex-col sm:flex-row flex-wrap gap-3">
             <Link
               href="/products"
-              className="inline-flex items-center justify-center px-6 py-3 bg-text text-bg text-sm hover:bg-leather-light transition-colors"
+              className="btn"
             >
               <Localized es={<>Ver todo el catálogo</>} en={<>Browse the catalog</>} />
             </Link>
             <Link
               href="/hombre"
-              className="inline-flex items-center justify-center px-6 py-3 border border-leather text-leather text-sm hover:bg-text hover:text-bg transition-colors"
+              className="btn btn-sec"
             >
               <Localized es={<>Botas hombre</>} en={<>Men&apos;s boots</>} />
             </Link>
             <Link
               href="/mujer"
-              className="inline-flex items-center justify-center px-6 py-3 border border-leather text-leather text-sm hover:bg-text hover:text-bg transition-colors"
+              className="btn btn-sec"
             >
               <Localized es={<>Botas mujer</>} en={<>Women&apos;s boots</>} />
             </Link>
+            {/* Era /outlet. La página está VACÍA: los 103 productos traen
+                compareAtPrice en 0, así que /outlet filtra y no queda ninguno.
+                Un 404 existe para rescatar al visitante perdido; mandarlo a
+                otra página en blanco lo pierde dos veces. /hombre/exoticas es
+                el mismo destino que ya recibió la tercera tarjeta de la
+                portada, y está prerenderizada con las 25 exóticas. */}
             <Link
-              href="/outlet"
-              className="inline-flex items-center justify-center px-6 py-3 border border-leather text-leather text-sm hover:bg-text hover:text-bg transition-colors"
+              href="/hombre/exoticas"
+              className="btn btn-sec"
             >
-              Outlet
+              <Localized es={<>Exóticas</>} en={<>Exotics</>} />
             </Link>
           </div>
 
-          <p className="mt-8 text-sm text-text-muted">
+          <p className="cuerpo mt-8 text-text-muted">
             <Localized
               es={
                 <>

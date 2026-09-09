@@ -232,56 +232,68 @@ export function ProductOptions({ product }: Props) {
   const price = product.priceRange.minVariantPrice
 
   // Botón de talla reusable (variante o metacampo comparten estilo).
+  //
+  // Rectángulo de 44px de lado, que es el objetivo táctil mínimo: la píldora
+  // de antes medía 36 y en móvil se fallaba el toque. En México la etiqueta
+  // llega como "24 · US 7" y se parte en dos renglones —MX arriba, US abajo—
+  // porque la conversión es justo lo que el comprador está buscando; en el
+  // build de Estados Unidos formatSizeWithUs devuelve solo "US 7" y entonces
+  // el chip queda de un renglón, sin hueco. Un cinturón no pasa por la escala
+  // de calzado (usaEscalaDeCalzado), así que ahí tampoco hay segundo renglón.
   const sizeButton = (
     value: string,
     active: boolean,
     available: boolean,
     onClick: () => void
-  ) => (
-    <button
-      key={value}
-      type="button"
-      onClick={onClick}
-      aria-pressed={active}
-      disabled={!available && !active}
-      className={`min-w-[3rem] px-4 py-2 rounded-full text-sm border transition-all whitespace-nowrap ${
-        active
-          ? "border-leather bg-text text-bg"
-          : available
-            ? "border-border text-text hover:border-leather"
-            : "border-border text-text-subtle line-through cursor-not-allowed"
-      }`}
-    >
-      {formatSizeWithUs(value, genderHandle, product.productType)}
-    </button>
-  )
+  ) => {
+    const [arriba, abajo] = formatSizeWithUs(
+      value,
+      genderHandle,
+      product.productType
+    ).split(" · ")
+    return (
+      <button
+        key={value}
+        type="button"
+        onClick={onClick}
+        aria-pressed={active}
+        disabled={!available && !active}
+        className={`flex min-h-[44px] min-w-[3.25rem] flex-col items-center justify-center gap-0.5 border px-3 py-1.5 leading-none whitespace-nowrap transition-colors duration-[180ms] ${
+          active
+            ? "border-text bg-text text-bg"
+            : available
+              ? "border-border text-text hover:border-text"
+              : "border-border text-text-muted line-through cursor-not-allowed"
+        }`}
+      >
+        <span className="text-sm font-medium">{arriba}</span>
+        {abajo && (
+          <span className={`nota ${active ? "text-bg/75" : ""}`}>{abajo}</span>
+        )}
+      </button>
+    )
+  }
 
   const stickyBar = (
     <div
       role="region"
       aria-label={t("pdp.actionsLabel")}
-      className={`md:hidden fixed inset-x-0 bottom-0 z-40 bg-bg/95 backdrop-blur-xl backdrop-saturate-200 border-t border-border/60 shadow-[0_-8px_24px_rgba(0,0,0,0.06)] transition-transform duration-300 ${
+      className={`md:hidden fixed inset-x-0 bottom-0 z-40 bg-bg border-t border-border transition-transform duration-[180ms] ${
         showSticky ? "translate-y-0" : "translate-y-full pointer-events-none"
       }`}
       style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
     >
       <div className="flex items-center gap-3 p-3">
         {product.featuredImage ? (
-          <div className="relative w-12 h-12 flex-shrink-0 bg-bg-alt overflow-hidden rounded-sm">
-            <Image
-              src={product.featuredImage.url}
-              alt=""
-              fill
-              sizes="48px"
-              className="object-cover"
-            />
+          <div className="plato w-12 h-12 flex-shrink-0">
+            <Image src={product.featuredImage.url} alt="" fill sizes="48px" />
           </div>
         ) : null}
         <div className="flex-1 min-w-0">
           <p className="text-xs text-text font-medium truncate leading-tight">
             {product.title}
           </p>
-          <p className="text-sm font-medium text-leather mt-0.5">
+          <p className="precio text-sm text-text mt-0.5">
             {formatMoney(price.amount, price.currencyCode)}
           </p>
         </div>
@@ -291,7 +303,7 @@ export function ProductOptions({ product }: Props) {
           disabled={ctaDisabled}
           aria-busy={isPending}
           aria-label={buyLabel}
-          className="px-6 py-3.5 bg-text text-bg text-sm font-semibold hover:bg-leather disabled:bg-text-subtle disabled:cursor-not-allowed transition-colors whitespace-nowrap"
+          className="btn whitespace-nowrap"
         >
           {stickyCtaLabel}
         </button>
@@ -346,7 +358,11 @@ export function ProductOptions({ product }: Props) {
 
       {/* Selector de TALLA unificado (variante o metacampo shopify.shoe-size) */}
       {hasSizes && (
-        <div ref={sizeRef} className="scroll-mt-24">
+        // scroll-mt = alto del cromo fijo (108px: 36 de avisos + 72 de cabecera)
+        // más aire. Es a donde salta el aviso de talla; con los 96px de
+        // scroll-mt-24 el título "TALLA" quedaba debajo de la cabecera y el
+        // comprador no veía a dónde lo habían mandado.
+        <div ref={sizeRef} className="scroll-mt-[124px]">
           <p className={`eyebrow text-xs mb-3 ${showSizeError && needsSize ? "text-terracotta" : "text-text-muted"}`}>
             {t("filters.size")}
             {sizeOption && selection[sizeOption.name] && (
@@ -384,9 +400,12 @@ export function ProductOptions({ product }: Props) {
                 )}
           </div>
           {genderHandle && (
-            <p className="text-xs text-text-subtle mt-2">
+            <p className="nota mt-2">
               {isMX ? "MX · US" : "US"} ·{" "}
-              <Link href="/guia-tallas" className="underline hover:text-leather">
+              <Link
+                href="/guia-tallas"
+                className="text-leather underline underline-offset-4 transition-colors duration-[180ms] hover:text-text"
+              >
                 {t("help.sizeGuide")}
               </Link>
             </p>
@@ -398,46 +417,47 @@ export function ProductOptions({ product }: Props) {
       )}
 
       {/* Región viva: anuncia Disponible/Agotado. */}
-      <div className="text-sm empty:hidden" role="status" aria-live="polite">
+      {/* El verde esmeralda venía de otra paleta; el punto ya dice "disponible"
+          sin necesidad de un quinto color. */}
+      <div className="cuerpo empty:hidden" role="status" aria-live="polite">
         {(sizeSelected || isDefaultOnly) &&
           (isAvailable ? (
-            <span className="text-emerald-700 inline-flex items-center gap-2">
-              <span className="w-2 h-2 bg-emerald-700 rounded-full inline-block" />
+            <span className="text-text inline-flex items-center gap-2">
+              <span className="w-2 h-2 bg-text rounded-full inline-block" />
               {t("pdp.available")}
             </span>
           ) : (
-            <span className="text-text-subtle inline-flex items-center gap-2">
-              <span className="w-2 h-2 bg-text-subtle rounded-full inline-block" />
+            <span className="text-text-muted inline-flex items-center gap-2">
+              <span className="w-2 h-2 bg-text-muted rounded-full inline-block" />
               {t("card.soldOut")}
             </span>
           ))}
       </div>
 
-      {/* Dos caminos, tipo Amazon: el que ya decidió paga de una; el que
-          quiere seguir viendo agrega. El principal es el que convierte. */}
+      {/* Siguen siendo dos caminos, pero ya no pesan lo mismo: agregar es el
+          sólido y comprar ahora el de contorno. Antes eran dos botones de
+          ancho completo casi idénticos y ninguno mandaba. La lógica de los dos
+          (guardia de talla, talla como atributo de línea) no cambia.
+          El observador de la barra pegajosa se cuelga del primario. */}
       <button
         ref={ctaRef}
-        type="button"
-        onClick={handleBuyNow}
-        disabled={ctaDisabled}
-        aria-busy={isPending}
-        className="w-full py-5 bg-text text-bg text-base font-semibold tracking-wide shadow-sm hover:bg-leather hover:shadow-md disabled:bg-text-subtle disabled:shadow-none disabled:cursor-not-allowed transition-all"
-      >
-        {buyLabel}
-      </button>
-      <button
         type="button"
         onClick={handleAdd}
         disabled={ctaDisabled}
         aria-busy={isPending}
-        className="w-full py-4 border border-text text-text text-base font-medium tracking-wide hover:bg-text hover:text-bg disabled:border-text-subtle disabled:text-text-subtle disabled:cursor-not-allowed transition-colors"
+        className="btn w-full"
       >
         {ctaLabel}
       </button>
-
-      <p className="text-xs text-text-muted text-center">
-        {t(isMX ? "pdp.shippingNoteMx" : "pdp.shippingNote")}
-      </p>
+      <button
+        type="button"
+        onClick={handleBuyNow}
+        disabled={ctaDisabled}
+        aria-busy={isPending}
+        className="btn btn-sec w-full"
+      >
+        {buyLabel}
+      </button>
 
       {mounted ? createPortal(stickyBar, document.body) : null}
     </div>

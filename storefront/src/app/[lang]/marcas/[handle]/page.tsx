@@ -83,9 +83,9 @@ export default async function MarcaPage({ params }: Props) {
         className="flex-1 bg-[color:var(--brand-bg)]"
         style={themeStyle}
       >
-        <div className="mx-auto max-w-7xl px-6 py-12 md:py-16">
+        <div className="contenedor seccion">
           {/* Breadcrumb */}
-          <nav className="mb-6 text-sm text-text-muted">
+          <nav className="mb-6 cuerpo text-text-muted">
             <Link href="/" className="hover:text-[color:var(--brand-accent)]">Inicio</Link>
             <span className="mx-2">/</span>
             <Link href="/marcas" className="hover:text-[color:var(--brand-accent)]">Marcas</Link>
@@ -95,49 +95,51 @@ export default async function MarcaPage({ params }: Props) {
 
           {/* Hero de la marca */}
           <div className="mb-12 flex flex-col md:flex-row items-start md:items-center gap-8 pb-10 border-b border-border">
+            {/* Plato, y el logo entero: recortado a cuadrado no se reconoce.
+                Va con .plato-foto porque un logo no es una toma de estudio
+                sobre fondo claro — con multiply, uno de fondo propio se
+                ensuciaría. */}
             {brand.logo && (
-              <div className="relative w-32 h-32 md:w-40 md:h-40 flex-shrink-0 bg-bg-alt overflow-hidden">
+              <div className="plato plato-foto w-32 md:w-40 flex-shrink-0">
                 <Image
                   src={brand.logo.url}
                   alt={brand.logo.altText || brand.name}
                   fill
                   sizes="160px"
-                  className="object-cover"
+                  className="object-contain p-4"
                 />
               </div>
             )}
             <div>
-              <p className="eyebrow mb-2 text-[color:var(--brand-accent)]">Marca</p>
-              <h1
-                className={`${titleFontClass || "font-display"} text-4xl md:text-5xl text-text mb-3`}
-              >
+              <p className="eyebrow text-xs text-text-muted mb-2">Marca</p>
+              {/* La tipografía propia de la marca (metaobjeto title_font) se
+                  conserva; cuando no hay, cae en la display-l del sistema. */}
+              <h1 className={`display-l ${titleFontClass} text-text mb-3`}>
                 {brand.name}
               </h1>
               {brand.tagline && (
-                <p className="text-text-muted max-w-xl text-lg">{brand.tagline}</p>
+                <p className="cuerpo-l medida-lectura text-text-muted">{brand.tagline}</p>
               )}
-              {/* Barra de acento — firma visual de la marca. */}
-              <span
-                aria-hidden
-                className="mt-5 block h-1 w-16 rounded-full bg-[color:var(--brand-accent)]"
-              />
+              {/* La firma de la marca deja de ser una cápsula de 4px en color:
+                  es la regla de 1px del sistema. */}
+              <span aria-hidden className="mt-5 block h-px w-16 bg-border" />
             </div>
           </div>
 
           {/* Productos de esta marca */}
           {products.length === 0 ? (
-            <div className="border border-border bg-bg-alt p-10 text-center">
-              <p className="font-heading text-xl text-text mb-2">
+            <div className="border border-border bg-bg-alt p-10 max-w-2xl">
+              <p className="display-s text-text mb-2">
                 Aún sin productos
               </p>
-              <p className="text-text-muted mb-6">
+              <p className="cuerpo medida-lectura text-text-muted mb-6">
                 No hay productos en el catálogo con vendor «{brand.name}».
                 Verifica que el campo «Proveedor» de tus productos en Shopify
                 sea exactamente «{brand.name}».
               </p>
               <Link
                 href="/products"
-                className="inline-flex px-6 py-3 border border-[color:var(--brand-accent)] text-[color:var(--brand-accent)] text-sm hover:bg-[color:var(--brand-accent)] hover:text-bg transition-colors"
+                className="btn btn-sec"
               >
                 Ver catálogo completo
               </Link>

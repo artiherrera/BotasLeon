@@ -1,21 +1,18 @@
 import { Header } from "@/components/Header"
 import { Footer } from "@/components/Footer"
-import { HeroCarousel } from "@/components/HeroCarousel"
-import { MarqueeBar } from "@/components/MarqueeBar"
+import { HeroPortada } from "@/components/HeroPortada"
 import { CategoryShowcase } from "@/components/CategoryShowcase"
 import { BrandGrid } from "@/components/BrandGrid"
 import { FAQAccordion } from "@/components/FAQAccordion"
-import { LatestByGenderTabs } from "@/components/LatestByGenderTabs"
-import { LatestGenderGrid } from "@/components/LatestGenderGrid"
-import { AccessoriesShowcase } from "@/components/AccessoriesShowcase"
+import { LoMasNuevo } from "@/components/LoMasNuevo"
+import { BannerCintos } from "@/components/BannerCintos"
 import { HechoEnLeonStrip } from "@/components/HechoEnLeonStrip"
-import { HomeReviewsCarousel } from "@/components/HomeReviewsCarousel"
+import { HomeReviews } from "@/components/HomeReviews"
 import { StoreVisitSection } from "@/components/StoreVisitSection"
-import { T } from "@/components/T"
 import { FAQJsonLd } from "@/components/StructuredData"
 import { FAQS } from "@/lib/faqs"
 import { absoluteUrl } from "@/lib/seo"
-import { getHeroSlides, getProductsByTaxonomy } from "@/lib/shopify"
+import { getHeroSlides, getProducts, isBoot } from "@/lib/shopify"
 
 // Canonical + hreflang del home POR IDIOMA (las hijas lo hacen vía pageMetadata).
 // El title/description los hereda del layout (ya localizados) — no los reescribimos.
@@ -39,62 +36,41 @@ export async function generateMetadata({
   }
 }
 
-// El home mezcla data que cambia (precios/stock vía getProductsByTaxonomy)
-// con secciones editables desde el admin. Sin request-time APIs, la página
-// se prerenderiza en build; este revalidate evita que precios/stock queden
-// congelados hasta el próximo deploy. Consistente con las rutas de catálogo.
+// El home mezcla data que cambia (precios/stock) con secciones editables desde
+// el admin. Sin request-time APIs, la página se prerenderiza en build; este
+// revalidate evita que precios/stock queden congelados hasta el próximo
+// deploy. Consistente con las rutas de catálogo.
 export const revalidate = 60
 
 /**
  * Home page (server component, Next.js 16).
  *
- * Orden re-jerarquizado para conversión (productos visibles en viewport 2):
- *   1. Header sticky
- *   2. MarqueeBar — trust strip arriba del Hero (MSI · envío · cambios)
- *   3. HeroCarousel — 3 slides Metaobjects con Ken Burns (intacto)
- *   4. LatestByGenderTabs — productos reales JUSTO después del Hero
- *   5. CategoryShowcase — cards Hombre/Mujer (Accesorios oculto sin productos)
- *   6. BrandGrid — Marcas (oculto cuando 0 marcas, curado cuando 1-3)
- *   7. HechoEnLeonStrip — banda compacta 380 años · 7 de 10 · curadores
- *   8. FAQAccordion
- *   9. Footer
+ * Orden de la portada:
+ *   1. Header (la barra de avisos va dentro de él, para que salga en todo el sitio)
+ *   2. HeroPortada — una sola foto, sin carrusel
+ *   3. LoMasNuevo — cuatro botas reales en el segundo golpe de vista
+ *   4. CategoryShowcase — el trío Hombre / Mujer / Exóticas
+ *   5. BrandGrid — la frase de marca con los logos de los talleres
+ *   6. HechoEnLeonStrip — la banda de datos (la única banda oscura de la página)
+ *   7. HomeReviews — tres reseñas de cinco estrellas
+ *   8. BannerCintos — los cintos, a lo ancho
+ *   9. StoreVisitSection — la tienda física en León
+ *  10. FAQAccordion + Footer
  *
- * Por qué este orden:
- *  - MarqueeBar arriba del Hero = trust signals visibles en scroll 0 (patrón Zara/H&M).
- *  - LatestByGenderTabs justo tras Hero = el usuario ve botas reales en viewport 2,
- *    no después de 4-5 scrolls (antes la 1ª bota aparecía en pos 6).
- *  - Storytelling 380 años pasa de sección XL (~700px) a strip horizontal (~250px) =
- *    libera 1 viewport completo en mobile manteniendo la narrativa.
- *
- * La sección storytelling completa antigua se mantiene en git history; si en
- * el futuro se quiere recuperar como "Acerca de" en /nosotros, restaurar desde
- * commit anterior.
+ * Las FAQ se quedan aquí porque el <FAQJsonLd> de abajo declara esas mismas
+ * preguntas: si el acordeón se fuera del home, el JSON-LD tendría que irse con
+ * él (datos estructurados sin contenido visible es lo que Google penaliza).
  */
-/**
- * Cuántas botas entran al riel de "Lo más nuevo". El fetch sigue pidiendo el
- * catálogo completo (el filtro por género ocurre en JS, ver abajo), pero al
- * componente solo le pasamos estas: mandar los 250 productos de cada género al
- * navegador para pintar 20 inflaba la home sin que nadie los viera.
- */
-const RIEL_MAX = 20
-
 export default async function HomePage() {
-  // Parallel fetch — hero + 2 grids por género en una pasada.
-  //
-  // sortKey: CREATED_AT + reverse=true (lo más nuevo arriba) hace honor
-  // al título "Lo más nuevo Hombre/Mujer". Antes era BEST_SELLING —
-  // productos recién subidos sin ventas no aparecían.
-  //
-  // first: 250 (todo el catálogo, máx. de la Storefront API). Razón crítica:
-  // el filtro por género ocurre en JS DESPUÉS del fetch, sobre un orden GLOBAL
-  // por CREATED_AT. Con un tope bajo (antes 50), si las botas de un género se
-  // crearon ANTES que las 50 más nuevas del catálogo, ese tab quedaba en 0
-  // aunque existan (p.ej. mujer tenía 40 en /mujer y 0 aquí). Pedimos el
-  // catálogo completo para cubrir ambos géneros. LatestByGenderTabs solo
-  // renderiza los primeros 4 (los más nuevos de cada uno).
-  const [hombreProducts, mujerProducts, heroSlides] = await Promise.all([
-    getProductsByTaxonomy("gender", "masculino", 250, { sortKey: "CREATED_AT" }).catch(() => []),
-    getProductsByTaxonomy("gender", "femenino", 250, { sortKey: "CREATED_AT" }).catch(() => []),
+  // Un solo fetch para "Lo más nuevo". Antes eran dos pasadas de 250 productos
+  // (una por género) porque la sección tenía pestañas Hombre/Mujer; ahora es
+  // una fila única ordenada por fecha de alta, así que basta con el batch más
+  // reciente. isBoot es obligatorio: getProducts NO filtra por tipo y un cinto
+  // se colaría entre las botas.
+  const [nuevos, heroSlides] = await Promise.all([
+    getProducts({ first: 24, sortKey: "CREATED_AT", reverse: true })
+      .then((r) => r.products.filter(isBoot).slice(0, 4))
+      .catch(() => []),
     getHeroSlides().catch(() => []),
   ])
 
@@ -108,55 +84,23 @@ export default async function HomePage() {
           rancho
         </h1>
 
-        {/* Trust strip ARRIBA del Hero — patrón Zara/H&M/Liverpool */}
-        <MarqueeBar />
+        <HeroPortada slides={heroSlides} />
 
-        {/* Hero — intacto */}
-        <HeroCarousel slides={heroSlides} />
-
-        {/* PRODUCTOS REALES en viewport 2 (antes pos 6, ahora pos 4) */}
-        <LatestByGenderTabs
-          hombreContent={
-            <LatestGenderGrid
-              products={hombreProducts.slice(0, RIEL_MAX)}
-              href="/hombre"
-              label="hombre"
-              emptyHint={
-                process.env.NODE_ENV === "development"
-                  ? "Aún no hay productos de hombre. Sube alguno con el metacampo 'Sexo objetivo: Masculino'."
-                  : "Estamos cargando las primeras botas de esta categoría. Mientras tanto, explora el resto del catálogo."
-              }
-            />
-          }
-          mujerContent={
-            <LatestGenderGrid
-              products={mujerProducts.slice(0, RIEL_MAX)}
-              href="/mujer"
-              label="mujer"
-              emptyHint={
-                process.env.NODE_ENV === "development"
-                  ? "Aún no hay productos de mujer. Sube alguno con el metacampo 'Sexo objetivo: Femenino'."
-                  : "Estamos cargando las primeras botas de esta categoría. Mientras tanto, explora el resto del catálogo."
-              }
-            />
-          }
-        />
+        <LoMasNuevo products={nuevos} />
 
         <CategoryShowcase />
 
-        {/* Accesorios — banda compacta, oculto si no hay productos. */}
-        <AccessoriesShowcase />
-
         <BrandGrid />
 
-        {/* Storytelling compacto — banda horizontal en lugar de sección XL */}
         <HechoEnLeonStrip />
 
-        {/* Prueba social general: carrusel con las mejores reseñas reales de
-            toda la tienda (Judge.me). Se rellena en cliente; si no hay, no se ve. */}
-        <HomeReviewsCarousel />
+        {/* Prueba social: se rellena en cliente desde Judge.me; si no hay
+            reseñas de cinco estrellas, la sección no se pinta. */}
+        <HomeReviews />
 
-        {/* Confianza: tienda física en León (mapa + dirección → /visitanos) */}
+        <BannerCintos />
+
+        {/* Confianza: tienda física en León (dirección + mapa → /visitanos) */}
         <StoreVisitSection />
 
         <FAQAccordion />

@@ -31,13 +31,12 @@ export function PriceMSI({
   return (
     <div className={isPdp ? "leading-none" : ""}>
       <div
-        className={
-          isPdp
-            ? "font-display text-3xl text-text leading-none"
-            : "text-xl font-bold text-text"
-        }
+        // .precio = Instrument Sans 600 con tabular-nums; .precio-ficha lo
+        // sube a 24px. La serif está prohibida en precios, y sin tabular-nums
+        // una columna de precios queda dentada: el "1" mide menos que el "8".
+        className={isPdp ? "precio precio-ficha text-text" : "precio text-text"}
       >
-        <span className={sale.onSale ? "font-medium text-terracotta" : "text-text"}>
+        <span className={sale.onSale ? "text-leather" : "text-text"}>
           {formatMoney(amount, currency)}
         </span>
         {sale.onSale && compareAt && (
@@ -46,18 +45,14 @@ export function PriceMSI({
           </span>
         )}
         {isPdp && sale.onSale && (
-          <span className="ml-2 inline-block bg-terracotta px-2 py-0.5 align-middle text-xs font-semibold uppercase tracking-wide text-bg">
+          <span className="eyebrow ml-2 inline-block bg-leather px-2 py-0.5 align-middle text-bg">
             -{sale.discountPct}%
           </span>
         )}
       </div>
       {porMes !== null && (
         <p
-          className={
-            isPdp
-              ? "mt-2 text-sm font-normal leading-snug text-text-muted"
-              : "mt-1 text-xs font-normal leading-snug text-text-muted"
-          }
+          className={isPdp ? "nota mt-2" : "nota mt-1"}
         >
           {MESES_MSI} {t("msi.of")} {formatMoney(porMes, currency, 2)}
         </p>

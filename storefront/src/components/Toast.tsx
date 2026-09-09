@@ -14,8 +14,8 @@ import { useCart } from "./CartProvider"
  */
 
 const VARIANT_CLASSES: Record<"success" | "error" | "info", string> = {
-  success: "bg-emerald-700 text-white",
-  error: "bg-terracotta-dark text-white",
+  success: "bg-text text-bg",
+  error: "bg-bg-alt text-text border border-text border-l-4 font-semibold",
   info: "bg-text text-bg",
 }
 
@@ -33,7 +33,8 @@ export function Toast() {
       return
     }
     setVisible(false)
-    // Limpia el snapshot tras el slide-out (ver duration-300 abajo)
+    // Limpia el snapshot tras el slide-out (la animación dura 180ms; el margen
+    // extra evita que desaparezca a media transición)
     const t = setTimeout(() => setSnapshot(null), 300)
     return () => clearTimeout(t)
   }, [toast])
@@ -46,7 +47,7 @@ export function Toast() {
     <div
       role="status"
       aria-live="polite"
-      className={`fixed bottom-4 right-4 z-[60] max-w-sm px-4 py-3 shadow-2xl text-sm leading-snug transition-all duration-300 ${
+      className={`fixed bottom-24 right-4 md:right-6 z-[60] max-w-sm px-4 py-3 cuerpo leading-snug transition-all duration-[180ms] motion-reduce:transition-none ${
         VARIANT_CLASSES[variant]
       } ${visible ? "translate-x-0 opacity-100" : "translate-x-6 opacity-0 pointer-events-none"}`}
       style={{ paddingBottom: "calc(0.75rem + env(safe-area-inset-bottom))" }}
