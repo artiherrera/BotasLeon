@@ -2,7 +2,8 @@
 
 import Image from "next/image"
 import { LocalizedLink as Link } from "@/components/LocalizedLink"
-import { useT } from "@/lib/i18n/context"
+import { useLocale } from "@/lib/i18n/context"
+import { facetLabel } from "@/lib/facets-i18n"
 import { primerValor } from "@/lib/shopify/facets"
 import { admiteCambioDeTalla } from "@/lib/exchange"
 import { ENVIO_GRATIS_SIEMPRE } from "@/lib/shipping-policy"
@@ -31,14 +32,20 @@ export function PDPAcordeones({
   product: Product
   brand?: Brand | null
 }) {
-  const t = useT()
+  const { locale, t } = useLocale()
 
   // Horma, piel, estilo y color viven en metacampos de taxonomía de Shopify.
   // Cobertura real: horma 98/103, piel 98/103, estilo 93/103, color 103/103,
   // así que cada fila se decide por separado.
   const filas: Array<{ etiqueta: string; valor: string }> = []
+  // Los VALORES vienen de Shopify en español y hay que traducirlos aparte de
+  // las etiquetas: facetLabel es la misma función con la que ya se traducen la
+  // tarjeta y los filtros del listado, así que sin ella la ficha en inglés
+  // decía "Toe shape: Redondo" mientras dos dedos más abajo, en "You may also
+  // like", la misma bota decía "Round · Leather".
   const agregar = (etiqueta: string, valor?: string | null) => {
-    if (valor && valor.trim()) filas.push({ etiqueta, valor: valor.trim() })
+    const v = (valor ?? "").trim()
+    if (v) filas.push({ etiqueta, valor: facetLabel(v, locale) })
   }
   agregar(t("pdp.detailToe"), primerValor(product.toeStyle)?.label)
   agregar(t("pdp.detailLeather"), primerValor(product.material)?.label)
@@ -106,7 +113,12 @@ export function PDPAcordeones({
               </span>
             )}
             <div>
-              {brand.tagline && (
+              {/* La frase del taller solo está capturada en español en el
+                  metaobjeto de Shopify. En la ficha en inglés se calla en vez
+                  de soltar un párrafo en español en la página donde se compra;
+                  el logo y el enlace, que sí están traducidos, se quedan.
+                  Cuando el dueño traduzca el campo, se quita la condición. */}
+              {brand.tagline && locale === "es" && (
                 <p className="cuerpo medida-lectura text-text-muted">
                   {brand.tagline}
                 </p>

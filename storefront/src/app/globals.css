@@ -100,6 +100,30 @@ body {
   outline-offset: 2px;
 }
 
+/* El campo de búsqueda nativo trae DOS cosas del navegador que rompen la
+   paleta, y las dos caen justo en el buscador, que es de lo primero que se
+   toca: una "×" azul de sistema —el único azul de todo el sitio— y una lupa
+   propia en Safari. Se apagan; la lupa la pinta el sitio y para borrar está
+   el mismo teclado. */
+input[type="search"]::-webkit-search-cancel-button,
+input[type="search"]::-webkit-search-decoration,
+input[type="search"]::-webkit-search-results-button,
+input[type="search"]::-webkit-search-results-decoration {
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+/* Y el anillo de foco POR ENCIMA del borde del campo dibujaba un doble marco
+   que se lee como un aviso de error, no como "aquí estás escribiendo". En un
+   campo el foco se marca engrosando su propio borde en tinta: igual de
+   visible con el teclado, y sin parecer una alarma. */
+.campo:focus-visible,
+input[type="search"]:focus-visible {
+  outline: none;
+  border-color: var(--color-text);
+  box-shadow: inset 0 0 0 1px var(--color-text);
+}
+
 /* Jerarquía: los encabezados van en la serif a su único peso, 400, con el
    tracking apenas negativo. (Antes: Fraunces 600.) Sin mayúsculas forzadas.
  *

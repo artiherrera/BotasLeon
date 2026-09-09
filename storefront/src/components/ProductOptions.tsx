@@ -358,11 +358,13 @@ export function ProductOptions({ product }: Props) {
 
       {/* Selector de TALLA unificado (variante o metacampo shopify.shoe-size) */}
       {hasSizes && (
-        // scroll-mt = alto del cromo fijo (108px: 36 de avisos + 72 de cabecera)
-        // más aire. Es a donde salta el aviso de talla; con los 96px de
-        // scroll-mt-24 el título "TALLA" quedaba debajo de la cabecera y el
-        // comprador no veía a dónde lo habían mandado.
-        <div ref={sizeRef} className="scroll-mt-[124px]">
+        // scroll-mt = alto del cromo fijo más aire. Es a donde salta el aviso
+        // de talla, y si se queda corto el rótulo "TALLA" aterriza DEBAJO de la
+        // cabecera: el comprador ve el aviso rojo pero no lo que se le quería
+        // enseñar. En escritorio el cromo mide 108px (36 de avisos + 72 de
+        // cabecera); en un teléfono de 360-390 el aviso se parte en dos
+        // renglones y sube a ~140, medido en el navegador.
+        <div ref={sizeRef} className="scroll-mt-[156px] md:scroll-mt-[124px]">
           <p className={`eyebrow text-xs mb-3 ${showSizeError && needsSize ? "text-terracotta" : "text-text-muted"}`}>
             {t("filters.size")}
             {sizeOption && selection[sizeOption.name] && (
