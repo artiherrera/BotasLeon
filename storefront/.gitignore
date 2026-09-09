@@ -15,6 +15,9 @@
 
 # next.js
 /.next/
+# Segundo build, el del otro mercado (NEXT_DIST_DIR en next.config.ts):
+# sirve para tener los dos sitios levantados a la vez y compararlos.
+/.next-*/
 /out/
 
 # production
