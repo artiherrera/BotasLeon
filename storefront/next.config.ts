@@ -30,6 +30,15 @@ const SECURITY_HEADERS = [
 ];
 
 const nextConfig: NextConfig = {
+  /**
+   * Carpeta de salida del build. Por defecto `.next`, como siempre.
+   *
+   * Se puede cambiar con NEXT_DIST_DIR para tener DOS builds a la vez en la
+   * misma copia del repo — que es lo que hace falta para revisar el sitio en
+   * dólares y el de pesos uno al lado del otro, sin recompilar entre uno y
+   * otro. Amplify no la define, así que en producción no cambia nada.
+   */
+  distDir: process.env.NEXT_DIST_DIR || ".next",
   // Habilita app/global-not-found.tsx — el 404 con marca para URLs que no hacen
   // match con ninguna ruta. Sin esto, Next sirve su 404 interno (página blanca).
   experimental: {

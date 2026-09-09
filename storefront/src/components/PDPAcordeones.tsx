@@ -8,6 +8,7 @@ import { admiteCambioDeTalla } from "@/lib/exchange"
 import { ENVIO_GRATIS_SIEMPRE } from "@/lib/shipping-policy"
 import { ProductDescriptionBody } from "./LocalizedProductContent"
 import type { Brand, Product } from "@/lib/shopify/types"
+import { logoNecesitaInvertirse } from "@/lib/logos-talleres"
 
 /**
  * Los cuatro acordeones de la ficha: Descripción, Detalles, El taller y
@@ -88,11 +89,19 @@ export function PDPAcordeones({
           <div className="flex items-start gap-4">
             {brand.logo && (
               <span className="logos-talleres shrink-0">
+                {/* Seis de los catorce logos vienen sobre fondo negro o de
+                    color y el multiply de .logos-talleres los pintaría como un
+                    bloque oscuro. La lista está medida en lib/logos-talleres. */}
                 <Image
                   src={brand.logo.url}
                   alt={brand.logo.altText || brand.name}
                   width={brand.logo.width || 80}
                   height={brand.logo.height || 40}
+                  className={
+                    logoNecesitaInvertirse(brand.handle)
+                      ? "logo-invertido"
+                      : undefined
+                  }
                 />
               </span>
             )}

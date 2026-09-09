@@ -510,7 +510,7 @@ export function ProductsListing({
           </div>
         )}
 
-        <div className={mobileOpen ? "px-6 py-4 space-y-6" : "space-y-6 lg:sticky lg:top-24"}>
+        <div className={mobileOpen ? "px-6 py-4 space-y-6" : "space-y-6 lg:sticky lg:top-[124px]"}>
           {/* Header sidebar desktop */}
           <div className="hidden lg:flex items-center justify-between pb-3 border-b border-border">
             <h2 className="eyebrow text-xs text-text">{t("filters.title")}</h2>

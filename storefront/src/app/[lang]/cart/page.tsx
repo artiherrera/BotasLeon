@@ -251,7 +251,7 @@ export default function CartPage() {
             </div>
 
             {/* Sidebar — resumen + checkout */}
-            <aside className="bg-bg-alt p-6 h-fit lg:sticky lg:top-24">
+            <aside className="bg-bg-alt p-6 h-fit lg:sticky lg:top-[124px]">
               <h2 className="eyebrow text-text-muted mb-4">{t("cart.summary")}</h2>
 
               <div className="space-y-2 mb-6">
@@ -340,7 +340,11 @@ export default function CartPage() {
                       type="button"
                       disabled
                       aria-disabled
-                      className="btn w-full"
+                      // En contorno, no en tinta: con solo la opacidad al 50%
+                      // el botón bloqueado seguía leyéndose como el que sí
+                      // paga, y el comprador lo picaba sin entender por qué no
+                      // pasaba nada.
+                      className="btn btn-sec w-full"
                     >
                       {t("cart.checkout")}
                     </button>

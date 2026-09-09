@@ -12,7 +12,7 @@ import { StoreVisitSection } from "@/components/StoreVisitSection"
 import { FAQJsonLd } from "@/components/StructuredData"
 import { FAQS } from "@/lib/faqs"
 import { absoluteUrl } from "@/lib/seo"
-import { getHeroSlides, getProducts, isBoot } from "@/lib/shopify"
+import { getHeroSlides, getProductsByTaxonomy, isBoot } from "@/lib/shopify"
 
 // Canonical + hreflang del home POR IDIOMA (las hijas lo hacen vía pageMetadata).
 // El title/description los hereda del layout (ya localizados) — no los reescribimos.
@@ -62,14 +62,19 @@ export const revalidate = 60
  * él (datos estructurados sin contenido visible es lo que Google penaliza).
  */
 export default async function HomePage() {
-  // Un solo fetch para "Lo más nuevo". Antes eran dos pasadas de 250 productos
-  // (una por género) porque la sección tenía pestañas Hombre/Mujer; ahora es
-  // una fila única ordenada por fecha de alta, así que basta con el batch más
-  // reciente. isBoot es obligatorio: getProducts NO filtra por tipo y un cinto
+  // "Lo más nuevo" son DOS filas, una por género, y cada una necesita su propia
+  // consulta: el orden por fecha de alta es GLOBAL, así que un solo batch se
+  // llena con lo que se subió último y puede no traer ni una bota de mujer.
+  // El tope de 250 es el máximo de la Storefront API y hace falta de verdad —
+  // con menos, el género cuyas botas se cargaron antes salía vacío.
+  // isBoot es obligatorio: getProductsByTaxonomy no filtra por tipo y un cinto
   // se colaría entre las botas.
-  const [nuevos, heroSlides] = await Promise.all([
-    getProducts({ first: 24, sortKey: "CREATED_AT", reverse: true })
-      .then((r) => r.products.filter(isBoot).slice(0, 4))
+  const [nuevosHombre, nuevosMujer, heroSlides] = await Promise.all([
+    getProductsByTaxonomy("gender", "masculino", 250, { sortKey: "CREATED_AT" })
+      .then((ps) => ps.filter(isBoot).slice(0, 4))
+      .catch(() => []),
+    getProductsByTaxonomy("gender", "femenino", 250, { sortKey: "CREATED_AT" })
+      .then((ps) => ps.filter(isBoot).slice(0, 4))
       .catch(() => []),
     getHeroSlides().catch(() => []),
   ])
@@ -86,7 +91,18 @@ export default async function HomePage() {
 
         <HeroPortada slides={heroSlides} />
 
-        <LoMasNuevo products={nuevos} />
+        <LoMasNuevo
+          products={nuevosHombre}
+          titulo="latest.tabMen"
+          href="/hombre"
+          eyebrow="latest.eyebrow"
+        />
+
+        <LoMasNuevo
+          products={nuevosMujer}
+          titulo="latest.tabWomen"
+          href="/mujer"
+        />
 
         <CategoryShowcase />
 

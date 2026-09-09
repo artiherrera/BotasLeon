@@ -452,7 +452,11 @@ export function CartDrawer() {
                       type="button"
                       disabled
                       aria-disabled
-                      className="btn w-full"
+                      // En contorno, no en tinta: con solo la opacidad al 50%
+                      // el botón bloqueado seguía leyéndose como el que sí
+                      // paga, y el comprador lo picaba sin entender por qué no
+                      // pasaba nada.
+                      className="btn btn-sec w-full"
                     >
                       {t("cart.checkout")}
                     </button>

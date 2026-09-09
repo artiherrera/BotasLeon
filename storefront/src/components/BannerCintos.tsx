@@ -30,11 +30,18 @@ export async function BannerCintos() {
       <div className="grid grid-cols-1 items-center gap-8 md:grid-cols-2 md:gap-16">
         {/* Foto de estudio de Shopify: va sobre plato con multiply, igual que
             cualquier foto de producto del sitio. */}
+        {/* La foto va con alt vacío y el nombre lo pone el enlace: si no, este
+            era un enlace SIN nombre y un lector de pantalla lo anunciaba como
+            "enlace" a secas. El texto de al lado ya cuenta lo demás. */}
         {foto ? (
-          <Link href="/accesorios/cinturones" className="plato block w-full max-w-sm">
+          <Link
+            href="/accesorios/cinturones"
+            aria-label={CINTURONES}
+            className="plato block w-full max-w-sm"
+          >
             <Image
               src={foto.url}
-              alt={foto.altText ?? ""}
+              alt=""
               fill
               sizes="(min-width: 768px) 384px, 100vw"
             />

@@ -265,6 +265,12 @@ body {
        ancestro con transform o con opacity para que la bota se funda contra la
        página. `isolate` crea el contexto aquí y encierra la mezcla. */
     isolation: isolate;
+    /* Dentro de un contenedor flex, el estirado por defecto (align-items:
+       stretch) le gana al aspect-ratio y el plato deja de ser cuadrado: en las
+       líneas del carrito se estiraba a lo alto de la fila y la bota quedaba
+       flotando en una franja. Alinearse al inicio devuelve el mando al
+       aspecto. */
+    align-self: flex-start;
   }
   .plato img {
     width: 100%;
@@ -400,11 +406,18 @@ body {
     width: 100%;
     padding-inline: 0.875rem;
     font-family: var(--font-body);
-    font-size: 0.9375rem;
+    /* 16px y ni un pixel menos. Safari en iPhone hace ZOOM sobre la página en
+       cuanto se toca un campo con tipografía más chica, y de ahí el comprador
+       sale con la maqueta descuadrada y sin saber por qué. En escritorio, donde
+       no hay ese comportamiento, baja a 15 para no cantar. */
+    font-size: 1rem;
     background: var(--color-bg);
     border: 1px solid var(--color-border);
     border-radius: 0;
     color: var(--color-text);
+  }
+  @media (min-width: 768px) {
+    .campo { font-size: 0.9375rem; }
   }
   .campo:focus {
     outline: none;
