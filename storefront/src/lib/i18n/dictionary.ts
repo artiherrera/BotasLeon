@@ -603,9 +603,14 @@ export const DICTIONARY: Record<string, Entry> = {
   "josepha.pickSize": { es: "Escoge tu talla", en: "Pick your size" },
   "josepha.see": { es: "Verlo completo", en: "See the full boot" },
   "josepha.soldOut": { es: "Agotado", en: "Sold out" },
+  // Cierre de la página. La primera versión decía "los tres cuestan lo mismo,
+  // lo único que escoges es cuál": un acertijo que terminaba en un
+  // encogimiento de hombros, y que además repetía la idea de la entrada. Esta
+  // nombra los tres acabados que el visitante acaba de ver al bajar —negro,
+  // pitón y plata— y dice algo de quien se las pone, sin sermón.
   "josepha.closing": {
-    es: "Los tres cuestan lo mismo. Lo único que escoges es cuál.",
-    en: "All three cost the same. The only thing you choose is which one.",
+    es: "Negro, pitón o plata. Ninguna de las tres es la discreta.",
+    en: "Black, python or silver. Not one of the three is the quiet one.",
   },
   "josepha.allBrands": { es: "Ver las catorce casas", en: "See all fourteen houses" },
   "josepha.oneOf": {
