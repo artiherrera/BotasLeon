@@ -9,6 +9,7 @@ import { withDiscount } from "@/lib/discount/client"
 import { missingSizeLines } from "@/lib/cart/line-size"
 import { track } from "@/lib/klaviyo/client"
 import { gaEvent } from "@/lib/ga/events"
+import { useAltoTeaserKlaviyo } from "@/lib/klaviyo/teaser"
 
 /**
  * MiniCarrito — el carrito siempre a un toque, en cualquier página.
@@ -32,6 +33,9 @@ export function MiniCarrito() {
   const { cart, ready, itemCount, isOpen, openCart } = useCart()
   const t = useT()
   const pathname = usePathname() ?? ""
+  // El teaser de Klaviyo se pega abajo con z-index 90000 y tapaba esta barra
+  // entera, botón de Pagar incluido. Se mide y la barra se sube por encima.
+  const altoTeaser = useAltoTeaserKlaviyo()
   // Misma limpieza de prefijo de idioma que hace el contexto i18n.
   const ruta = pathname.replace(/^\/(es|en)(?=\/|$)/, "") || "/"
 
@@ -83,9 +87,14 @@ export function MiniCarrito() {
       aria-label={t("minicart.label")}
       data-minicarrito
       className={`${enFicha ? "hidden md:flex" : "flex"} fixed z-40 items-center gap-3 bg-bg/95 backdrop-blur-xl border-border shadow-[0_-8px_24px_rgba(0,0,0,0.08)]
-        inset-x-0 bottom-0 border-t px-4 py-3
-        md:inset-x-auto md:right-6 md:bottom-6 md:border md:px-5 md:py-3`}
-      style={{ paddingBottom: "max(0.75rem, env(safe-area-inset-bottom))" }}
+        inset-x-0 bottom-[var(--kl-teaser,0px)] border-t px-4 py-3
+        md:inset-x-auto md:right-6 md:bottom-[calc(1.5rem+var(--kl-teaser,0px))] md:border md:px-5 md:py-3`}
+      style={
+        {
+          paddingBottom: "max(0.75rem, env(safe-area-inset-bottom))",
+          "--kl-teaser": altoTeaser ? `${altoTeaser}px` : undefined,
+        } as React.CSSProperties
+      }
     >
       <span className="w-5 h-5 shrink-0 text-text" aria-hidden="true">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">

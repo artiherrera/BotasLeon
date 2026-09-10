@@ -14,6 +14,7 @@ import type { Product } from "@/lib/shopify/types"
 import { useT } from "@/lib/i18n/context"
 import { isMX } from "@/lib/market"
 import { LocalizedLink as Link } from "@/components/LocalizedLink"
+import { useAltoTeaserKlaviyo } from "@/lib/klaviyo/teaser"
 
 const SIZE_OPTION_NAMES = ["Talla", "Talla del calzado", "Size"]
 
@@ -111,6 +112,7 @@ export function ProductOptions({ product }: Props) {
 
   // === Sticky mobile bar ===
   const ctaRef = useRef<HTMLButtonElement>(null)
+  const altoTeaser = useAltoTeaserKlaviyo()
   const [showSticky, setShowSticky] = useState(false)
   // Confirmación optimista: el botón dice "✓ Agregado" en el mismo clic. La
   // ida y vuelta a Shopify tarda ~800 ms y ese silencio era lo que hacía dudar
@@ -278,10 +280,17 @@ export function ProductOptions({ product }: Props) {
     <div
       role="region"
       aria-label={t("pdp.actionsLabel")}
-      className={`md:hidden fixed inset-x-0 bottom-0 z-40 bg-bg border-t border-border transition-transform duration-[180ms] ${
+      className={`md:hidden fixed inset-x-0 bottom-[var(--kl-teaser,0px)] z-40 bg-bg border-t border-border transition-transform duration-[180ms] ${
         showSticky ? "translate-y-0" : "translate-y-full pointer-events-none"
       }`}
-      style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
+      style={
+        {
+          paddingBottom: "env(safe-area-inset-bottom)",
+          // Mismo motivo que en el minicarrito: el teaser de Klaviyo se pega
+          // abajo con z-index 90000 y taparía el botón de compra.
+          "--kl-teaser": altoTeaser ? `${altoTeaser}px` : undefined,
+        } as React.CSSProperties
+      }
     >
       <div className="flex items-center gap-3 p-3">
         {product.featuredImage ? (
