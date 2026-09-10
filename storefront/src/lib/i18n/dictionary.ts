@@ -585,6 +585,33 @@ export const DICTIONARY: Record<string, Entry> = {
     en: "Our first boots are on the way. Check back soon.",
   },
 
+
+  // ── Josepha (landing propia, /josepha) ───────────────────────────────
+  // Su frase en Shopify solo está en español, así que aquí van textos
+  // propios: la página se publica en los dos idiomas y en los dos mercados.
+  "josepha.eyebrow": { es: "Una casa de León", en: "A house from León" },
+  "josepha.lead": {
+    es: "Tres botines para mujer, hechos a mano en León. Tacón de bloque, punta de bota y nada de disfraz: se ponen para salir.",
+    en: "Three ankle boots for women, handmade in León. Block heel, western toe, no costume: made for going out.",
+  },
+  "josepha.back": { es: "Botas León", en: "Botas León" },
+  "josepha.backAria": {
+    es: "Volver al catálogo de Botas León",
+    en: "Back to the Botas León catalog",
+  },
+  "josepha.sizes": { es: "Tallas", en: "Sizes" },
+  "josepha.see": { es: "Verlo completo", en: "See the full boot" },
+  "josepha.soldOut": { es: "Agotado", en: "Sold out" },
+  "josepha.closing": {
+    es: "Los tres cuestan lo mismo. Lo único que escoges es cuál.",
+    en: "All three cost the same. The only thing you choose is which one.",
+  },
+  "josepha.allBrands": { es: "Ver las catorce casas", en: "See all fourteen houses" },
+  "josepha.oneOf": {
+    es: "Josepha es una de las catorce casas de León que trabajan con nosotros.",
+    en: "Josepha is one of the fourteen houses in León we work with.",
+  },
+
   // ── Ventana emergente (PopupPromo) ───────────────────────────────────
   // El CONTENIDO (imagen, eyebrow, título, mensaje, botón y código) sale del
   // metaobjeto `popup` de Shopify, no de aquí: aquí solo vive el chrome, que

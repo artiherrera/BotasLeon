@@ -141,6 +141,10 @@ const STATIC_ROUTES = [
   { path: "/mujer", priority: "0.9", changefreq: "daily" },
   { path: "/accesorios", priority: "0.8", changefreq: "daily" },
   { path: "/marcas", priority: "0.8", changefreq: "weekly" },
+  // Landing propia de Josepha. Va aquí y no en SUBROUTES porque no es una
+  // sub-ruta de catálogo: es una página con su propio diseño, pensada para
+  // que se pueda mandar tal cual en un anuncio.
+  { path: "/josepha", priority: "0.8", changefreq: "weekly" },
   { path: "/envios", priority: "0.6", changefreq: "monthly" },
   { path: "/devoluciones", priority: "0.6", changefreq: "monthly" },
   { path: "/guia-tallas", priority: "0.7", changefreq: "monthly" },
