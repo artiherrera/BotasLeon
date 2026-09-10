@@ -2,14 +2,14 @@ import Image from "next/image"
 import { notFound } from "next/navigation"
 import { LocalizedLink as Link } from "@/components/LocalizedLink"
 import { T } from "@/components/T"
-import { getBrands, getProductsByVendor } from "@/lib/shopify"
-import { extractTaxonomyValues, primerHandle } from "@/lib/shopify/facets"
-import { etiquetaTallaFiltro } from "@/lib/sizes"
+import { getBrands, getProductByHandle, getProductsByVendor } from "@/lib/shopify"
 import { brandTitleFontClass } from "@/lib/brand-fonts"
 import { formatMoney } from "@/lib/utils"
 import { MESES_MSI, mensualidadMsi } from "@/lib/msi"
 import { pageMetadata } from "@/lib/seo"
 import { isLocale, type Locale } from "@/lib/i18n/config"
+import { CompraJosepha } from "@/components/josepha/CompraJosepha"
+import { DescripcionJosepha } from "@/components/josepha/DescripcionJosepha"
 import type { Product } from "@/lib/shopify/types"
 
 /**
@@ -104,25 +104,20 @@ export async function generateMetadata({ params }: Props) {
   })
 }
 
-/** La corrida de tallas de un par, en la escala del mercado. */
-function tallasDe(p: Product): string[] {
-  const sexo = primerHandle(p.targetGender)
-  return extractTaxonomyValues(p.shoeSizes)
-    .map((v) => etiquetaTallaFiltro(v.label, sexo, p.productType))
-    .sort((a, b) => {
-      const n = (s: string) => parseFloat((s.match(/[\d.]+/) ?? [""])[0])
-      return (n(a) || 0) - (n(b) || 0)
-    })
-}
-
 export default async function JosephaPage({ params }: Props) {
   const { lang } = await params
   if (!isLocale(lang)) notFound()
 
-  const [productos, marcas] = await Promise.all([
+  const [listado, marcas] = await Promise.all([
     getProductsByVendor(TALLER, 24).catch(() => [] as Product[]),
     getBrands().catch(() => []),
   ])
+  // El listado sale del fragmento de TARJETA, que no trae descripción. Con
+  // tres productos sale más barato pedir cada uno completo que engordar el
+  // fragmento que usan todas las listas del sitio.
+  const productos = (
+    await Promise.all(listado.map((p) => getProductByHandle(p.handle).catch(() => p)))
+  ).filter((p): p is Product => !!p)
   const marca = marcas.find((b) => b.handle === "josepha") ?? null
 
   // Sin productos no hay página: mejor 404 que una landing vacía con el
@@ -183,7 +178,6 @@ export default async function JosephaPage({ params }: Props) {
       {/* ── Un botín por pantalla ───────────────────────────────────────── */}
       {productos.map((p, i) => {
         const foto = p.featuredImage ?? p.images?.[0] ?? null
-        const tallas = tallasDe(p)
         const moneda = p.priceRange.minVariantPrice.currencyCode
         const porMes = mensualidadMsi(p.priceRange.minVariantPrice.amount, moneda)
         const alDerecho = i % 2 === 0
@@ -252,32 +246,49 @@ export default async function JosephaPage({ params }: Props) {
                   </p>
                 )}
 
-                {tallas.length > 0 && (
+                {/* Aquí iba "Tallas 24–27" y se quitó: la rejilla de abajo
+                    ya enseña las cuatro, una por una y en el orden correcto.
+                    Decir el rango encima era repetir con menos información. */}
+
+                <DescripcionJosepha
+                  handle={p.handle}
+                  textoPlano={p.description ?? ""}
+                  color={ROSA_HONDO}
+                  tam={ESCALA.apoyo}
+                  alineacion={alDerecho ? "izquierda" : "derecha"}
+                />
+
+                {/* Se compra AQUÍ: elegir talla y agregar sin salir de la
+                    página. El cajón del carrito se abre solo y hace de
+                    confirmación. */}
+                {p.availableForSale ? (
+                  <CompraJosepha
+                    product={p}
+                    acento={ACENTO}
+                    tinta={TINTA}
+                    rosaHondo={ROSA_HONDO}
+                    tamRotulo={ESCALA.rotulo}
+                    tamApoyo={ESCALA.apoyo}
+                  />
+                ) : (
                   <p
-                    className="mt-8 tracking-[0.16em]"
+                    className="mt-10 lowercase tracking-[0.26em]"
                     style={{ color: ROSA_HONDO, fontSize: ESCALA.apoyo }}
                   >
-                    <T k="josepha.sizes" /> {tallas[0]}–{tallas[tallas.length - 1]}
+                    <T k="josepha.soldOut" />
                   </p>
                 )}
 
-                <p className="mt-10">
-                  {p.availableForSale ? (
-                    <Link
-                      href={`/products/${p.handle}`}
-                      className="inline-block border-b-2 pb-2 lowercase tracking-[0.26em] transition-opacity duration-300 hover:opacity-60"
-                      style={{ borderColor: ACENTO, color: TINTA, fontSize: ESCALA.apoyo }}
-                    >
-                      <T k="josepha.see" />
-                    </Link>
-                  ) : (
-                    <span
-                      className="lowercase tracking-[0.26em]"
-                      style={{ color: ROSA_HONDO, fontSize: ESCALA.apoyo }}
-                    >
-                      <T k="josepha.soldOut" />
-                    </span>
-                  )}
+                {/* La ficha sigue existiendo y ahí vive el resto: la galería
+                    completa, las medidas, la guía de tallas y las reseñas. */}
+                <p className="mt-8">
+                  <Link
+                    href={`/products/${p.handle}`}
+                    className="inline-block border-b pb-1 lowercase tracking-[0.24em] transition-opacity duration-300 hover:opacity-60"
+                    style={{ borderColor: ACENTO, color: ROSA_HONDO, fontSize: ESCALA.rotulo }}
+                  >
+                    <T k="josepha.see" />
+                  </Link>
                 </p>
               </div>
             </div>

@@ -600,6 +600,7 @@ export const DICTIONARY: Record<string, Entry> = {
     en: "Back to the Botas León catalog",
   },
   "josepha.sizes": { es: "Tallas", en: "Sizes" },
+  "josepha.pickSize": { es: "Escoge tu talla", en: "Pick your size" },
   "josepha.see": { es: "Verlo completo", en: "See the full boot" },
   "josepha.soldOut": { es: "Agotado", en: "Sold out" },
   "josepha.closing": {
