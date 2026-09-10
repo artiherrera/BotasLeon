@@ -59,8 +59,16 @@ const FONDO = "#F5E9EA"
 const ACENTO = "#E1C4C6"
 const PLATO = "#FAF2FA"
 const TINTA = "#191A19"
-/** Rosa oscurecido para texto secundario: 5.1:1 sobre FONDO, pasa AA. */
-const ROSA_HONDO = "#7C555A"
+/**
+ * Rosa para todo el texto que no es tinta.
+ *
+ * Era #7C555A y da 5.36:1 sobre FONDO — pasa AA y se veía flojo de todos
+ * modos, porque Josefin es una geométrica de trazo fino y a igual número de
+ * contraste se lee más clara que una sans normal. Este da 7.70:1, que es AAA,
+ * y sigue siendo rosa: no se fue a café ni a gris. (La tinta, para comparar,
+ * da 14.73:1.)
+ */
+const ROSA_HONDO = "#633E43"
 
 /* ── La escala ─────────────────────────────────────────────────────────────
  *
@@ -178,6 +186,11 @@ export default async function JosephaPage({ params }: Props) {
       {/* ── Un botín por pantalla ───────────────────────────────────────── */}
       {productos.map((p, i) => {
         const foto = p.featuredImage ?? p.images?.[0] ?? null
+        // Las demás vistas, sin repetir la portada. Tope de tres: con cuatro
+        // la fila de abajo empieza a competir con la foto grande.
+        const otras = (p.images ?? [])
+          .filter((im) => im.url && im.url !== foto?.url)
+          .slice(0, 3)
         const moneda = p.priceRange.minVariantPrice.currencyCode
         const porMes = mensualidadMsi(p.priceRange.minVariantPrice.amount, moneda)
         const alDerecho = i % 2 === 0
@@ -190,27 +203,62 @@ export default async function JosephaPage({ params }: Props) {
                 alDerecho ? "md:flex-row" : "md:flex-row-reverse"
               }`}
             >
-              <Link
-                href={`/products/${p.handle}`}
-                className="block w-full md:w-[56%]"
-                aria-label={p.title}
-              >
-                <div
-                  className="relative aspect-square w-full overflow-hidden"
-                  style={{ backgroundColor: PLATO, isolation: "isolate" }}
-                >
-                  {foto && (
-                    <Image
-                      src={foto.url}
-                      alt={foto.altText || p.title}
-                      fill
-                      sizes="(min-width: 768px) 56vw, 100vw"
-                      priority={i === 0}
-                      className="object-contain mix-blend-multiply transition-transform duration-700 ease-out hover:scale-[1.03] motion-reduce:transition-none motion-reduce:hover:scale-100"
-                    />
-                  )}
-                </div>
-              </Link>
+              {/* La galería completa del botín: la portada grande y las demás
+                  debajo. Las cuatro fotos ya existen en Shopify a 1254px y
+                  enseñan lados distintos —perfil, tres cuartos, frente y el
+                  par—, que es justo lo que se quiere ver antes de comprar un
+                  botín sin probárselo. No hay carrusel a propósito: en una
+                  página de tres piezas, deslizar esconde; aquí se ven todas de
+                  una vez. */}
+              <div className="w-full md:w-[56%]">
+                <Link href={`/products/${p.handle}`} aria-label={p.title} className="block">
+                  <div
+                    className="relative aspect-square w-full overflow-hidden"
+                    style={{ backgroundColor: PLATO, isolation: "isolate" }}
+                  >
+                    {foto && (
+                      <Image
+                        src={foto.url}
+                        alt={foto.altText || p.title}
+                        fill
+                        sizes="(min-width: 768px) 56vw, 100vw"
+                        priority={i === 0}
+                        className="object-contain mix-blend-multiply transition-transform duration-700 ease-out hover:scale-[1.03] motion-reduce:transition-none motion-reduce:hover:scale-100"
+                      />
+                    )}
+                  </div>
+                </Link>
+
+                {otras.length > 0 && (
+                  <div
+                    className="mt-3 grid gap-3"
+                    style={{ gridTemplateColumns: `repeat(${otras.length}, minmax(0, 1fr))` }}
+                  >
+                    {otras.map((im, j) => (
+                      <Link
+                        key={im.url}
+                        href={`/products/${p.handle}`}
+                        /* aria-hidden: el enlace de arriba ya anuncia el
+                           producto, y repetirlo cuatro veces obliga al lector
+                           de pantalla a oír el mismo nombre en cada foto. */
+                        aria-hidden
+                        tabIndex={-1}
+                        className="relative block aspect-square overflow-hidden"
+                        style={{ backgroundColor: PLATO, isolation: "isolate" }}
+                      >
+                        <Image
+                          src={im.url}
+                          alt=""
+                          fill
+                          sizes="(min-width: 768px) 19vw, 33vw"
+                          loading="lazy"
+                          className="object-contain mix-blend-multiply transition-transform duration-700 ease-out hover:scale-[1.05] motion-reduce:transition-none motion-reduce:hover:scale-100"
+                        />
+                      </Link>
+                    ))}
+                  </div>
+                )}
+              </div>
 
               <div
                 className={`w-full text-center md:w-[44%] ${
