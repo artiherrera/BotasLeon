@@ -1,6 +1,4 @@
-import Image from "next/image"
 import { notFound } from "next/navigation"
-import { LocalizedLink as Link } from "@/components/LocalizedLink"
 import { T } from "@/components/T"
 import { getBrands, getProductByHandle, getProductsByVendor } from "@/lib/shopify"
 import { brandTitleFontClass } from "@/lib/brand-fonts"
@@ -9,6 +7,7 @@ import { MESES_MSI, mensualidadMsi } from "@/lib/msi"
 import { pageMetadata } from "@/lib/seo"
 import { isLocale, type Locale } from "@/lib/i18n/config"
 import { CompraJosepha } from "@/components/josepha/CompraJosepha"
+import { GaleriaJosepha } from "@/components/josepha/GaleriaJosepha"
 import { DescripcionJosepha } from "@/components/josepha/DescripcionJosepha"
 import type { Product } from "@/lib/shopify/types"
 
@@ -139,22 +138,11 @@ export default async function JosephaPage({ params }: Props) {
       style={{ backgroundColor: FONDO, color: TINTA }}
       className={`${fuente} min-h-screen`}
     >
-      {/* Cabecera propia. No es el Header del sitio: aquí no hay mega menú ni
-          buscador, solo la puerta de vuelta — quien entra por un anuncio tiene
-          que poder salir al catálogo.
-          El logo del metaobjeto se retiró: es un cuadrado de 400×400 con fondo
-          rosa propio, así que a 36px quedaba un recuadro con letra ilegible, y
-          sobra cuando el nombre está escrito enorme dos dedos más abajo. Si
-          algún día el taller sube uno apaisado y transparente, va aquí. */}
-      <header className="px-6 py-6 md:px-12 md:py-8">
-        <Link
-          href="/"
-          className="inline-block lowercase tracking-[0.34em] transition-opacity duration-300 hover:opacity-60"
-          style={{ color: ROSA_HONDO, fontSize: ESCALA.rotulo }}
-        >
-          <T k="josepha.back" />
-        </Link>
-      </header>
+      {/* Sin cabecera y sin enlaces al resto del sitio, a propósito: esta
+          página se manda en un anuncio y todo lo que saque de ella es una
+          venta menos. Lo único que lleva a otra parte es pagar, y eso va al
+          checkout de Shopify, no al catálogo. El minicarrito, que sí puede
+          aparecer, lo monta el layout. */}
 
       {/* ── Portada ─────────────────────────────────────────────────────── */}
       <section className="px-6 pb-24 pt-12 text-center md:px-12 md:pb-40 md:pt-24">
@@ -185,12 +173,12 @@ export default async function JosephaPage({ params }: Props) {
 
       {/* ── Un botín por pantalla ───────────────────────────────────────── */}
       {productos.map((p, i) => {
-        const foto = p.featuredImage ?? p.images?.[0] ?? null
-        // Las demás vistas, sin repetir la portada. Tope de tres: con cuatro
-        // la fila de abajo empieza a competir con la foto grande.
-        const otras = (p.images ?? [])
-          .filter((im) => im.url && im.url !== foto?.url)
-          .slice(0, 3)
+        // La portada primero y luego las demás, sin repetirla.
+        const portada = p.featuredImage ?? p.images?.[0] ?? null
+        const fotos = [
+          ...(portada ? [portada] : []),
+          ...(p.images ?? []).filter((im) => im.url && im.url !== portada?.url),
+        ]
         const moneda = p.priceRange.minVariantPrice.currencyCode
         const porMes = mensualidadMsi(p.priceRange.minVariantPrice.amount, moneda)
         const alDerecho = i % 2 === 0
@@ -203,61 +191,19 @@ export default async function JosephaPage({ params }: Props) {
                 alDerecho ? "md:flex-row" : "md:flex-row-reverse"
               }`}
             >
-              {/* La galería completa del botín: la portada grande y las demás
-                  debajo. Las cuatro fotos ya existen en Shopify a 1254px y
-                  enseñan lados distintos —perfil, tres cuartos, frente y el
-                  par—, que es justo lo que se quiere ver antes de comprar un
-                  botín sin probárselo. No hay carrusel a propósito: en una
-                  página de tres piezas, deslizar esconde; aquí se ven todas de
-                  una vez. */}
+              {/* La galería. Ninguna foto es un enlace: al tocarlas se abren
+                  encima de esta misma página. El dueño lo pidió con todas sus
+                  letras — nada debe sacar de aquí al visitante que llegó por un
+                  anuncio. */}
               <div className="w-full md:w-[56%]">
-                <Link href={`/products/${p.handle}`} aria-label={p.title} className="block">
-                  <div
-                    className="relative aspect-square w-full overflow-hidden"
-                    style={{ backgroundColor: PLATO, isolation: "isolate" }}
-                  >
-                    {foto && (
-                      <Image
-                        src={foto.url}
-                        alt={foto.altText || p.title}
-                        fill
-                        sizes="(min-width: 768px) 56vw, 100vw"
-                        priority={i === 0}
-                        className="object-contain mix-blend-multiply transition-transform duration-700 ease-out hover:scale-[1.03] motion-reduce:transition-none motion-reduce:hover:scale-100"
-                      />
-                    )}
-                  </div>
-                </Link>
-
-                {otras.length > 0 && (
-                  <div
-                    className="mt-3 grid gap-3"
-                    style={{ gridTemplateColumns: `repeat(${otras.length}, minmax(0, 1fr))` }}
-                  >
-                    {otras.map((im, j) => (
-                      <Link
-                        key={im.url}
-                        href={`/products/${p.handle}`}
-                        /* aria-hidden: el enlace de arriba ya anuncia el
-                           producto, y repetirlo cuatro veces obliga al lector
-                           de pantalla a oír el mismo nombre en cada foto. */
-                        aria-hidden
-                        tabIndex={-1}
-                        className="relative block aspect-square overflow-hidden"
-                        style={{ backgroundColor: PLATO, isolation: "isolate" }}
-                      >
-                        <Image
-                          src={im.url}
-                          alt=""
-                          fill
-                          sizes="(min-width: 768px) 19vw, 33vw"
-                          loading="lazy"
-                          className="object-contain mix-blend-multiply transition-transform duration-700 ease-out hover:scale-[1.05] motion-reduce:transition-none motion-reduce:hover:scale-100"
-                        />
-                      </Link>
-                    ))}
-                  </div>
-                )}
+                <GaleriaJosepha
+                  imagenes={fotos}
+                  titulo={p.title}
+                  plato={PLATO}
+                  acento={ACENTO}
+                  tinta={TINTA}
+                  prioridad={i === 0}
+                />
               </div>
 
               <div
@@ -327,17 +273,9 @@ export default async function JosephaPage({ params }: Props) {
                   </p>
                 )}
 
-                {/* La ficha sigue existiendo y ahí vive el resto: la galería
-                    completa, las medidas, la guía de tallas y las reseñas. */}
-                <p className="mt-8">
-                  <Link
-                    href={`/products/${p.handle}`}
-                    className="inline-block border-b pb-1 lowercase tracking-[0.24em] transition-opacity duration-300 hover:opacity-60"
-                    style={{ borderColor: ACENTO, color: ROSA_HONDO, fontSize: ESCALA.rotulo }}
-                  >
-                    <T k="josepha.see" />
-                  </Link>
-                </p>
+                {/* Aquí iba "verlo completo", que llevaba a la ficha del
+                    producto. Se quitó: esta página no manda a ninguna otra. Se
+                    ve, se escoge talla y se compra sin salir. */}
               </div>
             </div>
           </section>
@@ -359,15 +297,8 @@ export default async function JosephaPage({ params }: Props) {
         >
           <T k="josepha.oneOf" />
         </p>
-        <p className="mt-10">
-          <Link
-            href="/marcas"
-            className="inline-block border-b-2 pb-2 lowercase tracking-[0.26em] transition-opacity duration-300 hover:opacity-60"
-            style={{ borderColor: ACENTO, color: TINTA, fontSize: ESCALA.apoyo }}
-          >
-            <T k="josepha.allBrands" />
-          </Link>
-        </p>
+        {/* Aquí iba "ver las catorce casas", que llevaba a /marcas. Misma
+            razón: de esta página no se sale al sitio. */}
       </section>
     </div>
   )

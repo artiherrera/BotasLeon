@@ -601,6 +601,12 @@ export const DICTIONARY: Record<string, Entry> = {
   },
   "josepha.sizes": { es: "Tallas", en: "Sizes" },
   "josepha.pickSize": { es: "Escoge tu talla", en: "Pick your size" },
+  // El visor de fotos. La página no manda a ninguna otra: al tocar una foto se
+  // abre encima, no se navega.
+  "josepha.zoom": { es: "Ver la foto en grande", en: "See the photo larger" },
+  "josepha.zoomClose": { es: "Cerrar la foto", en: "Close the photo" },
+  "josepha.zoomPrev": { es: "Foto anterior", en: "Previous photo" },
+  "josepha.zoomNext": { es: "Foto siguiente", en: "Next photo" },
   "josepha.see": { es: "Verlo completo", en: "See the full boot" },
   "josepha.soldOut": { es: "Agotado", en: "Sold out" },
   // Cierre de la página. La primera versión decía "los tres cuestan lo mismo,
