@@ -30,7 +30,32 @@ import type { Popup } from "@/lib/shopify/types"
  * NO bloquea el scroll, a diferencia de la versión anterior. Es la misma razón
  * por la que el aviso de cookies dejó de ser un modal: interrumpir a quien
  * acaba de llegar cuesta más de lo que rinde.
+ *
+ * Y CEDE EL PASO A KLAVIYO. Desde septiembre de 2026 hay un formulario de
+ * captura de correos publicado en Klaviyo ("10% en tu primera compra"), que se
+ * pinta encima de la página igual que esta ventana. Dos modales encimados no
+ * se leen: se tapan. Klaviyo gana porque está capturando correos, que es un
+ * activo que se queda; esta ventana anuncia algo que se puede volver a
+ * anunciar mañana.
  */
+
+/** ¿Hay un formulario de Klaviyo visible ahora mismo? */
+function hayFormularioKlaviyo(): boolean {
+  if (typeof document === "undefined") return false
+  const nodos = document.querySelectorAll<HTMLElement>(
+    '[class*="klaviyo-form"], [class*="kl-private-reset"], [data-testid*="klaviyo"]'
+  )
+  for (const el of nodos) {
+    const caja = el.getBoundingClientRect()
+    const cs = window.getComputedStyle(el)
+    // Klaviyo deja nodos suyos en el DOM aunque no muestre nada: solo cuenta
+    // lo que ocupa espacio de verdad y se ve.
+    if (caja.width > 120 && caja.height > 80 && cs.display !== "none" && cs.visibility !== "hidden") {
+      return true
+    }
+  }
+  return false
+}
 const CLAVE_VISTA = "botasleon:promo-seen"
 
 export function PopupPromo({ popup }: { popup: Popup | null }) {
@@ -57,8 +82,13 @@ export function PopupPromo({ popup }: { popup: Popup | null }) {
 
     let t0: ReturnType<typeof setTimeout>
     const mostrar = () => {
-      // Un respiro: primero que cargue la página y se vea una bota.
-      t0 = setTimeout(() => setAbierto(true), 1200)
+      // Un respiro: primero que cargue la página y se vea una bota. Y al
+      // final del respiro se vuelve a mirar, porque el formulario de Klaviyo
+      // tarda lo suyo en aparecer y podría haber salido mientras tanto.
+      t0 = setTimeout(() => {
+        if (hayFormularioKlaviyo()) return
+        setAbierto(true)
+      }, 1800)
     }
 
     // Detrás del aviso de cookies, para no encimar dos cosas. Donde no hay
@@ -69,15 +99,30 @@ export function PopupPromo({ popup }: { popup: Popup | null }) {
         contestado = !!localStorage.getItem(CLAVE_CONSENTIMIENTO)
       } catch {}
     }
+    // Klaviyo avisa cuando abre uno de sus formularios. Si abre después de que
+    // esta ventana ya salió, esta se retira: la que captura el correo manda.
+    const alAbrirKlaviyo = (e: Event) => {
+      const tipo = (e as CustomEvent<{ type?: string }>).detail?.type
+      if (tipo === "open") {
+        clearTimeout(t0)
+        setAbierto(false)
+      }
+    }
+    window.addEventListener("klaviyoForms", alAbrirKlaviyo)
+
     if (contestado) {
       mostrar()
-      return () => clearTimeout(t0)
+      return () => {
+        clearTimeout(t0)
+        window.removeEventListener("klaviyoForms", alAbrirKlaviyo)
+      }
     }
     const alContestar = () => mostrar()
     window.addEventListener(EVENTO_CONSENTIMIENTO, alContestar, { once: true })
     return () => {
       clearTimeout(t0)
       window.removeEventListener(EVENTO_CONSENTIMIENTO, alContestar)
+      window.removeEventListener("klaviyoForms", alAbrirKlaviyo)
     }
   }, [handle])
 
