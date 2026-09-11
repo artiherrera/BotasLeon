@@ -80,9 +80,36 @@ export function pareceMexico(): boolean {
 }
 
 /**
+ * El camino de vuelta: ¿este visitante está en Estados Unidos?
+ *
+ * NO es "no parece México". Es una lista blanca de zonas estadounidenses, y la
+ * diferencia importa: alguien en Bogotá, Madrid o Guatemala no cae en ninguna
+ * de las dos listas, y con esta función se queda donde está en vez de acabar
+ * en un sitio que le cobra en dólares y le calcula envío dentro de Estados
+ * Unidos. Solo se mueve a quien sabemos dónde está.
+ *
+ * Y aquí el idioma NO desempata, al revés que en pareceMexico(). Si la zona
+ * viene enmascarada no se adivina: la .mx es el sitio del que se saca a la
+ * gente, y sacar a un mexicano de su propio sitio por una corazonada es peor
+ * error que dejar a un gringo viendo pesos con un aviso al lado.
+ */
+export function pareceEstadosUnidos(): boolean {
+  try {
+    return ZONAS_US.includes(Intl.DateTimeFormat().resolvedOptions().timeZone)
+  } catch {
+    return false
+  }
+}
+
+/**
  * Rastreadores. NO se les redirige: Googlebot rastrea desde Estados Unidos, y
  * mandarlo a la .mx haría que dejara de indexar la .com. Dejándolo pasar, ve lo
  * mismo que un visitante estadounidense — que es justo lo consistente.
+ *
+ * En el sentido inverso el freno es todavía más importante: la .mx redirige a
+ * quien está en Estados Unidos, y Googlebot rastrea DESDE ahí. Sin este freno,
+ * botasleon.mx mandaría a Google a la .com en cada página y el sitio mexicano
+ * desaparecería del índice entero.
  */
 const BOTS =
   /bot|crawl|spider|slurp|bingpreview|facebookexternalhit|embedly|quora link preview|whatsapp|telegram|lighthouse|headless/i
@@ -117,4 +144,29 @@ export const COOKIE_MERCADO = "botasleon:mercado-elegido"
 export function equivalenteMx(pathname: string, search: string): string {
   const sinIdioma = pathname.replace(/^\/(es|en)(?=\/|$)/, "")
   return `https://botasleon.mx/es${sinIdioma}${search}`
+}
+
+/**
+ * El sitio en dólares, con el mismo camino.
+ *
+ * A diferencia de la .mx, la .com publica los dos idiomas, así que hay que
+ * elegir uno. Quien llega viene de un sitio que solo existe en español, así
+ * que el español no se le quita a quien lo entiende: solo se pasa a inglés si
+ * el navegador no lista ningún español. Un chicano con el navegador en es-US
+ * conserva su idioma y solo cambia de moneda, que es lo único que estaba mal.
+ */
+export function equivalenteCom(pathname: string, search: string): string {
+  const sinIdioma = pathname.replace(/^\/(es|en)(?=\/|$)/, "")
+  return `https://botasleon.com/${idiomaEnLaCom()}${sinIdioma}${search}`
+}
+
+function idiomaEnLaCom(): "es" | "en" {
+  try {
+    const idiomas = navigator.languages || [navigator.language]
+    return idiomas.some((l) => (l || "").toLowerCase().startsWith("es"))
+      ? "es"
+      : "en"
+  } catch {
+    return "en"
+  }
 }

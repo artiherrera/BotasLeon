@@ -55,15 +55,18 @@ export function proxy(req: NextRequest) {
   //     aquí: lo resuelve el navegador por zona horaria (ver
   //     components/RedireccionMercado.tsx), que además acierta más con un
   //     mexicano de viaje.
-  // Salida explícita. Las cookies son por dominio, así que una puesta en la .mx
-  // no sirve aquí: el enlace de vuelta trae ?mercado=us y ES ese parámetro el
-  // que fija la preferencia del lado de la .com. Sin esto, quien quisiera ver
-  // dólares rebotaría a pesos en cada visita.
-  if (MARKET === "US" && req.nextUrl.searchParams.get("mercado") === "us") {
+  // Salida explícita, en los dos sentidos. Las cookies son por dominio, así que
+  // una puesta en la .mx no se ve en la .com: el enlace de vuelta trae
+  // ?mercado=us (o ?mercado=mx) y ES ese parámetro el que fija la preferencia
+  // del lado al que llega. Sin esto, quien quisiera ver dólares rebotaría a
+  // pesos en cada visita — y ahora que la .mx también redirige, quien quiera
+  // ver pesos rebotaría a dólares.
+  const quedarse = MARKET === "US" ? "us" : "mx"
+  if (req.nextUrl.searchParams.get("mercado") === quedarse) {
     const limpia = req.nextUrl.clone()
     limpia.searchParams.delete("mercado")
     const res = NextResponse.redirect(limpia, 307)
-    res.cookies.set(COOKIE_MERCADO, "us", {
+    res.cookies.set(COOKIE_MERCADO, quedarse, {
       path: "/",
       maxAge: 60 * 60 * 24 * 365,
       sameSite: "lax",
