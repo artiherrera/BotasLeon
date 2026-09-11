@@ -44,6 +44,11 @@ export function CompraJosepha({
   const t = useT()
   const { addItem, isPending } = useCart()
   const [talla, setTalla] = useState<string | null>(null)
+  // El hover se lleva en estado y NO con `hover:` de Tailwind: estas casillas
+  // pintan su color con `style` en línea (lo necesitan, porque la paleta llega
+  // por props), y un estilo en línea le gana a cualquier clase. La clase se
+  // aplicaba y no se veía nada.
+  const [encima, setEncima] = useState<string | null>(null)
   const [falta, setFalta] = useState(false)
   const [listo, setListo] = useState(false)
   const rejilla = useRef<HTMLDivElement>(null)
@@ -94,6 +99,7 @@ export function CompraJosepha({
       >
         {tallas.map((mx) => {
           const puesta = talla === mx
+          const sobre = encima === mx && !puesta
           return (
             <button
               key={mx}
@@ -104,14 +110,27 @@ export function CompraJosepha({
                 setTalla(mx)
                 setFalta(false)
               }}
+              onMouseEnter={() => setEncima(mx)}
+              onMouseLeave={() => setEncima((v) => (v === mx ? null : v))}
+              onFocus={() => setEncima(mx)}
+              onBlur={() => setEncima((v) => (v === mx ? null : v))}
               /* 48px de lado: en esta página el dedo va sobre fondo rosa y sin
                  más referencias, así que el objetivo táctil se cuida más que en
-                 una rejilla dentro de una ficha. */
-              className="flex h-12 min-w-12 items-center justify-center px-3 tracking-[0.06em] transition-colors duration-300"
+                 una rejilla dentro de una ficha.
+
+                 cursor-pointer NO es adorno: Tailwind v4 dejó de ponérselo a los
+                 <button> y el sitio solo lo repone en la clase .btn, que aquí no
+                 se usa. Sin esto el puntero es una flecha y la rejilla no parece
+                 tocable. El hover rellena la casilla en rosa claro y oscurece el
+                 borde: sin eso había transition-colors preparando una transición
+                 que nunca ocurría. */
+              className="flex h-12 min-w-12 cursor-pointer items-center justify-center px-3 tracking-[0.06em] transition-colors duration-200"
               style={{
                 fontSize: tamApoyo,
-                border: `1px solid ${puesta ? tinta : acento}`,
-                backgroundColor: puesta ? tinta : "transparent",
+                // Sin elegir: el borde se oscurece y la casilla se rellena al
+                // pasar el dedo o el mouse. Elegida: se invierte del todo.
+                border: `1px solid ${puesta || sobre ? tinta : acento}`,
+                backgroundColor: puesta ? tinta : sobre ? acento : "transparent",
                 color: puesta ? "#FFFFFF" : tinta,
               }}
             >
@@ -125,7 +144,11 @@ export function CompraJosepha({
         type="button"
         onClick={agregar}
         disabled={isPending}
-        className="mt-7 h-14 w-full px-8 lowercase tracking-[0.24em] transition-opacity duration-300 hover:opacity-85 disabled:opacity-50 md:w-auto"
+        /* Antes solo bajaba la opacidad al pasar el mouse, que es la señal más
+           débil que hay: un botón medio transparente se lee como desactivado,
+           no como tocable. Ahora sube un pelo y proyecta sombra —se acerca al
+           dedo— y el cursor es manita. */
+        className="mt-7 h-14 w-full cursor-pointer px-8 lowercase tracking-[0.24em] transition-transform duration-200 hover:-translate-y-0.5 hover:shadow-lg active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0 md:w-auto"
         style={{ backgroundColor: tinta, color: "#FFFFFF", fontSize: tamApoyo }}
       >
         {listo ? t("pdp.added") : t("pdp.addToCart")}
