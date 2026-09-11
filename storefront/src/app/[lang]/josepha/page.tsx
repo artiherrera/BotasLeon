@@ -84,7 +84,16 @@ const montserrat = localFont({
  */
 const ROSA = "#E72B5E"
 const SALMON = "#F6B5B1"
-const HUESO = "#F4F4F4"
+/**
+ * El hueso, con cuatro puntos de azul menos que el #F4F4F4 del dueño.
+ *
+ * No es un capricho: es el gris MÁS NEUTRO al que puede llegar el fondo de
+ * estudio de las fotos. Multiply solo oscurece, nunca aclara, y el fondo de
+ * las fotos es tibio (239.7 de azul), así que para llegar a 244 de azul haría
+ * falta un plato de 259.6 y el canal se acaba en 255. Cuatro puntos en un solo
+ * canal no se distinguen a ojo; un cuadro warm dentro de un gris frío, sí.
+ */
+const HUESO = "#F4F4F0"
 const TINTA = "#191A19"
 const BLANCO = "#FFFFFF"
 /** El rosa oscurecido hasta 7.18:1 sobre el hueso. Mismo tono (344°). */
@@ -93,23 +102,28 @@ const ROSA_HONDO = "#A11239"
 const ROSA_BOTON = "#E51D54"
 
 /**
- * PLATO no se elige, se calcula — y es lo que hace que no haya rectángulo.
+ * PLATO se calcula, y tiene que ser CASI BLANCO. Aquí estuvo el error gordo.
  *
- * Las doce fotos traen fondo de estudio en rgb(250.1, 246.5, 239.7) —medido con
- * sharp sobre las doce— y van con `mix-blend-mode: multiply`, así que donde la
- * foto es "blanca" se ve el contenedor multiplicado por ese casi-blanco. Si el
- * contenedor fuera el salmón tal cual, la foto aterrizaría en rgb(241,175,167)
- * y se vería un cuadro más oscuro dentro de la franja: exactamente el recuadro
- * pegado que había que quitar. PLATO va al revés —salmón × 255 ÷ foto— para que
- * la multiplicación caiga EXACTO en el salmón de la franja y el borde de la
- * foto desaparezca.
+ * El intento anterior puso las fotos sobre un plato salmón (#FBBBBC) para que
+ * se fundieran con una franja salmón. Se fundían, sí — y la bota salía teñida
+ * de rosa. El dueño lo dijo en cuanto lo vio: "las fotos se ven horribles, como
+ * un horrible filtro rosa sobre ellas". Tenía razón, y la causa es aritmética:
+ * multiply multiplica CADA píxel por el color del plato, sin distinguir si ese
+ * píxel es fondo de estudio o es cuero. Con #FBBBBC la bota conservaba el 98%
+ * del rojo pero solo el 73% del verde y el 74% del azul. Eso no es fundir un
+ * fondo, es un filtro rosa encima del producto — y en una tienda el cliente
+ * tiene que ver el color real de lo que compra: una bota plata no puede
+ * llegarle rosa.
  *
- * Y por eso las fotos van sobre salmón y no sobre el hueso: para aterrizar en
- * #F4F4F4 el canal azul necesitaría 259.6, y el azul se acaba en 255. Multiply
- * solo oscurece, nunca aclara, así que un fondo de estudio tibio no puede
- * fundirse con un gris neutro. Sobre el salmón sí cae.
+ * #F9FCFF deja la bota prácticamente intacta —pierde un 2% de rojo y un 1% de
+ * verde, imperceptible— y aun así aterriza el fondo de estudio, medido con
+ * sharp en rgb(250.1, 246.5, 239.7), exactamente en el HUESO de la franja. Sin
+ * tinte y sin rectángulo.
+ *
+ * REGLA PARA EL FUTURO: con multiply, el plato solo puede ser casi blanco. Un
+ * plato de color no funde un fondo, tiñe el producto entero.
  */
-const PLATO = "#FBBBBC"
+const PLATO = "#F9FCFF"
 
 /* ── La escala ─────────────────────────────────────────────────────────────
  *
@@ -237,11 +251,12 @@ export default async function JosephaPage({ params }: Props) {
                 alDerecho ? "md:flex-row" : "md:flex-row-reverse"
               }`}
             >
-              {/* La mitad de la bota. La foto se funde con el salmón: ningún
-                  recuadro, ningún borde. */}
+              {/* La mitad de la bota, sobre el hueso. La foto se funde con la
+                  franja y la bota conserva su color: el plato es casi blanco a
+                  propósito. Ver el comentario de PLATO. */}
               <div
                 className="flex w-full items-center justify-center px-6 py-14 md:w-[55%] md:px-16 md:py-24"
-                style={{ backgroundColor: SALMON }}
+                style={{ backgroundColor: HUESO }}
               >
                 <div className="w-full max-w-xl">
                   <GaleriaJosepha
@@ -255,12 +270,13 @@ export default async function JosephaPage({ params }: Props) {
                 </div>
               </div>
 
-              {/* La mitad del texto, sobre el hueso. */}
+              {/* La mitad del texto, sobre el salmón. Aquí el salmón SÍ es un
+                  campo de color: no toca ninguna foto, así que no tiñe nada. */}
               <div
                 className={`flex w-full flex-col justify-center px-6 py-16 text-center md:w-[45%] md:px-16 md:py-24 ${
                   alDerecho ? "md:text-left" : "md:text-right"
                 }`}
-                style={{ backgroundColor: HUESO }}
+                style={{ backgroundColor: SALMON }}
               >
                 {/* "La Estephania" pierde el artículo: aquí los nombres son de
                     pila y así se leen como una firma. */}
@@ -275,16 +291,16 @@ export default async function JosephaPage({ params }: Props) {
                   {p.title.replace(/^la\s+/i, "")}
                 </h2>
 
-                {/* El precio en el rosa de la casa. A 32px o más cuenta como
-                    letra grande, que es lo único que ese rosa aguanta sobre el
-                    hueso (3.89:1). Más chico tendría que ir en tinta. */}
+                {/* El precio en el rosa hondo, no en el #E72B5E: sobre el
+                    salmón ese rosa da 2.48:1 y sería ilegible. Éste da 4.57:1
+                    y sigue siendo rosa. */}
                 <p
                   className="mt-6 leading-none"
                   style={{
                     fontSize: ESCALA.precio,
                     fontVariantNumeric: "tabular-nums",
                     fontWeight: 700,
-                    color: ROSA,
+                    color: ROSA_HONDO,
                     letterSpacing: "-0.02em",
                   }}
                 >
@@ -298,7 +314,7 @@ export default async function JosephaPage({ params }: Props) {
                 {porMes !== null && (
                   <p
                     className="mt-3 leading-snug"
-                    style={{ color: ROSA_HONDO, fontSize: ESCALA.apoyo }}
+                    style={{ color: TINTA, fontSize: ESCALA.apoyo }}
                   >
                     {MESES_MSI} <T k="msi.of" /> {formatMoney(porMes, moneda, 2)}
                   </p>
@@ -317,8 +333,8 @@ export default async function JosephaPage({ params }: Props) {
                 {p.availableForSale ? (
                   <CompraJosepha
                     product={p}
-                    borde={ROSA}
-                    relleno={SALMON}
+                    borde={TINTA}
+                    relleno={BLANCO}
                     tinta={TINTA}
                     rosaHondo={ROSA_HONDO}
                     rosaBoton={ROSA_BOTON}
