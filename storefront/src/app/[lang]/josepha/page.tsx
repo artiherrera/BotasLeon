@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation"
-import localFont from "next/font/local"
 import { T } from "@/components/T"
-import { getProductByHandle, getProductsByVendor } from "@/lib/shopify"
+import { getBrands, getProductByHandle, getProductsByVendor } from "@/lib/shopify"
+import { brandTitleFontClass } from "@/lib/brand-fonts"
 import { formatMoney } from "@/lib/utils"
 import { MESES_MSI, mensualidadMsi } from "@/lib/msi"
 import { pageMetadata } from "@/lib/seo"
@@ -18,8 +18,8 @@ import type { Product } from "@/lib/shopify/types"
  * un sistema de identidad, quiero que parezca una página completamente nueva".
  * Por eso NO monta el Header ni el Footer del sitio y no usa ni un token del
  * sistema visual v3: ni la crema, ni la tinta sobre crema, ni Instrument Serif.
- * Su tipografía es Montserrat y su paleta son los tres colores que dio el
- * dueño para esta casa: rosa fuerte, gris hueso y salmón.
+ * Su tipografía es Josefin —la que la propia marca eligió en Shopify, campo
+ * `title_font`— y su color es el rosa de su metaobjeto.
  *
  * Lo que SÍ conserva, porque es la misma tienda: el carrito —el minicarrito lo
  * monta el layout en todas las rutas, también en esta—, los precios por
@@ -38,80 +38,43 @@ export const revalidate = 60
 
 const TALLER = "Josepha"
 
-/**
- * Montserrat, la que pidió el dueño para esta página.
+/* ── El rosa ───────────────────────────────────────────────────────────────
  *
- * Archivo LOCAL, no next/font/google: el proyecto dejó de bajar fuentes de
- * Google en el build porque un deploy real falló cuando fonts.gstatic.com
- * devolvió 404 a media compilación. Es el archivo variable de 400 a 700, así
- * que "Montserrat Bold" y "Montserrat normal" salen del mismo archivo de 35 KB
- * y son grosores de verdad, no falsificados por el navegador —globals.css pone
- * font-synthesis-weight: none justamente para que nadie finja una negrita.
+ * FONDO es el rosa de Josepha (#E1C4C6, su `accent_color` en Shopify) aclarado
+ * hasta donde el texto en tinta se lee cómodo. ACENTO es su rosa tal cual.
  *
- * Esto REEMPLAZA a la Josefin que Josepha tiene puesta en su metaobjeto de
- * Shopify (campo title_font). Si algún día se quiere volver a la fuente que
- * elige la marca, la función es brandTitleFontClass.
+ * PLATO es el número que importa y no se puede elegir a ojo. Las doce fotos de
+ * Josepha traen fondo de estudio en ~(250,246,239) y son uniformes hasta ±1 en
+ * las cuatro esquinas (medido con sharp). La foto va con `mix-blend-mode:
+ * multiply`, así que el color que se ve donde la foto es "blanca" resulta de
+ * multiplicar el fondo del contenedor por ese casi-blanco. Si el contenedor
+ * fuera del mismo rosa que la página, el resultado saldría más oscuro y se
+ * vería un cuadrado. PLATO está calculado al revés —contenedor = fondo × 255 /
+ * fondoDeLaFoto— para que la multiplicación aterrice justo en FONDO y la foto
+ * no tenga borde. Comprobado en pantalla: página 245,233,234 · dentro del
+ * cuadro 246,235,235.
  */
-const montserrat = localFont({
-  src: "../../../fonts/montserrat.woff2",
-  weight: "400 700",
-  display: "swap",
-})
-
-/* ── La paleta ─────────────────────────────────────────────────────────────
- *
- * Los tres colores los dio el dueño: #E72B5E, #F4F4F4 y #F6B5B1. Los tres
- * sirven, pero NO para cualquier cosa, y el reparto de abajo sale de medir el
- * contraste, no de elegir a ojo:
- *
- *   · #F4F4F4 gris hueso  → el fondo. Con tinta encima da 15.87:1.
- *   · #F6B5B1 salmón      → NO es color de texto: sobre el hueso da 1.57:1,
- *                           ilegible. Es superficie: el plato de las fotos.
- *   · #E72B5E rosa fuerte → sobre el hueso da 3.89:1. Pasa SOLO en letra
- *                           grande, así que vive en el nombre de la casa y en
- *                           nada más pequeño que eso.
- *
- * Para lo que el rosa no alcanza hay dos variantes suyas, mismo tono (344°),
- * calculadas hasta que el número da:
- *   · ROSA_HONDO #A11239 → 7.18:1 sobre el hueso, AAA. Rótulos y textos de
- *     apoyo. Es el rosa oscurecido, no un café ni un vino.
- *   · ROSA_BOTON #E51D54 → el blanco encima da 4.53:1. El #E72B5E tal cual se
- *     quedaba en 4.28:1, debajo de AA, y un botón de compra con el texto
- *     flojo es el peor lugar para ahorrar contraste.
- */
-const FONDO = "#F4F4F4"
-const ACENTO = "#F6B5B1"
+const FONDO = "#F5E9EA"
+const ACENTO = "#E1C4C6"
+const PLATO = "#FAF2FA"
 const TINTA = "#191A19"
-const ROSA = "#E72B5E"
-const ROSA_HONDO = "#A11239"
-const ROSA_BOTON = "#E51D54"
 /**
- * PLATO es el único número que no se puede elegir: se calcula.
+ * Rosa para todo el texto que no es tinta.
  *
- * Las doce fotos de Josepha traen fondo de estudio en rgb(250.1, 246.5, 239.7)
- * —medido con sharp sobre las doce— y van con `mix-blend-mode: multiply`, así
- * que el color que se ve donde la foto es "blanca" es el del contenedor
- * multiplicado por ese casi-blanco. Si el contenedor fuera el salmón tal cual,
- * la foto aterrizaría en rgb(241,175,167) y se vería un cuadro más oscuro
- * dentro del cuadro. PLATO va al revés —contenedor = salmón × 255 ÷ foto— para
- * que la multiplicación caiga EXACTO en #F6B5B1: desviación cero en los tres
- * canales.
- *
- * Y por eso el plato es salmón y no gris hueso: para aterrizar en #F4F4F4 el
- * canal azul necesitaría 259.6, y el azul no llega más allá de 255. Multiply
- * solo oscurece, nunca aclara, así que un fondo de estudio tibio no puede
- * fundirse con un gris neutro. Sobre el salmón sí cae, y de paso las botas
- * quedan en una baldosa rosa en vez de flotar sobre nada.
+ * Era #7C555A y da 5.36:1 sobre FONDO — pasa AA y se veía flojo de todos
+ * modos, porque Josefin es una geométrica de trazo fino y a igual número de
+ * contraste se lee más clara que una sans normal. Este da 7.70:1, que es AAA,
+ * y sigue siendo rosa: no se fue a café ni a gris. (La tinta, para comparar,
+ * da 14.73:1.)
  */
-const PLATO = "#FBBBBC"
+const ROSA_HONDO = "#633E43"
 
 /* ── La escala ─────────────────────────────────────────────────────────────
  *
- * Montserrat tiene la altura de x grande y el trazo parejo, así que a igual
- * número de píxeles se lee más sólida que la Josefin que estaba antes. Aun
- * así la escala se queda alta: el dueño pidió expresamente letra grande —"las
- * letras son muy pequeñas"— y esta página se recorre, no se escanea. Toda la
- * escala vive aquí, en un solo sitio, para subirla o bajarla entera.
+ * Josefin es una geométrica de trazo fino y altura de x pequeña: a los tamaños
+ * que sirven para una sans normal se ve tímida, no delicada. En una página con
+ * este aire, un cuerpo de 15px se lee como letra chica de contrato. Toda la
+ * escala vive aquí, en un solo sitio, para poder subirla o bajarla entera.
  *
  * Cada valor es clamp(móvil, fluido, escritorio).
  */
@@ -152,18 +115,23 @@ export default async function JosephaPage({ params }: Props) {
   const { lang } = await params
   if (!isLocale(lang)) notFound()
 
-  const listado = await getProductsByVendor(TALLER, 24).catch(() => [] as Product[])
+  const [listado, marcas] = await Promise.all([
+    getProductsByVendor(TALLER, 24).catch(() => [] as Product[]),
+    getBrands().catch(() => []),
+  ])
   // El listado sale del fragmento de TARJETA, que no trae descripción. Con
   // tres productos sale más barato pedir cada uno completo que engordar el
   // fragmento que usan todas las listas del sitio.
   const productos = (
     await Promise.all(listado.map((p) => getProductByHandle(p.handle).catch(() => p)))
   ).filter((p): p is Product => !!p)
+  const marca = marcas.find((b) => b.handle === "josepha") ?? null
+
   // Sin productos no hay página: mejor 404 que una landing vacía con el
   // nombre de una casa que sí existe.
   if (productos.length === 0) notFound()
 
-  const fuente = montserrat.className
+  const fuente = brandTitleFontClass(marca?.titleFont ?? "josefin")
 
   return (
     <div
@@ -191,12 +159,7 @@ export default async function JosephaPage({ params }: Props) {
             tipografía que esta página no debe tener. */}
         <h1
           className={`${fuente} lowercase leading-[0.85]`}
-          style={{
-            fontSize: ESCALA.titulo,
-            letterSpacing: "-0.02em",
-            color: ROSA,
-            fontWeight: 700,
-          }}
+          style={{ fontSize: ESCALA.titulo, letterSpacing: "0.01em" }}
         >
           josepha
         </h1>
@@ -252,22 +215,14 @@ export default async function JosephaPage({ params }: Props) {
                     pila y así se leen como una firma. */}
                 <h2
                   className={`${fuente} lowercase leading-[0.95]`}
-                  style={{
-                    fontSize: ESCALA.producto,
-                    letterSpacing: "-0.015em",
-                    fontWeight: 700,
-                  }}
+                  style={{ fontSize: ESCALA.producto, letterSpacing: "0.005em" }}
                 >
                   {p.title.replace(/^la\s+/i, "")}
                 </h2>
 
                 <p
                   className="mt-8 leading-none"
-                  style={{
-                    fontSize: ESCALA.precio,
-                    fontVariantNumeric: "tabular-nums",
-                    fontWeight: 700,
-                  }}
+                  style={{ fontSize: ESCALA.precio, fontVariantNumeric: "tabular-nums" }}
                 >
                   {formatMoney(p.priceRange.minVariantPrice.amount, moneda)}
                 </p>
@@ -306,7 +261,6 @@ export default async function JosephaPage({ params }: Props) {
                     acento={ACENTO}
                     tinta={TINTA}
                     rosaHondo={ROSA_HONDO}
-                    rosaBoton={ROSA_BOTON}
                     tamRotulo={ESCALA.rotulo}
                     tamApoyo={ESCALA.apoyo}
                   />
@@ -332,7 +286,7 @@ export default async function JosephaPage({ params }: Props) {
       <section className="px-6 pb-28 pt-4 text-center md:px-12 md:pb-40">
         <p
           className="mx-auto max-w-[22ch] lowercase leading-[1.1]"
-          style={{ fontSize: ESCALA.cierre, color: ROSA, fontWeight: 700 }}
+          style={{ fontSize: ESCALA.cierre }}
         >
           <T k="josepha.closing" />
         </p>

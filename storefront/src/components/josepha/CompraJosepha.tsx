@@ -31,7 +31,6 @@ export function CompraJosepha({
   acento,
   tinta,
   rosaHondo,
-  rosaBoton,
   tamRotulo,
   tamApoyo,
 }: {
@@ -39,8 +38,6 @@ export function CompraJosepha({
   acento: string
   tinta: string
   rosaHondo: string
-  /** El rosa de marca oscurecido hasta que el blanco encima pasa AA (4.53:1). */
-  rosaBoton: string
   tamRotulo: string
   tamApoyo: string
 }) {
@@ -113,10 +110,9 @@ export function CompraJosepha({
               className="flex h-12 min-w-12 items-center justify-center px-3 tracking-[0.06em] transition-colors duration-300"
               style={{
                 fontSize: tamApoyo,
-                border: `1px solid ${puesta ? rosaBoton : acento}`,
-                backgroundColor: puesta ? rosaBoton : "transparent",
+                border: `1px solid ${puesta ? tinta : acento}`,
+                backgroundColor: puesta ? tinta : "transparent",
                 color: puesta ? "#FFFFFF" : tinta,
-                fontWeight: puesta ? 600 : 400,
               }}
             >
               {etiquetaTallaFiltro(mx, sexo, product.productType)}
@@ -130,16 +126,7 @@ export function CompraJosepha({
         onClick={agregar}
         disabled={isPending}
         className="mt-7 h-14 w-full px-8 lowercase tracking-[0.24em] transition-opacity duration-300 hover:opacity-85 disabled:opacity-50 md:w-auto"
-        /* Rosa de marca, no tinta: es el único gesto de compra de la página y
-           en una landing de anuncio el botón tiene que cantar. Va el tono
-           oscurecido porque con el #E72B5E tal cual el texto blanco se queda en
-           4.28:1, por debajo de AA. */
-        style={{
-          backgroundColor: rosaBoton,
-          color: "#FFFFFF",
-          fontSize: tamApoyo,
-          fontWeight: 600,
-        }}
+        style={{ backgroundColor: tinta, color: "#FFFFFF", fontSize: tamApoyo }}
       >
         {listo ? t("pdp.added") : t("pdp.addToCart")}
       </button>
