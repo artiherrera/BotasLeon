@@ -33,20 +33,31 @@ const h = React.createElement
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const ROOT = join(__dirname, "..")
 
-// Tipografías de marca v2 (mismas del sitio): Fraunces (display) + Inter (cuerpo).
+// Tipografías de marca v3 (las mismas del sitio): Instrument Serif para
+// display, Instrument Sans para todo lo demás. Antes esto era Fraunces + Inter,
+// del diseño viejo, así que el catálogo que el cliente descargaba no se parecía
+// a la página de la que lo descargó.
+//
+// El reparto NO es "serif para lo importante": es el del sitio —la serif
+// aparece solo en los títulos grandes, y los rótulos chicos (proveedor,
+// COMPRAR, números de página, encabezados de tabla) van en sans, que es lo
+// único que aguanta a 10-13 px sin verse endeble.
 Font.register({
-  family: "Fraunces",
-  fonts: [
-    { src: join(__dirname, "fonts", "Fraunces-SemiBold.ttf"), fontWeight: 600 },
-    { src: join(__dirname, "fonts", "Fraunces-Bold.ttf"), fontWeight: 700 },
-  ],
+  family: "InstrumentSerif",
+  // Un solo grosor, como la de la web: no existe una Instrument Serif negrita.
+  // Por eso ningún título pide fontWeight — pedirlo sería pedir algo que no hay.
+  fonts: [{ src: join(__dirname, "fonts", "InstrumentSerif-Regular.ttf"), fontWeight: 400 }],
 })
 Font.register({
-  family: "Inter",
+  family: "InstrumentSans",
   fonts: [
-    { src: join(__dirname, "fonts", "Inter-Regular.ttf"), fontWeight: 400 },
-    { src: join(__dirname, "fonts", "Inter-SemiBold.ttf"), fontWeight: 600 },
-    { src: join(__dirname, "fonts", "Inter-Bold.ttf"), fontWeight: 700 },
+    { src: join(__dirname, "fonts", "InstrumentSans-Regular.ttf"), fontWeight: 400 },
+    { src: join(__dirname, "fonts", "InstrumentSans-Medium.ttf"), fontWeight: 500 },
+    { src: join(__dirname, "fonts", "InstrumentSans-SemiBold.ttf"), fontWeight: 600 },
+    // 700 apunta a la SemiBold a propósito: es el grosor más alto que existe
+    // en la familia, y sin esta línea react-pdf revienta si alguien escribe
+    // fontWeight: 700 en una página nueva.
+    { src: join(__dirname, "fonts", "InstrumentSans-SemiBold.ttf"), fontWeight: 700 },
   ],
 })
 // Evita que react-pdf intente cortar palabras con guiones (mejor para títulos).
@@ -337,7 +348,7 @@ async function getCovers() {
 // Logo real de BotasLeón (blanco). Si no se pudo cargar, cae al wordmark de texto.
 function Logo({ w = 220 }) {
   if (LOGO_WHITE) return h(Image, { src: LOGO_WHITE, style: { width: w, height: Math.round(w * LOGO_RATIO), objectFit: "contain" } })
-  return h(Text, { style: { fontFamily: "Fraunces", fontSize: Math.round(w * 0.14), letterSpacing: 1, color: C.cream } }, "BOTAS", h(Text, { style: { color: C.gold } }, "LEÓN"))
+  return h(Text, { style: { fontFamily: "InstrumentSerif", fontSize: Math.round(w * 0.14), letterSpacing: 1, color: C.cream } }, "BOTAS", h(Text, { style: { color: C.gold } }, "LEÓN"))
 }
 
 // LETTER = 612 × 792 pt. Alturas EXPLÍCITAS (flex:1 no le daba alto a las fotos).
@@ -348,9 +359,9 @@ function CoverMenu({ tr, covers, edition }) {
       h(View, { style: { width: "100%", height: "100%", position: "relative", backgroundColor: C.brown } },
         img(cover, W.cover) ? h(Image, { src: img(cover, W.cover), style: { width: "100%", height: "100%", objectFit: "cover" } }) : null,
         h(View, { style: { position: "absolute", bottom: 0, left: 0, right: 0, backgroundColor: "rgba(59,42,32,0.78)", paddingVertical: 18, alignItems: "center" } },
-          h(Text, { style: { color: C.cream, fontSize: 18, letterSpacing: 2, fontFamily: "Fraunces" } }, label),
-          h(Text, { style: { color: C.gold, fontSize: 8, letterSpacing: 2, marginTop: 5, fontFamily: "Inter" } }, tr.tapToSee))))
-  return h(Page, { size: "LETTER", wrap: false, style: { backgroundColor: C.leather, padding: 0, fontFamily: "Inter" } },
+          h(Text, { style: { color: C.cream, fontSize: 18, letterSpacing: 2, fontFamily: "InstrumentSerif" } }, label),
+          h(Text, { style: { color: C.gold, fontSize: 8, letterSpacing: 2, marginTop: 5, fontFamily: "InstrumentSans" } }, tr.tapToSee))))
+  return h(Page, { size: "LETTER", wrap: false, style: { backgroundColor: C.leather, padding: 0, fontFamily: "InstrumentSans" } },
     h(View, { style: { height: 120, alignItems: "center", justifyContent: "center" } },
       h(Logo, { w: 250 }),
       h(Text, { style: { color: C.gold, fontSize: 11, letterSpacing: 4, marginTop: 14 } }, tr.coverEyebrow),
@@ -366,7 +377,7 @@ function Divider({ label, cover, dest }) {
     h(View, { id: dest, style: { width: "100%", height: 792, position: "relative", backgroundColor: C.brown } },
       img(cover, W.cover) ? h(Image, { src: img(cover, W.cover), style: { width: "100%", height: "100%", objectFit: "cover" } }) : null,
       h(View, { style: { position: "absolute", bottom: 90, left: 0, right: 0, alignItems: "center", backgroundColor: "rgba(59,42,32,0.55)", paddingVertical: 28 } },
-        h(Text, { style: { color: C.cream, fontSize: 34, letterSpacing: 3, fontFamily: "Fraunces" } }, label))))
+        h(Text, { style: { color: C.cream, fontSize: 34, letterSpacing: 3, fontFamily: "InstrumentSerif" } }, label))))
 }
 
 function Chip(label) {
@@ -401,14 +412,14 @@ function BootPage({ p, tr, locale, currency, brandLogos, qrMap }) {
       : h(View, { style: { flexDirection: "row", flexWrap: "wrap", gap: 8, alignContent: "flex-start" } },
           ...photos.map((ph, i) => photoTile(ph, { width: "48.5%", height: tileH })))
 
-  return h(Page, { size: "LETTER", style: { padding: 30, backgroundColor: C.white, flexDirection: "column", fontFamily: "Inter" } },
+  return h(Page, { size: "LETTER", style: { padding: 30, backgroundColor: C.white, flexDirection: "column", fontFamily: "InstrumentSans" } },
     // Encabezado: marca + nombre (sin precio)
     h(View, { style: { flexDirection: "row", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 12 } },
       h(View, { style: { flex: 1, paddingRight: 12 } },
         logo ? h(View, { style: { alignItems: "flex-start", marginBottom: 10 } },
                  h(Image, { src: logo, style: { height: 42, width: 170, objectFit: "contain" } }))
-             : h(Text, { style: { color: C.brown, fontSize: 12, letterSpacing: 2, marginBottom: 8, fontFamily: "Fraunces" } }, (p.vendor || "").toUpperCase()),
-        h(Text, { style: { color: C.text, fontSize: 19, fontFamily: "Fraunces", fontWeight: 700, lineHeight: 1.15 } }, p.title))),
+             : h(Text, { style: { color: C.brown, fontSize: 12, letterSpacing: 2, marginBottom: 8, fontFamily: "InstrumentSans", fontWeight: 600 } }, (p.vendor || "").toUpperCase()),
+        h(Text, { style: { color: C.text, fontSize: 19, fontFamily: "InstrumentSerif", lineHeight: 1.15 } }, p.title))),
     // Collage (zona central de altura fija → nada se corta)
     h(View, { style: { height: 470, marginBottom: 12 } }, collage),
     // Specs (chips)
@@ -419,15 +430,15 @@ function BootPage({ p, tr, locale, currency, brandLogos, qrMap }) {
     h(View, { style: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginTop: "auto", borderTop: `1px solid ${C.border}`, paddingTop: 10 } },
       h(Text, { style: { color: C.subtle, fontSize: 9 } }, tr.host),
       h(Link, { src: url, style: { flexDirection: "row", alignItems: "center", gap: 8, textDecoration: "none" } },
-        h(Text, { style: { color: C.brown, fontSize: 10, fontFamily: "Fraunces", fontWeight: 700 } }, tr.buy),
+        h(Text, { style: { color: C.brown, fontSize: 10, fontFamily: "InstrumentSans", fontWeight: 600 } }, tr.buy),
         qrImg ? h(Image, { src: qrImg, style: { width: 54, height: 54 } }) : null)))
 }
 
 function BackCover({ tr }) {
-  return h(Page, { size: "LETTER", style: { backgroundColor: C.leather, padding: 50, justifyContent: "center", alignItems: "center", fontFamily: "Inter" } },
+  return h(Page, { size: "LETTER", style: { backgroundColor: C.leather, padding: 50, justifyContent: "center", alignItems: "center", fontFamily: "InstrumentSans" } },
     h(Logo, { w: 260 }),
     h(Text, { style: { color: C.cream, fontSize: 15, marginTop: 24, marginBottom: 16, textAlign: "center" } }, tr.shopOnline),
-    h(Text, { style: { color: C.gold, fontSize: 20, letterSpacing: 1, marginBottom: 26, fontFamily: "Fraunces", fontWeight: 700 } }, tr.host),
+    h(Text, { style: { color: C.gold, fontSize: 20, letterSpacing: 1, marginBottom: 26, fontFamily: "InstrumentSerif" } }, tr.host),
     h(Text, { style: { color: C.cream, fontSize: 11, lineHeight: 1.8, textAlign: "center" } }, "WhatsApp: +52 479 303 2457"),
     h(Text, { style: { color: C.cream, fontSize: 11, lineHeight: 1.8, textAlign: "center" } }, "contacto@botasleon.com"),
     h(Text, { style: { color: C.subtle, fontSize: 10, textAlign: "center", marginTop: 6 } }, "Blvd. Hilario Medina 407, 2º piso · León, Gto."),
@@ -983,9 +994,9 @@ function ChapterTitlePage({ genderLabel, chapter, copy, range, items = [], mas =
   const TOPE = 16
   const minis = (items || []).slice(0, TOPE)
   const sobran = Math.max(0, (items || []).length - TOPE)
-  return h(Page, { size: "LETTER", style: { backgroundColor: C.leather, paddingHorizontal: 48, paddingVertical: 44, fontFamily: "Inter" } },
+  return h(Page, { size: "LETTER", style: { backgroundColor: C.leather, paddingHorizontal: 48, paddingVertical: 44, fontFamily: "InstrumentSans" } },
     h(Text, { style: { color: C.gold, fontSize: 11, letterSpacing: 5, marginBottom: 14 } }, genderLabel.toUpperCase()),
-    h(Text, { style: { color: C.cream, fontFamily: "Fraunces", fontWeight: 700, fontSize: 42, lineHeight: 1.1, marginBottom: 16 } }, chapter),
+    h(Text, { style: { color: C.cream, fontFamily: "InstrumentSerif", fontSize: 42, lineHeight: 1.1, marginBottom: 16 } }, chapter),
     h(View, { style: { width: 64, height: 3, backgroundColor: C.gold, marginBottom: 18 } }),
     copy ? h(Text, { style: { color: C.cream, fontSize: 12.5, lineHeight: 1.55, maxWidth: 460 } }, copy) : null,
     range ? h(Text, { style: { color: C.gold, fontSize: 10, letterSpacing: 1, marginTop: 10 } }, range) : null,
@@ -1018,18 +1029,18 @@ function HeroPage({ p, chapter, gender, tr, currency, locale, brandLogos, qrMap 
   const compareAt = isOutlet(p) && p.compareAt ? money(p.compareAt.amount, p.compareAt.currencyCode || currency, locale) : ""
   const tags = tagsFor(p, gender)
   const desc = fixText(truncateSentence(fixText(p.description), 240))
-  return h(Page, { size: "LETTER", style: { backgroundColor: C.creamSoft, flexDirection: "row", fontFamily: "Inter" } },
+  return h(Page, { size: "LETTER", style: { backgroundColor: C.creamSoft, flexDirection: "row", fontFamily: "InstrumentSans" } },
     h(View, { style: { width: "55%", paddingHorizontal: 34, paddingVertical: 50 } },
       lateral ? h(Image, { src: lateral, style: { width: "100%", height: "100%", objectFit: "contain" } }) : null),
     h(View, { style: { width: 1, backgroundColor: C.border, marginVertical: 56 } }),
     h(View, { style: { width: "45%", paddingHorizontal: 30, paddingVertical: 52, justifyContent: "center" } },
       h(Text, { style: { color: C.gold, fontSize: 8.5, letterSpacing: 4, marginBottom: 14 } }, tr.heroEyebrow),
       logo ? h(Image, { src: logo, style: { height: 32, width: 132, objectFit: "contain", marginBottom: 14, alignSelf: "flex-start" } })
-           : h(Text, { style: { color: C.brown, fontFamily: "Fraunces", fontSize: 12, letterSpacing: 2, marginBottom: 14 } }, (p.vendor || "").toUpperCase()),
-      h(Text, { style: { color: C.text, fontFamily: "Fraunces", fontWeight: 700, fontSize: 27, lineHeight: 1.12, marginBottom: 14 } }, titleName(p)),
+           : h(Text, { style: { color: C.brown, fontFamily: "InstrumentSans", fontWeight: 600, fontSize: 12, letterSpacing: 2, marginBottom: 14 } }, (p.vendor || "").toUpperCase()),
+      h(Text, { style: { color: C.text, fontFamily: "InstrumentSerif", fontSize: 27, lineHeight: 1.12, marginBottom: 14 } }, titleName(p)),
       h(View, { style: { width: 54, height: 2, backgroundColor: C.gold, marginBottom: 16 } }),
       compareAt ? h(Text, { style: { color: C.subtle, fontSize: 11, textDecoration: "line-through", marginBottom: 3 } }, compareAt) : null,
-      price ? h(Text, { style: { color: C.text, fontFamily: "Fraunces", fontWeight: 700, fontSize: 25, marginBottom: 16 } }, price) : null,
+      price ? h(Text, { style: { color: C.text, fontFamily: "InstrumentSerif", fontSize: 25, marginBottom: 16 } }, price) : null,
       desc ? h(Text, { style: { color: C.muted, fontSize: 10, lineHeight: 1.55, marginBottom: 14 } }, desc) : null,
       tags.length ? h(View, { style: { flexDirection: "row", flexWrap: "wrap", marginBottom: 14 } }, ...tags.map((t) => Chip(t))) : null,
       h(View, { style: { flexDirection: "row", alignItems: "flex-end", justifyContent: "space-between", borderTop: `1px solid ${C.border}`, paddingTop: 12 } },
@@ -1050,9 +1061,9 @@ function compactHalf(p, currency, locale, brandLogos, qrMap) {
       photoTile(par, { flex: 1, height: "100%" })),
     h(View, { style: { width: "44%", paddingLeft: 22, justifyContent: "center" } },
       logo ? h(Image, { src: logo, style: { height: 26, width: 110, objectFit: "contain", marginBottom: 10, alignSelf: "flex-start" } })
-           : h(Text, { style: { color: C.brown, fontFamily: "Fraunces", fontSize: 10, letterSpacing: 2, marginBottom: 10 } }, (p.vendor || "").toUpperCase()),
-      h(Text, { style: { color: C.text, fontFamily: "Fraunces", fontWeight: 700, fontSize: 17, lineHeight: 1.15, marginBottom: 10 } }, titleName(p)),
-      price ? h(Text, { style: { color: C.text, fontFamily: "Fraunces", fontWeight: 700, fontSize: 17, marginBottom: 12 } }, price) : null,
+           : h(Text, { style: { color: C.brown, fontFamily: "InstrumentSans", fontWeight: 600, fontSize: 10, letterSpacing: 2, marginBottom: 10 } }, (p.vendor || "").toUpperCase()),
+      h(Text, { style: { color: C.text, fontFamily: "InstrumentSerif", fontSize: 17, lineHeight: 1.15, marginBottom: 10 } }, titleName(p)),
+      price ? h(Text, { style: { color: C.text, fontFamily: "InstrumentSerif", fontSize: 17, marginBottom: 12 } }, price) : null,
       h(View, { style: { width: 34, height: 2, backgroundColor: C.gold, marginBottom: 12 } }),
       desc ? h(Text, { style: { color: C.muted, fontSize: 9, lineHeight: 1.5, marginBottom: 14 } }, desc) : null,
       h(View, { style: { flexDirection: "row", alignItems: "center", justifyContent: "space-between" } },
@@ -1060,7 +1071,7 @@ function compactHalf(p, currency, locale, brandLogos, qrMap) {
         qrMap.get(p.handle) ? h(Image, { src: qrMap.get(p.handle), style: { width: 46, height: 46 } }) : null)))
 }
 function CompactPage({ pair, currency, locale, brandLogos, qrMap }) {
-  return h(Page, { size: "LETTER", style: { backgroundColor: C.white, fontFamily: "Inter" } },
+  return h(Page, { size: "LETTER", style: { backgroundColor: C.white, fontFamily: "InstrumentSans" } },
     compactHalf(pair[0], currency, locale, brandLogos, qrMap),
     h(View, { style: { height: 1, backgroundColor: C.border, marginHorizontal: 30 } }),
     compactHalf(pair[1], currency, locale, brandLogos, qrMap))
@@ -1085,15 +1096,15 @@ function StandardPage({ p, chapter, gender, currency, locale, brandLogos, qrMap 
   // La cuarta es la suela, o un macro de textura donde la piel es el argumento.
   const cuarta = needsToeCrop(chapter, p) ? toeImg(p.images[0]) : img(p.images[3], W.photo)
   const tira = [img(p.images[1], W.photo), img(p.images[2], W.photo), cuarta].filter(Boolean).slice(0, 3)
-  return h(Page, { size: "LETTER", style: { padding: 34, backgroundColor: C.white, flexDirection: "column", fontFamily: "Inter" } },
+  return h(Page, { size: "LETTER", style: { padding: 34, backgroundColor: C.white, flexDirection: "column", fontFamily: "InstrumentSans" } },
     h(View, { style: { flexDirection: "row", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 14 } },
       h(View, { style: { flex: 1, paddingRight: 12 } },
         logo ? h(View, { style: { alignItems: "flex-start", marginBottom: 10 } }, h(Image, { src: logo, style: { height: 38, width: 155, objectFit: "contain" } }))
-             : h(Text, { style: { color: C.brown, fontSize: 12, letterSpacing: 2, marginBottom: 8, fontFamily: "Fraunces" } }, (p.vendor || "").toUpperCase()),
-        h(Text, { style: { color: C.text, fontSize: 20, fontFamily: "Fraunces", fontWeight: 700, lineHeight: 1.15 } }, titleName(p))),
+             : h(Text, { style: { color: C.brown, fontSize: 12, letterSpacing: 2, marginBottom: 8, fontFamily: "InstrumentSans", fontWeight: 600 } }, (p.vendor || "").toUpperCase()),
+        h(Text, { style: { color: C.text, fontSize: 20, fontFamily: "InstrumentSerif", lineHeight: 1.15 } }, titleName(p))),
       price ? h(View, { style: { alignItems: "flex-end" } },
         compareAt ? h(Text, { style: { color: C.subtle, fontSize: 10, textDecoration: "line-through", marginBottom: 2 } }, compareAt) : null,
-        h(Text, { style: { color: C.text, fontSize: 21, fontFamily: "Fraunces", fontWeight: 700 } }, price)) : null),
+        h(Text, { style: { color: C.text, fontSize: 21, fontFamily: "InstrumentSerif" } }, price)) : null),
     photoTile(principal, { width: "100%", height: 344, marginBottom: 10 }),
     tira.length ? h(View, { style: { flexDirection: "row", gap: 10, height: 122, marginBottom: 12 } },
       ...tira.map((ph) => photoTile(ph, { flex: 1, height: "100%" }))) : null,
@@ -1231,21 +1242,21 @@ function InfoBg({ photo }) {
   ]
 }
 function HistoriaPage({ tr, photo }) {
-  return h(Page, { size: "LETTER", style: { backgroundColor: C.leather, fontFamily: "Inter" } },
+  return h(Page, { size: "LETTER", style: { backgroundColor: C.leather, fontFamily: "InstrumentSans" } },
     ...InfoBg({ photo }),
     h(View, { style: { position: "absolute", top: 76, left: 60, right: 60, bottom: 76, justifyContent: "center" } },
       h(Text, { style: { color: C.gold, fontSize: 12, letterSpacing: 5, marginBottom: 16 } }, tr.historyEyebrow),
-      h(Text, { style: { color: C.cream, fontFamily: "Fraunces", fontSize: 32, lineHeight: 1.18, marginBottom: 24, maxWidth: 440 } }, tr.historyTitle),
+      h(Text, { style: { color: C.cream, fontFamily: "InstrumentSerif", fontSize: 32, lineHeight: 1.18, marginBottom: 24, maxWidth: 440 } }, tr.historyTitle),
       ...tr.historyParas.map((p, i) => h(Text, { key: i, style: { color: C.cream, fontSize: 12.5, lineHeight: 1.7, marginBottom: 13, maxWidth: 450 } }, p))))
 }
 function IndexPage({ tr, locale, chapterIndex }) {
-  return h(Page, { size: "LETTER", style: { backgroundColor: C.creamSoft, padding: 60, fontFamily: "Inter" } },
+  return h(Page, { size: "LETTER", style: { backgroundColor: C.creamSoft, padding: 60, fontFamily: "InstrumentSans" } },
     h(Text, { style: { color: C.gold, fontSize: 12, letterSpacing: 5, marginBottom: 12 } }, tr.indexEyebrow),
     // Título del índice en Fraunces (display).
-    h(Text, { style: { color: C.text, fontFamily: "Fraunces", fontWeight: 700, fontSize: 34, marginBottom: 30 } }, tr.indexTitle),
+    h(Text, { style: { color: C.text, fontFamily: "InstrumentSerif", fontSize: 34, marginBottom: 30 } }, tr.indexTitle),
     ...chapterIndex.map((c, i) => h(View, { key: i, style: { flexDirection: "row", justifyContent: "space-between", alignItems: "flex-end", borderBottom: `1px solid ${C.border}`, paddingVertical: 10 } },
       h(Text, { style: { color: C.text, fontSize: 13 } }, `${c.genderKey === "mujer" ? tr.women : tr.men} · ${chapterName(c.chapter, locale)}`),
-      h(Text, { style: { color: C.brown, fontSize: 13, fontFamily: "Fraunces", fontWeight: 700 } }, String(c.page)))))
+      h(Text, { style: { color: C.brown, fontSize: 13, fontFamily: "InstrumentSans", fontWeight: 600 } }, String(c.page)))))
 }
 
 // Reusa la estructura ES para EN: mismos productos/orden/páginas, texto EN por handle.
@@ -1269,44 +1280,44 @@ function GenderOpener({ tr, photo, label, dest }) {
       bg ? h(Image, { src: bg, style: { width: "100%", height: "100%", objectFit: "cover" } }) : null,
       h(View, { style: { position: "absolute", top: 0, left: 0, width: "100%", height: "100%", backgroundColor: "rgba(40,25,18,0.42)" } }),
       h(View, { style: { position: "absolute", bottom: 120, left: 0, right: 0, alignItems: "center" } },
-        h(Text, { style: { color: C.gold, fontSize: 12, letterSpacing: 6, marginBottom: 12, fontFamily: "Inter" } }, tr.collectionLabel),
-        h(Text, { style: { color: C.cream, fontFamily: "Fraunces", fontSize: 52, letterSpacing: 2 } }, label))))
+        h(Text, { style: { color: C.gold, fontSize: 12, letterSpacing: 6, marginBottom: 12, fontFamily: "InstrumentSans" } }, tr.collectionLabel),
+        h(Text, { style: { color: C.cream, fontFamily: "InstrumentSerif", fontSize: 52, letterSpacing: 2 } }, label))))
 }
 function MarcasPage({ tr, photo, brands }) {
   const bg = duoImg(photo)
-  return h(Page, { size: "LETTER", style: { backgroundColor: C.creamSoft, fontFamily: "Inter" } },
+  return h(Page, { size: "LETTER", style: { backgroundColor: C.creamSoft, fontFamily: "InstrumentSans" } },
     h(View, { style: { height: 210, position: "relative" } },
       bg ? h(Image, { src: bg, style: { width: "100%", height: "100%", objectFit: "cover" } }) : null,
       h(View, { style: { position: "absolute", top: 0, left: 0, width: "100%", height: "100%", backgroundColor: "rgba(40,25,18,0.55)", justifyContent: "center", paddingLeft: 50 } },
         h(Text, { style: { color: C.gold, fontSize: 12, letterSpacing: 4, marginBottom: 8 } }, tr.brandsEyebrow),
-        h(Text, { style: { color: C.cream, fontFamily: "Fraunces", fontSize: 34 } }, tr.brandsTitle))),
+        h(Text, { style: { color: C.cream, fontFamily: "InstrumentSerif", fontSize: 34 } }, tr.brandsTitle))),
     h(View, { style: { padding: 46, flexDirection: "row", flexWrap: "wrap" } },
       ...brands.map(([name, n], i) => h(View, { key: i, style: { width: "33.33%", marginBottom: 22, paddingRight: 14 } },
-        h(Text, { style: { color: C.text, fontFamily: "Fraunces", fontWeight: 700, fontSize: 15 } }, name),
+        h(Text, { style: { color: C.text, fontFamily: "InstrumentSans", fontWeight: 600, fontSize: 15 } }, name),
         h(Text, { style: { color: C.brown, fontSize: 10, marginTop: 2 } }, `${n} ${n === 1 ? tr.modelSingular : tr.modelPlural}`)))))
 }
 function GuiaPage({ tr }) {
-  return h(Page, { size: "LETTER", style: { backgroundColor: C.leather, padding: 60, fontFamily: "Inter" } },
+  return h(Page, { size: "LETTER", style: { backgroundColor: C.leather, padding: 60, fontFamily: "InstrumentSans" } },
     h(Text, { style: { color: C.gold, fontSize: 12, letterSpacing: 5, marginBottom: 12 } }, tr.guideEyebrow),
-    h(Text, { style: { color: C.cream, fontFamily: "Fraunces", fontSize: 30, marginBottom: 26 } }, tr.guideTitle),
+    h(Text, { style: { color: C.cream, fontFamily: "InstrumentSerif", fontSize: 30, marginBottom: 26 } }, tr.guideTitle),
     h(Text, { style: { color: C.gold, fontSize: 12, letterSpacing: 3, marginBottom: 12 } }, tr.guidePielesLabel),
     ...tr.pieles.map((x, i) => h(View, { key: "p" + i, style: { marginBottom: 9, maxWidth: 470 } },
-      h(Text, { style: { color: C.cream, fontFamily: "Fraunces", fontWeight: 700, fontSize: 13 } }, x.name),
+      h(Text, { style: { color: C.cream, fontFamily: "InstrumentSans", fontWeight: 600, fontSize: 13 } }, x.name),
       h(Text, { style: { color: C.cream, fontSize: 11, lineHeight: 1.45, opacity: 0.85 } }, x.desc))),
     h(Text, { style: { color: C.gold, fontSize: 12, letterSpacing: 3, marginTop: 22, marginBottom: 12 } }, tr.guideHormasLabel),
     ...tr.hormas.map((x, i) => h(View, { key: "h" + i, style: { marginBottom: 7, flexDirection: "row", maxWidth: 470 } },
-      h(Text, { style: { color: C.cream, fontFamily: "Fraunces", fontWeight: 700, fontSize: 12, width: 90 } }, x.name),
+      h(Text, { style: { color: C.cream, fontFamily: "InstrumentSans", fontWeight: 600, fontSize: 12, width: 90 } }, x.name),
       h(Text, { style: { color: C.cream, fontSize: 11, opacity: 0.85, flex: 1 } }, x.desc))))
 }
 function TallasPage({ tr, sizes }) {
   // Solo tallas ENTERAS en la guía (las medias son interpolación obvia) → cabe en 1 página.
   const nums = (sizes || []).map(Number).filter((n) => Number.isInteger(n) && n >= 20 && n <= 35).sort((a, b) => a - b)
   const rows = nums.length ? nums : [25, 26, 27, 28, 29, 30]
-  const th = (label, w) => h(Text, { style: { width: w, color: C.leather, fontWeight: 700, fontFamily: "Fraunces", fontSize: 12 } }, label)
+  const th = (label, w) => h(Text, { style: { width: w, color: C.leather, fontWeight: 600, fontFamily: "InstrumentSans", fontSize: 12 } }, label)
   const td = (label, w) => h(Text, { style: { width: w, color: C.text, fontSize: 12 } }, label)
-  return h(Page, { size: "LETTER", style: { backgroundColor: C.creamSoft, padding: 60, fontFamily: "Inter" } },
+  return h(Page, { size: "LETTER", style: { backgroundColor: C.creamSoft, padding: 60, fontFamily: "InstrumentSans" } },
     h(Text, { style: { color: C.gold, fontSize: 12, letterSpacing: 5, marginBottom: 12 } }, tr.sizesEyebrow),
-    h(Text, { style: { color: C.text, fontFamily: "Fraunces", fontSize: 28, marginBottom: 16 } }, tr.sizesTitle),
+    h(Text, { style: { color: C.text, fontFamily: "InstrumentSerif", fontSize: 28, marginBottom: 16 } }, tr.sizesTitle),
     h(Text, { style: { color: C.muted, fontSize: 11.5, lineHeight: 1.6, marginBottom: 22, maxWidth: 440 } }, tr.sizesIntro),
     h(View, { style: { flexDirection: "row", borderBottom: `2px solid ${C.leather}`, paddingBottom: 6, marginBottom: 4 } },
       th(tr.sizesMx, 110), th(tr.sizesUsMen, 150), th(tr.sizesUsWomen, 150)),
@@ -1317,20 +1328,20 @@ function TallasPage({ tr, sizes }) {
     h(Text, { style: { color: C.subtle, fontSize: 9, marginTop: 20 } }, tr.sizesLink))
 }
 function AccesoriosPage({ tr, qr }) {
-  return h(Page, { size: "LETTER", style: { backgroundColor: C.leather, padding: 60, justifyContent: "center", fontFamily: "Inter" } },
+  return h(Page, { size: "LETTER", style: { backgroundColor: C.leather, padding: 60, justifyContent: "center", fontFamily: "InstrumentSans" } },
     h(Text, { style: { color: C.gold, fontSize: 12, letterSpacing: 5, marginBottom: 14 } }, tr.accEyebrow),
-    h(Text, { style: { color: C.cream, fontFamily: "Fraunces", fontSize: 34, marginBottom: 20 } }, tr.accTitle),
+    h(Text, { style: { color: C.cream, fontFamily: "InstrumentSerif", fontSize: 34, marginBottom: 20 } }, tr.accTitle),
     h(Text, { style: { color: C.cream, fontSize: 13, lineHeight: 1.6, maxWidth: 420, marginBottom: 30 } }, tr.accCopy),
     h(View, { style: { flexDirection: "row", alignItems: "center", gap: 16 } },
       qr ? h(Image, { src: qr, style: { width: 84, height: 84 } }) : null,
       h(Text, { style: { color: C.gold, fontSize: 12, maxWidth: 300 } }, tr.accCta)))
 }
 function CierrePage({ tr, photo }) {
-  return h(Page, { size: "LETTER", style: { backgroundColor: C.leather, fontFamily: "Inter" } },
+  return h(Page, { size: "LETTER", style: { backgroundColor: C.leather, fontFamily: "InstrumentSans" } },
     ...InfoBg({ photo }),
     h(View, { style: { position: "absolute", top: 0, left: 0, width: "100%", height: "100%", justifyContent: "center", alignItems: "center", padding: 60 } },
       h(Logo, { w: 220 }),
-      h(Text, { style: { color: C.cream, fontFamily: "Fraunces", fontSize: 30, marginTop: 26, textAlign: "center" } }, tr.closingTitle),
+      h(Text, { style: { color: C.cream, fontFamily: "InstrumentSerif", fontSize: 30, marginTop: 26, textAlign: "center" } }, tr.closingTitle),
       h(Text, { style: { color: C.gold, fontSize: 13, marginTop: 14, textAlign: "center" } }, tr.closingText)))
 }
 
