@@ -29,12 +29,28 @@ export function paisDesdeCabeceras(h: Headers): string | null {
   return null
 }
 
-/** Zonas horarias de México. Cubre las cuatro del país. */
+/**
+ * Zonas horarias de México. TODAS las de IANA, incluidas las heredadas.
+ *
+ * ESTA LISTA YA NO ES UNA COMODIDAD, ES UN SEGURO. Mientras la regla fue
+ * "¿parece México?", olvidar una zona solo significaba que esa persona no se
+ * movía: inofensivo. Ahora que la regla de salida es "¿está FUERA de México?",
+ * una zona que falte aquí manda a un mexicano al sitio en dólares, con envío
+ * internacional y sin el envío gratis que le toca.
+ *
+ * Por eso está America/Ciudad_Juarez, que IANA separó de Chihuahua en 2022 y
+ * aquí faltaba: son 1.5 millones de personas que habrían acabado en la .com.
+ * Y por eso están los alias viejos (Mexico/General, America/Santa_Isabel…),
+ * que navegadores y sistemas sin actualizar todavía reportan.
+ */
 const ZONAS_MX = [
   "America/Mexico_City", "America/Monterrey", "America/Tijuana",
   "America/Cancun", "America/Merida", "America/Chihuahua",
-  "America/Hermosillo", "America/Mazatlan", "America/Matamoros",
-  "America/Ojinaga", "America/Bahia_Banderas",
+  "America/Ciudad_Juarez", "America/Hermosillo", "America/Mazatlan",
+  "America/Matamoros", "America/Ojinaga", "America/Bahia_Banderas",
+  // Alias heredados que siguen vivos en equipos sin actualizar.
+  "America/Santa_Isabel", "America/Ensenada",
+  "Mexico/General", "Mexico/BajaNorte", "Mexico/BajaSur",
 ]
 
 /**
@@ -80,22 +96,35 @@ export function pareceMexico(): boolean {
 }
 
 /**
- * El camino de vuelta: ¿este visitante está en Estados Unidos?
+ * Zonas que NO dicen dónde está nadie.
  *
- * NO es "no parece México". Es una lista blanca de zonas estadounidenses, y la
- * diferencia importa: alguien en Bogotá, Madrid o Guatemala no cae en ninguna
- * de las dos listas, y con esta función se queda donde está en vez de acabar
- * en un sitio que le cobra en dólares y le calcula envío dentro de Estados
- * Unidos. Solo se mueve a quien sabemos dónde está.
- *
- * Y aquí el idioma NO desempata, al revés que en pareceMexico(). Si la zona
- * viene enmascarada no se adivina: la .mx es el sitio del que se saca a la
- * gente, y sacar a un mexicano de su propio sitio por una corazonada es peor
- * error que dejar a un gringo viendo pesos con un aviso al lado.
+ * Los navegadores con protección de huella digital (Tor, Firefox endurecido,
+ * algunos modos privados) reportan "UTC" en vez de la zona real. Eso no es
+ * "está en Londres": es "no te lo voy a decir". Tratarlo como extranjero
+ * sacaría de la .mx justo a los mexicanos más celosos de su privacidad.
  */
-export function pareceEstadosUnidos(): boolean {
+const ZONAS_OPACAS = ["UTC", "GMT", "Universal", "Zulu", "Factory", "localtime"]
+
+/**
+ * El camino de vuelta: ¿este visitante está FUERA de México?
+ *
+ * Cualquier zona horaria conocida que no sea mexicana cuenta — no solo las de
+ * Estados Unidos. Un colombiano, un español o un guatemalteco en la .mx verían
+ * pesos y envío nacional en un sitio que no les puede surtir así; la .com, que
+ * cobra en dólares y calcula envío internacional, sí.
+ *
+ * El único caso en que NO se mueve a nadie es la zona enmascarada. Ahí no se
+ * adivina, y el idioma tampoco desempata: sacar a un mexicano de su propio
+ * sitio por una corazonada cuesta una venta en el mercado principal, y dejar a
+ * un extranjero viendo pesos cuesta mucho menos.
+ */
+export function estaFueraDeMexico(): boolean {
   try {
-    return ZONAS_US.includes(Intl.DateTimeFormat().resolvedOptions().timeZone)
+    const tz = Intl.DateTimeFormat().resolvedOptions().timeZone
+    if (!tz) return false
+    if (ZONAS_MX.includes(tz)) return false
+    if (ZONAS_OPACAS.includes(tz) || tz.startsWith("Etc/")) return false
+    return true
   } catch {
     return false
   }

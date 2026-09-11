@@ -7,7 +7,7 @@ import {
   equivalenteMx,
   esRastreador,
   esSitioPublicado,
-  pareceEstadosUnidos,
+  estaFueraDeMexico,
   pareceMexico,
 } from "@/lib/geo"
 import { isMX } from "@/lib/market"
@@ -16,7 +16,7 @@ import { isMX } from "@/lib/market"
  * Cada quien en el sitio de su moneda, decidido en el navegador.
  *
  * Va en los DOS sentidos: quien está en México y cae en la .com se va a la .mx,
- * y quien está en Estados Unidos y cae en la .mx se va a la .com. El segundo
+ * y quien está fuera de México y cae en la .mx se va a la .com. El segundo
  * caso no es hipotético — pasa con un enlace compartido por WhatsApp, un
  * anuncio mal apuntado o una búsqueda; el cliente veía pesos y envío nacional
  * en un sitio que no le puede surtir así.
@@ -31,10 +31,12 @@ import { isMX } from "@/lib/market"
  *
  *  · Hacia la .mx basta con "parece México", y el idioma desempata cuando la
  *    zona viene enmascarada.
- *  · Hacia la .com hace falta "está en Estados Unidos" con lista blanca de
- *    zonas, sin desempate por idioma. Alguien en Bogotá o Madrid no está en
- *    ninguna de las dos listas y se queda donde está. Mover a un mexicano
- *    fuera de su propio sitio por una corazonada es el error caro.
+ *  · Hacia la .com basta con NO estar en México: cualquier zona horaria
+ *    conocida que no sea mexicana. Un colombiano o un español en la .mx
+ *    también verían pesos y envío nacional que nadie les puede surtir.
+ *    La única excepción es la zona enmascarada (Tor, Firefox endurecido, que
+ *    reportan "UTC"): ahí no se adivina y nadie se mueve, porque sacar a un
+ *    mexicano de su propio sitio es el error caro.
  *
  * Se ejecuta una vez y con `replace`, para no dejar el sitio anterior en el
  * historial y que el botón de atrás rebote entre los dos dominios.
@@ -52,7 +54,7 @@ export function RedireccionMercado() {
     if (esRastreador(navigator.userAgent)) return
 
     const destino = isMX
-      ? pareceEstadosUnidos()
+      ? estaFueraDeMexico()
         ? equivalenteCom(window.location.pathname, window.location.search)
         : null
       : pareceMexico()
