@@ -28,16 +28,24 @@ import type { Product } from "@/lib/shopify/types"
  */
 export function CompraJosepha({
   product,
-  acento,
+  borde,
+  relleno,
   tinta,
   rosaHondo,
+  rosaBoton,
   tamRotulo,
   tamApoyo,
 }: {
   product: Product
-  acento: string
+  /** Borde de las casillas en reposo. Sobre el hueso necesita 3:1 como
+      contorno de control: el salmón daba 1.57:1 y las casillas se perdían. */
+  borde: string
+  /** Con qué se rellenan al pasar el dedo o el mouse. */
+  relleno: string
   tinta: string
   rosaHondo: string
+  /** El rosa de marca oscurecido hasta que el blanco encima pasa AA (4.53:1). */
+  rosaBoton: string
   tamRotulo: string
   tamApoyo: string
 }) {
@@ -129,8 +137,8 @@ export function CompraJosepha({
                 fontSize: tamApoyo,
                 // Sin elegir: el borde se oscurece y la casilla se rellena al
                 // pasar el dedo o el mouse. Elegida: se invierte del todo.
-                border: `1px solid ${puesta || sobre ? tinta : acento}`,
-                backgroundColor: puesta ? tinta : sobre ? acento : "transparent",
+                border: `1px solid ${puesta ? rosaBoton : sobre ? tinta : borde}`,
+                backgroundColor: puesta ? rosaBoton : sobre ? relleno : "transparent",
                 color: puesta ? "#FFFFFF" : tinta,
               }}
             >
@@ -149,7 +157,16 @@ export function CompraJosepha({
            no como tocable. Ahora sube un pelo y proyecta sombra —se acerca al
            dedo— y el cursor es manita. */
         className="mt-7 h-14 w-full cursor-pointer px-8 lowercase tracking-[0.24em] transition-transform duration-200 hover:-translate-y-0.5 hover:shadow-lg active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0 md:w-auto"
-        style={{ backgroundColor: tinta, color: "#FFFFFF", fontSize: tamApoyo }}
+        /* El rosa de la casa, no un ladrillo negro: es el único gesto de compra
+           de la página y en una landing de anuncio el botón tiene que cantar.
+           Va el tono oscurecido porque con el #E72B5E tal cual el texto blanco
+           se queda en 4.28:1, por debajo de AA. */
+        style={{
+          backgroundColor: rosaBoton,
+          color: "#FFFFFF",
+          fontSize: tamApoyo,
+          fontWeight: 600,
+        }}
       >
         {listo ? t("pdp.added") : t("pdp.addToCart")}
       </button>
