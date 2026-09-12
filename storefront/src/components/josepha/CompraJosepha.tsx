@@ -31,8 +31,8 @@ export function CompraJosepha({
   borde,
   relleno,
   tinta,
-  rosaHondo,
-  rosaBoton,
+  rosa,
+  alineacion,
   tamRotulo,
   tamApoyo,
 }: {
@@ -43,9 +43,12 @@ export function CompraJosepha({
   /** Con qué se rellenan al pasar el dedo o el mouse. */
   relleno: string
   tinta: string
-  rosaHondo: string
-  /** El rosa de marca oscurecido hasta que el blanco encima pasa AA (4.53:1). */
-  rosaBoton: string
+  /** El rosa de la casa, tal cual lo dio el dueño: #E72B5E. */
+  rosa: string
+  /** De qué lado de la franja va el texto. La rejilla y el botón tienen que
+      alinearse con él: con `justify-start` fijo, en las franjas volteadas las
+      tallas quedaban a la izquierda y el texto a la derecha. */
+  alineacion: "izquierda" | "derecha"
   tamRotulo: string
   tamApoyo: string
 }) {
@@ -91,10 +94,12 @@ export function CompraJosepha({
   if (!sePuede) return null
 
   return (
-    <div className="mt-10">
+    <div className="mt-10 flex flex-col">
       <p
-        className="mb-4 lowercase tracking-[0.28em]"
-        style={{ color: falta ? tinta : rosaHondo, fontSize: tamRotulo }}
+        className={`mb-4 lowercase tracking-[0.28em] ${
+          alineacion === "izquierda" ? "text-center md:text-left" : "text-center md:text-right"
+        }`}
+        style={{ color: tinta, fontSize: tamRotulo, fontWeight: falta ? 700 : 400 }}
       >
         {falta ? t("pdp.selectSize") : t("josepha.pickSize")}
       </p>
@@ -103,7 +108,9 @@ export function CompraJosepha({
         ref={rejilla}
         role="radiogroup"
         aria-label={t("josepha.sizes")}
-        className="flex flex-wrap gap-2.5 justify-center md:justify-start"
+        className={`flex flex-wrap gap-2.5 justify-center ${
+          alineacion === "izquierda" ? "md:justify-start" : "md:justify-end"
+        }`}
       >
         {tallas.map((mx) => {
           const puesta = talla === mx
@@ -132,13 +139,17 @@ export function CompraJosepha({
                  tocable. El hover rellena la casilla en rosa claro y oscurece el
                  borde: sin eso había transition-colors preparando una transición
                  que nunca ocurría. */
-              className="flex h-12 min-w-12 cursor-pointer items-center justify-center px-3 tracking-[0.06em] transition-colors duration-200"
+              className="flex h-14 min-w-14 cursor-pointer items-center justify-center px-4 tracking-[0.06em] transition-colors duration-200"
               style={{
-                fontSize: tamApoyo,
+                // 20px: por debajo de eso, el blanco sobre el rosa de la casilla
+                // elegida dejaría de cumplir contraste (4.28:1 solo vale como
+                // letra grande, y "grande" empieza en 18.66px en negrita).
+                fontSize: "1.25rem",
+                fontWeight: puesta ? 700 : 400,
                 // Sin elegir: el borde se oscurece y la casilla se rellena al
                 // pasar el dedo o el mouse. Elegida: se invierte del todo.
-                border: `1px solid ${puesta ? rosaBoton : sobre ? tinta : borde}`,
-                backgroundColor: puesta ? rosaBoton : sobre ? relleno : "transparent",
+                border: `1px solid ${puesta ? rosa : sobre ? tinta : borde}`,
+                backgroundColor: puesta ? rosa : sobre ? relleno : "transparent",
                 color: puesta ? "#FFFFFF" : tinta,
               }}
             >
@@ -156,16 +167,21 @@ export function CompraJosepha({
            débil que hay: un botón medio transparente se lee como desactivado,
            no como tocable. Ahora sube un pelo y proyecta sombra —se acerca al
            dedo— y el cursor es manita. */
-        className="mt-7 h-14 w-full cursor-pointer px-8 lowercase tracking-[0.24em] transition-transform duration-200 hover:-translate-y-0.5 hover:shadow-lg active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0 md:w-auto"
+        className={`mt-7 h-16 w-full cursor-pointer px-10 lowercase tracking-[0.24em] transition-transform duration-200 hover:-translate-y-0.5 hover:shadow-lg active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0 md:w-auto ${
+          alineacion === "izquierda" ? "md:self-start" : "md:self-end"
+        }`}
         /* El rosa de la casa, no un ladrillo negro: es el único gesto de compra
            de la página y en una landing de anuncio el botón tiene que cantar.
            Va el tono oscurecido porque con el #E72B5E tal cual el texto blanco
            se queda en 4.28:1, por debajo de AA. */
         style={{
-          backgroundColor: rosaBoton,
+          backgroundColor: rosa,
           color: "#FFFFFF",
-          fontSize: tamApoyo,
-          fontWeight: 600,
+          // 20px en negrita: el blanco sobre el #E72B5E da 4.28:1, que cumple
+          // como letra GRANDE (desde 18.66px en negrita) y no como letra
+          // normal. Bajar de aquí dejaría el botón de compra por debajo de AA.
+          fontSize: "1.25rem",
+          fontWeight: 700,
         }}
       >
         {listo ? t("pdp.added") : t("pdp.addToCart")}

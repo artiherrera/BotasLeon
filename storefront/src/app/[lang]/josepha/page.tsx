@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation"
+import Image from "next/image"
 import localFont from "next/font/local"
 import { T } from "@/components/T"
 import { getProductByHandle, getProductsByVendor } from "@/lib/shopify"
@@ -96,10 +97,20 @@ const SALMON = "#F6B5B1"
 const HUESO = "#F4F4F0"
 const TINTA = "#191A19"
 const BLANCO = "#FFFFFF"
-/** El rosa oscurecido hasta 7.18:1 sobre el hueso. Mismo tono (344°). */
-const ROSA_HONDO = "#A11239"
-/** El rosa con el blanco encima a 4.53:1; el #E72B5E se quedaba en 4.28:1. */
-const ROSA_BOTON = "#E51D54"
+
+/* NO HAY MÁS ROSAS QUE EL #E72B5E. Hubo dos variantes suyas —#A11239 para
+ * texto y #E51D54 para el botón— y el dueño las cazó: "el color del precio no
+ * está en la paleta que te di". Tenía razón, así que se fueron.
+ *
+ * Se puede prescindir de ellas porque el rosa dejó de usarse como TINTA y pasó
+ * a usarse como CAMPO: el precio y el botón son bloques de #E72B5E con el texto
+ * en blanco. Sobre el rosa el blanco da 4.28:1 — por debajo del 4.5:1 del texto
+ * normal, por encima del 3:1 del grande— así que todo lo que va encima del rosa
+ * es letra grande: el precio a 32px+ y el botón a 20px en negrita, que es el
+ * mínimo que cuenta como grande (14pt bold). Esa es la regla que sustituye a
+ * los tonos inventados.
+ *
+ * Lo que va sobre el salmón va en tinta: ahí el #E72B5E daría 2.48:1. */
 
 /**
  * PLATO se calcula, y tiene que ser CASI BLANCO. Aquí estuvo el error gordo.
@@ -204,22 +215,31 @@ export default async function JosephaPage({ params }: Props) {
         >
           <T k="josepha.eyebrow" />
         </p>
-        {/* La clase de la fuente va EN el h1, no solo en el contenedor: la
-            regla `h1,h2,h3,h4` de globals.css apunta al elemento, y una regla
-            que apunta al elemento le gana a la fuente heredada del padre. Sin
-            esto, el nombre de la casa salía en la serif del sitio. */}
-        <h1
-          className={`${fuente} lowercase leading-[0.78]`}
-          style={{
-            fontSize: ESCALA.titulo,
-            // Montserrat a este tamaño hay que apretarla mucho o se lee a
-            // plantilla de presentación: con el espaciado de fábrica las letras
-            // flotan sueltas y la palabra pierde la forma de logotipo.
-            letterSpacing: "-0.045em",
-            fontWeight: 700,
-          }}
-        >
-          josepha
+        {/* EL LOGOTIPO DE LA CASA, no la palabra compuesta en Montserrat.
+            Lo pidió el dueño, y además resuelve algo que la tipografía no podía:
+            el nombre escrito en una sans cualquiera a tamaño gigante se lee a
+            plantilla; el logotipo real es de la marca y no se parece a nada más.
+
+            El archivo de Shopify es un JPEG OPACO con fondo #E1C4C6 (el rosa
+            viejo de la marca), así que puesto tal cual sería otra vez un
+            rectángulo pegado sobre el campo rosa. public/josepha-logo.png es ese
+            mismo logotipo recortado y pasado a BLANCO con fondo transparente,
+            conservando el suavizado de los bordes: comprobado, encima del rosa
+            las esquinas siguen midiendo rgb(231,43,94).
+
+            El texto sigue existiendo para Google y para quien use lector de
+            pantalla — un logotipo en imagen no es un encabezado legible. */}
+        <h1 className="w-full">
+          <Image
+            src="/josepha-logo.png"
+            alt="Josepha México"
+            width={1076}
+            height={286}
+            priority
+            sizes="(min-width: 768px) 60vw, 86vw"
+            className="mx-auto h-auto w-[86vw] max-w-[780px] md:w-[60vw]"
+          />
+          <span className="sr-only">Josepha</span>
         </h1>
         <p
           className="mx-auto mt-10 max-w-[24ch] leading-[1.35] md:mt-14"
@@ -263,7 +283,7 @@ export default async function JosephaPage({ params }: Props) {
                     imagenes={fotos}
                     titulo={p.title}
                     plato={PLATO}
-                    acento={ROSA_BOTON}
+                    acento={ROSA}
                     tinta={TINTA}
                     prioridad={i === 0}
                   />
@@ -291,17 +311,25 @@ export default async function JosephaPage({ params }: Props) {
                   {p.title.replace(/^la\s+/i, "")}
                 </h2>
 
-                {/* El precio en el rosa hondo, no en el #E72B5E: sobre el
-                    salmón ese rosa da 2.48:1 y sería ilegible. Éste da 4.57:1
-                    y sigue siendo rosa. */}
+                {/* El precio es un BLOQUE de rosa, no texto rosa. Sobre el
+                    salmón el #E72B5E daría 2.48:1 y sería ilegible; invertido
+                    —rosa de fondo, blanco encima— da 4.28:1, que a este tamaño
+                    (32px o más) cumple de sobra. Y de paso la cifra pasa a ser
+                    lo más ruidoso de la mitad del texto, que es lo que toca
+                    cuando los tres botines cuestan lo mismo: lo que se elige no
+                    es el precio, es cuál. */}
                 <p
-                  className="mt-6 leading-none"
+                  className={`mt-6 inline-block leading-none ${
+                    alDerecho ? "self-center md:self-start" : "self-center md:self-end"
+                  }`}
                   style={{
                     fontSize: ESCALA.precio,
                     fontVariantNumeric: "tabular-nums",
                     fontWeight: 700,
-                    color: ROSA_HONDO,
+                    color: BLANCO,
+                    backgroundColor: ROSA,
                     letterSpacing: "-0.02em",
+                    padding: "0.22em 0.42em 0.3em",
                   }}
                 >
                   {formatMoney(p.priceRange.minVariantPrice.amount, moneda)}
@@ -336,15 +364,15 @@ export default async function JosephaPage({ params }: Props) {
                     borde={TINTA}
                     relleno={BLANCO}
                     tinta={TINTA}
-                    rosaHondo={ROSA_HONDO}
-                    rosaBoton={ROSA_BOTON}
+                    rosa={ROSA}
+                    alineacion={alDerecho ? "izquierda" : "derecha"}
                     tamRotulo={ESCALA.rotulo}
                     tamApoyo={ESCALA.apoyo}
                   />
                 ) : (
                   <p
                     className="mt-10 lowercase tracking-[0.26em]"
-                    style={{ color: ROSA_HONDO, fontSize: ESCALA.apoyo }}
+                    style={{ color: TINTA, fontSize: ESCALA.apoyo }}
                   >
                     <T k="josepha.soldOut" />
                   </p>
