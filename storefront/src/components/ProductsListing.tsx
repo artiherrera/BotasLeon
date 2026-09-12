@@ -510,7 +510,24 @@ export function ProductsListing({
           </div>
         )}
 
-        <div className={mobileOpen ? "px-6 py-4 space-y-6" : "space-y-6 lg:sticky lg:top-[124px]"}>
+        {/* En escritorio la columna se queda pegada al desplazarse, pero además
+            NECESITA ALTURA MÁXIMA Y DESPLAZAMIENTO PROPIO. Sin eso, `sticky`
+            clava el borde de arriba y todo lo que sobresale por abajo queda
+            inalcanzable: para ver los últimos filtros había que arrastrar la
+            página entera, y el catálogo se iba contigo. Medido en producción,
+            la columna mide 1750px y en una pantalla de 900 solo caben 776:
+            quedaban 974px fuera de alcance.
+
+            `overscroll-contain` es la otra mitad del arreglo: sin él, al llegar
+            al final de la lista de filtros el desplazamiento salta a la página
+            y vuelve a mover las botas, que es justo lo que se quería evitar. */}
+        <div
+          className={
+            mobileOpen
+              ? "px-6 py-4 space-y-6"
+              : "space-y-6 lg:sticky lg:top-[124px] lg:max-h-[calc(100vh-148px)] lg:overflow-y-auto lg:overscroll-contain lg:pr-3"
+          }
+        >
           {/* Header sidebar desktop */}
           <div className="hidden lg:flex items-center justify-between pb-3 border-b border-border">
             <h2 className="eyebrow text-xs text-text">{t("filters.title")}</h2>
