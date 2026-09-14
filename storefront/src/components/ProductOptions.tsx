@@ -7,6 +7,7 @@ import { useCart } from "./CartProvider"
 import { usePDPVariant } from "./PDPVariantContext"
 import { ColorSwatch } from "./ColorSwatch"
 import { SizeFinder } from "./SizeFinder"
+import { NotaAjuste } from "./PDPNotasTalla"
 import { formatSizeWithUs } from "@/lib/sizes"
 import { formatMoney } from "@/lib/utils"
 import { COLOR_OPTION_NAMES, findVariantBySelection } from "@/lib/pdp/variants"
@@ -421,6 +422,9 @@ export function ProductOptions({ product }: Props) {
               </Link>
             </p>
           )}
+
+          {/* Cómo queda el número, antes de elegirlo. */}
+          <NotaAjuste />
 
           {/* Buscador de talla (marca conocida / medir el pie) */}
           <SizeFinder genderHandle={genderHandle} />

@@ -8,6 +8,10 @@ import { PDPVariantProvider } from "@/components/PDPVariantContext"
 import { PDPTrustBlock } from "@/components/PDPTrustBlock"
 import { PDPMarca } from "@/components/PDPMarca"
 import { PDPAcordeones } from "@/components/PDPAcordeones"
+import { PDPAtributos } from "@/components/PDPAtributos"
+import { PDPCalificacion } from "@/components/PDPCalificacion"
+import { PDPConstruccion } from "@/components/PDPConstruccion"
+import { PDPNotasTalla } from "@/components/PDPNotasTalla"
 import { ProductReviewBlock } from "@/components/ProductReviewBlock"
 import { RelatedProducts } from "@/components/RelatedProducts"
 import { RecentlyViewed } from "@/components/RecentlyViewed"
@@ -184,18 +188,36 @@ export default async function ProductPage({ params }: Props) {
                   className="display-l text-text mb-4"
                 />
 
-                <div className="mb-8">
+                {/* Qué bota es, antes del precio. La ficha pasaba del nombre a
+                    la cifra sin decir nada. */}
+                <PDPAtributos product={product} />
+
+                {/* PRECIO, MESES Y CALIFICACIÓN EN UN SOLO BLOQUE. Los meses
+                    eran una nota suelta bajo el precio y la calificación vivía
+                    al final de la ficha: las tres cosas responden a la misma
+                    pregunta —cuánto me cuesta y si alguien más la compró— y se
+                    leen juntas. La calificación solo aparece si hay reseñas. */}
+                <div className="mb-8 flex flex-wrap items-baseline gap-x-4 gap-y-2">
                   <LocalizedPrice
                     amount={price.amount}
                     currency={price.currencyCode}
                     compareAt={compareAt?.amount}
                     size="pdp"
                   />
+                  <PDPCalificacion product={product} />
                 </div>
 
                 <ProductOptions product={product} />
 
+                {/* Lo que el cliente descubriría al abrir la caja, dicho antes
+                    de que pague. */}
+                <PDPNotasTalla />
+
                 <PDPTrustBlock product={product} />
+
+                {/* De qué está hecha, a la vista: estaba enterrado en el
+                    acordeón "Detalles". */}
+                <PDPConstruccion product={product} />
 
                 <PDPAcordeones product={product} brand={brand ?? null} />
 

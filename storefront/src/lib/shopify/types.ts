@@ -83,6 +83,8 @@ export type Product = {
   // Estilo de bota (shopify.boot-style) — MULTI-VALOR: una bota puede ser
   // Vaquera Y Exótica. Fuente del filtro "Estilo". Mismo shape que color/material.
   bootStyle?: TaxonomyMetafield
+  /** shopify.heel-height-type. Solo en el fragmento de FICHA. 11% de cobertura. */
+  heelHeight?: TaxonomyMetafield
   // Horma / estilo de punta (shopify.toe-style). Fuente del filtro "Horma"
   // (En punta, Dubai, Redondo, Cuadrado). Mismo shape que color/material.
   toeStyle?: TaxonomyMetafield

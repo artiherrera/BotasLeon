@@ -64,6 +64,29 @@ export function atributosDeTarjeta(product: Product): string[] {
 }
 
 /**
+ * Los atributos de la FICHA: horma, piel y caña.
+ *
+ * El informe pedía "Horma · Piel · Suela", pero la suela no existe: el
+ * metacampo shopify.outsole-material está vacío en los 106 productos (medido).
+ * Anunciar un rótulo vacío sería peor que no ponerlo, así que en su lugar va la
+ * caña, que sí está llena en 96 de 106 (91%). Horma y piel llegan al 95%.
+ *
+ * Se devuelve lo que HAYA: si una bota no tiene ninguno de los tres, la línea
+ * entera no se pinta, en vez de dejar separadores sueltos colgando.
+ *
+ * El día que se llene la suela en Shopify, se agrega aquí y aparece sola en las
+ * 106 fichas.
+ */
+export function atributosDeFicha(product: Product): string[] {
+  const horma = primerValor(product.toeStyle)?.label
+  const piel = primerValor(product.material)?.label
+  const cana = primerValor(product.bootStyle)?.label
+  return [horma, piel, cana].filter(
+    (v): v is string => !!v && v.trim().length > 0
+  )
+}
+
+/**
  * El handle del primer metaobjeto referenciado, para metacampos que solo traen
  * `handle` y no `fields` — como shopify.target-gender, del que solo interesa
  * si es "masculino" o "femenino" para convertir la talla.

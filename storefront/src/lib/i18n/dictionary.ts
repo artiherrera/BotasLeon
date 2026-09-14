@@ -737,6 +737,32 @@ export const DICTIONARY: Record<string, Entry> = {
   // que altura de caña, altura de tacón, vira y peso NO existen como dato en
   // ninguno de los 103 productos. Prometer medidas y no darlas sería peor que
   // no tener el acordeón.
+  // ── Notas de talla (bajo el selector) ─────────────────────────────────
+  // Valen para las 106 botas: hablan de cómo trabaja el taller, no de un
+  // modelo. Ver PDPNotasTalla.tsx para por qué no son por producto.
+  "talla.ajusteTitulo": { es: "Ajuste:", en: "Fit:" },
+  "talla.ajuste": {
+    es: "queda fiel a tu número; si tienes el empeine alto, sube media talla.",
+    en: "true to size; if you have a high instep, go up half a size.",
+  },
+  "talla.modeloTitulo": { es: "En la foto:", en: "In the photo:" },
+  "talla.modelo": {
+    es: "Arturo mide 1.78, calza 27 y usa la 27.",
+    en: "Arturo is 5'10\", wears a 9 US and is wearing a 9.",
+  },
+  "talla.honestoTitulo": { es: "Lo que hay que saber:", en: "Worth knowing:" },
+  "talla.honesto": {
+    es: "la suela de cuero resbala los primeros días hasta que se raya con el uso; la piel es natural y su veta cambia de un par a otro; en persona el color se ve un poco más claro que en la foto.",
+    en: "the leather sole is slippery for the first few days until it scuffs in; the leather is natural, so the grain differs from pair to pair; in person the colour looks a little lighter than in the photo.",
+  },
+
+  // ── Franja de construcción ────────────────────────────────────────────
+  // Faltan forro, suela y vira: los dos primeros están vacíos en los 106
+  // productos y el tercero no existe como metacampo. Ver PDPConstruccion.tsx.
+  "construccion.piel": { es: "Piel", en: "Leather" },
+  "construccion.cana": { es: "Caña", en: "Shaft" },
+  "construccion.tacon": { es: "Tacón", en: "Heel" },
+
   "pdp.acc.details": { es: "Detalles", en: "Details" },
   "pdp.acc.workshop": { es: "El taller", en: "The workshop" },
   "pdp.acc.shipping": { es: "Envíos y cambios", en: "Shipping & exchanges" },

@@ -181,6 +181,14 @@ export const PRODUCT_DETAIL_FRAGMENT = /* GraphQL */ `
         edges { node { ... on Metaobject { handle fields { key value } } } }
       }
     }
+    # Altura de tacón (shopify.heel-height-type) — para la franja de
+    # construcción de la ficha. Cobertura real hoy: 12 de 106 (11%), así que
+    # la franja lo esconde cuando falta en vez de dejar la casilla vacía.
+    heelHeight: metafield(namespace: "shopify", key: "heel-height-type") {
+      references(first: 5) {
+        edges { node { ... on Metaobject { handle fields { key value } } } }
+      }
+    }
     # Tallas como metacampo de categoría (shopify.shoe-size) — para productos
     # donde la talla NO se cargó como variante. El PDP las muestra igual.
     shoeSizes: metafield(namespace: "shopify", key: "shoe-size") {

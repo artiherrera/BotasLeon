@@ -61,7 +61,12 @@ export function PDPAcordeones({
           primer pintado del servidor, sin esperar a la hidratación. */}
       <style>{`.acc-signo::after{content:"+"}details[open]>summary .acc-signo::after{content:"−"}`}</style>
 
-      <Acordeon titulo={t("product.description")} abierto>
+      {/* CERRADO por defecto. Iba abierto, y en un teléfono eso empujaba el
+          botón de compra por debajo del pliegue: había que desplazarse para
+          llegar a lo único que hace ganar dinero. Además la descripción corta
+          de arriba —bajo el nombre— ya dice qué bota es; esto es la letra
+          larga, que se lee solo si se busca. */}
+      <Acordeon titulo={t("product.description")}>
         <ProductDescriptionBody
           handle={product.handle}
           fallbackHtml={product.descriptionHtml ?? ""}
