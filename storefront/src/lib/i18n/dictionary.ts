@@ -770,6 +770,21 @@ export const DICTIONARY: Record<string, Entry> = {
   "construccion.cana": { es: "Caña", en: "Shaft" },
   "construccion.tacon": { es: "Tacón", en: "Heel" },
 
+  // ── Banda del catálogo en la portada ──────────────────────────────────
+  // Estaba solo en el pie, al 95% del recorrido de la portada. Ver
+  // BandaCatalogo.tsx.
+  "catalogo.eyebrow": { es: "El catálogo", en: "The catalog" },
+  "catalogo.titulo": {
+    es: "Todas las botas, en una sola pieza",
+    en: "Every boot, in one piece",
+  },
+  "catalogo.texto": {
+    es: "Las casas de León y sus modelos, con precios y tallas. Se hojea en el navegador o se descarga para verlo sin conexión.",
+    en: "The workshops of León and their models, with prices and sizes. Flip through it in the browser or download it to read offline.",
+  },
+  "catalogo.ver": { es: "Hojear el catálogo", en: "Flip through the catalog" },
+  "catalogo.pdf": { es: "Descargar PDF", en: "Download PDF" },
+
   "pdp.acc.details": { es: "Detalles", en: "Details" },
   "pdp.acc.workshop": { es: "El taller", en: "The workshop" },
   "pdp.acc.shipping": { es: "Envíos y cambios", en: "Shipping & exchanges" },

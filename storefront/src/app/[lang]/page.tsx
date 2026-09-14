@@ -13,6 +13,7 @@ import { FAQJsonLd } from "@/components/StructuredData"
 import { FAQS } from "@/lib/faqs"
 import { absoluteUrl } from "@/lib/seo"
 import { getHeroSlides, getProductsByTaxonomy, isBoot } from "@/lib/shopify"
+import { BandaCatalogo } from "@/components/BandaCatalogo"
 
 // Canonical + hreflang del home POR IDIOMA (las hijas lo hacen vía pageMetadata).
 // El title/description los hereda del layout (ya localizados) — no los reescribimos.
@@ -103,6 +104,13 @@ export default async function HomePage() {
           titulo="latest.tabWomen"
           href="/mujer"
         />
+
+        {/* EL CATÁLOGO, después de las novedades y antes de las categorías.
+            Estaba solo en el pie: medido, su único enlace visible desde la
+            portada caía al 95% del recorrido (y=7075 de 7458px), o sea que
+            había que bajarla entera para encontrarlo. Aquí cae en el primer
+            tercio, justo cuando alguien ya vio lo nuevo y busca el resto. */}
+        <BandaCatalogo />
 
         <CategoryShowcase />
 
