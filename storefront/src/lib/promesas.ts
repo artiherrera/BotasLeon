@@ -58,9 +58,43 @@ export function promesasDeFicha(tags?: readonly string[] | null): Promesa[] {
   return lista
 }
 
-/** Mensaje único de la barra de avisos, por mercado. */
-export const AVISO = {
-  texto: isMX ? "aviso.mx" : "aviso.us",
-  enlace: "/envios",
-  enlaceTexto: "aviso.enlace",
-} as const
+/**
+ * "Paga en 4 con Shop Pay" — REDACTADA Y APAGADA, a la espera de dos
+ * comprobaciones que no puedo hacer desde el código.
+ *
+ * 1) Shop Pay no carga. Medido: shop.app corta la conexión (reset a los 0.13s)
+ *    desde la máquina del dueño Y desde una red a miles de kilómetros, mientras
+ *    shopify.com y checkout.shopify.com responden bien desde esas mismas redes.
+ *    Anunciar en la cabecera un método de pago que revienta es peor que no
+ *    anunciarlo: el cliente se entera de que falla DESPUÉS de querer pagar.
+ *
+ * 2) "Paga en 4" es Shop Pay Installments, que Shopify sirve solo a tiendas con
+ *    Shopify Payments de ESTADOS UNIDOS —entidad, banco y contribuyente allá—.
+ *    Esta tienda cobra desde México. Hasta que el dueño confirme en
+ *    Configuración → Pagos que la tiene activa, anunciarla sería prometer un
+ *    plazo que el checkout no ofrece.
+ *
+ * Para encenderla: poner true. El texto ya está en el diccionario.
+ */
+export const PAGO_EN_4 = false
+
+/**
+ * Las tres promesas de la barra de avisos, por MERCADO.
+ *
+ * Tres y no cuatro, y quietas: antes fue una marquesina de cuatro mensajes en
+ * bucle y ninguno se leía entero —la línea que te interesaba ya se había ido—.
+ * Tres caben de un vistazo en escritorio y envuelven en dos renglones en un
+ * teléfono.
+ *
+ * No son la misma lista traducida: en México el argumento es el envío gratis y
+ * los meses; en Estados Unidos, el envío gratis y el hecho a mano. Los meses no
+ * aparecen en la .com porque los MSI son de la banca mexicana y el checkout en
+ * dólares no los ofrece (ver lib/msi.ts).
+ */
+export const PROMESAS_BARRA: readonly string[] = isMX
+  ? ["aviso.mxEnvio", "aviso.mxMeses", "aviso.mxTalla"]
+  : [
+      "aviso.usEnvio",
+      "aviso.usHecho",
+      PAGO_EN_4 ? "aviso.usPago4" : "aviso.usTalla",
+    ]

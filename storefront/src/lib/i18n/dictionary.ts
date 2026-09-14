@@ -399,20 +399,6 @@ export const DICTIONARY: Record<string, Entry> = {
     en: "Your email won't be published. Your review may take a little while to appear after review.",
   },
 
-  // ── Cintillo (MarqueeBar) ────────────────────────────────────────────
-  // Este despliegue vende a Estados Unidos en USD. El copy de envío no promete
-  // envío gratis ni menciona México: eso vive en el sitio botasleon.mx.
-  "marquee.tradition": { es: "380 años de tradición", en: "380 years of tradition" },
-  "marquee.leather": {
-    es: "León, capital mundial del cuero",
-    en: "León, the world capital of leather",
-  },
-  "marquee.shipping": {
-    es: "Enviamos a todo Estados Unidos",
-    en: "We ship anywhere in the USA",
-  },
-  "marquee.shippingMx": { es: "Envío gratis a toda la República", en: "Free shipping across Mexico" },
-  "marquee.store": { es: "Tienda física en León →", en: "Visit our store in León →" },
 
   // ── Footer ────────────────────────────────────────────────────────────
   "footer.shop": { es: "Tienda", en: "Shop" },
@@ -667,16 +653,44 @@ export const DICTIONARY: Record<string, Entry> = {
   // componente con isMX / ENVIO_GRATIS_SIEMPRE / HAY_MSI / admiteCambioDeTalla,
   // NUNCA con locale === "es" — botasleon.com/es es venta de Estados Unidos.
 
-  // ── Barra de avisos (sustituye a la marquesina negra) ─────────────────
-  "aviso.mx": {
-    es: "Envío gratis a toda la República, sin monto mínimo.",
-    en: "Free shipping anywhere in Mexico, no minimum.",
+  // ── Barra de avisos: TRES promesas, y cuál se ve lo decide el MERCADO ──
+  // Las de México y las de Estados Unidos no son traducciones la una de la
+  // otra: son promesas distintas porque los dos negocios son distintos. Cada
+  // una existe en los dos idiomas porque botasleon.com también se lee en
+  // español y botasleon.mx podría leerse en inglés algún día.
+  //
+  // Todas están comprobadas contra Shopify, no copiadas de un informe:
+  //   · envío gratis MX  → carrito real a Oaxaca: $0.00
+  //   · envío gratis US  → carritos reales a Dallas de $78, $156, $178 y $399,
+  //                        todos $0.00. NO hay mínimo, por eso no se anuncia uno.
+  //   · 3 meses          → MESES_MSI en lib/msi.ts, que es lo que hoy ofrece
+  //                        Shopify Payments. Si allá cambia, cambia ahí.
+  "aviso.mxEnvio": {
+    es: "Envío gratis a toda la República",
+    en: "Free shipping anywhere in Mexico",
   },
-  "aviso.us": {
-    es: "Enviamos a todo Estados Unidos. Entrega en 2–3 días hábiles.",
-    en: "We ship anywhere in the USA. Delivered in 2–3 business days.",
+  "aviso.mxMeses": { es: "3 meses sin intereses", en: "3 months interest-free" },
+  "aviso.mxTalla": {
+    es: "Asesoría de talla por WhatsApp antes de pagar",
+    en: "Sizing help on WhatsApp before you pay",
   },
-  "aviso.enlace": { es: "Ver envíos", en: "Shipping details" },
+  "aviso.usEnvio": {
+    es: "Envío gratis en todos los pedidos",
+    en: "Free shipping on every order",
+  },
+  "aviso.usHecho": {
+    es: "Hechas a mano en León, México",
+    en: "Handmade in León, Mexico",
+  },
+  // Más corta que su gemela de México a propósito: con la frase larga la barra
+  // ocupaba tres renglones y 70px en un teléfono, contra los 50 de la mexicana.
+  // La de México lleva el texto que pidió el dueño, palabra por palabra.
+  "aviso.usTalla": {
+    es: "Asesoría de talla por WhatsApp",
+    en: "Sizing help on WhatsApp",
+  },
+  // Redactada y lista, pero APAGADA. Ver PAGO_EN_4 en lib/promesas.ts.
+  "aviso.usPago4": { es: "Paga en 4 con Shop Pay", en: "Pay in 4 with Shop Pay" },
 
   // ── Tarjeta de producto ──────────────────────────────────────────────
   // El botón "Agregar" se retiró de la tarjeta: competía con la foto y creaba

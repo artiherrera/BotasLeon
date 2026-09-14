@@ -4,7 +4,7 @@ import { useRef, useState } from "react"
 import { LocalizedLink as Link } from "@/components/LocalizedLink"
 import Image from "next/image"
 import { useCart } from "./CartProvider"
-import { MarqueeBar } from "./MarqueeBar"
+import { BarraAvisos } from "./BarraAvisos"
 import { MegaMenu } from "./MegaMenu"
 import { MobileNav } from "./MobileNav"
 import { SearchOverlay } from "./SearchOverlay"
@@ -73,7 +73,7 @@ export function Header() {
 
   return (
     <header className="sticky top-0 z-40 bg-bg border-b border-border">
-      <MarqueeBar />
+      <BarraAvisos />
 
       {/* px-3 en el teléfono más angosto que se usa hoy (360px): con los 16px de
           px-4, la bolsa se salía 6px de la pantalla y aparecía barra horizontal.
