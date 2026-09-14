@@ -1,6 +1,6 @@
 "use client"
 
-import { useRef, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import Image from "next/image"
 import { LocalizedLink as Link } from "@/components/LocalizedLink"
 import type { Product, Image as ShopifyImage } from "@/lib/shopify/types"
@@ -78,9 +78,16 @@ export function ProductCard({
   const { onSale } = saleInfo(minPrice.amount, compareAt?.amount)
   const nueva = esNueva(product.createdAt)
 
+  // El hover vive en la TARJETA, no en la galería: el dueño lo pidió "al pasar
+  // el mouse por encima de las tarjetas", y eso incluye el nombre y el precio
+  // de abajo, no solo la foto.
+  const [encima, setEncima] = useState(false)
+
   return (
     <Link
       href={`/products/${handle}`}
+      onMouseEnter={() => setEncima(true)}
+      onMouseLeave={() => setEncima(false)}
       className="group flex h-full flex-col"
       aria-label={
         product.availableForSale
@@ -101,7 +108,7 @@ export function ProductCard({
         ) : singleImage ? (
           <Image src={gallery[0].url} alt={gallery[0].altText || title} fill sizes={SIZES} />
         ) : (
-          <CardGallery images={gallery} alt={title} />
+          <CardGallery images={gallery} alt={title} encima={encima} />
         )}
         {/* Las insignias se apilan arriba a la izquierda. El agotado es el único
             en tinta sólida: es un estado que impide comprar, no un adorno.
@@ -175,11 +182,53 @@ export function ProductCard({
 
 const SIZES = "(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
 
-function CardGallery({ images, alt }: { images: ShopifyImage[]; alt: string }) {
+function CardGallery({
+  images,
+  alt,
+  encima,
+}: {
+  images: ShopifyImage[]
+  alt: string
+  /** El ratón está sobre la tarjeta. */
+  encima: boolean
+}) {
   const t = useT()
   const trackRef = useRef<HTMLDivElement>(null)
   const [idx, setIdx] = useState(0)
+  // Si alguien usó las flechas, el hover deja de mandar mientras no salga la
+  // tarjeta: pelearle el carrusel a quien lo está usando a mano es peor que no
+  // tener el efecto.
+  const aMano = useRef(false)
   const count = images.length
+
+  /**
+   * Con el ratón encima, la segunda foto. Al salir, la primera.
+   *
+   * INSTANTÁNEO, no con desplazamiento suave: el dueño pidió que cambiara "de
+   * inmediato", y la pista lleva `scroll-smooth` en CSS, que le gana a
+   * `behavior: "auto"` del scrollTo. Por eso se apaga el suave a mano, se
+   * salta, y se devuelve en el siguiente cuadro para que las FLECHAS sigan
+   * animando como antes.
+   *
+   * Solo en punteros finos: en un teléfono no hay hover, y algunos navegadores
+   * disparan mouseenter al tocar — la foto cambiaría bajo el dedo justo cuando
+   * se intenta abrir la ficha.
+   */
+  useEffect(() => {
+    const el = trackRef.current
+    if (!el || count < 2) return
+    if (!window.matchMedia("(hover: hover) and (pointer: fine)").matches) return
+    if (encima && aMano.current) return
+    if (!encima) aMano.current = false
+
+    const destino = encima ? el.clientWidth : 0
+    const antes = el.style.scrollBehavior
+    el.style.scrollBehavior = "auto"
+    el.scrollLeft = destino
+    requestAnimationFrame(() => {
+      if (trackRef.current) trackRef.current.style.scrollBehavior = antes
+    })
+  }, [encima, count])
 
   if (count === 1) {
     return <Image src={images[0].url} alt={images[0].altText || alt} fill sizes={SIZES} />
@@ -199,6 +248,7 @@ function CardGallery({ images, alt }: { images: ShopifyImage[]; alt: string }) {
     e.stopPropagation()
     const el = trackRef.current
     if (!el) return
+    aMano.current = true
     const next = Math.min(Math.max(idx + dir, 0), count - 1)
     el.scrollTo({ left: next * el.clientWidth, behavior: "smooth" })
   }
