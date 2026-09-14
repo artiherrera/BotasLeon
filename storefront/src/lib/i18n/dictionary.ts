@@ -692,6 +692,15 @@ export const DICTIONARY: Record<string, Entry> = {
   // Redactada y lista, pero APAGADA. Ver PAGO_EN_4 en lib/promesas.ts.
   "aviso.usPago4": { es: "Paga en 4 con Shop Pay", en: "Pay in 4 with Shop Pay" },
 
+  // ── Promoción con cuenta regresiva ────────────────────────────────────
+  // Va en los DOS mercados: el descuento por registro no depende de la moneda,
+  // al revés que el envío o los meses. La fecha de fin vive en lib/promocion.ts.
+  "promo.texto": {
+    es: "10% de descuento al registrarte",
+    en: "10% off when you sign up",
+  },
+  "promo.termina": { es: "termina en", en: "ends in" },
+
   // ── Tarjeta de producto ──────────────────────────────────────────────
   // El botón "Agregar" se retiró de la tarjeta: competía con la foto y creaba
   // carritos sin talla que no podían pagar. Al pasar el cursor aparece esto.
