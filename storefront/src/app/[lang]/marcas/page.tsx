@@ -75,7 +75,7 @@ export default async function MarcasPage() {
                         sobre fondo claro — con multiply, uno de fondo oscuro
                         se ensuciaría. */}
                     {b.logo ? (
-                      <div className="plato plato-foto">
+                      <div className="plato plato-foto aspect-square">
                         <Image
                           src={b.logo.url}
                           alt={b.logo.altText || b.name}
@@ -85,7 +85,7 @@ export default async function MarcasPage() {
                         />
                       </div>
                     ) : (
-                      <div className="plato flex items-center justify-center bg-text p-2">
+                      <div className="plato aspect-square flex items-center justify-center bg-text p-2">
                         {/* La tarjeta mide ~100px de ancho en móvil y .plato
                             recorta lo que se salga: a 22px fijos un nombre como
                             "FORAJIDAS" se cortaba contra el borde. El tamaño

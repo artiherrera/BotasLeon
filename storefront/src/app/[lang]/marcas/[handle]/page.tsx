@@ -100,7 +100,7 @@ export default async function MarcaPage({ params }: Props) {
                 sobre fondo claro — con multiply, uno de fondo propio se
                 ensuciaría. */}
             {brand.logo && (
-              <div className="plato plato-foto w-32 md:w-40 flex-shrink-0">
+              <div className="plato plato-foto aspect-square w-32 md:w-40 flex-shrink-0">
                 <Image
                   src={brand.logo.url}
                   alt={brand.logo.altText || brand.name}

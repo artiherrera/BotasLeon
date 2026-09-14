@@ -175,7 +175,7 @@ export function PopupPromo({ popup }: { popup: Popup | null }) {
         {/* La imagen del metaobjeto. Va sobre plato con multiply, como toda
             foto de producto: si el dueño sube una toma de estudio, se funde. */}
         {popup.image && (
-          <div className="plato hidden sm:block">
+          <div className="plato aspect-square hidden sm:block">
             <Image
               src={popup.image.url}
               alt={popup.image.altText || popup.title}

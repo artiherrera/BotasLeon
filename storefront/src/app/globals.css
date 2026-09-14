@@ -272,16 +272,29 @@ input[type="search"]:focus-visible {
      "puesta" sobre una superficie cálida. Las fotos no se tocan. Y como el
      plato ya está pintado antes de que la imagen llegue, se acabaron los
      rectángulos blancos mientras carga. */
-  /* CUADRADO, no 4/5. El informe pide 4/5, pero medí las 103 fotos del catálogo
-     con sharp: todas son 900×900 y la bota ocupa de media el 65% del ancho y el
-     81% del alto, con el fondo de estudio en 250,247,242 y uniforme (las cuatro
-     esquinas difieren ≤2). En un marco 4/5 con `contain`, esa foto cuadrada
-     entra por el ancho y deja dos bandas de plato: la bota bajaría del 52% del
-     área del marco al 41%. Se vería MÁS CHICA. Lo que la hace verse grande es
-     que la tarjeta pasa de 245 a ~340px al ensanchar el contenedor. */
+  /* 4/5 VERTICAL, y esta vez sí. Estuvo en 1/1 por una razón que ya no aplica:
+     el catálogo entero era cuadrado (417 de 427 fotos en 1254×1254), así que un
+     marco 4/5 solo servía para dejar dos bandas de plato arriba y abajo y hacer
+     que la bota se viera más chica dentro de su marco. Medido entonces: la bota
+     bajaba del 52% al 41% del área del marco.
+
+     Cambia porque cambia el material: el dueño va a subir las fotos nuevas EN
+     VERTICAL 4:5. Una foto 4:5 llena este marco exacta, sin banda ninguna.
+
+     SIGUE EN `contain`, NO en `cover`, y eso no es pereza: con `cover` una foto
+     cuadrada se recortaría por los lados y se conservaría solo el 80% central.
+     Medí la caja de la bota en 30 fotos de estudio repartidas por el catálogo —
+     ocupa de media el 73% del ancho, pero hasta el 89% en las de caimán y pitón
+     — y 11 de esas 30 se salen de la franja que sobreviviría. Recortarle la
+     punta o el tacón a un tercio del catálogo, para ganar unos píxeles, no vale.
+
+     Mientras convivan las dos cosas: las fotos cuadradas que quedan entran por
+     el ancho y dejan aire arriba y abajo, pero ese aire es invisible — el plato
+     multiplica contra el mismo color de la página. La tarjeta crece un 25% de
+     alto. Cuando todo el catálogo esté en 4:5, el aire desaparece solo. */
   .plato {
     background-color: var(--color-plate);
-    aspect-ratio: 1 / 1;
+    aspect-ratio: 4 / 5;
     overflow: hidden;
     position: relative;
     /* Sin esto, el multiply de la foto se mezcla contra el fondo del contexto
