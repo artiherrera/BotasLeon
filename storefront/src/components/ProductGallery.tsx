@@ -5,6 +5,7 @@ import { createPortal } from "react-dom"
 import Image from "next/image"
 import type { Image as ShopifyImage } from "@/lib/shopify/types"
 import { useFocusTrap } from "@/lib/useFocusTrap"
+import { esFotoDeAmbiente } from "@/lib/fotos"
 
 /**
  * Galería de imágenes del PDP.
@@ -135,7 +136,7 @@ export function ProductGallery({ images, title }: Props) {
                 onMouseEnter={() => setActiveIdx(idx)}
                 aria-label={`Ver imagen ${idx + 1}`}
                 aria-current={idx === activeIdx}
-                className={`plato transition-opacity duration-[180ms] ${
+                className={`plato ${esFotoDeAmbiente(img) ? "plato-foto" : ""} transition-opacity duration-[180ms] ${
                   idx === activeIdx
                     ? "ring-2 ring-leather"
                     : "opacity-60 hover:opacity-100"
@@ -156,7 +157,7 @@ export function ProductGallery({ images, title }: Props) {
           type="button"
           onClick={() => openLightbox(activeIdx)}
           aria-label="Ampliar imagen"
-          className="plato block flex-1 min-w-0 cursor-zoom-in"
+          className={`plato ${esFotoDeAmbiente(active) ? "plato-foto" : ""} block flex-1 min-w-0 cursor-zoom-in`}
         >
           <Image
             key={active.url}
@@ -195,7 +196,7 @@ export function ProductGallery({ images, title }: Props) {
                 type="button"
                 onClick={() => openLightbox(idx)}
                 aria-label={`Ampliar imagen ${idx + 1}`}
-                className="plato block w-full cursor-zoom-in"
+                className={`plato ${esFotoDeAmbiente(img) ? "plato-foto" : ""} block w-full cursor-zoom-in`}
               >
                 <Image
                   src={img.url}

@@ -10,6 +10,7 @@ import { useLocale, useT } from "@/lib/i18n/context"
 import { atributosDeTarjeta } from "@/lib/shopify/facets"
 import { facetLabel } from "@/lib/facets-i18n"
 import { saleInfo } from "@/lib/utils"
+import { esFotoDeAmbiente } from "@/lib/fotos"
 
 /**
  * Tarjeta de producto para grids (home, listing, marca page).
@@ -87,7 +88,14 @@ export function ProductCard({
           : `${t("card.view")} ${displayTitle} ${t("card.soldOutParen")}`
       }
     >
-      <div className="plato shrink-0 mb-3">
+      {/* La primera foto manda: si es de ambiente, el plato se porta distinto
+          (llena el cuadro y no multiplica). En la tarjeta solo se ve una a la
+          vez y el carrusel cambia entre ellas, así que la clase la fija la
+          portada; mezclar tratos dentro de la misma tarjeta haría que la bota
+          cambiara de tamaño al pasar el cursor. */}
+      <div
+        className={`plato ${esFotoDeAmbiente(gallery[0]) ? "plato-foto" : ""} shrink-0 mb-3`}
+      >
         {gallery.length === 0 ? (
           <PlaceholderImage />
         ) : singleImage ? (

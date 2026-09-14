@@ -304,7 +304,13 @@ input[type="search"]:focus-visible {
   }
   /* Para fotos que NO tienen fondo de estudio (tienda, estilo de vida,
      retratos): mismo plato, sin multiply y a sangre, porque ahí el multiply
-     ensuciaría los medios tonos. */
+     ensuciaría los medios tonos.
+     También la usan las 10 fotos de AMBIENTE del catálogo —bota puesta, suelo,
+     tapete—, que se detectan por su proporción: ver lib/fotos.ts. Con el trato
+     de estudio salían como un rectángulo oscuro flotando en el cuadro claro.
+     OJO CON EL ORDEN: esta regla tiene la misma especificidad que `.plato img`
+     y solo gana por ir DESPUÉS. Moverla arriba la deja sin efecto, sin aviso
+     de nada. Ya pasó una vez. */
   .plato-foto img {
     object-fit: cover;
     mix-blend-mode: normal;
