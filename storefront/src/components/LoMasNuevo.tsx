@@ -60,9 +60,18 @@ export function LoMasNuevo({
         </Link>
       </div>
 
+      {/* SIN `singleImage`. Lo llevaba, y por eso en la portada el ratón encima
+          de una tarjeta no cambiaba a la segunda foto mientras que en el
+          catálogo y en Hombre sí: sin carrusel no hay a qué saltar.
+
+          Esa bandera existe para las tarjetas que van dentro de ProductRail,
+          donde dos deslizadores horizontales anidados se disputan el gesto en
+          móvil y gana el de adentro, dejando el riel atascado. Aquí abajo no
+          hay riel: esto es una rejilla de dos columnas en móvil y cuatro en
+          escritorio, así que no hay gesto que disputar. */}
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-6">
         {products.slice(0, 4).map((p) => (
-          <ProductCard key={p.id} product={p} singleImage />
+          <ProductCard key={p.id} product={p} />
         ))}
       </div>
     </section>
