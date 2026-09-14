@@ -289,28 +289,6 @@ export default async function JosephaPage({ params }: Props) {
                 alDerecho ? "md:flex-row" : "md:flex-row-reverse"
               }`}
             >
-              {/* LA CIFRA CRUZA EL LÍMITE DE COLOR. Es lo único de la página
-                  que está en dos sitios a la vez, y de ahí sale la sensación de
-                  capas: media cifra cae sobre el hueso y media sobre el salmón.
-                  Numerar aquí dice algo cierto —son tres botines y éste es el
-                  primero, el segundo o el tercero—, no es adorno.
-
-                  Solo en escritorio: en móvil las mitades se apilan y no hay
-                  límite que cruzar, así que la cifra sería una marca suelta. */}
-              <span
-                aria-hidden
-                className={`${fuente} pointer-events-none absolute top-8 z-10 hidden -translate-x-1/2 select-none leading-none md:block`}
-                style={{
-                  left: alDerecho ? "55%" : "45%",
-                  fontSize: "clamp(4rem, 9vw, 9rem)",
-                  fontWeight: 700,
-                  letterSpacing: "-0.05em",
-                  color: ROSA,
-                  opacity: 0.16,
-                }}
-              >
-                {String(i + 1).padStart(2, "0")}
-              </span>
               {/* La mitad de la bota, sobre el hueso. La foto se funde con la
                   franja y la bota conserva su color: el plato es casi blanco a
                   propósito. Ver el comentario de PLATO. */}
@@ -350,6 +328,24 @@ export default async function JosephaPage({ params }: Props) {
                 {/* El texto entra 140ms después que la foto: primero se ve la
                     bota y luego quién es. Al revés se lee como un pie de foto. */}
                 <Revelar retraso={140}>
+                {/* ÍNDICE, no cifra gigante. Antes había un "01" enorme en
+                    rosa translúcido cruzando el límite de color, y se veía
+                    mal por una razón concreta: el nombre se pinta encima y le
+                    tapaba la mitad de abajo, así que el número parecía
+                    cortado. Medido — la caja estaba entera y ningún ancestro
+                    recortaba; lo que lo partía era el propio nombre.
+
+                    Un índice chico dice lo mismo —de tres, éste es el
+                    primero— sin pelearse con nada. En tinta y no en rosa:
+                    sobre el salmón el #E72B5E da 2.48:1 y a este tamaño sería
+                    ilegible. */}
+                <p
+                  className="mb-3 tracking-[0.34em]"
+                  style={{ color: TINTA, fontSize: ESCALA.rotulo, fontWeight: 600 }}
+                >
+                  {String(i + 1).padStart(2, "0")}
+                  <span style={{ opacity: 0.4 }}> / {String(productos.length).padStart(2, "0")}</span>
+                </p>
                 {/* "La Estephania" pierde el artículo: aquí los nombres son de
                     pila y así se leen como una firma. */}
                 {/* EL NOMBRE CRUZA A LA OTRA MITAD. Es el segundo gesto de
