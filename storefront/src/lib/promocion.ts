@@ -16,8 +16,14 @@ export const FIN_PROMOCION = "2026-09-15T23:59:59-06:00"
 
 const FIN_MS = Date.parse(FIN_PROMOCION)
 
+/**
+ * Lo que falta, en HORAS TOTALES — sin días.
+ *
+ * `horas` acumula: a dos días y medio del cierre dice 60, no "2d 12h". Lo pidió
+ * el dueño y para una promoción corta es la lectura más urgente: "50 horas" se
+ * siente cerca y "2 días" se siente lejos, aunque sean lo mismo.
+ */
 export type Restante = {
-  dias: number
   horas: number
   minutos: number
   segundos: number
@@ -36,16 +42,20 @@ export function restante(ahoraMs: number): Restante | null {
   if (!Number.isFinite(ms) || ms <= 0) return null
   const s = Math.floor(ms / 1000)
   return {
-    dias: Math.floor(s / 86400),
-    horas: Math.floor((s % 86400) / 3600),
+    horas: Math.floor(s / 3600),
     minutos: Math.floor((s % 3600) / 60),
     segundos: s % 60,
   }
 }
 
-/** "2d 08:41:07" mientras quedan días; "08:41:07" el último día. */
+/**
+ * "50:35:07" — horas:minutos:segundos, sin días.
+ *
+ * Las horas llevan al menos dos cifras para que el ancho no salte de 9 a 10
+ * caracteres a mitad de la cuenta; de las 99 horas no pasa, porque la
+ * promoción dura menos que eso.
+ */
 export function formatoCuentaRegresiva(r: Restante): string {
   const dd = (n: number) => String(n).padStart(2, "0")
-  const reloj = `${dd(r.horas)}:${dd(r.minutos)}:${dd(r.segundos)}`
-  return r.dias > 0 ? `${r.dias}d ${reloj}` : reloj
+  return `${dd(r.horas)}:${dd(r.minutos)}:${dd(r.segundos)}`
 }

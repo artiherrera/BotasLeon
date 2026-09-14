@@ -47,19 +47,20 @@ export function BarraAvisos() {
 
   return (
     <div className="bg-text text-bg">
-      <div className="contenedor flex min-h-10 flex-wrap items-center justify-center gap-x-3 gap-y-1.5 py-2 text-center">
+      <div className="contenedor flex min-h-12 flex-wrap items-center justify-center gap-x-4 gap-y-1.5 py-2.5 text-center">
         {hayPromo && (
-          <p className="flex flex-wrap items-center justify-center gap-x-2 gap-y-1 bg-bg px-3 py-1 text-text">
-            <span className="text-[12px] font-semibold uppercase tracking-[0.08em] leading-tight">
+          <p className="flex flex-wrap items-center justify-center gap-x-2.5 gap-y-1 bg-bg px-4 py-1.5 text-text">
+            <span className="text-[13px] font-bold uppercase tracking-[0.06em] leading-tight">
               {t("promo.texto")}
             </span>
-            <span className="text-[12px] uppercase tracking-[0.08em] leading-tight opacity-70">
+            <span className="text-[12px] uppercase tracking-[0.1em] leading-tight opacity-60">
               {t("promo.termina")}
             </span>
-            {/* tabular-nums: sin esto los dígitos cambian de ancho cada
-                segundo y la barra entera tiembla al lado del reloj. */}
+            {/* El reloj va MÁS GRANDE que su rótulo: es el número el que mete
+                prisa, no la palabra. tabular-nums evita que los dígitos cambien
+                de ancho cada segundo y hagan temblar la barra entera. */}
             <span
-              className="text-[12px] font-semibold leading-tight tabular-nums"
+              className="text-[16px] font-bold leading-none tabular-nums"
               aria-live="off"
             >
               {formatoCuentaRegresiva(queda)}
@@ -84,7 +85,7 @@ export function BarraAvisos() {
                   ·
                 </span>
               )}
-              <span className="text-[13px] leading-snug">{t(llave)}</span>
+              <span className="text-[13.5px] leading-snug">{t(llave)}</span>
             </li>
           ))}
         </ul>
