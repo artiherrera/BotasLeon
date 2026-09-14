@@ -511,3 +511,43 @@ input[type="search"]:focus-visible {
     overflow-y: hidden;
   }
 }
+
+/* ── Revelado al entrar en pantalla (Josepha) ─────────────────────────────
+   El atributo lo pone JavaScript al montar, NUNCA el servidor: si viniera en
+   el HTML, con el JS bloqueado la página se vería en blanco. Ver
+   components/josepha/Revelar.tsx. */
+[data-revelar] {
+  opacity: 0;
+  transform: translateY(26px);
+  transition:
+    opacity 900ms cubic-bezier(0.16, 1, 0.3, 1),
+    transform 900ms cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, transform;
+}
+[data-revelar][data-visible] {
+  opacity: 1;
+  transform: none;
+}
+/* Cinturón y tirantes: el componente ya no pone el atributo cuando el sistema
+   pide menos movimiento, pero si alguien lo pusiera a mano, aquí no se mueve. */
+@media (prefers-reduced-motion: reduce) {
+  [data-revelar] {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
+
+/* La línea que late al pie de la portada de Josepha: dice que hay más abajo
+   sin escribir "desliza". Se apaga con prefers-reduced-motion. */
+@keyframes josepha-latido {
+  0%, 100% { transform: scaleY(0.35); opacity: 0.25; }
+  50%      { transform: scaleY(1);    opacity: 0.7;  }
+}
+.josepha-pulso {
+  transform-origin: top;
+  animation: josepha-latido 2.6s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .josepha-pulso { animation: none; transform: none; }
+}

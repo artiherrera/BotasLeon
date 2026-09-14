@@ -10,6 +10,7 @@ import { isLocale, type Locale } from "@/lib/i18n/config"
 import { CompraJosepha } from "@/components/josepha/CompraJosepha"
 import { GaleriaJosepha } from "@/components/josepha/GaleriaJosepha"
 import { DescripcionJosepha } from "@/components/josepha/DescripcionJosepha"
+import { Revelar } from "@/components/josepha/Revelar"
 import type { Product } from "@/lib/shopify/types"
 
 /**
@@ -209,12 +210,14 @@ export default async function JosephaPage({ params }: Props) {
         className="flex min-h-[88vh] flex-col items-center justify-center px-6 py-24 text-center md:px-12"
         style={{ backgroundColor: ROSA, color: BLANCO }}
       >
-        <p
-          className="mb-8 lowercase tracking-[0.42em] md:mb-12"
-          style={{ fontSize: ESCALA.rotuloRosa, fontWeight: 600 }}
-        >
-          <T k="josepha.eyebrow" />
-        </p>
+        <Revelar className="mb-8 md:mb-12">
+          <p
+            className="lowercase tracking-[0.42em]"
+            style={{ fontSize: ESCALA.rotuloRosa, fontWeight: 600 }}
+          >
+            <T k="josepha.eyebrow" />
+          </p>
+        </Revelar>
         {/* EL LOGOTIPO DE LA CASA, no la palabra compuesta en Montserrat.
             Lo pidió el dueño, y además resuelve algo que la tipografía no podía:
             el nombre escrito en una sans cualquiera a tamaño gigante se lee a
@@ -229,6 +232,9 @@ export default async function JosephaPage({ params }: Props) {
 
             El texto sigue existiendo para Google y para quien use lector de
             pantalla — un logotipo en imagen no es un encabezado legible. */}
+        {/* El logotipo entra 120ms después del rótulo y la frase 260 después
+            que él: tres tiempos, no tres cosas apareciendo juntas. */}
+        <Revelar retraso={120} className="w-full">
         <h1 className="w-full">
           <Image
             src="/josepha-logo.png"
@@ -241,12 +247,24 @@ export default async function JosephaPage({ params }: Props) {
           />
           <span className="sr-only">Josepha</span>
         </h1>
-        <p
-          className="mx-auto mt-10 max-w-[24ch] leading-[1.35] md:mt-14"
-          style={{ fontSize: ESCALA.entrada, fontWeight: 500 }}
-        >
-          <T k="josepha.lead" />
-        </p>
+        </Revelar>
+        <Revelar retraso={260} className="mt-10 md:mt-14">
+          <p
+            className="mx-auto max-w-[24ch] leading-[1.35]"
+            style={{ fontSize: ESCALA.entrada, fontWeight: 500 }}
+          >
+            <T k="josepha.lead" />
+          </p>
+        </Revelar>
+
+        {/* Señal de que la página sigue. En una portada a pantalla completa y
+            sin cabecera, nada indica que haya scroll: la línea late despacio y
+            lo dice sin escribir "desliza". Decorativa, así que aria-hidden. */}
+        <span
+          aria-hidden
+          className="josepha-pulso mt-16 hidden h-16 w-px md:block"
+          style={{ backgroundColor: BLANCO, opacity: 0.55 }}
+        />
       </section>
 
       {/* ── Un botín por franja ──────────────────────────────────────────── */}
@@ -267,10 +285,32 @@ export default async function JosephaPage({ params }: Props) {
                 mitad de la otra es el propio cambio de color. En móvil se
                 apilan, y la franja de la foto sigue siendo de ancho completo. */}
             <div
-              className={`flex flex-col md:min-h-[92vh] ${
+              className={`relative flex flex-col md:min-h-[92vh] ${
                 alDerecho ? "md:flex-row" : "md:flex-row-reverse"
               }`}
             >
+              {/* LA CIFRA CRUZA EL LÍMITE DE COLOR. Es lo único de la página
+                  que está en dos sitios a la vez, y de ahí sale la sensación de
+                  capas: media cifra cae sobre el hueso y media sobre el salmón.
+                  Numerar aquí dice algo cierto —son tres botines y éste es el
+                  primero, el segundo o el tercero—, no es adorno.
+
+                  Solo en escritorio: en móvil las mitades se apilan y no hay
+                  límite que cruzar, así que la cifra sería una marca suelta. */}
+              <span
+                aria-hidden
+                className={`${fuente} pointer-events-none absolute top-8 z-10 hidden -translate-x-1/2 select-none leading-none md:block`}
+                style={{
+                  left: alDerecho ? "55%" : "45%",
+                  fontSize: "clamp(4rem, 9vw, 9rem)",
+                  fontWeight: 700,
+                  letterSpacing: "-0.05em",
+                  color: ROSA,
+                  opacity: 0.16,
+                }}
+              >
+                {String(i + 1).padStart(2, "0")}
+              </span>
               {/* La mitad de la bota, sobre el hueso. La foto se funde con la
                   franja y la bota conserva su color: el plato es casi blanco a
                   propósito. Ver el comentario de PLATO. */}
@@ -286,7 +326,7 @@ export default async function JosephaPage({ params }: Props) {
                     se le pone de tope 58vh de alto, el ancho tope es 58vh×0.8.
                     Así la galería se encoge en pantallas bajas en vez de
                     desbordar, y en las altas la limita el 36rem de siempre. */}
-                <div className="w-full max-w-[min(36rem,calc(58vh*0.8))]">
+                <Revelar className="w-full max-w-[min(36rem,calc(58vh*0.8))]">
                   <GaleriaJosepha
                     imagenes={fotos}
                     titulo={p.title}
@@ -296,7 +336,7 @@ export default async function JosephaPage({ params }: Props) {
                     tinta={TINTA}
                     prioridad={i === 0}
                   />
-                </div>
+                </Revelar>
               </div>
 
               {/* La mitad del texto, sobre el salmón. Aquí el salmón SÍ es un
@@ -307,10 +347,29 @@ export default async function JosephaPage({ params }: Props) {
                 }`}
                 style={{ backgroundColor: SALMON }}
               >
+                {/* El texto entra 140ms después que la foto: primero se ve la
+                    bota y luego quién es. Al revés se lee como un pie de foto. */}
+                <Revelar retraso={140}>
                 {/* "La Estephania" pierde el artículo: aquí los nombres son de
                     pila y así se leen como una firma. */}
+                {/* EL NOMBRE CRUZA A LA OTRA MITAD. Es el segundo gesto de
+                    capas, después de la cifra: el límite de color deja de ser
+                    una línea recta de arriba abajo.
+
+                    Cruza el TEXTO y no la foto, que fue el primer intento: la
+                    foto habría metido sobre el salmón el aire pálido que le
+                    sobra del 4:5, o sea otro rectángulo pegado. La tinta sobre
+                    el hueso da 15.87:1, y en esa franja del otro lado solo hay
+                    aire — la foto va centrada y deja unos 187px a cada lado.
+
+                    El margen es de 112px y no de 64: la mitad del texto ya
+                    lleva 64 de relleno, así que con -ml-16 el nombre solo
+                    llegaba AL límite sin pasarlo. Medido. Cruza 48px, que
+                    sigue a más de 130 de donde acaba la foto. */}
                 <h2
-                  className={`${fuente} lowercase leading-[0.92]`}
+                  className={`${fuente} relative z-10 lowercase leading-[0.92] ${
+                    alDerecho ? "md:-ml-28" : "md:-mr-28"
+                  }`}
                   style={{
                     fontSize: ESCALA.producto,
                     letterSpacing: "-0.035em",
@@ -386,6 +445,7 @@ export default async function JosephaPage({ params }: Props) {
                     <T k="josepha.soldOut" />
                   </p>
                 )}
+                </Revelar>
               </div>
             </div>
           </section>
@@ -397,19 +457,23 @@ export default async function JosephaPage({ params }: Props) {
         className="flex min-h-[70vh] flex-col items-center justify-center px-6 py-24 text-center md:px-12"
         style={{ backgroundColor: ROSA, color: BLANCO }}
       >
-        <p
-          className={`${fuente} mx-auto max-w-[20ch] lowercase leading-[1.05]`}
-          style={{ fontSize: ESCALA.cierre, fontWeight: 700, letterSpacing: "-0.03em" }}
-        >
-          <T k="josepha.closing" />
-        </p>
+        <Revelar>
+          <p
+            className={`${fuente} mx-auto max-w-[20ch] lowercase leading-[1.05]`}
+            style={{ fontSize: ESCALA.cierre, fontWeight: 700, letterSpacing: "-0.03em" }}
+          >
+            <T k="josepha.closing" />
+          </p>
+        </Revelar>
         <div className="mx-auto mt-16 h-px w-24" style={{ backgroundColor: SALMON }} />
-        <p
-          className="mx-auto mt-12 max-w-[26ch] leading-[1.4]"
-          style={{ fontSize: ESCALA.entrada, fontWeight: 500 }}
-        >
-          <T k="josepha.oneOf" />
-        </p>
+        <Revelar retraso={160} className="mt-12">
+          <p
+            className="mx-auto max-w-[26ch] leading-[1.4]"
+            style={{ fontSize: ESCALA.entrada, fontWeight: 500 }}
+          >
+            <T k="josepha.oneOf" />
+          </p>
+        </Revelar>
         {/* Aquí iba "ver las catorce casas", que llevaba a /marcas. De esta
             página no se sale al sitio. */}
       </section>
