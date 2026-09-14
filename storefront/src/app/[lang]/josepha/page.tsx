@@ -275,14 +275,23 @@ export default async function JosephaPage({ params }: Props) {
                   franja y la bota conserva su color: el plato es casi blanco a
                   propósito. Ver el comentario de PLATO. */}
               <div
-                className="flex w-full items-center justify-center px-6 py-14 md:w-[55%] md:px-16 md:py-24"
+                className="flex w-full items-center justify-center px-6 py-14 md:w-[55%] md:px-16 md:py-16"
                 style={{ backgroundColor: HUESO }}
               >
-                <div className="w-full max-w-xl">
+                {/* EL ANCHO SE ATA A LA ALTURA DE LA VENTANA, y no es un adorno:
+                    al pasar las fotos de 1:1 a 4:5 la franja creció de ~950px a
+                    1154 contra una ventana de 900, y esta página está hecha de
+                    franjas de pantalla completa — la bota dejaba de caber de un
+                    vistazo. Como la foto es 4:5, su ancho es 0.8 de su alto: si
+                    se le pone de tope 58vh de alto, el ancho tope es 58vh×0.8.
+                    Así la galería se encoge en pantallas bajas en vez de
+                    desbordar, y en las altas la limita el 36rem de siempre. */}
+                <div className="w-full max-w-[min(36rem,calc(58vh*0.8))]">
                   <GaleriaJosepha
                     imagenes={fotos}
                     titulo={p.title}
                     plato={PLATO}
+                    fondo={HUESO}
                     acento={ROSA}
                     tinta={TINTA}
                     prioridad={i === 0}

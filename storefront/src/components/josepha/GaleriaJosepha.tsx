@@ -14,6 +14,20 @@ import type { Image as ImagenShopify } from "@/lib/shopify/types"
  * la que se escapaba el visitante que llegó por un anuncio. Ahora abre un
  * visor encima de la misma página.
  *
+ * EL PLATO VA SOLO DETRÁS DE LA FOTO, no en todo el marco. Con el marco en 4:5
+ * y las fotos todavía cuadradas, sobra aire arriba y abajo; si ese aire llevara
+ * el color del plato (#F9FCFF, casi blanco azulado) se vería un recuadro más
+ * claro dentro de la franja (#F4F4F0) — el mismo "canva feo" que ya se quitó
+ * dos veces. Así que el marco lleva el color de la FRANJA y, dentro, una caja
+ * con la proporción exacta de la foto lleva el plato. Cuando las fotos sean
+ * 4:5 de origen, esa caja llenará el marco y el aire desaparecerá solo.
+ *
+ * PROPORCIÓN 4:5, la misma que el resto del sitio desde que el dueño decidió
+ * subir las fotos nuevas en vertical (ver .plato en globals.css). Esta galería
+ * NO usa la clase .plato —tiene su propio plato, calculado para el fondo de
+ * esta página— así que el cambio de allá no llegaba aquí y Josepha se quedaba
+ * en cuadrado mientras el catálogo entero iba en vertical.
+ *
  * EL FONDO DEL VISOR ES CLARO, y eso no es gusto: las fotos van con
  * `mix-blend-mode: multiply` porque así el fondo de estudio se funde con el
  * rosa. Multiplicar contra un fondo NEGRO —lo normal en un visor de fotos—
@@ -24,6 +38,7 @@ export function GaleriaJosepha({
   imagenes,
   titulo,
   plato,
+  fondo,
   acento,
   tinta,
   prioridad,
@@ -31,6 +46,8 @@ export function GaleriaJosepha({
   imagenes: ImagenShopify[]
   titulo: string
   plato: string
+  /** El color de la franja donde vive la galería. */
+  fondo: string
   acento: string
   tinta: string
   /** La primera de la página carga con prioridad; las demás, en diferido. */
@@ -84,9 +101,18 @@ export function GaleriaJosepha({
         className="block w-full cursor-zoom-in"
       >
         <span
-          className="relative block aspect-square w-full overflow-hidden"
-          style={{ backgroundColor: plato, isolation: "isolate" }}
+          className="flex aspect-[4/5] w-full items-center justify-center overflow-hidden"
+          style={{ backgroundColor: fondo }}
         >
+          <span
+            className="relative block max-h-full max-w-full"
+            style={{
+              aspectRatio: proporcion(portada),
+              width: "100%",
+              backgroundColor: plato,
+              isolation: "isolate",
+            }}
+          >
           <Image
             src={portada.url}
             alt={portada.altText || titulo}
@@ -95,6 +121,7 @@ export function GaleriaJosepha({
             priority={prioridad}
             className="object-contain mix-blend-multiply transition-transform duration-700 ease-out hover:scale-[1.03] motion-reduce:transition-none motion-reduce:hover:scale-100"
           />
+          </span>
         </span>
       </button>
 
@@ -109,9 +136,17 @@ export function GaleriaJosepha({
               type="button"
               onClick={() => setAbierta(j + 1)}
               aria-label={`${t("josepha.zoom")}: ${titulo} ${j + 2}`}
-              className="relative block aspect-square cursor-zoom-in overflow-hidden"
-              style={{ backgroundColor: plato, isolation: "isolate" }}
+              className="flex aspect-[4/5] cursor-zoom-in items-center justify-center overflow-hidden"
+              style={{ backgroundColor: fondo }}
             >
+              <span
+                className="relative block max-h-full w-full"
+                style={{
+                  aspectRatio: proporcion(im),
+                  backgroundColor: plato,
+                  isolation: "isolate",
+                }}
+              >
               <Image
                 src={im.url}
                 alt=""
@@ -120,6 +155,7 @@ export function GaleriaJosepha({
                 loading="lazy"
                 className="object-contain mix-blend-multiply transition-transform duration-700 ease-out hover:scale-[1.05] motion-reduce:transition-none motion-reduce:hover:scale-100"
               />
+              </span>
             </button>
           ))}
         </div>
@@ -194,4 +230,9 @@ export function GaleriaJosepha({
       )}
     </>
   )
+}
+
+/** La proporción real de la foto, para que el plato la calce exacta. */
+function proporcion(im: ImagenShopify): string {
+  return im.width && im.height ? `${im.width} / ${im.height}` : "1 / 1"
 }
