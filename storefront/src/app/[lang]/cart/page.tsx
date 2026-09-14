@@ -15,6 +15,7 @@ import { checkoutHref } from "@/lib/checkout"
 import { CartLineSize } from "@/components/CartLineSize"
 import { SIZE_ATTR, isDefaultOption, missingSizeLines } from "@/lib/cart/line-size"
 import { formatMoney } from "@/lib/utils"
+import { NotaMsiCarrito } from "@/components/NotaMsiCarrito"
 import {
   getPendingDiscount,
   setPendingDiscount as savePendingDiscount,
@@ -332,6 +333,15 @@ export default function CartPage() {
               <div className="mb-4">
                 <PaymentBadges />
               </div>
+
+              {/* Los meses, justo antes de pagar. Sobre el TOTAL, que es lo que
+                  difiere el banco, no sobre el subtotal. */}
+              {cart && (
+                <NotaMsiCarrito
+                  total={cart.cost.totalAmount.amount}
+                  moneda={cart.cost.totalAmount.currencyCode}
+                />
+              )}
 
               {cart?.checkoutUrl ? (
                 sizeBlocked ? (

@@ -348,24 +348,23 @@ export default async function JosephaPage({ params }: Props) {
                 </p>
                 {/* "La Estephania" pierde el artículo: aquí los nombres son de
                     pila y así se leen como una firma. */}
-                {/* EL NOMBRE CRUZA A LA OTRA MITAD. Es el segundo gesto de
-                    capas, después de la cifra: el límite de color deja de ser
-                    una línea recta de arriba abajo.
+                {/* EL NOMBRE NO CRUZA EL BORDE DE COLOR, y esto se probó al
+                    revés primero. La idea era que invadiera 48px la otra mitad
+                    para romper la línea recta del límite, y sobre el papel
+                    funcionaba: la tinta da 15.87:1 sobre el hueso y no chocaba
+                    con la foto — medido.
 
-                    Cruza el TEXTO y no la foto, que fue el primer intento: la
-                    foto habría metido sobre el salmón el aire pálido que le
-                    sobra del 4:5, o sea otro rectángulo pegado. La tinta sobre
-                    el hueso da 15.87:1, y en esa franja del otro lado solo hay
-                    aire — la foto va centrada y deja unos 187px a cada lado.
+                    En pantalla se veía mal por algo que ningún número dice: el
+                    borde duro entre el hueso y el salmón pasa por en medio de
+                    las letras, y un nombre atravesado por un cambio de color
+                    se lee PARTIDO, no superpuesto. El dueño lo describió como
+                    "se cortan los nombres con el fondo blanco y el rosa".
 
-                    El margen es de 112px y no de 64: la mitad del texto ya
-                    lleva 64 de relleno, así que con -ml-16 el nombre solo
-                    llegaba AL límite sin pasarlo. Medido. Cruza 48px, que
-                    sigue a más de 130 de donde acaba la foto. */}
+                    Un cruce solo funciona si lo que cruza tiene su propio
+                    fondo. El texto suelto, no. La profundidad la ponen los
+                    revelados escalonados, que sí funcionan. */}
                 <h2
-                  className={`${fuente} relative z-10 lowercase leading-[0.92] ${
-                    alDerecho ? "md:-ml-28" : "md:-mr-28"
-                  }`}
+                  className={`${fuente} lowercase leading-[0.92]`}
                   style={{
                     fontSize: ESCALA.producto,
                     letterSpacing: "-0.035em",

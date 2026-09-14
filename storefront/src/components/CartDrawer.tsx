@@ -9,6 +9,7 @@ import { CustomsTaxIdField, useCustomsGate } from "./CustomsTaxIdField"
 import { formatMoney } from "@/lib/utils"
 import { FreeShippingProgress } from "@/components/FreeShippingProgress"
 import { clearPendingDiscount, getPendingDiscount, withDiscount } from "@/lib/discount/client"
+import { NotaMsiCarrito } from "./NotaMsiCarrito"
 import { track } from "@/lib/klaviyo/client"
 import { gaEvent } from "@/lib/ga/events"
 import { useFocusTrap } from "@/lib/useFocusTrap"
@@ -444,6 +445,12 @@ export function CartDrawer() {
               <div className="mb-4">
                 <PaymentBadges />
               </div>
+
+              {/* Los meses, JUSTO ANTES de pagar. Se anunciaban en la ficha y
+                  aquí no se decía nada: quien elegía la bota por los meses
+                  llegaba al botón sin verlos confirmados. Sobre el TOTAL, que
+                  es lo que difiere el banco, no sobre el subtotal. */}
+              <NotaMsiCarrito total={totalNum} moneda={subtotalCurrency} />
 
               {cart?.checkoutUrl ? (
                 sizeBlocked ? (

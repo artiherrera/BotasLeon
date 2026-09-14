@@ -56,6 +56,13 @@ export const DICTIONARY: Record<string, Entry> = {
   // vive aquí sino en MESES_MSI, para no tener dos cifras que puedan
   // desfasarse de lo que el checkout cobra de verdad.
   "msi.of": { es: "meses sin intereses de", en: "interest-free payments of" },
+  // Los MSI los pone el BANCO emisor, no la tienda, y no todas las tarjetas
+  // entran. Sin esta condición estaríamos prometiendo algo que no depende de
+  // nosotros. Ver NotaMsiCarrito.tsx.
+  "msi.participantes": {
+    es: "con tarjetas participantes",
+    en: "with participating cards",
+  },
   "trust.leather100": { es: "Cuero 100%", en: "100% leather" },
   "trust.madeInLeon": { es: "Hecho en León", en: "Made in León" },
   "trust.securePayment": { es: "Pago seguro", en: "Secure payment" },
