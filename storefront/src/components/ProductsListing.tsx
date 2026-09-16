@@ -441,12 +441,22 @@ export function ProductsListing({
       params.delete("stock")
     })
 
+  // Facets de UNA sola opción a la vez: elegir una sustituye a la anterior,
+  // y tocar la elegida la quita. La horma lo es por decisión del dueño
+  // (2026-09-16): una bota tiene una horma, y comparar "fina o redonda" no es
+  // una búsqueda que nadie haga; en cambio saltar de una a otra sí, y con
+  // casillas había que desmarcar la anterior a mano cada vez.
+  const UNICOS: ReadonlySet<FacetKey> = new Set<FacetKey>(["hormas"])
+
   const toggle = (key: FacetKey, value: string) => {
     updateParams((params) => {
       const pk = PARAM[key]
       const current = paramSet(params, pk)
       if (current.has(value)) current.delete(value)
-      else current.add(value)
+      else if (UNICOS.has(key)) {
+        current.clear()
+        current.add(value)
+      } else current.add(value)
       if (current.size > 0) params.set(pk, Array.from(current).join(","))
       else params.delete(pk)
     })
@@ -539,53 +549,10 @@ export function ProductsListing({
             )}
           </div>
 
-          {/* Talla */}
-          {facets.sizes.length > 0 && (
-            <FilterSection title={t("filters.size")}>
-              <div className="flex flex-wrap gap-2">
-                {facets.sizes.map((size) => {
-                  const active = filters.sizes.has(size)
-                  return (
-                    <button
-                      key={size}
-                      onClick={() => toggle("sizes", size)}
-                      aria-pressed={active}
-                      className={`h-11 min-w-11 px-3 cuerpo rounded-boton border transition-colors duration-[180ms] ${
-                        active
-                          ? "border-text bg-text text-bg"
-                          : "border-border text-text hover:border-text"
-                      }`}
-                    >
-                      {size}
-                    </button>
-                  )
-                })}
-              </div>
-            </FilterSection>
-          )}
-
-          {/* Marca */}
-          {facets.vendors.length > 0 && (
-            <FilterSection title={t("filters.brand")}>
-              <div className="space-y-2">
-                {facets.vendors.map((vendor) => (
-                  <label key={vendor} className="flex min-h-11 lg:min-h-0 items-center gap-2.5 cursor-pointer cuerpo">
-                    <input
-                      type="checkbox"
-                      checked={filters.vendors.has(vendor)}
-                      onChange={() => toggle("vendors", vendor)}
-                      className="h-4 w-4 shrink-0 border-border accent-leather"
-                    />
-                    <span className="flex-1">{vendor}</span>
-                    <span className="nota tabular-nums">
-                      {allProducts.filter((p) => p.vendor === vendor).length}
-                    </span>
-                  </label>
-                ))}
-              </div>
-            </FilterSection>
-          )}
-
+          {/* ORDEN POR DECISIÓN DEL DUEÑO (2026-09-16): Estilo, Material, Color,
+              Horma, y después todo lo demás (Talla, Marca, Disponibilidad).
+              Primero lo que describe la bota que se busca; la talla y la
+              marca acotan al final. */}
           {/* Estilo */}
           {facets.types.length > 0 && (
             <FilterSection title={t("filters.style")}>
@@ -601,6 +568,33 @@ export function ProductsListing({
                     <span className="flex-1">{facetLabel(type, locale)}</span>
                     <span className="nota tabular-nums">
                       {allProducts.filter((p) => styleLabelsOf(p).includes(type)).length}
+                    </span>
+                  </label>
+                ))}
+              </div>
+            </FilterSection>
+          )}
+
+          {/* Material — datos del metafield shopify.shoe-material */}
+          {facets.materials.length > 0 && (
+            <FilterSection title={t("filters.material")}>
+              <div className="space-y-2">
+                {facets.materials.map(({ handle, label }) => (
+                  <label
+                    key={handle}
+                    className="flex min-h-11 lg:min-h-0 items-center gap-2.5 cursor-pointer cuerpo"
+                  >
+                    <input
+                      type="checkbox"
+                      checked={filters.materials.has(handle)}
+                      onChange={() => toggle("materials", handle)}
+                      className="h-4 w-4 shrink-0 border-border accent-leather"
+                    />
+                    <span className="flex-1">{facetLabel(label, locale)}</span>
+                    <span className="nota tabular-nums">
+                      {allProducts.filter((p) =>
+                        extractTaxonomyValues(p.material).some((m) => m.handle === handle)
+                      ).length}
                     </span>
                   </label>
                 ))}
@@ -652,35 +646,8 @@ export function ProductsListing({
             </FilterSection>
           )}
 
-          {/* Material — datos del metafield shopify.shoe-material */}
-          {facets.materials.length > 0 && (
-            <FilterSection title={t("filters.material")}>
-              <div className="space-y-2">
-                {facets.materials.map(({ handle, label }) => (
-                  <label
-                    key={handle}
-                    className="flex min-h-11 lg:min-h-0 items-center gap-2.5 cursor-pointer cuerpo"
-                  >
-                    <input
-                      type="checkbox"
-                      checked={filters.materials.has(handle)}
-                      onChange={() => toggle("materials", handle)}
-                      className="h-4 w-4 shrink-0 border-border accent-leather"
-                    />
-                    <span className="flex-1">{facetLabel(label, locale)}</span>
-                    <span className="nota tabular-nums">
-                      {allProducts.filter((p) =>
-                        extractTaxonomyValues(p.material).some((m) => m.handle === handle)
-                      ).length}
-                    </span>
-                  </label>
-                ))}
-              </div>
-            </FilterSection>
-          )}
-
-          {/* Horma — datos del metafield shopify.toe-style (En punta, Dubai,
-              Redondo, Cuadrado). */}
+          {/* Horma — datos del metafield shopify.toe-style (Fina, Semicuadrada,
+              Redonda, Cuadrada). De UNA sola a la vez: ver UNICOS en toggle. */}
           {facets.hormas.length > 0 && (
             <FilterSection title={t("filters.horma")}>
               {/* CON FIGURA, como en Tecovas. Una horma es una FORMA, y un
@@ -699,8 +666,12 @@ export function ProductsListing({
                   etiqueta se acota al ancho de la celda (max-w-full) para que
                   parta línea antes que desbordar. Si una horma no tiene
                   dibujo —una que se dé de alta mañana en Shopify— cae a sus
-                  dos iniciales, no a un círculo vacío. */}
-              <div className="grid grid-cols-2 gap-x-2 gap-y-4">
+                  dos iniciales, no a un círculo vacío.
+
+                  Son radios, no casillas: solo una horma a la vez. A diferencia
+                  de un radio clásico, tocar la elegida la quita; si no, la única
+                  forma de volver a "todas las hormas" sería el botón Limpiar. */}
+              <div role="radiogroup" aria-label={t("filters.horma")} className="grid grid-cols-2 gap-x-2 gap-y-4">
                 {facets.hormas.map(({ handle, label }) => {
                   const puesta = filters.hormas.has(handle)
                   const cuantas = allProducts.filter((p) =>
@@ -710,7 +681,7 @@ export function ProductsListing({
                     <button
                       key={handle}
                       type="button"
-                      role="checkbox"
+                      role="radio"
                       aria-checked={puesta}
                       onClick={() => toggle("hormas", handle)}
                       className="group flex cursor-pointer flex-col items-center gap-1.5"
@@ -735,6 +706,53 @@ export function ProductsListing({
                     </button>
                   )
                 })}
+              </div>
+            </FilterSection>
+          )}
+
+          {/* Talla */}
+          {facets.sizes.length > 0 && (
+            <FilterSection title={t("filters.size")}>
+              <div className="flex flex-wrap gap-2">
+                {facets.sizes.map((size) => {
+                  const active = filters.sizes.has(size)
+                  return (
+                    <button
+                      key={size}
+                      onClick={() => toggle("sizes", size)}
+                      aria-pressed={active}
+                      className={`h-11 min-w-11 px-3 cuerpo rounded-boton border transition-colors duration-[180ms] ${
+                        active
+                          ? "border-text bg-text text-bg"
+                          : "border-border text-text hover:border-text"
+                      }`}
+                    >
+                      {size}
+                    </button>
+                  )
+                })}
+              </div>
+            </FilterSection>
+          )}
+
+          {/* Marca */}
+          {facets.vendors.length > 0 && (
+            <FilterSection title={t("filters.brand")}>
+              <div className="space-y-2">
+                {facets.vendors.map((vendor) => (
+                  <label key={vendor} className="flex min-h-11 lg:min-h-0 items-center gap-2.5 cursor-pointer cuerpo">
+                    <input
+                      type="checkbox"
+                      checked={filters.vendors.has(vendor)}
+                      onChange={() => toggle("vendors", vendor)}
+                      className="h-4 w-4 shrink-0 border-border accent-leather"
+                    />
+                    <span className="flex-1">{vendor}</span>
+                    <span className="nota tabular-nums">
+                      {allProducts.filter((p) => p.vendor === vendor).length}
+                    </span>
+                  </label>
+                ))}
               </div>
             </FilterSection>
           )}
