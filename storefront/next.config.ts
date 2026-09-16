@@ -39,6 +39,21 @@ const nextConfig: NextConfig = {
    * otro. Amplify no la define, así que en producción no cambia nada.
    */
   distDir: process.env.NEXT_DIST_DIR || ".next",
+  /**
+   * Qué NO arrastrar al paquete del servidor.
+   *
+   * opengraph-image.tsx lee un archivo de /public con `readFile(join(cwd,
+   * "public", nombre))`. Como el nombre es una variable, el trazador de Next
+   * no puede saber cuál y mete /public ENTERO en el bundle de cómputo: los dos
+   * PDF del catálogo, el sample y las 240 páginas webp — 31 MB que ya viajan
+   * como estáticos y que el servidor jamás abre. Amplify corta el despliegue
+   * en 220 MB y el 16/09/2026 el build de `main` se pasó por 780 KB: una bota
+   * nueva. El único archivo de /public que el servidor necesita es el logo del
+   * OG, y ese queda dentro.
+   */
+  outputFileTracingExcludes: {
+    "*": ["./public/catalogo/**", "./public/*.pdf"],
+  },
   // Habilita app/global-not-found.tsx — el 404 con marca para URLs que no hacen
   // match con ninguna ruta. Sin esto, Next sirve su 404 interno (página blanca).
   experimental: {
