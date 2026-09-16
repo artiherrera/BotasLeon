@@ -785,6 +785,16 @@ export const DICTIONARY: Record<string, Entry> = {
   "catalogo.ver": { es: "Hojear el catálogo", en: "Flip through the catalog" },
   "catalogo.pdf": { es: "Descargar PDF", en: "Download PDF" },
 
+  // ── Compartir la bota ─────────────────────────────────────────────────
+  "compartir.boton": { es: "Compartir", en: "Share" },
+  "compartir.whatsapp": { es: "Enviar por WhatsApp", en: "Send on WhatsApp" },
+  "compartir.copiar": { es: "Copiar enlace", en: "Copy link" },
+  "compartir.copiado": { es: "Enlace copiado", en: "Link copied" },
+  "compartir.noCopiado": {
+    es: "No se pudo copiar. Copia la dirección de la barra del navegador.",
+    en: "Couldn't copy. Copy the address from the browser bar.",
+  },
+
   "pdp.acc.details": { es: "Detalles", en: "Details" },
   "pdp.acc.workshop": { es: "El taller", en: "The workshop" },
   "pdp.acc.shipping": { es: "Envíos y cambios", en: "Shipping & exchanges" },

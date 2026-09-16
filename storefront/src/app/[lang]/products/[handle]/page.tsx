@@ -12,6 +12,8 @@ import { PDPAtributos } from "@/components/PDPAtributos"
 import { PDPCalificacion } from "@/components/PDPCalificacion"
 import { PDPConstruccion } from "@/components/PDPConstruccion"
 import { PDPNotasTalla } from "@/components/PDPNotasTalla"
+import { CompartirProducto } from "@/components/CompartirProducto"
+import { formatMoney } from "@/lib/utils"
 import { ProductReviewBlock } from "@/components/ProductReviewBlock"
 import { RelatedProducts } from "@/components/RelatedProducts"
 import { RecentlyViewed } from "@/components/RecentlyViewed"
@@ -176,11 +178,20 @@ export default async function ProductPage({ params }: Props) {
                   88 de antes, el nombre del producto quedaba medio tapado al
                   llegar la columna al tope. */}
               <div className="lg:sticky lg:top-[124px] lg:self-start">
-                <PDPMarca
-                  vendor={product.vendor}
-                  brandHandle={brand?.handle}
-                  brandName={brand?.name}
-                />
+                {/* El taller a la izquierda y Compartir a la derecha, en el
+                    mismo renglón: arriba de todo, que es donde se comparte una
+                    bota que gustó, y sin robarle un pixel al botón de compra. */}
+                <div className="flex items-start justify-between gap-4">
+                  <PDPMarca
+                    vendor={product.vendor}
+                    brandHandle={brand?.handle}
+                    brandName={brand?.name}
+                  />
+                  <CompartirProducto
+                    titulo={product.title}
+                    precio={formatMoney(price.amount, price.currencyCode)}
+                  />
+                </div>
 
                 <LocalizedProductTitle
                   handle={product.handle}
