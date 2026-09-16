@@ -786,7 +786,7 @@ export const DICTIONARY: Record<string, Entry> = {
   "catalogo.pdf": { es: "Descargar PDF", en: "Download PDF" },
 
   // ── Compartir la bota ─────────────────────────────────────────────────
-  "compartir.boton": { es: "Compartir", en: "Share" },
+  "compartir.boton": { es: "Compartir esta bota", en: "Share this boot" },
   "compartir.whatsapp": { es: "Enviar por WhatsApp", en: "Send on WhatsApp" },
   "compartir.copiar": { es: "Copiar enlace", en: "Copy link" },
   "compartir.copiado": { es: "Enlace copiado", en: "Link copied" },

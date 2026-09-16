@@ -93,16 +93,16 @@ export function CompartirProducto({
     `https://wa.me/?text=${encodeURIComponent(`${mensaje()}\n${url()}`)}`
 
   return (
-    <div ref={contenedor} className="relative">
+    <div ref={contenedor} className="relative mt-3">
       <button
         type="button"
         onClick={compartir}
         aria-haspopup={nativo ? undefined : "menu"}
         aria-expanded={nativo ? undefined : abierto}
-        className="nota inline-flex min-h-11 cursor-pointer items-center gap-1.5 text-text-muted transition-colors duration-[180ms] hover:text-text"
+        className="inline-flex min-h-12 w-full cursor-pointer items-center justify-center gap-2 bg-plate px-6 text-[0.875rem] font-medium tracking-[0.01em] text-text transition-colors duration-[180ms] hover:bg-border-plate"
       >
         {/* Ícono de compartir, del set único: Lucide, 20px, trazo 1.5. */}
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
           <circle cx="18" cy="5" r="3" />
           <circle cx="6" cy="12" r="3" />
           <circle cx="18" cy="19" r="3" />
@@ -114,7 +114,7 @@ export function CompartirProducto({
       {!nativo && abierto && (
         <div
           role="menu"
-          className="absolute right-0 top-full z-20 mt-1 min-w-[12rem] border border-border bg-bg py-1 shadow-lg"
+          className="absolute left-0 right-0 top-full z-20 mt-1 border border-border bg-bg py-1 shadow-lg"
         >
           <a
             role="menuitem"

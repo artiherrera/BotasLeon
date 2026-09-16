@@ -178,20 +178,11 @@ export default async function ProductPage({ params }: Props) {
                   88 de antes, el nombre del producto quedaba medio tapado al
                   llegar la columna al tope. */}
               <div className="lg:sticky lg:top-[124px] lg:self-start">
-                {/* El taller a la izquierda y Compartir a la derecha, en el
-                    mismo renglón: arriba de todo, que es donde se comparte una
-                    bota que gustó, y sin robarle un pixel al botón de compra. */}
-                <div className="flex items-start justify-between gap-4">
-                  <PDPMarca
-                    vendor={product.vendor}
-                    brandHandle={brand?.handle}
-                    brandName={brand?.name}
-                  />
-                  <CompartirProducto
-                    titulo={product.title}
-                    precio={formatMoney(price.amount, price.currencyCode)}
-                  />
-                </div>
+                <PDPMarca
+                  vendor={product.vendor}
+                  brandHandle={brand?.handle}
+                  brandName={brand?.name}
+                />
 
                 <LocalizedProductTitle
                   handle={product.handle}
@@ -219,6 +210,15 @@ export default async function ProductPage({ params }: Props) {
                 </div>
 
                 <ProductOptions product={product} />
+
+                {/* Compartir, justo debajo de los botones de compra y del mismo
+                    ancho. Estuvo arriba a la derecha como enlace chico y nadie
+                    lo veía; el dueño pidió "algo más vistoso, no tan
+                    escondido". En contorno, para no competir con Agregar. */}
+                <CompartirProducto
+                  titulo={product.title}
+                  precio={formatMoney(price.amount, price.currencyCode)}
+                />
 
                 {/* Lo que el cliente descubriría al abrir la caja, dicho antes
                     de que pague. */}
