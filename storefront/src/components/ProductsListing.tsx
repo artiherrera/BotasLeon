@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { ProductCard } from "./ProductCard"
+import { IconoHorma, tieneIconoHorma } from "./IconoHorma"
 import { PrintSelectionButton } from "./PrintSelectionButton"
 import { EmptyProductsState } from "./EmptyState"
 import { loadMoreProducts } from "@/lib/search/client"
@@ -682,26 +683,52 @@ export function ProductsListing({
               Redondo, Cuadrado). */}
           {facets.hormas.length > 0 && (
             <FilterSection title={t("filters.horma")}>
-              <div className="space-y-2">
-                {facets.hormas.map(({ handle, label }) => (
-                  <label
-                    key={handle}
-                    className="flex min-h-11 lg:min-h-0 items-center gap-2.5 cursor-pointer cuerpo"
-                  >
-                    <input
-                      type="checkbox"
-                      checked={filters.hormas.has(handle)}
-                      onChange={() => toggle("hormas", handle)}
-                      className="h-4 w-4 shrink-0 border-border accent-leather"
-                    />
-                    <span className="flex-1">{facetLabel(label, locale)}</span>
-                    <span className="nota tabular-nums">
-                      {allProducts.filter((p) =>
-                        extractTaxonomyValues(p.toeStyle).some((h) => h.handle === handle)
-                      ).length}
-                    </span>
-                  </label>
-                ))}
+              {/* CON FIGURA, como en Tecovas. Una horma es una FORMA, y un
+                  nombre solo no la explica: "Dubai" o "Semioval" no le dicen
+                  nada a quien no compra botas seguido. El dibujo de la punta
+                  vista desde arriba sí. Cada una es un botón redondo con el
+                  contorno de la punta y el nombre debajo; la elegida se
+                  invierte a tinta.
+
+                  Tres por fila, que es lo que cabe en la columna de 14rem sin
+                  que los nombres se partan. Si una horma no tiene dibujo —una
+                  que se dé de alta mañana en Shopify— cae a sus dos iniciales,
+                  no a un círculo vacío. */}
+              <div className="grid grid-cols-3 gap-x-2 gap-y-4">
+                {facets.hormas.map(({ handle, label }) => {
+                  const puesta = filters.hormas.has(handle)
+                  const cuantas = allProducts.filter((p) =>
+                    extractTaxonomyValues(p.toeStyle).some((h) => h.handle === handle)
+                  ).length
+                  return (
+                    <button
+                      key={handle}
+                      type="button"
+                      role="checkbox"
+                      aria-checked={puesta}
+                      onClick={() => toggle("hormas", handle)}
+                      className="group flex cursor-pointer flex-col items-center gap-1.5"
+                    >
+                      <span
+                        className={`flex h-12 w-12 items-center justify-center rounded-full border transition-colors duration-[180ms] ${
+                          puesta
+                            ? "border-text bg-text text-bg"
+                            : "border-border bg-bg text-text group-hover:border-text"
+                        }`}
+                      >
+                        {tieneIconoHorma(handle) ? (
+                          <IconoHorma handle={handle} />
+                        ) : (
+                          <span className="nota">{facetLabel(label, locale).slice(0, 2)}</span>
+                        )}
+                      </span>
+                      <span className={`nota text-center leading-tight ${puesta ? "text-text" : "text-text-muted"}`}>
+                        {facetLabel(label, locale)}
+                        <span className="tabular-nums"> ({cuantas})</span>
+                      </span>
+                    </button>
+                  )
+                })}
               </div>
             </FilterSection>
           )}
