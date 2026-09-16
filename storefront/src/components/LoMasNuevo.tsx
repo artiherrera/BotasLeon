@@ -71,7 +71,7 @@ export function LoMasNuevo({
           escritorio, así que no hay gesto que disputar. */}
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-6">
         {products.slice(0, 4).map((p) => (
-          <ProductCard key={p.id} product={p} />
+          <ProductCard key={p.id} product={p} empezarEnSegunda />
         ))}
       </div>
     </section>

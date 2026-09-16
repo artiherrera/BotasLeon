@@ -44,6 +44,7 @@ function esNueva(createdAt?: string | null): boolean {
 export function ProductCard({
   product,
   singleImage = false,
+  empezarEnSegunda = false,
 }: {
   product: Product
   /**
@@ -52,6 +53,14 @@ export function ProductCard({
    * móvil y gana el de adentro, dejando el riel atascado.
    */
   singleImage?: boolean
+  /**
+   * Arranca en la SEGUNDA foto en vez de la portada. Lo pidió el dueño para
+   * la página principal: ahí la segunda toma —normalmente el tres cuartos—
+   * enseña mejor la bota que el perfil de la portada. Con el ratón encima se
+   * pasa a la portada, así que el gesto sigue teniendo a dónde ir. Si la bota
+   * solo tiene una foto no hay nada que voltear y se queda como está.
+   */
+  empezarEnSegunda?: boolean
 }) {
   const t = useT()
   const { locale } = useLocale()
@@ -63,10 +72,16 @@ export function ProductCard({
 
   // Galería: portada primero + el resto, sin duplicados. Máx 6.
   const seen = new Set<string>()
-  const gallery = [featuredImage, ...(product.images ?? [])]
+  const ordenada = [featuredImage, ...(product.images ?? [])]
     .filter((im): im is ShopifyImage => !!im?.url)
     .filter((im) => (seen.has(im.url) ? false : (seen.add(im.url), true)))
     .slice(0, 6)
+  // Con `empezarEnSegunda`, la segunda pasa al frente y la portada queda de
+  // segunda: así el hover —que salta a la posición 1— sigue enseñando "la otra".
+  const gallery =
+    empezarEnSegunda && ordenada.length > 1
+      ? [ordenada[1], ordenada[0], ...ordenada.slice(2)]
+      : ordenada
 
   /* "Horma · Piel": los dos únicos atributos que existen en los 103 productos
      (la suela no está capturada en ninguno). Vienen de Shopify en español, así
