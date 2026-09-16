@@ -255,6 +255,28 @@ function refLabels(mf) {
     })
     .filter(Boolean)
 }
+// La horma se nombra POR HANDLE, no por la etiqueta que traiga Shopify. En el
+// mercado en inglés la traducción de los metaobjetos llegó rota —"Fina" salía
+// como "At the forefront" y "Semicuadrada" sin traducir— y así iba al PDF.
+// El handle no lo toca nadie; la traducción sí. Un handle que no esté aquí cae
+// a la etiqueta de Shopify, que es mejor que nada.
+const HORMAS = {
+  cuadrada: { es: "Cuadrada", en: "Square" },
+  semicuadrada: { es: "Semicuadrada", en: "Semi-square" },
+  redonda: { es: "Redonda", en: "Round" },
+  fina: { es: "Fina", en: "Pointed" },
+  semioval: { es: "Semioval", en: "Semi-oval" },
+  // handles anteriores, por si alguno vuelve
+  cuadrado: { es: "Cuadrada", en: "Square" },
+  dubai: { es: "Semicuadrada", en: "Semi-square" },
+  redondo: { es: "Redonda", en: "Round" },
+  "en-punta": { es: "Fina", en: "Pointed" },
+}
+function hormaLabels(mf, lang) {
+  return (mf?.references?.edges ?? [])
+    .map((e) => HORMAS[e.node.handle]?.[lang] || refLabels({ references: { edges: [e] } })[0] || "")
+    .filter(Boolean)
+}
 // {handle, label} por referencia — el handle sirve para canonicalizar estilos.
 function refItems(mf) {
   return (mf?.references?.edges ?? [])
@@ -274,7 +296,7 @@ function sizesFromOptions(node) {
   const opt = (node.options ?? []).find((o) => /talla|size/i.test(o.name || ""))
   return opt?.values ?? []
 }
-function mapProduct(node) {
+function mapProduct(node, lang = "es") {
   const imgs = []
   if (node.featuredImage?.url) imgs.push(node.featuredImage.url)
   for (const e of node.images?.edges ?? []) if (e.node?.url && !imgs.includes(e.node.url)) imgs.push(e.node.url)
@@ -293,7 +315,7 @@ function mapProduct(node) {
       title: e.node.title || "",
     })),
     material: refLabels(node.material),
-    horma: refLabels(node.toe),
+    horma: hormaLabels(node.toe, lang),
     styles: refLabels(node.style),
     styleItems: refItems(node.style),
     genders: (node.gender?.references?.edges ?? []).map((e) => e.node.handle),
@@ -309,9 +331,9 @@ function mapProduct(node) {
 const TIPOS_CALZADO = new Set(["Vaqueras", "Clásicas", "Rancho", "Largas", "Exóticas", "Botines"])
 const esCalzado = (p) => TIPOS_CALZADO.has((p.productType || "").trim())
 
-function splitByGender(data, filtro = esCalzado) {
+function splitByGender(data, filtro = esCalzado, lang = "es") {
   const all = (data?.products?.edges ?? [])
-    .map((e) => mapProduct(e.node))
+    .map((e) => mapProduct(e.node, lang))
     .filter(filtro)
   return {
     hombre: all.filter((p) => p.genders.includes("masculino")),
@@ -666,11 +688,43 @@ const HEROES_NORM = HEROES.map(norm)
 const WARN = []
 
 const priceNum = (p) => (p.price ? parseFloat(p.price.amount) : 0)
-const titleName = (p) => (p.title || "").split(/\s+[—–-]\s+/)[0].trim() // "Nombre — Marca" → Nombre
+// Los títulos vienen como "Nombre — Marca". Pero una traducción al inglés
+// llegó AL REVÉS —"Crossalta — Black Hair-On-Hide Night Boot"— y la bota
+// salía en el catálogo como "Crossalta", a secas: el nombre era la marca (y
+// mal escrita). Se detecta cuál mitad es la marca en vez de fiarse del orden:
+// la que se parece al vendor de Shopify o, si no, la de una sola palabra
+// frente a una de tres o más. Ningún nombre de bota es de una palabra.
+const pareceMarca = (parte, vendor) => {
+  const a = norm(parte), v = norm(vendor).replace(/\b(botas|boots)\b/g, "").trim()
+  return !!v && (a === v || v.includes(a) || a.includes(v))
+}
+const partesTitulo = (p) => {
+  const partes = (p.title || "").split(/\s+[—–-]\s+/).map((s) => s.trim()).filter(Boolean)
+  if (partes.length < 2) return { nombre: partes[0] || "", marca: "" }
+  const primera = partes[0], resto = partes.slice(1).join(" — ")
+  const alReves =
+    (pareceMarca(primera, p.vendor) && !pareceMarca(resto, p.vendor)) ||
+    (!primera.includes(" ") && resto.split(" ").length >= 3)
+  if (alReves) {
+    if (!WARN.includes(`título al revés: "${p.title}"`)) WARN.push(`título al revés: "${p.title}"`)
+    return { nombre: resto, marca: primera }
+  }
+  return { nombre: primera, marca: resto }
+}
+const titleName = (p) => partesTitulo(p).nombre // "Nombre — Marca" → Nombre
 // Título "Nombre — Marca". Si el título de la web no trae la marca, se completa
 // con el campo `vendor` de Shopify (dato real, no inventado) → el QA pasa.
-const fullTitle = (p) =>
-  /\s[—–-]\s/.test(p.title || "") ? p.title : p.vendor ? `${p.title} — ${p.vendor}` : p.title
+// Si venía al revés, se endereza: nombre primero, y la marca sale del vendor
+// de Shopify —sin el "Botas"/"Boots", que es como va en los demás títulos
+// ("— Cabrera", no "— Cabrera Boots")— y no de lo que alguien tecleó en la
+// traducción.
+const marcaCorta = (vendor) => (vendor || "").replace(/\b(Botas|Boots)\b/gi, "").replace(/\s+/g, " ").trim() || vendor || ""
+const fullTitle = (p) => {
+  const { nombre, marca } = partesTitulo(p)
+  if (!marca) return p.vendor ? `${p.title} — ${p.vendor}` : p.title
+  const enOrden = nombre === p.title.split(/\s+[—–-]\s+/)[0].trim()
+  return enOrden ? p.title : `${nombre} — ${marcaCorta(p.vendor) || marca}`
+}
 const isBlack = (p) => /\bnegr[ao]s?\b|\bblack\b/i.test(p.title || "")
 const isOutlet = (p) => (p.collections || []).some((c) => /outlet/i.test(c.handle) || /outlet/i.test(c.title))
 
@@ -1450,7 +1504,7 @@ async function main() {
   // El inglés se queda con los mismos productos que el español. Si el español
   // no llegó, pasa sin filtrar en vez de salir vacío.
   const handlesEs = es ? new Set([...es.hombre, ...es.mujer].map((p) => p.handle)) : null
-  const en = enData ? splitByGender(enData, handlesEs ? (p) => handlesEs.has(p.handle) : () => true) : null
+  const en = enData ? splitByGender(enData, handlesEs ? (p) => handlesEs.has(p.handle) : () => true, "en") : null
   if (es && en) {
     const tipoEs = new Map([...es.hombre, ...es.mujer].map((p) => [p.handle, p.productType]))
     for (const p of [...en.hombre, ...en.mujer]) p.productTypeEs = tipoEs.get(p.handle)

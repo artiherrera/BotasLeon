@@ -1,6 +1,8 @@
 "use client"
 
 import { useProductTranslation } from "@/components/LocalizedProductContent"
+import { useLocale } from "@/lib/i18n/context"
+import { facetLabel } from "@/lib/facets-i18n"
 import { atributosDeFicha } from "@/lib/shopify/facets"
 import type { Product } from "@/lib/shopify/types"
 
@@ -24,7 +26,11 @@ import type { Product } from "@/lib/shopify/types"
  */
 export function PDPAtributos({ product }: { product: Product }) {
   const traduccion = useProductTranslation(product.handle)
-  const atributos = atributosDeFicha(product)
+  const { locale } = useLocale()
+  // Las etiquetas llegan en español (son metaobjetos de Shopify); en el sitio
+  // en inglés se traducen aquí, como en la tarjeta y en los detalles. Sin esto
+  // la ficha en inglés decía "Fina · Pitón · Vaqueras" —medido el 2026-09-16.
+  const atributos = atributosDeFicha(product).map((v) => facetLabel(v, locale))
   const frase = primeraOracion(
     traduccion?.descriptionHtml
       ? sinEtiquetas(traduccion.descriptionHtml)

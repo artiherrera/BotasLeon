@@ -16,7 +16,7 @@ const FACET_EN: Record<string, string> = {
   botines: "Ankle Boots", botin: "Ankle Boots",
   clasicas: "Classic", clasica: "Classic", clasico: "Classic",
   exoticas: "Exotic", exotica: "Exotic",
-  largas: "Tall", rancho: "Ranch",
+  largas: "Tall", rancho: "Ranch", trabajo: "Work",
   // ── Colores ──
   negro: "Black", marron: "Brown", cafe: "Brown", plateado: "Silver",
   beige: "Beige", rosa: "Pink", blanco: "White", rojo: "Red", camel: "Camel",
@@ -27,8 +27,13 @@ const FACET_EN: Record<string, string> = {
   avestruz: "Ostrich", bisonte: "Bison", caiman: "Alligator", cuero: "Leather",
   mantarraya: "Stingray", mantaraya: "Stingray", piton: "Python", venado: "Deer",
   cocodrilo: "Crocodile", lagarto: "Lizard", res: "Cowhide", becerro: "Calfskin",
+  "pelo de vaca": "Hair-on Hide", gamuzado: "Suede",
   // ── Hormas (toe) ──
-  cuadrado: "Square", dubai: "Dubai", "en punta": "Pointed", redondo: "Round",
+  // Los nombres de hoy en Shopify (2026-09-16): Cuadrada, Semicuadrada,
+  // Redonda, Fina. Los de abajo son los que hubo antes; se quedan por si un
+  // metaobjeto viejo reaparece, que un filtro medio traducido se ve roto.
+  cuadrada: "Square", semicuadrada: "Semi-square", redonda: "Round", fina: "Pointed",
+  cuadrado: "Square", dubai: "Semi-square", "en punta": "Pointed", redondo: "Round",
   semioval: "Semi-oval", oval: "Oval", puntal: "Pointed",
 }
 
