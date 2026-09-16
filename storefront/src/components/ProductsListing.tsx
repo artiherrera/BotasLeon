@@ -690,11 +690,17 @@ export function ProductsListing({
                   contorno de la punta y el nombre debajo; la elegida se
                   invierte a tinta.
 
-                  Tres por fila, que es lo que cabe en la columna de 14rem sin
-                  que los nombres se partan. Si una horma no tiene dibujo —una
-                  que se dé de alta mañana en Shopify— cae a sus dos iniciales,
-                  no a un círculo vacío. */}
-              <div className="grid grid-cols-3 gap-x-2 gap-y-4">
+                  DOS POR FILA, no tres. Con tres, la celda mide 65px y
+                  "Semicuadrada" mide 83: se salía 9px por la izquierda y la
+                  columna —que tiene scroll propio, y por eso recorta— la
+                  enseñaba como "emicuadrada". Y con cuatro hormas, la cuarta
+                  quedaba sola abajo. A dos, la celda mide ~100px, cabe el
+                  nombre más largo y las cuatro forman un cuadro 2×2. La
+                  etiqueta se acota al ancho de la celda (max-w-full) para que
+                  parta línea antes que desbordar. Si una horma no tiene
+                  dibujo —una que se dé de alta mañana en Shopify— cae a sus
+                  dos iniciales, no a un círculo vacío. */}
+              <div className="grid grid-cols-2 gap-x-2 gap-y-4">
                 {facets.hormas.map(({ handle, label }) => {
                   const puesta = filters.hormas.has(handle)
                   const cuantas = allProducts.filter((p) =>
@@ -722,7 +728,7 @@ export function ProductsListing({
                           <span className="nota">{facetLabel(label, locale).slice(0, 2)}</span>
                         )}
                       </span>
-                      <span className={`nota text-center leading-tight ${puesta ? "text-text" : "text-text-muted"}`}>
+                      <span className={`nota max-w-full text-center leading-tight ${puesta ? "text-text" : "text-text-muted"}`}>
                         {facetLabel(label, locale)}
                         <span className="tabular-nums"> ({cuantas})</span>
                       </span>
