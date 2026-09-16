@@ -549,7 +549,7 @@ export function ProductsListing({
                       key={size}
                       onClick={() => toggle("sizes", size)}
                       aria-pressed={active}
-                      className={`h-11 min-w-11 px-3 cuerpo border transition-colors duration-[180ms] ${
+                      className={`h-11 min-w-11 px-3 cuerpo rounded-boton border transition-colors duration-[180ms] ${
                         active
                           ? "border-text bg-text text-bg"
                           : "border-border text-text hover:border-text"

@@ -141,6 +141,7 @@ export function CompraJosepha({
                  que nunca ocurría. */
               className="flex h-14 min-w-14 cursor-pointer items-center justify-center px-4 tracking-[0.06em] transition-colors duration-200"
               style={{
+                borderRadius: 6,
                 // 20px: por debajo de eso, el blanco sobre el rosa de la casilla
                 // elegida dejaría de cumplir contraste (4.28:1 solo vale como
                 // letra grande, y "grande" empieza en 18.66px en negrita).
@@ -175,6 +176,7 @@ export function CompraJosepha({
            Va el tono oscurecido porque con el #E72B5E tal cual el texto blanco
            se queda en 4.28:1, por debajo de AA. */
         style={{
+          borderRadius: 6,
           backgroundColor: rosa,
           color: "#FFFFFF",
           // 20px en negrita: el blanco sobre el #E72B5E da 4.28:1, que cumple

@@ -261,7 +261,7 @@ export function ProductOptions({ product }: Props) {
         onClick={onClick}
         aria-pressed={active}
         disabled={!available && !active}
-        className={`flex min-h-[44px] min-w-[3.25rem] flex-col items-center justify-center gap-0.5 border px-3 py-1.5 leading-none whitespace-nowrap transition-colors duration-[180ms] ${
+        className={`flex min-h-[44px] min-w-[3.25rem] flex-col items-center justify-center gap-0.5 rounded-boton border px-3 py-1.5 leading-none whitespace-nowrap transition-colors duration-[180ms] ${
           active
             ? "border-text bg-text text-bg"
             : available

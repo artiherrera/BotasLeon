@@ -47,7 +47,7 @@ export function SizeFinder({
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="group flex min-h-[44px] w-full items-center gap-3 border border-border bg-plate px-4 py-3 text-left transition-colors duration-[180ms] hover:border-text"
+        className="group flex min-h-[44px] w-full items-center gap-3 rounded-boton border border-border bg-plate px-4 py-3 text-left transition-colors duration-[180ms] hover:border-text"
       >
         <span className="flex h-10 w-10 flex-shrink-0 items-center justify-center text-text">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">

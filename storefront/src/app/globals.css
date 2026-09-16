@@ -63,6 +63,12 @@
   --radius-xl: 0;
   --radius-2xl: 0;
   --radius-3xl: 0;
+  /* LA ÚNICA ESQUINA REDONDA DEL SISTEMA: los botones, 6px. El dueño pidió
+     "todos los botones, redondéalos un poco", y "un poco" en un botón de 48px
+     son 6: se nota que es blando sin que parezca una píldora. Lo demás —platos,
+     tarjetas, campos— sigue recto. Genera la utilidad `rounded-boton` para
+     los botones que no usan .btn. */
+  --radius-boton: 6px;
 
   /* === Ritmo === */
   /* El contenedor del sitio pasa de 1280 a 1440px. Como `max-w-7xl` se usa en
@@ -392,7 +398,7 @@ input[type="search"]:focus-visible {
     border: 1px solid var(--color-text);
     background: var(--color-text);
     color: var(--color-bg);
-    border-radius: 0;
+    border-radius: var(--radius-boton);
     cursor: pointer;
     transition: background-color 180ms ease, color 180ms ease, border-color 180ms ease;
   }

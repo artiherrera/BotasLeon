@@ -99,7 +99,7 @@ export function CompartirProducto({
         onClick={compartir}
         aria-haspopup={nativo ? undefined : "menu"}
         aria-expanded={nativo ? undefined : abierto}
-        className="inline-flex min-h-12 w-full cursor-pointer items-center justify-center gap-2 bg-plate px-6 text-[0.875rem] font-medium tracking-[0.01em] text-text transition-colors duration-[180ms] hover:bg-border-plate"
+        className="inline-flex min-h-12 w-full cursor-pointer items-center justify-center gap-2 rounded-boton bg-plate px-6 text-[0.875rem] font-medium tracking-[0.01em] text-text transition-colors duration-[180ms] hover:bg-border-plate"
       >
         {/* Ícono de compartir, del set único: Lucide, 20px, trazo 1.5. */}
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
@@ -114,7 +114,7 @@ export function CompartirProducto({
       {!nativo && abierto && (
         <div
           role="menu"
-          className="absolute left-0 right-0 top-full z-20 mt-1 border border-border bg-bg py-1 shadow-lg"
+          className="absolute left-0 right-0 top-full z-20 mt-1 rounded-boton border border-border bg-bg py-1 shadow-lg"
         >
           <a
             role="menuitem"
