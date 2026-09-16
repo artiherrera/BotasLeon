@@ -480,7 +480,7 @@ export function ProductsListing({
   return (
     <div
       ref={listingTopRef}
-      className="scroll-mt-[124px] grid grid-cols-1 gap-6"
+      className="scroll-mt-[124px] grid grid-cols-1 lg:grid-cols-[14rem_1fr] gap-8 lg:gap-10"
     >
       {/* Sidebar desktop / drawer mobile */}
       <aside
@@ -521,24 +521,26 @@ export function ProductsListing({
             `overscroll-contain` es la otra mitad del arreglo: sin él, al llegar
             al final de la lista de filtros el desplazamiento salta a la página
             y vuelve a mover las botas, que es justo lo que se quería evitar. */}
-        {/* EL FILTRO ES HORIZONTAL Y VA ARRIBA. Era una columna lateral con
-            desplazamiento propio; el dueño la quiso en una fila encima del
-            listado. En móvil sigue siendo el mismo cajón de antes, que ya
-            estaba probado. En escritorio las facetas se ponen en fila y cada
-            una es un desplegable (ver FilterSection). */}
         <div
           className={
             mobileOpen
               ? "px-6 py-4 space-y-6"
-              : "space-y-6 lg:flex lg:flex-wrap lg:items-center lg:gap-2 lg:space-y-0 lg:border-b lg:border-border lg:pb-4"
+              : "space-y-6 lg:sticky lg:top-[124px] lg:max-h-[calc(100vh-148px)] lg:overflow-y-auto lg:overscroll-contain lg:pr-3"
           }
         >
-          {/* Rótulo de la fila, en escritorio. */}
-          <h2 className="hidden lg:block eyebrow text-xs text-text mr-2">{t("filters.title")}</h2>
+          {/* Header sidebar desktop */}
+          <div className="hidden lg:flex items-center justify-between pb-3 border-b border-border">
+            <h2 className="eyebrow text-xs text-text">{t("filters.title")}</h2>
+            {clearableCount > 0 && (
+              <button onClick={clearAll} className="btn btn-ter">
+                {t("filters.clear")} ({clearableCount})
+              </button>
+            )}
+          </div>
 
           {/* Talla */}
           {facets.sizes.length > 0 && (
-            <FilterSection title={t("filters.size")} activos={filters.sizes.size}>
+            <FilterSection title={t("filters.size")}>
               <div className="flex flex-wrap gap-2">
                 {facets.sizes.map((size) => {
                   const active = filters.sizes.has(size)
@@ -563,7 +565,7 @@ export function ProductsListing({
 
           {/* Marca */}
           {facets.vendors.length > 0 && (
-            <FilterSection title={t("filters.brand")} activos={filters.vendors.size}>
+            <FilterSection title={t("filters.brand")}>
               <div className="space-y-2">
                 {facets.vendors.map((vendor) => (
                   <label key={vendor} className="flex min-h-11 lg:min-h-0 items-center gap-2.5 cursor-pointer cuerpo">
@@ -585,7 +587,7 @@ export function ProductsListing({
 
           {/* Estilo */}
           {facets.types.length > 0 && (
-            <FilterSection title={t("filters.style")} activos={filters.types.size}>
+            <FilterSection title={t("filters.style")}>
               <div className="space-y-2">
                 {facets.types.map((type) => (
                   <label key={type} className="flex min-h-11 lg:min-h-0 items-center gap-2.5 cursor-pointer cuerpo">
@@ -607,7 +609,7 @@ export function ProductsListing({
 
           {/* Color — datos del metafield shopify.color-pattern */}
           {facets.colors.length > 0 && (
-            <FilterSection title={t("filters.color")} activos={filters.colors.size}>
+            <FilterSection title={t("filters.color")}>
               <div className="space-y-2">
                 {facets.colors.map(({ handle, label, hex }) => {
                   // Preferimos el HEX nativo del metaobject de Shopify; si no
@@ -651,7 +653,7 @@ export function ProductsListing({
 
           {/* Material — datos del metafield shopify.shoe-material */}
           {facets.materials.length > 0 && (
-            <FilterSection title={t("filters.material")} activos={filters.materials.size}>
+            <FilterSection title={t("filters.material")}>
               <div className="space-y-2">
                 {facets.materials.map(({ handle, label }) => (
                   <label
@@ -679,7 +681,7 @@ export function ProductsListing({
           {/* Horma — datos del metafield shopify.toe-style (En punta, Dubai,
               Redondo, Cuadrado). */}
           {facets.hormas.length > 0 && (
-            <FilterSection title={t("filters.horma")} activos={filters.hormas.size}>
+            <FilterSection title={t("filters.horma")}>
               <div className="space-y-2">
                 {facets.hormas.map(({ handle, label }) => (
                   <label
@@ -705,7 +707,7 @@ export function ProductsListing({
           )}
 
           {/* Disponibilidad */}
-          <FilterSection title={t("filters.availability")} activos={filters.onlyAvailable ? 1 : 0}>
+          <FilterSection title={t("filters.availability")}>
             <label className="flex min-h-11 lg:min-h-0 items-center gap-2.5 cursor-pointer cuerpo">
               <input
                 type="checkbox"
@@ -716,13 +718,6 @@ export function ProductsListing({
               {t("filters.inStock")}
             </label>
           </FilterSection>
-
-          {/* Al final de la fila, en escritorio, y solo si hay algo que quitar. */}
-          {!mobileOpen && clearableCount > 0 && (
-            <button onClick={clearAll} className="btn btn-ter hidden lg:inline-flex">
-              {t("filters.clear")} ({clearableCount})
-            </button>
-          )}
 
           {/* Footer drawer mobile */}
           {mobileOpen && (
@@ -902,84 +897,17 @@ export function ProductsListing({
   )
 }
 
-/**
- * Una faceta del filtro. DOS FORMAS con el mismo contenido:
- *
- *  · En móvil (dentro del cajón) es una sección apilada con su rótulo, como
- *    siempre.
- *  · En escritorio es un DESPLEGABLE: un botón con el nombre de la faceta y
- *    cuántas opciones lleva marcadas, que abre un panel con las opciones. El
- *    dueño pidió el filtro horizontal y arriba, y con seis facetas —una de
- *    ellas con quince tallas— no caben abiertas en una fila: cada una se
- *    abre cuando hace falta.
- *
- * Cada desplegable se cierra al hacer clic fuera o con Escape. Abrir otro
- * cierra el anterior sin más maquinaria: el clic en el segundo botón cuenta
- * como "fuera" para el primero.
- *
- * El contenido se pinta UNA vez y es el mismo en las dos formas: las tallas,
- * las marcas y demás no saben si viven en un cajón o en un panel.
- */
 function FilterSection({
   title,
-  activos = 0,
   children,
 }: {
   title: string
-  /** Cuántas opciones de esta faceta están marcadas; sale en el botón. */
-  activos?: number
   children: React.ReactNode
 }) {
-  const [abierto, setAbierto] = useState(false)
-  const caja = useRef<HTMLDivElement>(null)
-
-  useEffect(() => {
-    if (!abierto) return
-    const fuera = (e: MouseEvent) => {
-      if (!caja.current?.contains(e.target as Node)) setAbierto(false)
-    }
-    const tecla = (e: KeyboardEvent) => e.key === "Escape" && setAbierto(false)
-    document.addEventListener("mousedown", fuera)
-    document.addEventListener("keydown", tecla)
-    return () => {
-      document.removeEventListener("mousedown", fuera)
-      document.removeEventListener("keydown", tecla)
-    }
-  }, [abierto])
-
   return (
-    <div ref={caja} className="pb-5 border-b border-border last:border-b-0 lg:relative lg:border-0 lg:pb-0">
-      {/* Móvil: rótulo fijo. Escritorio: botón que abre el panel. */}
-      <p className="eyebrow text-text text-xs mb-3 lg:hidden">{title}</p>
-      <button
-        type="button"
-        onClick={() => setAbierto((v) => !v)}
-        aria-expanded={abierto}
-        aria-haspopup="true"
-        className={`hidden lg:inline-flex h-10 cursor-pointer items-center gap-1.5 rounded-boton border px-3.5 cuerpo transition-colors duration-[180ms] ${
-          activos > 0 || abierto
-            ? "border-text bg-text text-bg"
-            : "border-border bg-bg text-text hover:border-text"
-        }`}
-      >
-        {title}
-        {activos > 0 && <span className="tabular-nums">({activos})</span>}
-        <svg
-          width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-          strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden
-          className={`transition-transform duration-[180ms] ${abierto ? "rotate-180" : ""}`}
-        >
-          <path d="m6 9 6 6 6-6" />
-        </svg>
-      </button>
-
-      {/* En móvil el contenido va siempre a la vista; en escritorio solo con
-          el desplegable abierto, en un panel colgado del botón. */}
-      <div
-        className={`${abierto ? "lg:block" : "lg:hidden"} lg:absolute lg:left-0 lg:top-full lg:z-30 lg:mt-2 lg:min-w-[18rem] lg:max-w-[26rem] lg:rounded-boton lg:border lg:border-border lg:bg-bg lg:p-4 lg:shadow-lg`}
-      >
-        {children}
-      </div>
+    <div className="pb-5 border-b border-border last:border-b-0">
+      <p className="eyebrow text-text text-xs mb-3">{title}</p>
+      {children}
     </div>
   )
 }
