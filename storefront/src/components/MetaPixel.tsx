@@ -17,6 +17,10 @@ import { hayConsentimiento } from "@/lib/consentimiento"
  * La COMPRA no se dispara aquí: ocurre en el checkout de Shopify (fuera del
  * sitio), y la captura el canal de Facebook de Shopify con el mismo Pixel ID.
  *
+ * Tras `init` se vacía la cola de lib/meta/pixel: los eventos que se
+ * dispararon antes de que este snippet corriera (ViewContent al hidratar la
+ * ficha en una carga completa) salen aquí, después del PageView.
+ *
  * Usa useSyncExternalStore para sincronizar con localStorage + el evento
  * `botasleon:consent-change`, sin setState-en-effect.
  */
@@ -67,6 +71,8 @@ export function MetaPixel() {
         document,'script','https://connect.facebook.net/en_US/fbevents.js');
         fbq('init', '${META_PIXEL_ID}');
         fbq('track', 'PageView');
+        (window.__blPixelCola || []).forEach(function (a) { fbq('track', a[0], a[1]); });
+        window.__blPixelCola = [];
       `}
     </Script>
   )
