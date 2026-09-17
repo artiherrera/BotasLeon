@@ -262,10 +262,12 @@ export const DICTIONARY: Record<string, Entry> = {
   "latest.label.mujer": { es: "mujer", en: "women's" },
 
   // ── Home · "Botas Exóticas" (BotasExoticas) ──────────────────────────
-  // La frase va ANTES del título, en serif y en cuero: "algún texto limpio y
-  // bonito, tipo 'Cada una es única'", pidió el dueño. La leyenda de abajo ya
-  // no repite la idea: la frase dice que es única, la leyenda dice por qué.
-  "exoticas.frase": { es: "Cada una es única.", en: "Every pair is one of a kind." },
+  // La frase va ANTES del bloque, centrada, en cursiva y entre comillas, como
+  // cita textual: así la pidió el dueño. SIN punto: las comillas las pone el
+  // componente («…» en español, “…” en inglés) y en español el punto va fuera
+  // de las comillas. La leyenda de abajo no repite la idea: la frase dice que
+  // es única, la leyenda dice por qué.
+  "exoticas.frase": { es: "Cada una es única", en: "Every pair is one of a kind" },
   "exoticas.titulo": { es: "Botas Exóticas", en: "Exotic Boots" },
   "exoticas.leyenda": {
     es: "Pitón, cocodrilo, avestruz y mantarraya: pieles con un dibujo que la naturaleza no repite.",

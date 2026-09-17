@@ -47,10 +47,16 @@ export function generateStaticParams() {
 // Archivos locales (src/fonts, subconjunto latino): el build no depende de que
 // Google responda. Un deploy real falló porque fonts.gstatic.com devolvió 404
 // a medio compilar y Turbopack no pudo resolver la fuente.
+// Regular + CURSIVA REAL. Instrument Serif solo existe en 400, pero sí tiene
+// itálica dibujada; sin el archivo, `font-style: italic` haría que el
+// navegador inclinara la regular a la fuerza, y eso se ve barato. La cursiva
+// se usa en las citas de la portada ("«Cada una es única»").
 const instrumentSerif = localFont({
-  src: "../../fonts/instrument-serif.woff2",
+  src: [
+    { path: "../../fonts/instrument-serif.woff2", weight: "400", style: "normal" },
+    { path: "../../fonts/instrument-serif-italic.woff2", weight: "400", style: "italic" },
+  ],
   variable: "--font-instrument-serif",
-  weight: "400",
   display: "swap",
 })
 const instrumentSans = localFont({

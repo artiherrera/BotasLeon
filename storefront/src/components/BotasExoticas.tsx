@@ -3,7 +3,7 @@
 import { useMemo, useRef, useSyncExternalStore } from "react"
 import { LocalizedLink as Link } from "@/components/LocalizedLink"
 import { ProductCard } from "./ProductCard"
-import { useT } from "@/lib/i18n/context"
+import { useLocale } from "@/lib/i18n/context"
 import { barajar } from "@/lib/azar"
 import type { Product } from "@/lib/shopify/types"
 
@@ -36,10 +36,9 @@ import type { Product } from "@/lib/shopify/types"
  *
  * Mismo encabezado que LoMasNuevo —título, "Ver todo" a la derecha y una
  * regla— para que la portada se lea como una sola pieza; lo que cambia es lo
- * que va alrededor del título: una frase en serif encima ("Cada una es
- * única.") en vez de un eyebrow, y la leyenda debajo, que aquí sí hace falta:
- * "exóticas" no le dice a todo el mundo qué pieles son ni por qué cuestan lo
- * que cuestan.
+ * que va alrededor: la CITA centrada encima del bloque («Cada una es única»)
+ * y la leyenda debajo del título, que aquí sí hace falta: "exóticas" no le
+ * dice a todo el mundo qué pieles son ni por qué cuestan lo que cuestan.
  *
  * OCHO EN DOS FILAS DE CUATRO en escritorio (dos columnas en móvil, como las
  * novedades): el doble que una fila de novedades, porque aquí la gracia es la
@@ -65,7 +64,7 @@ export function BotasExoticas({
   pool: Product[]
   href?: string
 }) {
-  const t = useT()
+  const { locale, t } = useLocale()
 
   // Lo que va en el HTML del servidor (y en la hidratación): las ocho
   // primeras, que llegan en orden de más vendidas. Memorizado porque React
@@ -90,14 +89,25 @@ export function BotasExoticas({
 
   return (
     <section className="contenedor seccion">
+      {/* LA CITA, sola y en medio de la página: centrada, en cursiva real
+          (ver layout: la itálica de Instrument Serif viene en archivo) y entre
+          comillas de cita textual. Así, palabra por palabra, la pidió el dueño
+          después de dos intentos míos (un eyebrow, luego una línea en cuero
+          pegada al título) que él leyó como "un título más". Una cita se
+          distingue de un título por tres cosas y aquí van las tres: el centro,
+          la cursiva y las comillas.
+
+          Comillas por idioma: «» en español (y el punto fuera, como manda la
+          ortografía), “” en inglés. Se ponen aquí y no en el diccionario para
+          que la frase se pueda reusar sin comillas. */}
+      <p className="display-m mb-10 text-center italic text-text md:mb-12">
+        {locale === "en" ? "\u201C" : "\u00AB"}
+        {t("exoticas.frase")}
+        {locale === "en" ? "\u201D" : "\u00BB"}
+      </p>
+
       <div className="mb-8 flex items-end justify-between gap-6 border-b border-border pb-4">
         <div>
-          {/* La frase, antes del título: serif chica en cuero, no un eyebrow
-              en versalitas grises. El dueño pidió "algún texto limpio y
-              bonito" ahí, y un eyebrow es un rótulo, no una frase. Es el
-              único sitio de la portada con una serif encima de otra: la de
-              arriba es la voz, la de abajo el nombre de la sección. */}
-          <p className="display-s mb-2 text-leather">{t("exoticas.frase")}</p>
           <h2 className="display-m">{t("exoticas.titulo")}</h2>
           <p className="cuerpo mt-3 max-w-[52ch] text-text-muted">
             {t("exoticas.leyenda")}
