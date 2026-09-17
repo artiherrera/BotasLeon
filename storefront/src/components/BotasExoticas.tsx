@@ -1,6 +1,10 @@
+"use client"
+
+import { useMemo, useRef, useSyncExternalStore } from "react"
 import { LocalizedLink as Link } from "@/components/LocalizedLink"
 import { ProductCard } from "./ProductCard"
-import { T } from "@/components/T"
+import { useT } from "@/lib/i18n/context"
+import { barajar } from "@/lib/azar"
 import type { Product } from "@/lib/shopify/types"
 
 /**
@@ -10,13 +14,25 @@ import type { Product } from "@/lib/shopify/types"
  * con "Botas Exóticas", una leyenda, y ocho botas exóticas al azar. Va justo
  * después de las dos filas de novedades, que sí son por género.
  *
- * EL AZAR SE TIRA EN EL SERVIDOR, no en el navegador. La portada se regenera
- * cada 60 s (revalidate en app/[lang]/page.tsx), así que cada regeneración
- * trae otras ocho: en la práctica, otras ocho por visita. Barajar en el
- * cliente obligaría a elegir entre pintar la fila vacía en el HTML (nada que
- * ver hasta que carga el JS, nada para Google) o pintar unas y cambiarlas
- * al hidratar (la fila salta delante del que la está mirando). Ninguna de
- * las dos vale lo que vale un "al azar" de verdad.
+ * EL AZAR SE TIRA EN EL NAVEGADOR, AL HIDRATAR. La primera versión barajaba
+ * en el servidor confiando en que la portada se regenera cada 60 s
+ * (revalidate en app/[lang]/page.tsx). Medido en producción: NO se regenera.
+ * Amplify sirve la página del build hasta el siguiente deploy —el etag no
+ * cambió en 7 minutos con lecturas que sí llegaron al origen— porque en
+ * Lambda el trabajo "en segundo plano" con el que Next regenera se congela
+ * al responder. Así que "al azar en el servidor" era "las mismas ocho hasta
+ * el próximo deploy".
+ *
+ * Cómo se hace sin que la página salte ni llegue vacía:
+ *   · El servidor manda la LISTA COMPLETA de exóticas (23 hoy, ~6 KB cada
+ *     una sin comprimir, ~10 KB en total comprimidas) y pinta en el HTML las
+ *     ocho primeras —las más vendidas— para quien no corre JavaScript:
+ *     Google, los rastreadores, la vista previa de WhatsApp.
+ *   · Al hidratar, useSyncExternalStore cambia a una elección al azar. Eso
+ *     pasa en el primer segundo de vida de la página, y esta sección está
+ *     lejos del primer pantallazo (tras el hero y dos filas de novedades):
+ *     nadie la ve cambiar. Sin este hook, barajar en el cliente da un aviso
+ *     de hidratación (el HTML del servidor no coincide con el del cliente).
  *
  * Mismo encabezado que LoMasNuevo —eyebrow, título, "Ver todo" a la derecha
  * y una regla— para que la portada se lea como una sola pieza; lo que cambia
@@ -32,30 +48,52 @@ import type { Product } from "@/lib/shopify/types"
  * exóticas son de hombre; si aparecen de mujer, esta fila las enseña igual y
  * el enlace habrá que repensarlo.
  */
+
+const CUANTAS = 8
+
+// No hay nada externo que cambie: el "store" es la elección que se hace una
+// vez por carga. subscribe no tiene a qué suscribirse.
+const sinSuscripcion = () => () => {}
+
 export function BotasExoticas({
-  products,
+  pool,
   href = "/hombre/exoticas",
 }: {
-  /** Ya barajadas y recortadas a ocho por quien llama. */
-  products: Product[]
+  /** Todas las exóticas del mercado; aquí se eligen ocho. */
+  pool: Product[]
   href?: string
 }) {
+  const t = useT()
+
+  // Lo que va en el HTML del servidor (y en la hidratación): las ocho
+  // primeras, que llegan en orden de más vendidas. Memorizado porque React
+  // exige que getServerSnapshot devuelva siempre la misma referencia.
+  const primeras = useMemo(() => pool.slice(0, CUANTAS), [pool])
+
+  // La elección al azar, hecha UNA vez por carga y guardada: getSnapshot debe
+  // devolver la misma referencia mientras el pool no cambie, si no React
+  // entra en bucle.
+  const eleccion = useRef<{ pool: Product[]; elegidas: Product[] } | null>(null)
+  const getSnapshot = () => {
+    if (!eleccion.current || eleccion.current.pool !== pool) {
+      eleccion.current = { pool, elegidas: barajar(pool).slice(0, CUANTAS) }
+    }
+    return eleccion.current.elegidas
+  }
+  const visibles = useSyncExternalStore(sinSuscripcion, getSnapshot, () => primeras)
+
   // Sin exóticas no se pinta la sección: un título con la rejilla vacía se
   // lee como una tienda rota.
-  if (products.length === 0) return null
+  if (pool.length === 0) return null
 
   return (
     <section className="contenedor seccion">
       <div className="mb-8 flex items-end justify-between gap-6 border-b border-border pb-4">
         <div>
-          <p className="eyebrow text-text-muted mb-2">
-            <T k="exoticas.eyebrow" />
-          </p>
-          <h2 className="display-m">
-            <T k="exoticas.titulo" />
-          </h2>
+          <p className="eyebrow text-text-muted mb-2">{t("exoticas.eyebrow")}</p>
+          <h2 className="display-m">{t("exoticas.titulo")}</h2>
           <p className="cuerpo mt-3 max-w-[52ch] text-text-muted">
-            <T k="exoticas.leyenda" />
+            {t("exoticas.leyenda")}
           </p>
         </div>
         {/* py-3 -my-3: objetivo táctil de 46px sin mover el texto, igual que
@@ -64,13 +102,13 @@ export function BotasExoticas({
           href={href}
           className="cuerpo -my-3 shrink-0 py-3 text-leather underline-offset-4 transition-colors duration-[180ms] hover:underline"
         >
-          <T k="nav.seeAll" />
+          {t("nav.seeAll")}
           <span className="ml-1.5" aria-hidden>→</span>
         </Link>
       </div>
 
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-6">
-        {products.slice(0, 8).map((p) => (
+        {visibles.map((p) => (
           <ProductCard key={p.id} product={p} empezarEnSegunda />
         ))}
       </div>

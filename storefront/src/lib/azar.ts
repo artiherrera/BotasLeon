@@ -1,9 +1,9 @@
 /**
  * Baraja una copia del arreglo (Fisher–Yates). No toca el original.
  *
- * Se usa en el servidor, en páginas con `revalidate`: cada regeneración
- * tira los dados otra vez, y el HTML que llega al navegador ya viene con el
- * resultado — sin barajar en el cliente, que o pinta vacío o salta al hidratar.
+ * Se usa en el navegador, al hidratar (ver BotasExoticas): en Amplify una
+ * página con `revalidate` NO se regenera entre deploys, así que barajar en
+ * el servidor daría siempre el mismo resultado hasta la siguiente publicación.
  */
 export function barajar<T>(items: readonly T[]): T[] {
   const copia = items.slice()

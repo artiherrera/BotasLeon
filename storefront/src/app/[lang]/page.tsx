@@ -15,7 +15,6 @@ import { absoluteUrl } from "@/lib/seo"
 import { getHeroSlides, getProductsByStyle, getProductsByTaxonomy, isBoot } from "@/lib/shopify"
 import { BandaCatalogo } from "@/components/BandaCatalogo"
 import { BotasExoticas } from "@/components/BotasExoticas"
-import { barajar } from "@/lib/azar"
 
 // Canonical + hreflang del home POR IDIOMA (las hijas lo hacen vía pageMetadata).
 // El title/description los hereda del layout (ya localizados) — no los reescribimos.
@@ -74,9 +73,9 @@ export default async function HomePage() {
   // con menos, el género cuyas botas se cargaron antes salía vacío.
   // isBoot es obligatorio: getProductsByTaxonomy no filtra por tipo y un cinto
   // se colaría entre las botas.
-  // Las exóticas se barajan AQUÍ, en el servidor, en cada regeneración de la
-  // página (revalidate 60): ocho distintas cada vez, y el HTML ya llega con
-  // ellas. Ver BotasExoticas para por qué no se baraja en el navegador.
+  // Las exóticas van COMPLETAS (23 hoy): BotasExoticas elige ocho al azar en
+  // el navegador. No se barajan aquí porque Amplify no regenera esta página
+  // entre deploys aunque diga revalidate 60 (medido; ver BotasExoticas).
   const [nuevosHombre, nuevosMujer, exoticas, heroSlides] = await Promise.all([
     getProductsByTaxonomy("gender", "masculino", 250, { sortKey: "CREATED_AT" })
       .then((ps) => ps.filter(isBoot).slice(0, 4))
@@ -84,9 +83,7 @@ export default async function HomePage() {
     getProductsByTaxonomy("gender", "femenino", 250, { sortKey: "CREATED_AT" })
       .then((ps) => ps.filter(isBoot).slice(0, 4))
       .catch(() => []),
-    getProductsByStyle("exoticas")
-      .then((ps) => barajar(ps).slice(0, 8))
-      .catch(() => []),
+    getProductsByStyle("exoticas").catch(() => []),
     getHeroSlides().catch(() => []),
   ])
 
@@ -117,7 +114,7 @@ export default async function HomePage() {
 
         {/* Ocho exóticas al azar, sin mirar el sexo: pedido del dueño, justo
             después de las novedades por género. */}
-        <BotasExoticas products={exoticas} />
+        <BotasExoticas pool={exoticas} />
 
         {/* EL CATÁLOGO, después de las novedades y antes de las categorías.
             Estaba solo en el pie: medido, su único enlace visible desde la
