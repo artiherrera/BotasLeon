@@ -401,6 +401,33 @@ export async function getProductsByTaxonomy(
   return filtered
 }
 
+// === Por estilo de bota, sin mirar el sexo ===
+//
+// Las botas cuyo shopify.boot-style incluye `styleHandle` (ej. "exoticas"),
+// de cualquier género. getProductsByTaxonomy filtra por sexo o edad; esto
+// filtra por estilo y es INDIFERENTE al sexo a propósito: la portada quiere
+// "Botas Exóticas" a secas, y si mañana hay exóticas de mujer entran solas.
+// Mismo patrón: se baja el catálogo entero (250 es el tope de la API y el
+// catálogo tiene ~107) y se filtra en JS. Medido el 2026-09-16: 23 exóticas
+// en los dos mercados.
+export async function getProductsByStyle(
+  styleHandle: string,
+  options?: { sortKey?: ProductSortKey }
+): Promise<Product[]> {
+  let all: Product[]
+  try {
+    all = (await getProducts({ first: 250, sortKey: options?.sortKey ?? "BEST_SELLING" })).products
+  } catch (e) {
+    console.error("[getProductsByStyle] fetch error:", e instanceof Error ? e.message : e)
+    return []
+  }
+  return all.filter(
+    (p) =>
+      isBoot(p) &&
+      (p.bootStyle?.references?.edges ?? []).some((r) => r.node.handle === styleHandle)
+  )
+}
+
 // === Accesorios ===
 //
 // Devuelve productos cuyo `productType` está en ACCESSORY_PRODUCT_TYPES.

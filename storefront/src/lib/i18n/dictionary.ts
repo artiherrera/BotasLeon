@@ -261,6 +261,14 @@ export const DICTIONARY: Record<string, Entry> = {
   "latest.label.hombre": { es: "hombre", en: "men's" },
   "latest.label.mujer": { es: "mujer", en: "women's" },
 
+  // ── Home · "Botas Exóticas" (BotasExoticas) ──────────────────────────
+  "exoticas.eyebrow": { es: "Pieles exóticas", en: "Exotic skins" },
+  "exoticas.titulo": { es: "Botas Exóticas", en: "Exotic Boots" },
+  "exoticas.leyenda": {
+    es: "Pitón, cocodrilo, avestruz y mantarraya. Cada piel trae un dibujo que no se repite: no hay dos pares iguales.",
+    en: "Python, crocodile, ostrich and stingray. Every skin carries a pattern of its own: no two pairs are alike.",
+  },
+
   // ── Filtros (listado) ────────────────────────────────────────────────
   "filters.title": { es: "Filtros", en: "Filters" },
   "filters.close": { es: "Cerrar filtros", en: "Close filters" },

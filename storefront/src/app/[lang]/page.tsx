@@ -12,8 +12,10 @@ import { StoreVisitSection } from "@/components/StoreVisitSection"
 import { FAQJsonLd } from "@/components/StructuredData"
 import { FAQS } from "@/lib/faqs"
 import { absoluteUrl } from "@/lib/seo"
-import { getHeroSlides, getProductsByTaxonomy, isBoot } from "@/lib/shopify"
+import { getHeroSlides, getProductsByStyle, getProductsByTaxonomy, isBoot } from "@/lib/shopify"
 import { BandaCatalogo } from "@/components/BandaCatalogo"
+import { BotasExoticas } from "@/components/BotasExoticas"
+import { barajar } from "@/lib/azar"
 
 // Canonical + hreflang del home POR IDIOMA (las hijas lo hacen vía pageMetadata).
 // El title/description los hereda del layout (ya localizados) — no los reescribimos.
@@ -49,7 +51,9 @@ export const revalidate = 60
  * Orden de la portada:
  *   1. Header (la barra de avisos va dentro de él, para que salga en todo el sitio)
  *   2. HeroPortada — una sola foto, sin carrusel
- *   3. LoMasNuevo — cuatro botas reales en el segundo golpe de vista
+ *   3. LoMasNuevo — cuatro botas reales en el segundo golpe de vista (×2: hombre, mujer)
+ *   3b. BotasExoticas — ocho exóticas al azar, sin mirar el sexo
+ *   3c. BandaCatalogo — el catálogo PDF
  *   4. CategoryShowcase — el trío Hombre / Mujer / Exóticas
  *   5. BrandGrid — la frase de marca con los logos de los talleres
  *   6. HechoEnLeonStrip — la banda de datos (la única banda oscura de la página)
@@ -70,12 +74,18 @@ export default async function HomePage() {
   // con menos, el género cuyas botas se cargaron antes salía vacío.
   // isBoot es obligatorio: getProductsByTaxonomy no filtra por tipo y un cinto
   // se colaría entre las botas.
-  const [nuevosHombre, nuevosMujer, heroSlides] = await Promise.all([
+  // Las exóticas se barajan AQUÍ, en el servidor, en cada regeneración de la
+  // página (revalidate 60): ocho distintas cada vez, y el HTML ya llega con
+  // ellas. Ver BotasExoticas para por qué no se baraja en el navegador.
+  const [nuevosHombre, nuevosMujer, exoticas, heroSlides] = await Promise.all([
     getProductsByTaxonomy("gender", "masculino", 250, { sortKey: "CREATED_AT" })
       .then((ps) => ps.filter(isBoot).slice(0, 4))
       .catch(() => []),
     getProductsByTaxonomy("gender", "femenino", 250, { sortKey: "CREATED_AT" })
       .then((ps) => ps.filter(isBoot).slice(0, 4))
+      .catch(() => []),
+    getProductsByStyle("exoticas")
+      .then((ps) => barajar(ps).slice(0, 8))
       .catch(() => []),
     getHeroSlides().catch(() => []),
   ])
@@ -104,6 +114,10 @@ export default async function HomePage() {
           titulo="latest.tabWomen"
           href="/mujer"
         />
+
+        {/* Ocho exóticas al azar, sin mirar el sexo: pedido del dueño, justo
+            después de las novedades por género. */}
+        <BotasExoticas products={exoticas} />
 
         {/* EL CATÁLOGO, después de las novedades y antes de las categorías.
             Estaba solo en el pie: medido, su único enlace visible desde la
