@@ -20,6 +20,7 @@ export function LoMasNuevo({
   titulo = "latest.title",
   href = "/products",
   eyebrow = null,
+  pareja = null,
 }: {
   products: Product[]
   /** Llave del diccionario con el título de la sección. */
@@ -29,13 +30,23 @@ export function LoMasNuevo({
   /** Eyebrow sobre el título. Solo lo lleva la primera de las dos secciones:
       repetido, "CATÁLOGO" deja de informar y se vuelve ruido. */
   eyebrow?: string | null
+  /** Las dos filas (hombre, mujer) son UN bloque, y se pegan: la de arriba
+      recorta su relleno de abajo a la mitad y la de abajo no lleva relleno
+      arriba. Sin esto quedaban 192px entre la última bota de hombre y el
+      título de mujer —el mismo hueco que entre secciones distintas— y el
+      dueño lo vio como "demasiado espacio". Medido tras el cambio: 48px en
+      escritorio, 32 en móvil. */
+  pareja?: "arriba" | "abajo" | null
 }) {
   // Sin productos no se pinta la sección: un encabezado con la fila vacía se
   // lee como una tienda rota, no como una tienda nueva.
   if (products.length === 0) return null
 
+  const pegado =
+    pareja === "arriba" ? " pb-8 md:pb-12" : pareja === "abajo" ? " pt-0 md:pt-0" : ""
+
   return (
-    <section className="contenedor seccion">
+    <section className={`contenedor seccion${pegado}`}>
       <div className="mb-8 flex items-end justify-between gap-6 border-b border-border pb-4">
         <div>
           {eyebrow && (

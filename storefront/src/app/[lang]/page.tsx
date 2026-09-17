@@ -105,12 +105,14 @@ export default async function HomePage() {
           titulo="latest.tabMen"
           href="/hombre"
           eyebrow="latest.eyebrow"
+          pareja={nuevosMujer.length > 0 ? "arriba" : null}
         />
 
         <LoMasNuevo
           products={nuevosMujer}
           titulo="latest.tabWomen"
           href="/mujer"
+          pareja={nuevosHombre.length > 0 ? "abajo" : null}
         />
 
         {/* Ocho exóticas al azar, sin mirar el sexo: pedido del dueño, justo
