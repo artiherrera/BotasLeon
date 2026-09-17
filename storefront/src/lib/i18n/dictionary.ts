@@ -262,11 +262,14 @@ export const DICTIONARY: Record<string, Entry> = {
   "latest.label.mujer": { es: "mujer", en: "women's" },
 
   // ── Home · "Botas Exóticas" (BotasExoticas) ──────────────────────────
-  "exoticas.eyebrow": { es: "Pieles exóticas", en: "Exotic skins" },
+  // La frase va ANTES del título, en serif y en cuero: "algún texto limpio y
+  // bonito, tipo 'Cada una es única'", pidió el dueño. La leyenda de abajo ya
+  // no repite la idea: la frase dice que es única, la leyenda dice por qué.
+  "exoticas.frase": { es: "Cada una es única.", en: "Every pair is one of a kind." },
   "exoticas.titulo": { es: "Botas Exóticas", en: "Exotic Boots" },
   "exoticas.leyenda": {
-    es: "Pitón, cocodrilo, avestruz y mantarraya. Cada piel trae un dibujo que no se repite: no hay dos pares iguales.",
-    en: "Python, crocodile, ostrich and stingray. Every skin carries a pattern of its own: no two pairs are alike.",
+    es: "Pitón, cocodrilo, avestruz y mantarraya: pieles con un dibujo que la naturaleza no repite.",
+    en: "Python, crocodile, ostrich and stingray: skins with a pattern nature never repeats.",
   },
 
   // ── Filtros (listado) ────────────────────────────────────────────────

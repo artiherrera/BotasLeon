@@ -34,10 +34,12 @@ import type { Product } from "@/lib/shopify/types"
  *     nadie la ve cambiar. Sin este hook, barajar en el cliente da un aviso
  *     de hidratación (el HTML del servidor no coincide con el del cliente).
  *
- * Mismo encabezado que LoMasNuevo —eyebrow, título, "Ver todo" a la derecha
- * y una regla— para que la portada se lea como una sola pieza; lo que cambia
- * es la leyenda bajo el título, que aquí sí hace falta: "exóticas" no le dice
- * a todo el mundo qué pieles son ni por qué cuestan lo que cuestan.
+ * Mismo encabezado que LoMasNuevo —título, "Ver todo" a la derecha y una
+ * regla— para que la portada se lea como una sola pieza; lo que cambia es lo
+ * que va alrededor del título: una frase en serif encima ("Cada una es
+ * única.") en vez de un eyebrow, y la leyenda debajo, que aquí sí hace falta:
+ * "exóticas" no le dice a todo el mundo qué pieles son ni por qué cuestan lo
+ * que cuestan.
  *
  * OCHO EN DOS FILAS DE CUATRO en escritorio (dos columnas en móvil, como las
  * novedades): el doble que una fila de novedades, porque aquí la gracia es la
@@ -90,7 +92,12 @@ export function BotasExoticas({
     <section className="contenedor seccion">
       <div className="mb-8 flex items-end justify-between gap-6 border-b border-border pb-4">
         <div>
-          <p className="eyebrow text-text-muted mb-2">{t("exoticas.eyebrow")}</p>
+          {/* La frase, antes del título: serif chica en cuero, no un eyebrow
+              en versalitas grises. El dueño pidió "algún texto limpio y
+              bonito" ahí, y un eyebrow es un rótulo, no una frase. Es el
+              único sitio de la portada con una serif encima de otra: la de
+              arriba es la voz, la de abajo el nombre de la sección. */}
+          <p className="display-s mb-2 text-leather">{t("exoticas.frase")}</p>
           <h2 className="display-m">{t("exoticas.titulo")}</h2>
           <p className="cuerpo mt-3 max-w-[52ch] text-text-muted">
             {t("exoticas.leyenda")}
