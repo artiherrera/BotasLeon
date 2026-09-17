@@ -856,6 +856,9 @@ export const DICTIONARY: Record<string, Entry> = {
   "cintos.eyebrow": { es: "Va bien con", en: "Goes well with" },
   "cintos.title": { es: "Complementa con un cinto", en: "Finish it with a belt" },
   "cintos.cta": { es: "Ver los cintos", en: "Shop belts" },
+  // Título de la fila de tarjetas de cintos en la portada (Cinturones.tsx).
+  "cinturones.eyebrow": { es: "Accesorios", en: "Accessories" },
+  "cinturones.titulo": { es: "Cinturones", en: "Belts" },
   "cintos.desc": {
     es: "Piel labrada a mano en León, del mismo oficio que tu bota.",
     en: "Leather hand-tooled in León, from the same craft as your boots.",
@@ -878,6 +881,14 @@ export const DICTIONARY: Record<string, Entry> = {
   // ── Tercera tarjeta del trío de la portada ───────────────────────────
   // Era Outlet y llevaba a una página vacía: los 103 productos tienen el
   // precio de comparación en 0, así que /outlet no lista ni una bota.
+  // Tercera tarjeta de categorías: OUTLET, por decisión del dueño
+  // (2026-09-17). El título es el mismo h1 de /outlet.
+  "cat.outlet.eyebrow": { es: "Outlet", en: "Outlet" },
+  "cat.outlet.title": { es: "Ofertas y liquidación", en: "Sale & Clearance" },
+  "cat.outlet.desc": {
+    es: "Últimos pares y precios de liquidación. Cuando hay, están aquí.",
+    en: "Last pairs and clearance prices. When there are any, they're here.",
+  },
   "cat.exotic.eyebrow": { es: "Categoría", en: "Category" },
   "cat.exotic.title": { es: "Exóticas", en: "Exotics" },
   "cat.exotic.desc": {

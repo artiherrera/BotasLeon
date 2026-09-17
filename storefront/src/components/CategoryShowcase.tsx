@@ -44,6 +44,7 @@ const CARD_I18N: Record<string, { eyebrow: string; title: string; desc: string }
     title: "cat.exotic.title",
     desc: "cat.exotic.desc",
   },
+  "/outlet": { eyebrow: "cat.outlet.eyebrow", title: "cat.outlet.title", desc: "cat.outlet.desc" },
 }
 const i18nFor = (href: string) =>
   CARD_I18N[(href || "").replace(/^\/(es|en)(?=\/)/, "").replace(/\/$/, "")] ?? null
@@ -65,10 +66,10 @@ const FALLBACK_CATEGORIES = [
     description: "Vaqueras, clásicas, largas, fashion.",
   },
   {
-    href: EXOTICAS_HREF,
-    eyebrow: "Categoría",
-    title: "Exóticas",
-    description: "Pitón, caimán, avestruz y mantarraya.",
+    href: "/outlet",
+    eyebrow: "Outlet",
+    title: "Ofertas y liquidación",
+    description: "Últimos pares y precios de liquidación.",
   },
 ] as const
 
@@ -78,23 +79,22 @@ const sinIdioma = (href: string) =>
   (href || "").replace(/^\/(es|en)(?=\/|$)/, "").replace(/\/$/, "")
 
 export async function CategoryShowcase() {
-  // Accesorios oculto mientras solo haya dos cintos publicados: se anuncian en
-  // su propio banner más abajo, no compitiendo con Hombre y Mujer.
+  // Accesorios oculto aquí: los cintos tienen su propia fila de tarjetas más
+  // arriba (Cinturones), no compiten con Hombre, Mujer y Outlet.
   const raw = (await getCategoryCards().catch(() => [] as CategoryCard[])).filter(
     (c) => sinIdioma(c.href) !== "/accesorios"
   )
 
-  // La tercera tarjeta era OUTLET y llevaba a una página vacía: los 103
-  // productos del catálogo tienen el precio de comparación en 0, así que
-  // /outlet no lista ni una bota. En su lugar van las Exóticas, que sí tienen
-  // 25 productos publicados. Se reaprovecha la FOTO del metaobjeto de outlet
-  // — el dueño puede cambiarla desde Shopify (Custom data → Category card),
-  // el texto ya no sale de ahí sino del diccionario.
-  const outlet = raw.find((c) => sinIdioma(c.href) === "/outlet")
-  const cards: CategoryCard[] = raw.filter((c) => sinIdioma(c.href) !== "/outlet")
-  if (outlet) {
-    cards.push({ ...outlet, href: EXOTICAS_HREF })
-  }
+  // La tercera tarjeta es OUTLET otra vez, por decisión del dueño
+  // (2026-09-17: "tarjetas de hombre/mujer/Outlet"). Durante un tiempo se
+  // cambió por Exóticas porque /outlet no listaba ni una bota (los precios de
+  // comparación estaban en 0); hoy las exóticas tienen su propia fila de
+  // tarjetas justo arriba, así que aquí sobraban. OJO: /outlet sigue vacío
+  // hasta que haya botas con precio de comparación mayor al precio; la
+  // página lo dice ("Sin ofertas por ahora") en vez de romperse. La foto
+  // viene del metaobjeto de Shopify (Custom data → Category card); el texto,
+  // del diccionario.
+  const cards: CategoryCard[] = raw.slice()
 
   return (
     <section className="contenedor seccion">

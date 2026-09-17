@@ -5,7 +5,7 @@ import { CategoryShowcase } from "@/components/CategoryShowcase"
 import { BrandGrid } from "@/components/BrandGrid"
 import { FAQAccordion } from "@/components/FAQAccordion"
 import { LoMasNuevo } from "@/components/LoMasNuevo"
-import { BannerCintos } from "@/components/BannerCintos"
+import { Cinturones } from "@/components/Cinturones"
 import { HechoEnLeonStrip } from "@/components/HechoEnLeonStrip"
 import { HomeReviews } from "@/components/HomeReviews"
 import { StoreVisitSection } from "@/components/StoreVisitSection"
@@ -47,19 +47,20 @@ export const revalidate = 60
 /**
  * Home page (server component, Next.js 16).
  *
- * Orden de la portada:
+ * Orden de la portada — la arquitectura la fijó el dueño (2026-09-17):
  *   1. Header (la barra de avisos va dentro de él, para que salga en todo el sitio)
  *   2. HeroPortada — una sola foto, sin carrusel
  *   3. LoMasNuevo — cuatro botas reales en el segundo golpe de vista (×2: hombre, mujer)
- *   3b. BotasExoticas — ocho exóticas al azar, sin mirar el sexo
- *   3c. BandaCatalogo — el catálogo PDF
- *   4. CategoryShowcase — el trío Hombre / Mujer / Exóticas
- *   5. BrandGrid — la frase de marca con los logos de los talleres
- *   6. HechoEnLeonStrip — la banda de datos (la única banda oscura de la página)
- *   7. HomeReviews — tres reseñas de cinco estrellas
- *   8. BannerCintos — los cintos, a lo ancho
- *   9. StoreVisitSection — la tienda física en León
- *  10. FAQAccordion + Footer
+ *   4. BotasExoticas — ocho exóticas al azar, sin mirar el sexo
+ *   5. Cinturones — los cintos como tarjetas (antes era un banner con una foto)
+ *   6. CategoryShowcase — el trío Hombre / Mujer / Outlet
+ *   7. BrandGrid — la frase de marca con los logos de los talleres
+ *   8. HechoEnLeonStrip — la banda de datos (la única banda oscura de la página)
+ *   9. HomeReviews — tres reseñas de cinco estrellas
+ *  10. StoreVisitSection — la tienda física en León
+ *  11. FAQAccordion
+ *  12. BandaCatalogo — el catálogo PDF, "hasta el final"
+ *  13. Footer
  *
  * Las FAQ se quedan aquí porque el <FAQJsonLd> de abajo declara esas mismas
  * preguntas: si el acordeón se fuera del home, el JSON-LD tendría que irse con
@@ -116,12 +117,8 @@ export default async function HomePage() {
             después de las novedades por género. */}
         <BotasExoticas pool={exoticas} />
 
-        {/* EL CATÁLOGO, después de las novedades y antes de las categorías.
-            Estaba solo en el pie: medido, su único enlace visible desde la
-            portada caía al 95% del recorrido (y=7075 de 7458px), o sea que
-            había que bajarla entera para encontrarlo. Aquí cae en el primer
-            tercio, justo cuando alguien ya vio lo nuevo y busca el resto. */}
-        <BandaCatalogo />
+        {/* Los cintos como tarjetas, después de las exóticas. */}
+        <Cinturones />
 
         <CategoryShowcase />
 
@@ -133,12 +130,16 @@ export default async function HomePage() {
             reseñas de cinco estrellas, la sección no se pinta. */}
         <HomeReviews />
 
-        <BannerCintos />
-
         {/* Confianza: tienda física en León (dirección + mapa → /visitanos) */}
         <StoreVisitSection />
 
         <FAQAccordion />
+
+        {/* EL CATÁLOGO, HASTA EL FINAL, por decisión del dueño (2026-09-17).
+            Estuvo un tiempo tras las novedades para que no cayera al 95% del
+            recorrido; ahora es lo último antes del pie: quien llega hasta aquí
+            ya vio todo y el catálogo es el "llévatelo todo" de despedida. */}
+        <BandaCatalogo />
       </main>
       <Footer />
     </>
