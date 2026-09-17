@@ -263,11 +263,14 @@ export const DICTIONARY: Record<string, Entry> = {
 
   // ── Home · "Botas Exóticas" (BotasExoticas) ──────────────────────────
   // La frase va ANTES del bloque, centrada, en cursiva y entre comillas, como
-  // cita textual: así la pidió el dueño. SIN punto: las comillas las pone el
-  // componente («…» en español, “…” en inglés) y en español el punto va fuera
-  // de las comillas. La leyenda de abajo no repite la idea: la frase dice que
+  // cita textual: así la pidió el dueño. Las comillas las pone el componente
+  // («…» en español, “…” en inglés). La leyenda de abajo no repite la idea: la frase dice que
   // es única, la leyenda dice por qué.
-  "exoticas.frase": { es: "Cada una es única", en: "Every pair is one of a kind" },
+  // En inglés el punto final va DENTRO de las comillas; en español, fuera.
+  "exoticas.frase": {
+    es: "No hay dos iguales. La tuya tampoco",
+    en: "No two are alike. Neither is yours.",
+  },
   "exoticas.titulo": { es: "Botas Exóticas", en: "Exotic Boots" },
   "exoticas.leyenda": {
     es: "Pitón, cocodrilo, avestruz y mantarraya: pieles con un dibujo que la naturaleza no repite.",

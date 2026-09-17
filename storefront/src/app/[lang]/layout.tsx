@@ -50,7 +50,7 @@ export function generateStaticParams() {
 // Regular + CURSIVA REAL. Instrument Serif solo existe en 400, pero sí tiene
 // itálica dibujada; sin el archivo, `font-style: italic` haría que el
 // navegador inclinara la regular a la fuerza, y eso se ve barato. La cursiva
-// se usa en las citas de la portada ("«Cada una es única»").
+// se usa en las citas de la portada ("«No hay dos iguales. La tuya tampoco»").
 const instrumentSerif = localFont({
   src: [
     { path: "../../fonts/instrument-serif.woff2", weight: "400", style: "normal" },

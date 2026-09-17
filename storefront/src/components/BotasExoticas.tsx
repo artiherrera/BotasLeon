@@ -36,7 +36,7 @@ import type { Product } from "@/lib/shopify/types"
  *
  * Mismo encabezado que LoMasNuevo —título, "Ver todo" a la derecha y una
  * regla— para que la portada se lea como una sola pieza; lo que cambia es lo
- * que va alrededor: la CITA centrada encima del bloque («Cada una es única»)
+ * que va alrededor: la CITA centrada encima del bloque («No hay dos iguales. La tuya tampoco»)
  * y la leyenda debajo del título, que aquí sí hace falta: "exóticas" no le
  * dice a todo el mundo qué pieles son ni por qué cuestan lo que cuestan.
  *
