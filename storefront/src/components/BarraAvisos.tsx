@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, useSyncExternalStore } from "react"
 import { useT } from "@/lib/i18n/context"
 import { PROMESAS_BARRA } from "@/lib/promesas"
 import { formatoCuentaRegresiva, restante, type Restante } from "@/lib/promocion"
@@ -26,24 +26,45 @@ import { formatoCuentaRegresiva, restante, type Restante } from "@/lib/promocion
  */
 export function BarraAvisos() {
   const t = useT()
-  const [queda, setQueda] = useState<Restante | null>(null)
-  // `montado` evita el desajuste de hidratación: el HTML es estático y se
-  // hornea en el build, así que el servidor no puede saber qué hora es cuando
-  // alguien abra la página. El contador aparece después de montar.
-  const [montado, setMontado] = useState(false)
-
-  useEffect(() => {
-    setMontado(true)
-    const tic = () => setQueda(restante(Date.now()))
-    tic()
-    const id = setInterval(tic, 1000)
-    return () => clearInterval(id)
-  }, [])
+  // El reloj, como "store externo": el HTML es estático y se hornea en el
+  // build, así que el servidor no sabe qué hora es cuando alguien abre la
+  // página; su instantánea es null y el contador aparece al hidratar, sin
+  // desajuste. El navegador se suscribe a un tic por segundo. Antes esto era
+  // un useState + setState dentro del efecto, que React marca como error.
+  const ahora = useSyncExternalStore(
+    (avisa) => {
+      const id = setInterval(avisa, 1000)
+      return () => clearInterval(id)
+    },
+    () => Math.floor(Date.now() / 1000),
+    () => null
+  )
+  const queda: Restante | null = ahora === null ? null : restante(ahora * 1000)
 
   // Cuando vence, la promoción desaparece sola. Es la mitad del trabajo de una
   // promoción con fecha: un sitio que sigue prometiendo un descuento terminado
   // se gana un cliente enojado en el checkout.
-  const hayPromo = montado && queda !== null
+  const hayPromo = queda !== null
+
+  // EN MÓVIL, UNA PROMESA A LA VEZ. Debajo de `sm` las tres se escondían y
+  // quedaba solo la promoción; cuando la promoción venció (15 sep), la barra
+  // se quedó como una franja negra de 48px sin nada adentro, y un cliente en
+  // Android la reportó como "la parte de arriba se ve cortada" (2026-09-17).
+  // Ahora se enseña una promesa y cada 4 s se releva por la siguiente, en su
+  // sitio y con un fundido: no es la marquesina que se quitó —nada se
+  // desplaza, cada promesa se lee entera mientras está—. El HTML trae la
+  // primera; el relevo empieza al montar, así que no hay desajuste de
+  // hidratación.
+  const [cual, setCual] = useState(0)
+  useEffect(() => {
+    if (PROMESAS_BARRA.length < 2) return
+    const id = setInterval(() => setCual((i) => (i + 1) % PROMESAS_BARRA.length), 4000)
+    return () => clearInterval(id)
+  }, [])
+
+  // Sin promoción y sin promesas no hay barra: una franja de tinta vacía es
+  // justo lo que se está arreglando.
+  if (!hayPromo && PROMESAS_BARRA.length === 0) return null
 
   return (
     <div className="bg-text text-bg">
@@ -72,11 +93,20 @@ export function BarraAvisos() {
             un teléfono de 360px no caben en un renglón, y con `truncate` la
             última saldría con puntos suspensivos en TODOS los teléfonos.
 
-            Debajo de `sm` las tres promesas se esconden y queda solo la
-            promoción: con las cuatro cosas a la vez la barra se comía 90px de
-            un teléfono antes de que se viera una sola bota. Las promesas
-            siguen estando bajo el botón de compra en cada ficha, que es donde
-            de verdad deciden la venta. */}
+            Debajo de `sm` las tres promesas de golpe se comían 90px de un
+            teléfono antes de que se viera una sola bota: ahí va una a la vez
+            (el <p> de abajo) y la lista completa solo desde `sm`. Las
+            promesas siguen estando bajo el botón de compra en cada ficha, que
+            es donde de verdad deciden la venta. */}
+        {PROMESAS_BARRA.length > 0 && (
+          <p className="text-[13.5px] leading-snug sm:hidden" aria-live="off">
+            {/* La `key` cambia con la promesa: React vuelve a montar el span y
+                la animación de entrada corre otra vez. */}
+            <span key={cual} className="relevo inline-block">
+              {t(PROMESAS_BARRA[cual])}
+            </span>
+          </p>
+        )}
         <ul className="hidden flex-wrap items-center justify-center gap-x-3 gap-y-0.5 sm:flex">
           {PROMESAS_BARRA.map((llave, i) => (
             <li key={llave} className="flex items-center gap-x-3">

@@ -168,9 +168,21 @@ export function HeroPortada({ slides }: Props) {
         title: t(HERO_FALLBACK.title),
       }
 
+  // LA CAJA CRECE HASTA EL TEXTO. En móvil el hero es una caja 16:10 (257px
+  // en un teléfono de 412), y el bloque de texto —rótulo, titular de tres
+  // renglones y botón— mide más que eso. Iba en posición absoluta pegado al
+  // fondo, así que sobresalía por ARRIBA y `overflow-hidden` lo cortaba: en
+  // un Android de 360px el rótulo perdía 37px, y un cliente lo reportó como
+  // "la parte de arriba se ve cortada" (2026-09-17). Ahora el texto va en
+  // flujo normal, con la caja en flex al fondo, y el 16:10 es un ALTO MÍNIMO
+  // (62.5% del ancho) y no un aspect-ratio: con `overflow-hidden` la caja es
+  // un contenedor de desplazamiento, su mínimo automático es 0 y aspect-ratio
+  // la clavaba en 16:10 aunque el texto no cupiera —medido: seguía cortando
+  // 37px—. Con min-height, la caja mide 16:10 cuando el texto cabe y crece lo
+  // justo cuando no. En escritorio la altura es fija (70vh) y no cambia nada.
   return (
     <section
-      className="relative w-full aspect-[16/10] md:aspect-auto md:h-[70vh] md:min-h-[520px] md:max-h-[680px] overflow-hidden bg-text"
+      className="relative flex w-full min-h-[62.5vw] flex-col justify-end md:h-[70vh] md:min-h-[520px] md:max-h-[680px] overflow-hidden bg-text"
       aria-label={slide.title}
     >
       {slide.image ? (
@@ -188,7 +200,10 @@ export function HeroPortada({ slides }: Props) {
           claras de la foto. Es un recurso de legibilidad, no decoración. */}
       <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/25 to-transparent pointer-events-none" />
 
-      <div className="absolute inset-x-0 bottom-0 pb-8 md:pb-16">
+      {/* `relative` para quedar encima del velo (que es absoluto); pt-12 deja
+          siempre un poco de foto a la vista por encima del rótulo cuando la
+          caja tiene que crecer. */}
+      <div className="relative pt-12 pb-8 md:pt-0 md:pb-16">
         <div className="contenedor">
           {slide.eyebrow && (
             <p className="eyebrow text-bg mb-3">{slide.eyebrow}</p>

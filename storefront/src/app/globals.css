@@ -557,3 +557,18 @@ input[type="search"]:focus-visible {
 @media (prefers-reduced-motion: reduce) {
   .josepha-pulso { animation: none; transform: none; }
 }
+
+/* El relevo de promesas de la barra de avisos en móvil: cada 4 s entra la
+   siguiente, en su sitio, con un fundido corto. No es una marquesina: nada
+   se desplaza, y el texto que hay se puede leer completo mientras está. Con
+   prefers-reduced-motion el texto cambia igual, pero sin fundido. */
+@keyframes relevo-aparecer {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+.relevo {
+  animation: relevo-aparecer 450ms ease-out;
+}
+@media (prefers-reduced-motion: reduce) {
+  .relevo { animation: none; }
+}
