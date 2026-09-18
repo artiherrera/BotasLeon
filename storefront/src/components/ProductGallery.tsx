@@ -11,7 +11,11 @@ import { esFotoDeAmbiente } from "@/lib/fotos"
  * Galería de imágenes del PDP.
  *
  * Desktop (md+): imagen principal grande + thumbnails clicables abajo.
- * Mobile (<md): carrusel horizontal con scroll-snap nativo + dots indicators.
+ * Mobile (<md): carrusel horizontal con scroll-snap nativo, de orilla a
+ * orilla, y debajo una TIRA DE MINIATURAS horizontal con la activa subrayada
+ * — como la galería de Lucchese en celular, que el dueño pidió copiar
+ * (2026-09-17). Antes había puntitos: con nueve fotos se partían en dos
+ * filas y no decían qué foto era cuál; la miniatura sí.
  *
  * Click en la imagen principal (o swipe en mobile) abre lightbox fullscreen
  * con navegación, soporte ESC y bloqueo de scroll del body. Cero dependencias
@@ -32,6 +36,20 @@ export function ProductGallery({ images, title }: Props) {
   // Mobile carousel refs
   const trackRef = useRef<HTMLDivElement | null>(null)
   const slideRefs = useRef<Array<HTMLDivElement | null>>([])
+  // La tira de miniaturas del móvil sigue a la foto activa: al deslizar la
+  // grande, la miniatura correspondiente se trae al centro de la tira. Se
+  // mueve la tira con scrollTo y no con scrollIntoView, que en algunos
+  // navegadores también desplaza la página entera en vertical. (Los hooks van
+  // aquí arriba, antes del return temprano de "sin imágenes".)
+  const stripRef = useRef<HTMLDivElement | null>(null)
+  const thumbRefs = useRef<Array<HTMLButtonElement | null>>([])
+  useEffect(() => {
+    const strip = stripRef.current
+    const thumb = thumbRefs.current[activeIdx]
+    if (!strip || !thumb) return
+    const left = thumb.offsetLeft - (strip.clientWidth - thumb.clientWidth) / 2
+    strip.scrollTo({ left: Math.max(0, left), behavior: "smooth" })
+  }, [activeIdx])
 
   useEffect(() => {
     setMounted(true)
@@ -210,28 +228,48 @@ export function ProductGallery({ images, title }: Props) {
           ))}
         </div>
 
-        {/* El punto sigue midiendo 2px de alto, pero el botón que lo lleva mide
-            44 POR 44: en móvil se toca con el pulgar, no con la punta de un
-            lápiz, y 44 de alto por 24 de ancho seguía siendo medio objetivo. */}
+        {/* LA TIRA DE MINIATURAS, a todo lo ancho, como Lucchese: cada una
+            ocupa ~28% del ancho (unas 3.5 a la vista, la cuarta asoma y avisa
+            que hay más), separadas por 1px de línea, y la activa lleva una
+            barra de tinta de 3px al pie. Se desliza con el dedo; tocar una
+            lleva la foto grande a ella. Las miniaturas van en el mismo plato
+            4:5 que la grande, para que la tira lea como un contacto y no como
+            una fila de cuadros distintos. */}
         {hasMultiple && (
-          <div className="mt-1 flex flex-wrap justify-center" role="tablist" aria-label="Imágenes del producto">
-            {images.map((img, idx) => (
-              <button
-                key={img.url}
-                type="button"
-                role="tab"
-                aria-selected={idx === activeIdx}
-                aria-label={`Ir a imagen ${idx + 1}`}
-                onClick={() => scrollToIdx(idx)}
-                className="flex h-11 w-11 items-center justify-center"
-              >
-                <span
-                  className={`h-2 rounded-full transition-all duration-[180ms] ${
-                    idx === activeIdx ? "w-6 bg-text" : "w-2 bg-border-strong/60"
-                  }`}
-                />
-              </button>
-            ))}
+          <div
+            ref={stripRef}
+            role="tablist"
+            aria-label="Imágenes del producto"
+            className="pg-mobile-track mt-px flex gap-px overflow-x-auto bg-border-plate"
+            style={{ scrollbarWidth: "none", msOverflowStyle: "none", WebkitOverflowScrolling: "touch" }}
+          >
+            {images.map((img, idx) => {
+              const activa = idx === activeIdx
+              return (
+                <button
+                  key={img.url}
+                  ref={(el) => {
+                    thumbRefs.current[idx] = el
+                  }}
+                  type="button"
+                  role="tab"
+                  aria-selected={activa}
+                  aria-label={`Ir a imagen ${idx + 1}`}
+                  onClick={() => scrollToIdx(idx)}
+                  className="relative shrink-0 basis-[28%] bg-bg"
+                >
+                  <span className={`plato ${esFotoDeAmbiente(img) ? "plato-foto" : ""} block w-full`}>
+                    <Image src={img.url} alt="" fill sizes="28vw" />
+                  </span>
+                  <span
+                    aria-hidden
+                    className={`absolute inset-x-0 bottom-0 h-[3px] transition-colors duration-[180ms] ${
+                      activa ? "bg-text" : "bg-transparent"
+                    }`}
+                  />
+                </button>
+              )
+            })}
           </div>
         )}
       </div>

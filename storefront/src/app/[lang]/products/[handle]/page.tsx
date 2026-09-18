@@ -165,11 +165,14 @@ export default async function ProductPage({ params }: Props) {
                 así que se lleva la mitad grande. La columna de compra se queda
                 fija mientras la galería se desplaza. */}
             <div className="grid grid-cols-1 lg:grid-cols-[55fr_45fr] gap-8 lg:gap-16">
-              {/* Galería acotada: no pasa de ~½ de la altura de pantalla y va
-                  centrada, para que el bloque de compra suba y quepa sin tanto
-                  scroll en móvil/tablet. El tope de 50vh está calculado para una
-                  caja 1:1, que es lo que sigue siendo el plato. */}
-              <div className="mx-auto w-full max-w-[min(90vw,50vh)] lg:mx-0 lg:max-w-none">
+              {/* EN MÓVIL, DE ORILLA A ORILLA, como la galería de Lucchese que
+                  el dueño pidió copiar (2026-09-17): -mx-6 anula el aire lateral
+                  del contenedor y la foto ocupa las 390 columnas del teléfono;
+                  debajo va la tira de miniaturas, también a todo lo ancho (ver
+                  ProductGallery). Antes la galería iba acotada a min(90vw,50vh)
+                  y centrada, con 24px de margen y una fila de puntitos. Desde
+                  md vuelve al ancho de su columna. */}
+              <div className="-mx-6 md:mx-0">
                 <ProductGalleryConnected />
               </div>
 
