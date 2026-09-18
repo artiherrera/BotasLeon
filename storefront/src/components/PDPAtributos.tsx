@@ -13,13 +13,17 @@ import type { Product } from "@/lib/shopify/types"
  * un anuncio ve "La Estribo en Roper Chocolate · $3,499" y no sabe si es de
  * punta cuadrada, si es de res o de avestruz, ni si la caña es alta.
  *
- * LA FRASE SALE DE LA DESCRIPCIÓN DEL PRODUCTO, no de un campo nuevo. El
+ * EL TEXTO SALE DE LA DESCRIPCIÓN DEL PRODUCTO, no de un campo nuevo. El
  * informe pedía "una frase de venta de veinte palabras", pero escribirla
  * requiere 106 frases que solo puede escribir el dueño: inventarlas aquí sería
- * ponerle palabras a su producto. La primera oración de la descripción ya está
- * escrita por él, es distinta en cada bota y dice justo eso — "Chocolate
- * bruñido de arriba abajo, caña alta y horma roper". Se corta en la primera
- * oración completa y se topa en 22 palabras para que no empuje el precio.
+ * ponerle palabras a su producto.
+ *
+ * SE MUESTRA EL PRIMER PÁRRAFO ENTERO, por decisión del dueño (2026-09-17).
+ * Antes era la primera oración topada en 22 palabras. Ahora el corte lo pone
+ * él en Shopify con un Enter: todo lo que escriba en el primer párrafo sale
+ * aquí, sin tope. Medido al cambiarlo: 102 de 110 descripciones son un solo
+ * párrafo (mediana 34 palabras, máximo 87), así que en esas botas sale la
+ * descripción completa hasta que se parta en párrafos.
  *
  * El día que se quiera una frase propia, distinta de la descripción, lo que
  * hace falta es un metacampo en Shopify; el hueco ya está aquí.
@@ -31,11 +35,7 @@ export function PDPAtributos({ product }: { product: Product }) {
   // en inglés se traducen aquí, como en la tarjeta y en los detalles. Sin esto
   // la ficha en inglés decía "Fina · Pitón · Vaqueras" —medido el 2026-09-16.
   const atributos = atributosDeFicha(product).map((v) => facetLabel(v, locale))
-  const frase = primeraOracion(
-    traduccion?.descriptionHtml
-      ? sinEtiquetas(traduccion.descriptionHtml)
-      : product.description || ""
-  )
+  const frase = primerParrafo(traduccion?.descriptionHtml || product.descriptionHtml || product.description || "")
 
   if (atributos.length === 0 && !frase) return null
 
@@ -57,28 +57,28 @@ export function PDPAtributos({ product }: { product: Product }) {
 function sinEtiquetas(html: string): string {
   return html
     .replace(/<br\s*\/?>/gi, " ")
-    .replace(/<\/(p|li|div|h[1-6])>/gi, ". ")
     .replace(/<[^>]+>/g, "")
     .replace(/&nbsp;/g, " ")
     .replace(/&amp;/g, "&")
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;|&apos;/g, "'")
     .replace(/\s+/g, " ")
     .trim()
 }
 
 /**
- * La primera oración, topada en 22 palabras.
+ * El primer párrafo de la descripción, como texto.
  *
- * Las descripciones del catálogo abren con la frase que describe la bota y
- * siguen con materiales y cuidados; con la primera basta. Si esa primera
- * oración es larguísima se corta en la palabra 22 y se cierra con puntos
- * suspensivos, nunca a media palabra.
+ * Las 110 descripciones del catálogo vienen en <p> (medido): se toma el
+ * primero que tenga texto. Si algún día llega una sin <p> —texto plano con
+ * saltos de línea, o un solo bloque—, se corta en el primer salto de línea
+ * doble, y si tampoco hay, va todo.
  */
-function primeraOracion(texto: string, tope = 22): string {
-  const limpio = (texto || "").replace(/\s+/g, " ").trim()
-  if (!limpio) return ""
-  const corte = limpio.search(/\.\s|\.$/)
-  const oracion = corte > 0 ? limpio.slice(0, corte + 1) : limpio
-  const palabras = oracion.split(" ")
-  if (palabras.length <= tope) return oracion
-  return palabras.slice(0, tope).join(" ").replace(/[,;:]$/, "") + "…"
+function primerParrafo(html: string): string {
+  const parrafos = [...(html || "").matchAll(/<p[^>]*>([\s\S]*?)<\/p>/gi)]
+    .map((m) => sinEtiquetas(m[1]))
+    .filter(Boolean)
+  if (parrafos.length > 0) return parrafos[0]
+  const plano = sinEtiquetas((html || "").split(/\n\s*\n/)[0])
+  return plano
 }
