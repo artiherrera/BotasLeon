@@ -349,15 +349,32 @@ input[type="search"]:focus-visible {
   .plato-foto img {
     object-fit: cover;
     mix-blend-mode: normal;
-    /* La foto sobrepasa la caja un 1% (la caja la recorta): así no queda un
-       hueco de verdad cuando la foto sale un píxel corta por el redondeo.
-       ~2px por lado en la galería, ~1px en una tarjeta. `transform` y no
-       `inset` porque next/image pone el tamaño en línea. */
-    transform: scale(1.01);
+    /* LA FOTO VA UN 4% MÁS GRANDE QUE SU CAJA (2% fuera por cada lado), y la
+       caja la recorta. Dos razones:
+       1) Que un redondeo de medio píxel nunca deje un hueco real en la orilla.
+       2) Que las ORILLAS DEL ARCHIVO no se vean: al convertir las fotos a 4:5
+          a varias les quedó una banda de relleno plano en un borde (medido
+          sobre las 463: en las tres Elegante, una columna del 4–6% a la
+          izquierda; en otras, una franja al pie). El dueño la ve como
+          "franjas verticales muy pequeñas" y pidió arreglarlo desde el sitio.
+          El 4% se calibró con el margen real de las botas: 126 fotos tienen
+          algún margen menor al 6%, así que más recorte empezaría a comerse
+          bordados y suelas en las tomas anchas. Lo que el 4% no tapa en la
+          foto grande solo se arregla en el archivo (~/Desktop/fotos-corregidas).
+       `transform` y no `inset` porque next/image pone el tamaño en línea. */
+    transform: scale(1.04);
     /* Lo que NO cura la franja entre fotos vecinas de un carrusel es dar a la
        foto su propia capa (will-change): se probó y el píxel compartido
        seguía mezclado. Lo cura un hueco de 1px entre diapositivas: ver
        gap-px en ProductGallery (móvil) y en ProductCard. */
+  }
+  /* MINIATURAS: un 12% más grande (5.4% fuera por lado). Es donde las bandas
+     del archivo se notan más —una columna del 6% en una miniatura de 109px es
+     una raya de 6px al lado de una foto limpia— y donde un recorte no cuesta:
+     nadie juzga la bota en la miniatura, solo la reconoce. Va DESPUÉS de
+     `.plato-foto img` porque tiene la misma especificidad y gana por orden. */
+  .plato-mini img {
+    transform: scale(1.12);
   }
   /* El multiply solo es seguro contra un fondo claro. Sobre el negro del zoom
      (bg-black/95) la foto saldría NEGRA, sin error de consola: la lupa, que es

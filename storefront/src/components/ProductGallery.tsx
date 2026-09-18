@@ -154,7 +154,7 @@ export function ProductGallery({ images, title }: Props) {
                 onMouseEnter={() => setActiveIdx(idx)}
                 aria-label={`Ver imagen ${idx + 1}`}
                 aria-current={idx === activeIdx}
-                className={`plato ${esFotoDeAmbiente(img) ? "plato-foto" : ""} transition-opacity duration-[180ms] ${
+                className={`plato plato-mini ${esFotoDeAmbiente(img) ? "plato-foto" : ""} transition-opacity duration-[180ms] ${
                   idx === activeIdx
                     ? "ring-2 ring-leather"
                     : "opacity-60 hover:opacity-100"
@@ -268,7 +268,7 @@ export function ProductGallery({ images, title }: Props) {
                   onClick={() => scrollToIdx(idx)}
                   className="relative shrink-0 basis-[28%] bg-bg"
                 >
-                  <span className={`plato ${esFotoDeAmbiente(img) ? "plato-foto" : ""} block w-full`}>
+                  <span className={`plato plato-mini ${esFotoDeAmbiente(img) ? "plato-foto" : ""} block w-full`}>
                     <Image src={img.url} alt="" fill sizes="28vw" />
                   </span>
                   <span
