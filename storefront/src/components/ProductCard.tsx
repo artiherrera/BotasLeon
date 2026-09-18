@@ -229,6 +229,13 @@ function CardGallery({
    * disparan mouseenter al tocar — la foto cambiaría bajo el dedo justo cuando
    * se intenta abrir la ficha.
    */
+  // El paso entre diapositivas es el ancho de la pista MÁS el hueco de 1px
+  // (ver gap-px en la pista). Se lee del DOM y no se suma "1" a mano.
+  const paso = (el: HTMLDivElement) => {
+    const segunda = el.children[1] as HTMLElement | undefined
+    return segunda?.offsetLeft || el.clientWidth
+  }
+
   useEffect(() => {
     const el = trackRef.current
     if (!el || count < 2) return
@@ -236,7 +243,7 @@ function CardGallery({
     if (encima && aMano.current) return
     if (!encima) aMano.current = false
 
-    const destino = encima ? el.clientWidth : 0
+    const destino = encima ? paso(el) : 0
     const antes = el.style.scrollBehavior
     el.style.scrollBehavior = "auto"
     el.scrollLeft = destino
@@ -252,7 +259,7 @@ function CardGallery({
   const onScroll = () => {
     const el = trackRef.current
     if (!el || el.clientWidth === 0) return
-    const i = Math.round(el.scrollLeft / el.clientWidth)
+    const i = Math.round(el.scrollLeft / paso(el))
     if (i !== idx) setIdx(Math.min(Math.max(i, 0), count - 1))
   }
 
@@ -265,7 +272,7 @@ function CardGallery({
     if (!el) return
     aMano.current = true
     const next = Math.min(Math.max(idx + dir, 0), count - 1)
-    el.scrollTo({ left: next * el.clientWidth, behavior: "smooth" })
+    el.scrollTo({ left: next * paso(el), behavior: "smooth" })
   }
 
   const Arrow = ({ dir, label }: { dir: 1 | -1; label: string }) => (
@@ -286,7 +293,7 @@ function CardGallery({
       <div
         ref={trackRef}
         onScroll={onScroll}
-        className="flex h-full w-full snap-x snap-mandatory overflow-x-auto scroll-smooth motion-reduce:scroll-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        className="flex h-full w-full gap-px snap-x snap-mandatory overflow-x-auto scroll-smooth motion-reduce:scroll-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
       >
         {images.map((im, i) => (
           <div key={i} className="relative h-full w-full flex-shrink-0 snap-center">

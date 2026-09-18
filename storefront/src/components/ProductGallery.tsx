@@ -190,11 +190,21 @@ export function ProductGallery({ images, title }: Props) {
 
       {/* === MOBILE: carrusel scroll-snap + dots === */}
       <div className="md:hidden">
+        {/* UN PÍXEL DE HUECO ENTRE FOTOS (gap-px), y no es estética. En
+            Android con escala fraccionaria (2.625 en Pixel, 2.75 en Samsung)
+            el borde entre dos fotos cae a medio píxel y la foto SIGUIENTE
+            pinta su primera columna encima de la última de la visible: una
+            línea oscura o beige de un píxel en la orilla, "una diminuta pero
+            horrible franja" (reportada el 2026-09-17). Medido en un Pixel
+            emulado: con las fotos pegadas, la columna del borde se desvía
+            30–36 de su vecina; con 1px de hueco, 0. El hueco enseña el crema
+            de la página durante el deslizamiento, y nada más. La misma
+            medida va en el carrusel de las tarjetas (ProductCard). */}
         {/* Hide WebKit scrollbar globally for this track class */}
         <style>{`.pg-mobile-track::-webkit-scrollbar{display:none}`}</style>
         <div
           ref={trackRef}
-          className="pg-mobile-track flex overflow-x-auto snap-x snap-mandatory"
+          className="pg-mobile-track flex gap-px overflow-x-auto snap-x snap-mandatory"
           style={{
             scrollbarWidth: "none",
             msOverflowStyle: "none",

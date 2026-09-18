@@ -330,9 +330,34 @@ input[type="search"]:focus-visible {
      OJO CON EL ORDEN: esta regla tiene la misma especificidad que `.plato img`
      y solo gana por ir DESPUÉS. Moverla arriba la deja sin efecto, sin aviso
      de nada. Ya pasó una vez. */
+  /* SIN FONDO BEIGE BAJO LAS FOTOS A SANGRE. En Android con escala
+     fraccionaria (2.625 en Pixel, 2.75 en Samsung) los bordes de la caja caen
+     a medio píxel y Chrome, al recortar, mezcla en ese píxel la foto con el
+     fondo del plato: una línea beige de un píxel abajo o a un lado — "una
+     diminuta pero horrible franja", reportada el 2026-09-17 y reproducida en
+     un Pixel emulado (con escala entera, @2x/@3x/iPhone, no pasa; por eso no
+     salía en las pruebas). Agrandar la foto no lo cura: el recorte sigue
+     siendo el mismo píxel mezclado. Lo que lo cura es que no haya beige que
+     mezclar: el plato de una foto a sangre va transparente, y lo que hay
+     detrás es la página, cuyo crema (251,248,241) es EXACTAMENTE el fondo de
+     las fotos de estudio. En una foto de ambiente, oscura, la mezcla queda en
+     un hilo crema al 50%, que en la práctica no se ve. Antes de cargar la
+     foto, la caja es del color de la página y no beige: se pierde nada. */
+  .plato-foto {
+    background-color: transparent;
+  }
   .plato-foto img {
     object-fit: cover;
     mix-blend-mode: normal;
+    /* La foto sobrepasa la caja un 1% (la caja la recorta): así no queda un
+       hueco de verdad cuando la foto sale un píxel corta por el redondeo.
+       ~2px por lado en la galería, ~1px en una tarjeta. `transform` y no
+       `inset` porque next/image pone el tamaño en línea. */
+    transform: scale(1.01);
+    /* Lo que NO cura la franja entre fotos vecinas de un carrusel es dar a la
+       foto su propia capa (will-change): se probó y el píxel compartido
+       seguía mezclado. Lo cura un hueco de 1px entre diapositivas: ver
+       gap-px en ProductGallery (móvil) y en ProductCard. */
   }
   /* El multiply solo es seguro contra un fondo claro. Sobre el negro del zoom
      (bg-black/95) la foto saldría NEGRA, sin error de consola: la lupa, que es
