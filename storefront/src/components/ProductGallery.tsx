@@ -274,17 +274,22 @@ export function ProductGallery({ images, title }: Props) {
                   aria-selected={activa}
                   aria-label={`Ir a imagen ${idx + 1}`}
                   onClick={() => scrollToIdx(idx)}
-                  className="relative shrink-0 basis-[28%] bg-bg"
+                  className={`relative shrink-0 basis-[28%] bg-bg transition-opacity duration-[180ms] ${
+                    activa ? "opacity-100" : "opacity-45"
+                  }`}
                 >
                   <span className={`plato plato-mini ${esFotoDeAmbiente(img) ? "plato-foto" : ""} block w-full`}>
                     <Image src={img.url} alt="" fill sizes="28vw" />
                   </span>
-                  <span
-                    aria-hidden
-                    className={`absolute inset-x-0 bottom-0 h-[3px] transition-colors duration-[180ms] ${
-                      activa ? "bg-text" : "bg-transparent"
-                    }`}
-                  />
+                  {/* SIN BARRA DE TINTA. La activa se marcaba con 3px negros
+                      al pie, como Lucchese; el dueño lo leyó como "una
+                      diminuta pero horrible franja horizontal al final" que
+                      "siempre aparece en la primera foto de todos los
+                      modelos" —y sí: al abrir una bota la activa es la
+                      primera, así que la barra estaba siempre ahí
+                      (2026-09-19). Ahora la activa se distingue porque las
+                      demás se apagan: es la misma información sin pintar una
+                      línea encima de la foto. */}
                 </button>
               )
             })}

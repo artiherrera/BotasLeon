@@ -296,7 +296,16 @@ function CardGallery({
         className="flex h-full w-full gap-px snap-x snap-mandatory overflow-x-auto scroll-smooth motion-reduce:scroll-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
       >
         {images.map((im, i) => (
-          <div key={i} className="relative h-full w-full flex-shrink-0 snap-center">
+          /* `overflow-hidden` EN CADA DIAPOSITIVA, y no es cosmético: la foto va
+             un 4% más grande que su caja (.plato-foto img { scale: 1.04 }) para
+             tapar las orillas del archivo, y sin recorte propio ese 4% se sale
+             de su diapositiva y asoma dentro de la vecina. Medido en un iPhone
+             sobre las tarjetas de "otros modelos": las últimas columnas de una
+             tarjeta con fondo crema salían azules (89,110,134) — era el
+             pantalón de la foto siguiente. El dueño lo reportó como "una
+             horrible franja vertical del lado derecho" en todas (2026-09-19).
+             `.plato` recorta el conjunto, pero no cada foto. */
+          <div key={i} className="relative h-full w-full flex-shrink-0 snap-center overflow-hidden">
             <Image
               src={im.url}
               alt={im.altText || alt}
