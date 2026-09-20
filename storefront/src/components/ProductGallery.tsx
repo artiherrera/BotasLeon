@@ -249,7 +249,14 @@ export function ProductGallery({ images, title }: Props) {
             quiero que se muestren" (2026-09-19), y medido en un iPhone era
             exactamente eso, 3px de pantalla de beige entre foto y foto. Las
             fotos van pegadas; como todas tienen fondo claro, no hace falta
-            separador para distinguirlas. Se desliza con el dedo; tocar una
+            separador para distinguirlas.
+
+            Y SIN `mt-px`: ese margen era parte de la misma retícula beige, y
+            al quitar el fondo quedó como un hilo de 1px del crema de la
+            página entre la foto grande y la tira —invisible sobre una foto
+            clara, evidente sobre una oscura—. Medido a 3x: la fila 690.00 css
+            daba 251,248,241 con dispersión 0 a lo ancho de los 390px, o sea
+            color plano, imposible que fuera fotografía. Se desliza con el dedo; tocar una
             lleva la foto grande a ella. Las miniaturas van en el mismo plato
             4:5 que la grande, para que la tira lea como un contacto y no como
             una fila de cuadros distintos. */}
@@ -258,7 +265,7 @@ export function ProductGallery({ images, title }: Props) {
             ref={stripRef}
             role="tablist"
             aria-label="Imágenes del producto"
-            className="pg-mobile-track mt-px flex overflow-x-auto"
+            className="pg-mobile-track flex overflow-x-auto"
             style={{ scrollbarWidth: "none", msOverflowStyle: "none", WebkitOverflowScrolling: "touch" }}
           >
             {images.map((img, idx) => {
