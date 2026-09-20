@@ -240,8 +240,16 @@ export function ProductGallery({ images, title }: Props) {
 
         {/* LA TIRA DE MINIATURAS, a todo lo ancho, como Lucchese: cada una
             ocupa ~28% del ancho (unas 3.5 a la vista, la cuarta asoma y avisa
-            que hay más), separadas por 1px de línea, y la activa lleva una
-            barra de tinta de 3px al pie. Se desliza con el dedo; tocar una
+            que hay más), PEGADAS, y la activa lleva una barra de tinta de 3px
+            al pie.
+
+            SIN LÍNEA ENTRE ELLAS. Llevaban 1px de separación sobre un fondo
+            beige (--color-border-plate, 217,208,188): el dueño lo reportó
+            como "franjas verticales muy pequeñas como color beige que no
+            quiero que se muestren" (2026-09-19), y medido en un iPhone era
+            exactamente eso, 3px de pantalla de beige entre foto y foto. Las
+            fotos van pegadas; como todas tienen fondo claro, no hace falta
+            separador para distinguirlas. Se desliza con el dedo; tocar una
             lleva la foto grande a ella. Las miniaturas van en el mismo plato
             4:5 que la grande, para que la tira lea como un contacto y no como
             una fila de cuadros distintos. */}
@@ -250,7 +258,7 @@ export function ProductGallery({ images, title }: Props) {
             ref={stripRef}
             role="tablist"
             aria-label="Imágenes del producto"
-            className="pg-mobile-track mt-px flex gap-px overflow-x-auto bg-border-plate"
+            className="pg-mobile-track mt-px flex overflow-x-auto"
             style={{ scrollbarWidth: "none", msOverflowStyle: "none", WebkitOverflowScrolling: "touch" }}
           >
             {images.map((img, idx) => {
