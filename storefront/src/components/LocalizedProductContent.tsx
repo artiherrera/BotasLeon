@@ -151,6 +151,35 @@ export function LocalizedProductTitle({
  * final de la columna y ahora es la primera fila del acordeón, que ya pone el
  * título y la línea.
  */
+/**
+ * Prepara el HTML que escribió el dueño en Shopify antes de pintarlo.
+ *
+ * FOTOS DENTRO DE LA DESCRIPCIÓN. Una foto puesta en la descripción NO es
+ * medio del producto: no sale en el carrusel ni en la tarjeta, solo aquí. Es
+ * el sitio para las placas de anatomía y de suela, los cuadros de medidas y
+ * cualquier cosa que explique la bota sin competir con las tomas de producto.
+ *
+ * Dos retoques al vuelo, porque el editor de Shopify no los pone:
+ *   · `loading="lazy"`: la descripción vive en un acordeón cerrado, así que
+ *     sus fotos no deben pesar en la carga de la ficha.
+ *   · un ancho al CDN de Shopify: las placas son de 2160px y la columna de
+ *     lectura mide ~640; sin esto se bajaría el original entero (72 KB contra
+ *     cerca de 300).
+ */
+function prepararDescripcion(html: string): string {
+  return html.replace(/<img\b([^>]*)>/gi, (_completa, atributos: string) => {
+    let a = atributos
+    if (!/\bloading=/i.test(a)) a += ' loading="lazy"'
+    if (!/\bdecoding=/i.test(a)) a += ' decoding="async"'
+    a = a.replace(/\bsrc="([^"]+)"/i, (m, url: string) =>
+      !/cdn\.shopify\.com/.test(url) || /[?&]width=/.test(url)
+        ? m
+        : `src="${url}${url.includes("?") ? "&" : "?"}width=1200"`
+    )
+    return `<img${a}>`
+  })
+}
+
 export function ProductDescriptionBody({
   handle,
   fallbackHtml,
@@ -159,11 +188,18 @@ export function ProductDescriptionBody({
   fallbackHtml: string
 }) {
   const t = useProductTranslation(handle)
-  const html = t?.descriptionHtml?.trim() ? t.descriptionHtml : fallbackHtml
-  if (!html) return null
+  const bruto = t?.descriptionHtml?.trim() ? t.descriptionHtml : fallbackHtml
+  if (!bruto) return null
+  const html = prepararDescripcion(bruto)
   return (
+    /* Estilos para lo que el dueño puede escribir en el editor de Shopify.
+       Las listas los necesitan de verdad: el reinicio de Tailwind deja los
+       <ul> sin viñeta y sin sangría, así que hasta hoy las listas de las
+       fichas salían como renglones sueltos (medido en vivo:
+       list-style-type "none", padding-left 0). Las fotos se ajustan al ancho
+       de la columna de lectura, nunca al suyo propio. */
     <div
-      className="cuerpo-l medida-lectura text-text-muted [&_a]:text-leather [&_a]:underline [&_p]:mb-3 [&_p:last-child]:mb-0"
+      className="cuerpo-l medida-lectura text-text-muted [&_a]:text-leather [&_a]:underline [&_p]:mb-3 [&_p:last-child]:mb-0 [&_ul]:mb-3 [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:mb-3 [&_ol]:list-decimal [&_ol]:pl-5 [&_li]:mb-1 [&_strong]:text-text [&_strong]:font-medium [&_img]:my-5 [&_img]:block [&_img]:h-auto [&_img]:w-full"
       dangerouslySetInnerHTML={{ __html: html }}
     />
   )
