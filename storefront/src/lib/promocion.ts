@@ -87,6 +87,15 @@ export const enPromoPar = (p: { tags?: string[] | null } | null | undefined): bo
 
 export const PROMO_PAR = {
   activa: true,
-  /** La página que explica el combo y enseña juntos los modelos que combinan. */
-  href: "/combos",
+  /**
+   * A dónde lleva el aviso. La marca El Malcreado son exactamente los tres
+   * botines de la promoción, así que sirve de página de la promo sin inventar
+   * una: quien llega por el negro ve ahí el café y el miel, que es lo que
+   * hace falta para armar el par.
+   *
+   * NO es "combos": un combo es llevar cosas distintas juntas —bota y cinto—,
+   * y esto es el segundo par del mismo tipo a mitad. Lo corrigió el dueño el
+   * 2026-09-24, después de que yo lo hubiera bautizado mal.
+   */
+  href: "/marcas/el-malcreado",
 } as const

@@ -142,7 +142,6 @@ export const DICTIONARY: Record<string, Entry> = {
   },
   "nav.cta.accessories": { es: "Ver todos los accesorios", en: "Shop all accessories" },
   "nav.brands": { es: "Marcas", en: "Brands" },
-  "nav.combos": { es: "Combos", en: "Bundles" },
   "nav.outlet": { es: "Outlet", en: "Outlet" },
   "nav.visit": { es: "Visítanos", en: "Visit Us" },
   "nav.byStyle": { es: "Por estilo", en: "By style" },
@@ -263,33 +262,6 @@ export const DICTIONARY: Record<string, Entry> = {
   "latest.label.mujer": { es: "mujer", en: "women's" },
 
   // ── Promoción del par: el segundo, a mitad (ver lib/promocion.ts) ────
-  "combos.eyebrow": { es: "Promoción", en: "Promotion" },
-  "combos.titulo": { es: "Combos", en: "Bundles" },
-  "combos.desc": {
-    es: "Botas que se llevan de dos en dos: el segundo par sale a mitad de precio.",
-    en: "Boots you take two at a time: the second pair is half price.",
-  },
-  "combos.paso1": {
-    es: "Elige dos de estos modelos. Pueden ser distintos, y de distinto color.",
-    en: "Pick two of these models. They can be different models and colors.",
-  },
-  "combos.paso2": {
-    es: "Agrégalos al carrito con la talla de cada uno.",
-    en: "Add them to your cart, each in its own size.",
-  },
-  "combos.paso3": {
-    es: "El 50% del segundo se descuenta solo. No hace falta ningún código.",
-    en: "The 50% off the second one applies on its own. No code needed.",
-  },
-  "combos.letraChica": {
-    es: "El descuento se aplica a la pieza de menor precio y una vez por pedido: con tres botines, uno sale a mitad de precio.",
-    en: "The discount applies to the lowest-priced item, once per order: with three boots, one comes at half price.",
-  },
-  "combos.vacio": {
-    es: "Ahora mismo no hay combos activos. Vuelve pronto: los anunciamos aquí y en la barra de arriba.",
-    en: "No bundles running right now. Check back soon — we announce them here and in the bar above.",
-  },
-  "combos.vacioCta": { es: "Ver todas las botas", en: "Shop all boots" },
 
   "promoPar.insignia": { es: "2º al 50%", en: "2nd at 50%" },
   "promoPar.ficha": {

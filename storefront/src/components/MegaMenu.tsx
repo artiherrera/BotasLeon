@@ -112,10 +112,6 @@ const MENU: MenuItem[] = [
     ],
   },
   {
-    label: "nav.combos",
-    href: "/combos",
-  },
-  {
     label: "nav.outlet",
     href: "/outlet",
   },

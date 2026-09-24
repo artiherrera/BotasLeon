@@ -82,7 +82,6 @@ const CATEGORIES: Category[] = [
 
 const QUICK_LINKS: Array<{ label: string; href: string }> = [
   { label: "nav.brands", href: "/marcas" },
-  { label: "nav.combos", href: "/combos" },
   { label: "nav.outlet", href: "/outlet" },
   { label: "nav.visit", href: "/visitanos" },
 ]
