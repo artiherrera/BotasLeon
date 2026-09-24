@@ -96,6 +96,7 @@ export function Footer() {
             <li><Link href="/hombre" className={ENLACE}>{t("nav.men")}</Link></li>
             <li><Link href="/mujer" className={ENLACE}>{t("nav.women")}</Link></li>
             <li><Link href="/marcas" className={ENLACE}>{t("nav.brands")}</Link></li>
+            <li><Link href="/combos" className={ENLACE}>{t("nav.combos")}</Link></li>
             <li><Link href="/outlet" className={ENLACE}>{t("nav.outlet")}</Link></li>
             {/* El catálogo salió de la barra de la cabecera para hacerle sitio
                 al buscador; ésta es su puerta en escritorio. Va al PDF, no al

@@ -145,6 +145,9 @@ const STATIC_ROUTES = [
   // sub-ruta de catálogo: es una página con su propio diseño, pensada para
   // que se pueda mandar tal cual en un anuncio.
   { path: "/josepha", priority: "0.8", changefreq: "weekly" },
+  // Combos: la promoción del par. Sí va al sitemap —al revés que /outlet—
+  // porque tiene producto de verdad y contenido propio que explica la oferta.
+  { path: "/combos", priority: "0.8", changefreq: "weekly" },
   { path: "/envios", priority: "0.6", changefreq: "monthly" },
   { path: "/devoluciones", priority: "0.6", changefreq: "monthly" },
   { path: "/guia-tallas", priority: "0.7", changefreq: "monthly" },

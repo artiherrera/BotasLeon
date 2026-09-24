@@ -87,6 +87,6 @@ export const enPromoPar = (p: { tags?: string[] | null } | null | undefined): bo
 
 export const PROMO_PAR = {
   activa: true,
-  /** La marca El Malcreado son exactamente los tres botines de la promoción. */
-  href: "/marcas/el-malcreado",
+  /** La página que explica el combo y enseña juntos los modelos que combinan. */
+  href: "/combos",
 } as const
