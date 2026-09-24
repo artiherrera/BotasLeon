@@ -16,6 +16,7 @@ import { CartLineSize } from "@/components/CartLineSize"
 import { SIZE_ATTR, isDefaultOption, missingSizeLines } from "@/lib/cart/line-size"
 import { formatMoney } from "@/lib/utils"
 import { NotaMsiCarrito } from "@/components/NotaMsiCarrito"
+import { PromoParCarrito } from "@/components/PromoParCarrito"
 import {
   getPendingDiscount,
   setPendingDiscount as savePendingDiscount,
@@ -161,6 +162,11 @@ export default function CartPage() {
             <div className="divide-y divide-border border-y border-border">
               {lines.map((line) => {
                 const v = line.merchandise
+                // Lo que Shopify le quitó a ESTA línea (promoción del par).
+                const descuentoLinea = (line.discountAllocations ?? []).reduce(
+                  (a, d) => a + parseFloat(d.discountedAmount.amount || "0"),
+                  0
+                )
                 const subtitle = [
                   ...v.selectedOptions
                     .filter((o) => !isDefaultOption(o.name, o.value))
@@ -194,7 +200,20 @@ export default function CartPage() {
                         >
                           {v.product.title}
                         </Link>
+                        {/* Con la promoción del par una línea llega a mitad
+                            de precio; sin el precio anterior tachado parece un
+                            error de la tienda. */}
                         <p className="precio text-text whitespace-nowrap">
+                          {descuentoLinea > 0 && (
+                            <span className="mr-1.5 text-text-muted line-through">
+                              {formatMoney(
+                                String(
+                                  parseFloat(line.cost.totalAmount.amount) + descuentoLinea
+                                ),
+                                line.cost.totalAmount.currencyCode
+                              )}
+                            </span>
+                          )}
                           {formatMoney(
                             line.cost.totalAmount.amount,
                             line.cost.totalAmount.currencyCode
@@ -254,6 +273,12 @@ export default function CartPage() {
             {/* Sidebar — resumen + checkout */}
             <aside className="bg-bg-alt p-6 h-fit lg:sticky lg:top-[124px]">
               <h2 className="eyebrow text-text-muted mb-4">{t("cart.summary")}</h2>
+
+              {/* La promoción del par, antes de los números: el ahorro si ya
+                  aplica, el empujón si falta uno. */}
+              <div className="mb-4">
+                <PromoParCarrito cart={cart} />
+              </div>
 
               <div className="space-y-2 mb-6">
                 <div className="flex justify-between cuerpo text-text-muted">

@@ -14,6 +14,7 @@ import { track } from "@/lib/klaviyo/client"
 import { gaEvent } from "@/lib/ga/events"
 import { useFocusTrap } from "@/lib/useFocusTrap"
 import { useT } from "@/lib/i18n/context"
+import { PromoParCarrito } from "@/components/PromoParCarrito"
 import { checkoutHref } from "@/lib/checkout"
 import { isMX } from "@/lib/market"
 import { CartLineSize } from "@/components/CartLineSize"
@@ -236,6 +237,11 @@ export function CartDrawer() {
             <div className="flex-1 overflow-y-auto px-6 py-4 divide-y divide-border">
               {lines.map((line) => {
                 const v = line.merchandise
+                // Lo que Shopify le quitó a ESTA línea (promoción del par).
+                const descuentoLinea = (line.discountAllocations ?? []).reduce(
+                  (a, d) => a + parseFloat(d.discountedAmount.amount || "0"),
+                  0
+                )
                 const subtitle = [
                   ...v.selectedOptions
                     .filter((o) => !isDefaultOption(o.name, o.value))
@@ -271,7 +277,21 @@ export function CartDrawer() {
                         >
                           {v.product.title}
                         </Link>
+                        {/* Con la promoción del par, Shopify parte la
+                            cantidad en dos líneas y una llega a mitad de
+                            precio. Sin el precio anterior tachado, esa línea
+                            parece un error de la tienda. */}
                         <p className="precio text-sm text-text whitespace-nowrap">
+                          {descuentoLinea > 0 && (
+                            <span className="mr-1.5 text-text-muted line-through">
+                              {formatMoney(
+                                String(
+                                  parseFloat(line.cost.totalAmount.amount) + descuentoLinea
+                                ),
+                                line.cost.totalAmount.currencyCode
+                              )}
+                            </span>
+                          )}
                           {formatMoney(
                             line.cost.totalAmount.amount,
                             line.cost.totalAmount.currencyCode
@@ -419,6 +439,13 @@ export function CartDrawer() {
                     )}
                 </span>
               </div>
+              {/* La promoción del par: el ahorro cuando ya aplica, el empujón
+                  cuando falta uno. Va ANTES de los totales, que es donde el
+                  ojo aterriza antes de tocar "Pagar". */}
+              <div className="mb-3">
+                <PromoParCarrito cart={cart} />
+              </div>
+
               {discountTotal > 0 && (
                 <div className="flex justify-between items-baseline mb-1">
                   <span className="cuerpo text-text-muted">{t("cart.discount")}</span>

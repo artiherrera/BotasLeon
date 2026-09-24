@@ -177,6 +177,17 @@ export type CategoryCard = {
   isActive: boolean
 }
 
+/**
+ * Un descuento aplicado, tal como lo devuelve la Storefront API. `title` es el
+ * nombre que el dueño le puso en Shopify a un descuento automático ("Segundo
+ * par de El Elegante al 50%"); `code`, el código si vino de uno.
+ */
+export type DescuentoAplicado = {
+  discountedAmount: Money
+  title?: string
+  code?: string
+}
+
 export type Cart = {
   id: string
   checkoutUrl: string
@@ -193,11 +204,16 @@ export type Cart = {
     totalAmount: Money
     totalTaxAmount: Money | null
   }
+  /** Descuentos automáticos de Shopify aplicados al carrito entero. */
+  discountAllocations: DescuentoAplicado[]
   lines: Array<{
     id: string
     quantity: number
+    /** Descuentos automáticos que caen sobre ESTA línea. */
+    discountAllocations: DescuentoAplicado[]
     merchandise: ProductVariant & {
       product: Pick<Product, "handle" | "title" | "productType"> & {
+        tags?: string[]
         // Metacampos que el carrito necesita para su selector de talla:
         // la lista de tallas del producto y el sexo (conversión MX→US).
         targetGender?: Product["targetGender"]

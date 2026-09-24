@@ -9,6 +9,7 @@ import { LocalizedPrice, useProductTranslation } from "./LocalizedProductContent
 import { useLocale, useT } from "@/lib/i18n/context"
 import { atributosDeTarjeta } from "@/lib/shopify/facets"
 import { facetLabel } from "@/lib/facets-i18n"
+import { enPromoPar } from "@/lib/promocion"
 import { saleInfo } from "@/lib/utils"
 import { esFotoDeAmbiente } from "@/lib/fotos"
 
@@ -91,6 +92,7 @@ export function ProductCard({
     .join(" · ")
 
   const { onSale } = saleInfo(minPrice.amount, compareAt?.amount)
+  const promoPar = enPromoPar(product)
   const nueva = esNueva(product.createdAt)
 
   // El hover vive en la TARJETA, no en la galería: el dueño lo pidió "al pasar
@@ -135,12 +137,21 @@ export function ProductCard({
               {t("card.soldOut")}
             </span>
           )}
-          {onSale && (
+          {/* La promoción del par manda sobre "outlet" y sobre "nueva": UNA
+              insignia por tarjeta. El precio tachado ya cuenta lo del outlet
+              ahí abajo, y una fecha de alta pesa menos que medio par gratis. Va en tinta sobre crema, como el resto de
+              las insignias; el único fondo sólido sigue siendo el agotado. */}
+          {promoPar && product.availableForSale && (
+            <span className="bg-bg text-text border border-text eyebrow text-xs px-2 py-1">
+              {t("promoPar.insignia")}
+            </span>
+          )}
+          {onSale && !promoPar && (
             <span className="bg-bg text-text border border-border eyebrow text-xs px-2 py-1">
               {t("card.badgeOutlet")}
             </span>
           )}
-          {nueva && product.availableForSale && !onSale && (
+          {nueva && product.availableForSale && !onSale && !promoPar && (
             <span className="bg-bg text-text border border-border eyebrow text-xs px-2 py-1">
               {t("card.badgeNew")}
             </span>

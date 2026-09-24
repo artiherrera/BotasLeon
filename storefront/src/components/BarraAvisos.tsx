@@ -2,8 +2,9 @@
 
 import { useEffect, useState, useSyncExternalStore } from "react"
 import { useT } from "@/lib/i18n/context"
+import { LocalizedLink as Link } from "@/components/LocalizedLink"
 import { PROMESAS_BARRA } from "@/lib/promesas"
-import { formatoCuentaRegresiva, restante, type Restante } from "@/lib/promocion"
+import { formatoCuentaRegresiva, restante, type Restante, PROMO_PAR } from "@/lib/promocion"
 
 /**
  * Barra de avisos: la promoción con su cuenta regresiva, y tres promesas.
@@ -64,11 +65,30 @@ export function BarraAvisos() {
 
   // Sin promoción y sin promesas no hay barra: una franja de tinta vacía es
   // justo lo que se está arreglando.
-  if (!hayPromo && PROMESAS_BARRA.length === 0) return null
+  if (!hayPromo && !PROMO_PAR.activa && PROMESAS_BARRA.length === 0) return null
 
   return (
     <div className="bg-text text-bg">
       <div className="contenedor flex min-h-12 flex-wrap items-center justify-center gap-x-4 gap-y-1.5 py-2.5 text-center">
+        {/* LA PROMOCIÓN DEL PAR, sin reloj: el dueño la puso sin fecha de
+            término (2026-09-24). Va en el mismo bloque de crema sobre tinta
+            que usaba la del 10% —el contraste más alto de la paleta— y lleva
+            enlace, porque un aviso que no se puede tocar obliga a buscar.
+            Para apagarlo: PROMO_PAR.activa = false en lib/promocion.ts. */}
+        {PROMO_PAR.activa && (
+          <p className="flex flex-wrap items-center justify-center gap-x-2.5 gap-y-1 bg-bg px-4 py-1.5 text-text">
+            <span className="text-[13px] font-bold uppercase tracking-[0.06em] leading-tight">
+              {t("promoPar.barra")}
+            </span>
+            <Link
+              href={PROMO_PAR.href}
+              className="text-[12px] uppercase tracking-[0.1em] leading-tight underline underline-offset-4"
+            >
+              {t("promoPar.barraCta")}
+            </Link>
+          </p>
+        )}
+
         {hayPromo && (
           <p className="flex flex-wrap items-center justify-center gap-x-2.5 gap-y-1 bg-bg px-4 py-1.5 text-text">
             <span className="text-[13px] font-bold uppercase tracking-[0.06em] leading-tight">

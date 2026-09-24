@@ -59,3 +59,34 @@ export function formatoCuentaRegresiva(r: Restante): string {
   const dd = (n: number) => String(n).padStart(2, "0")
   return `${dd(r.horas)}:${dd(r.minutos)}:${dd(r.segundos)}`
 }
+
+/**
+ * PROMOCIÓN DEL PAR: el segundo, a mitad de precio.
+ *
+ * El descuento vive en Shopify (automático, "Segundo par de El Elegante al
+ * 50%") y se aplica solo en el carrito y el checkout. Comprobado contra la
+ * Storefront API el 2026-09-24: funciona con dos botines cualesquiera de la
+ * promoción —no tienen que ser el mismo modelo—, y también en el mercado en
+ * dólares. Con tres piezas descuenta UNA, no dos.
+ *
+ * QUIÉN ENTRA LO DECIDE SHOPIFY, NO EL CÓDIGO: los productos con la etiqueta
+ * `promo-2do-50` son los que enseñan la insignia en la tarjeta y la línea en
+ * la ficha. Así el dueño la empieza y la termina desde el panel —etiquetar y
+ * desetiquetar— sin esperar un despliegue. Ojo: la etiqueta solo ANUNCIA; el
+ * descuento de verdad es el de Shopify. Si se quita uno y se deja el otro, el
+ * sitio miente: hay que mover los dos juntos.
+ *
+ * EL AVISO DE LA BARRA sí es una constante: la barra se pinta en todas las
+ * páginas, también en las que no cargan productos, así que no puede depender
+ * de la etiqueta. Para apagarlo, `activa: false` (una línea y un despliegue).
+ */
+export const ETIQUETA_PROMO_PAR = "promo-2do-50"
+
+export const enPromoPar = (p: { tags?: string[] | null } | null | undefined): boolean =>
+  (p?.tags ?? []).includes(ETIQUETA_PROMO_PAR)
+
+export const PROMO_PAR = {
+  activa: true,
+  /** La marca El Malcreado son exactamente los tres botines de la promoción. */
+  href: "/marcas/el-malcreado",
+} as const

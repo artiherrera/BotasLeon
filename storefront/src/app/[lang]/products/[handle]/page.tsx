@@ -10,6 +10,7 @@ import { PDPMarca } from "@/components/PDPMarca"
 import { PDPAcordeones } from "@/components/PDPAcordeones"
 import { PDPAtributos } from "@/components/PDPAtributos"
 import { PDPCalificacion } from "@/components/PDPCalificacion"
+import { PDPPromoPar } from "@/components/PDPPromoPar"
 import { PDPConstruccion } from "@/components/PDPConstruccion"
 import { PDPNotasTalla } from "@/components/PDPNotasTalla"
 import { CompartirProducto } from "@/components/CompartirProducto"
@@ -211,6 +212,10 @@ export default async function ProductPage({ params }: Props) {
                   />
                   <PDPCalificacion product={product} />
                 </div>
+
+                {/* El segundo a mitad de precio, entre el precio y la talla:
+                    es lo que cambia cuánto vas a gastar. */}
+                <PDPPromoPar product={product} />
 
                 <ProductOptions product={product} />
 

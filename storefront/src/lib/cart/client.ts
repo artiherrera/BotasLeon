@@ -37,6 +37,17 @@ const CART_FRAGMENT = /* GraphQL */ `
       totalAmount    { amount currencyCode }
       totalTaxAmount { amount currencyCode }
     }
+    # Descuentos AUTOMÁTICOS (los de Shopify, sin código). Van por línea, y
+    # hay que pedirlos aparte: con un descuento automático el subtotal del
+    # carrito YA viene rebajado, así que la resta subtotal − total da cero y
+    # el ahorro se volvía invisible. Medido el 2026-09-24 con dos botines de
+    # la promoción: subtotal 5548.50 = total, y el ahorro de 1849.50 solo
+    # aparecía aquí.
+    discountAllocations {
+      discountedAmount { amount currencyCode }
+      ... on CartAutomaticDiscountAllocation { title }
+      ... on CartCodeDiscountAllocation { code }
+    }
     lines(first: 100) {
       edges {
         node {
@@ -44,6 +55,11 @@ const CART_FRAGMENT = /* GraphQL */ `
           quantity
           attributes { key value }
           cost { totalAmount { amount currencyCode } }
+          discountAllocations {
+            discountedAmount { amount currencyCode }
+            ... on CartAutomaticDiscountAllocation { title }
+            ... on CartCodeDiscountAllocation { code }
+          }
           merchandise {
             ... on ProductVariant {
               id
@@ -55,6 +71,9 @@ const CART_FRAGMENT = /* GraphQL */ `
               product {
                 handle
                 title
+                # Para saber si la línea entra en la promoción del par y poder
+                # empujar al que lleva uno solo (ver lib/promocion.ts).
+                tags
                 # Decide si la talla se convierte a escala americana: solo el
                 # calzado. Un cinturón va en pulgadas. Ver lib/sizes.ts.
                 productType

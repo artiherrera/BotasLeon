@@ -261,6 +261,24 @@ export const DICTIONARY: Record<string, Entry> = {
   "latest.label.hombre": { es: "hombre", en: "men's" },
   "latest.label.mujer": { es: "mujer", en: "women's" },
 
+  // ── Promoción del par: el segundo, a mitad (ver lib/promocion.ts) ────
+  "promoPar.insignia": { es: "2º al 50%", en: "2nd at 50%" },
+  "promoPar.ficha": {
+    es: "Llévate dos y el segundo sale a mitad de precio. Puedes combinar modelos y colores.",
+    en: "Take two and the second one is half price. Mix models and colors as you like.",
+  },
+  "promoPar.barra": {
+    es: "El segundo botín, a mitad de precio",
+    en: "Second ankle boot, half price",
+  },
+  "promoPar.barraCta": { es: "Verlos", en: "See them" },
+  "promoPar.carritoEmpuje": {
+    es: "Agrega otro y el segundo sale a mitad de precio.",
+    en: "Add another one and the second is half price.",
+  },
+  "promoPar.carritoVerlos": { es: "Ver los botines", en: "See the boots" },
+  "promoPar.carritoAhorro": { es: "Promoción aplicada", en: "Promotion applied" },
+
   // ── Home · "Botas Exóticas" (BotasExoticas) ──────────────────────────
   // La frase va ANTES del bloque, centrada, en cursiva y entre comillas, como
   // cita textual: así la pidió el dueño. Las comillas las pone el componente
