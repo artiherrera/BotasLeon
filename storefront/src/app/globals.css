@@ -127,6 +127,17 @@ body[data-cajon-abierto] .barra-cookies {
    sabe midiendo (ver lib/klaviyo/teaser.ts). */
 [class*="kl-teaser-"] {
   filter: none !important;
+  /* Klaviyo le fija 168px de ancho, que le bastaban a su texto de 20px sin
+     espaciar. Al nuestro —más chico pero con versalitas y letra separada— no:
+     partía "10% DE DESCUENTO" en dos líneas (visto en vivo). Que mida lo que
+     mida su texto, sin pasarse del ancho de la pantalla. */
+  width: max-content !important;
+  max-width: calc(100vw - 24px) !important;
+}
+[class*="kl-teaser-"] p,
+[class*="kl-teaser-"] p span,
+[class*="kl-teaser-"] strong {
+  white-space: nowrap !important;
 }
 [class*="kl-teaser-"] [role="button"] {
   background-color: var(--color-bg) !important;
