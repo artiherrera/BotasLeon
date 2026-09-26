@@ -13,6 +13,7 @@ import { NotaMsiCarrito } from "./NotaMsiCarrito"
 import { track } from "@/lib/klaviyo/client"
 import { gaEvent } from "@/lib/ga/events"
 import { useFocusTrap } from "@/lib/useFocusTrap"
+import { useMarcarCajonAbierto } from "@/lib/cajones"
 import { useT } from "@/lib/i18n/context"
 import { PromoParCarrito } from "@/components/PromoParCarrito"
 import { checkoutHref } from "@/lib/checkout"
@@ -110,6 +111,10 @@ export function CartDrawer() {
 
   // Diálogo accesible: foco atrapado dentro del drawer, restaurado al
   // disparador al cerrar, y Escape para cerrar.
+  // Aparta la barra de cookies mientras el cajón está abierto: comparten capa
+  // y si no, se pinta encima del botón de Pagar.
+  useMarcarCajonAbierto(isOpen)
+
   const drawerRef = useFocusTrap<HTMLElement>(isOpen, closeCart)
 
   const lines = cart?.lines ?? []

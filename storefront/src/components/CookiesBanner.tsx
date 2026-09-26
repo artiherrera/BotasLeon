@@ -81,7 +81,7 @@ export function CookiesBanner() {
     // conserva la palabra "cookies" a propósito.
     <section
       aria-label={t("cookies.dialogLabel")}
-      className={`fixed inset-x-0 bottom-[var(--barra-inferior)] z-50 border-t border-border bg-plate transition-transform duration-[180ms] motion-reduce:transition-none ${
+      className={`barra-cookies fixed inset-x-0 bottom-[var(--barra-inferior)] z-50 border-t border-border bg-plate transition-transform duration-[180ms] motion-reduce:transition-none ${
         visible ? "translate-y-0" : "translate-y-full"
       }`}
       style={{ paddingBottom: "env(safe-area-inset-bottom)" }}

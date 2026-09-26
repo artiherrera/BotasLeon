@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react"
 import { EVENTO_ABRIR_MENU } from "@/components/BarraInferior"
+import { useMarcarCajonAbierto } from "@/lib/cajones"
 import { createPortal } from "react-dom"
 import { LocalizedLink as Link } from "@/components/LocalizedLink"
 import Image from "next/image"
@@ -134,6 +135,9 @@ export function MobileNav() {
     }
   }, [open])
 
+  // Aparta la barra de cookies mientras esto está abierto (ver lib/cajones).
+  useMarcarCajonAbierto(open)
+
   useEffect(() => {
     if (!open) return
     const handler = (e: KeyboardEvent) => {
@@ -159,6 +163,62 @@ export function MobileNav() {
 
   const close = () => setOpen(false)
 
+  /**
+   * ARRASTRAR HACIA LA DERECHA PARA CERRAR.
+   *
+   * La aspa sigue arriba a la derecha, donde todo el mundo la busca, pero
+   * ahora que el cajón lo abre la última pestaña de la barra de abajo, esa
+   * aspa queda en la esquina más lejana del pulgar de una mano sola. El gesto
+   * cierra desde cualquier punto del cajón. No se quita el aspa: quien no
+   * prueba gestos se quedaría encerrado.
+   *
+   * El eje se decide en el primer centímetro y no se vuelve a discutir: si el
+   * dedo salió hacia abajo manda la lista, que también se desplaza, y si salió
+   * hacia la derecha manda el cajón. Sin esa decisión, leer el menú arrastraría
+   * el cajón de lado. `touch-pan-y` en el elemento le dice al navegador lo
+   * mismo: lo vertical es suyo, lo horizontal es nuestro.
+   *
+   * Setenta píxeles para que cuente: por debajo es un roce al desplazar.
+   */
+  const asideRef = useRef<HTMLElement>(null)
+  const arrastre = useRef<{ x0: number; y0: number; manda: boolean | null } | null>(null)
+
+  const alTocar = (e: React.TouchEvent) => {
+    const t = e.touches[0]
+    arrastre.current = { x0: t.clientX, y0: t.clientY, manda: null }
+  }
+
+  const alMover = (e: React.TouchEvent) => {
+    const a = arrastre.current
+    const el = asideRef.current
+    if (!a || !el) return
+    const t = e.touches[0]
+    const dx = t.clientX - a.x0
+    const dy = t.clientY - a.y0
+
+    if (a.manda === null) {
+      if (Math.abs(dx) < 10 && Math.abs(dy) < 10) return
+      a.manda = dx > 0 && Math.abs(dx) > Math.abs(dy)
+      // Mientras el dedo manda, el cajón va pegado a él: sin transición, que
+      // si no llega con dos décimas de retraso.
+      if (a.manda) el.style.transitionDuration = "0s"
+    }
+    if (!a.manda) return
+    el.style.translate = `${Math.max(0, dx)}px 0`
+  }
+
+  const alSoltar = (e: React.TouchEvent) => {
+    const a = arrastre.current
+    const el = asideRef.current
+    arrastre.current = null
+    if (!el) return
+    el.style.transitionDuration = ""
+    el.style.translate = ""
+    if (!a?.manda) return
+    const dx = (e.changedTouches[0]?.clientX ?? a.x0) - a.x0
+    if (dx > 70) close()
+  }
+
   const drawer = (
     <>
       <div
@@ -170,10 +230,15 @@ export function MobileNav() {
       />
 
       <aside
+        ref={asideRef}
         role="dialog"
         aria-modal="true"
         aria-label={t("a11y.nav")}
         inert={!open}
+        onTouchStart={alTocar}
+        onTouchMove={alMover}
+        onTouchEnd={alSoltar}
+        onTouchCancel={alSoltar}
         /* POR LA DERECHA, no por la izquierda: el botón que lo abre es la
            última pestaña de la barra de abajo, la de la derecha. Un cajón que
            sale del lado opuesto al dedo que lo llamó se siente como si hubiera
@@ -181,7 +246,7 @@ export function MobileNav() {
            Mientras el botón vivía arriba a la izquierda (la hamburguesa), lo
            correcto era lo contrario. */
         className={`min-[1100px]:hidden fixed inset-y-0 right-0 w-[90%] max-w-sm bg-bg
-          border-l border-border
+          border-l border-border touch-pan-y
           z-50 flex flex-col transition-transform duration-[180ms] ${
             open ? "translate-x-0" : "translate-x-full"
           }`}
