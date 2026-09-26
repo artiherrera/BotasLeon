@@ -12,11 +12,13 @@ import { useEffect, useState } from "react"
  * podía llegar al checkout. Lo reportó el dueño con una captura desde su
  * teléfono, y se reprodujo en vivo: `kl-teaser-…`, 168×50, pegado abajo.
  *
- * Klaviyo no deja mover ese teaser desde aquí —se configura en su panel—, así
- * que lo que se mueve es lo nuestro: se mide su alto y las barras del sitio se
- * suben por encima.
+ * Se mide su alto para que las barras del sitio se suban por encima. Con el
+ * teaser ya movido al costado (ver useTeaserKlaviyoAlCostado, abajo) esta
+ * medida devuelve 0 casi siempre —nada pegado abajo que esquivar—, pero se
+ * queda: si Klaviyo cambia su marcado y el empujón lateral falla, las barras
+ * siguen protegidas. Es el cinturón debajo de los tirantes.
  *
- * Devuelve 0 cuando no hay teaser, que es el caso normal.
+ * Devuelve 0 cuando no hay teaser abajo, que es el caso normal.
  */
 export function useAltoTeaserKlaviyo(): number {
   const [alto, setAlto] = useState(0)
@@ -68,4 +70,105 @@ export function useAltoTeaserKlaviyo(): number {
   }, [])
 
   return alto
+}
+
+/**
+ * Mueve el teaser del 10% al COSTADO DERECHO, a media altura.
+ *
+ * Lo pidió el dueño dos veces (2026-09-25): "el 10% de Klaviyo se ve en la
+ * parte de abajo, te dije que lo quería a un lado". Abajo es el peor sitio
+ * posible en esta tienda: ahí vive la barra de pestañas, la barra de compra de
+ * la ficha y el resumen del carrito. Cada cosa nueva que se pega abajo hay que
+ * subirla por encima de una pastilla de Klaviyo que no podemos tocar.
+ *
+ * NO SE ARREGLA CON CSS. Klaviyo escribe la posición en el atributo `style`, y
+ * unas veces la escribe en el propio teaser y otras en un envoltorio que lo
+ * contiene; desde una hoja de estilos no se puede saber cuál de los dos lleva
+ * el `position: fixed`. Aquí se sube por el árbol hasta encontrarlo y se le
+ * manda la posición con prioridad `important`, que es lo único que le gana a un
+ * estilo en línea.
+ *
+ * SIN BUCLE. El observador del DOM se dispara también con nuestro propio
+ * cambio de estilos, así que la condición de salida no se pregunta "¿ya le puse
+ * los estilos?" —Klaviyo podría habérselos borrado— sino "¿está DONDE QUIERO?",
+ * medido con el rectángulo real. Cuando ya está, no se toca; y si Klaviyo lo
+ * devuelve abajo, se vuelve a mover.
+ *
+ * A media altura y no arriba ni abajo: arriba choca con la cabecera pegajosa y
+ * abajo es de donde venimos. En el centro del borde derecho no tapa ningún
+ * botón del sitio.
+ *
+ * Se llama UNA vez, desde KlaviyoLoader, que es el único sitio por el que entra
+ * Klaviyo a la página.
+ */
+export function useTeaserKlaviyoAlCostado(): void {
+  useEffect(() => {
+    let pendiente = 0
+
+    const mover = () => {
+      document
+        .querySelectorAll<HTMLElement>('[class*="kl-teaser-"]')
+        .forEach((teaser) => {
+          const cs0 = window.getComputedStyle(teaser)
+          if (cs0.display === "none" || cs0.visibility === "hidden") return
+
+          // El elemento que de verdad está fijado a la ventana: puede ser el
+          // teaser o cualquier envoltorio suyo.
+          let objetivo = teaser
+          for (
+            let n: HTMLElement | null = teaser;
+            n && n !== document.body;
+            n = n.parentElement
+          ) {
+            if (window.getComputedStyle(n).position === "fixed") {
+              objetivo = n
+              break
+            }
+          }
+
+          const r = objetivo.getBoundingClientRect()
+          if (r.width < 8 || r.height < 8) return
+          // ¿Ya está pegado a la derecha y despegado de arriba y de abajo?
+          const pegadoDerecha = Math.abs(window.innerWidth - r.right) <= 2
+          const libreArriba = r.top > 48
+          const libreAbajo = window.innerHeight - r.bottom > 48
+          if (pegadoDerecha && libreArriba && libreAbajo) return
+
+          const st = objetivo.style
+          st.setProperty("position", "fixed", "important")
+          st.setProperty("top", "50%", "important")
+          st.setProperty("bottom", "auto", "important")
+          st.setProperty("left", "auto", "important")
+          st.setProperty("right", "0px", "important")
+          st.setProperty("transform", "translateY(-50%)", "important")
+          st.setProperty("margin", "0", "important")
+        })
+    }
+
+    const pedirMovida = () => {
+      if (pendiente) return
+      pendiente = window.requestAnimationFrame(() => {
+        pendiente = 0
+        mover()
+      })
+    }
+
+    mover()
+    const observador = new MutationObserver(pedirMovida)
+    observador.observe(document.body, {
+      childList: true,
+      subtree: true,
+      attributes: true,
+      attributeFilter: ["style", "class"],
+    })
+    window.addEventListener("resize", pedirMovida)
+    window.addEventListener("klaviyoForms", pedirMovida)
+
+    return () => {
+      if (pendiente) window.cancelAnimationFrame(pendiente)
+      observador.disconnect()
+      window.removeEventListener("resize", pedirMovida)
+      window.removeEventListener("klaviyoForms", pedirMovida)
+    }
+  }, [])
 }

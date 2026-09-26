@@ -174,10 +174,16 @@ export function MobileNav() {
         aria-modal="true"
         aria-label={t("a11y.nav")}
         inert={!open}
-        className={`min-[1100px]:hidden fixed inset-y-0 left-0 w-[90%] max-w-sm bg-bg
-          border-r border-border
+        /* POR LA DERECHA, no por la izquierda: el botón que lo abre es la
+           última pestaña de la barra de abajo, la de la derecha. Un cajón que
+           sale del lado opuesto al dedo que lo llamó se siente como si hubiera
+           abierto otra cosa —y de paso la mano tapa lo que acaba de aparecer.
+           Mientras el botón vivía arriba a la izquierda (la hamburguesa), lo
+           correcto era lo contrario. */
+        className={`min-[1100px]:hidden fixed inset-y-0 right-0 w-[90%] max-w-sm bg-bg
+          border-l border-border
           z-50 flex flex-col transition-transform duration-[180ms] ${
-            open ? "translate-x-0" : "-translate-x-full"
+            open ? "translate-x-0" : "translate-x-full"
           }`}
       >
         {/* Header */}
