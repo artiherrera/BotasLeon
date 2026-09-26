@@ -3,6 +3,7 @@
 import { useSyncExternalStore } from "react"
 import Script from "next/script"
 import { hayConsentimiento } from "@/lib/consentimiento"
+import { useTeaserKlaviyoBajoLaCabecera } from "@/lib/klaviyo/teaser"
 
 /**
  * KlaviyoLoader — carga el snippet onsite de Klaviyo SOLO con consentimiento.
@@ -36,6 +37,11 @@ const isAllowed = hayConsentimiento
 export function KlaviyoLoader() {
   // getServerSnapshot = false: en SSR no hay consentimiento todavía.
   const allowed = useSyncExternalStore(subscribe, isAllowed, () => false)
+
+  // Sube la pastilla del 10% a debajo de la cabecera. Aquí porque es el único
+  // punto por el que Klaviyo entra al sitio, y antes del `return` porque un
+  // hook no puede vivir detrás de una condición.
+  useTeaserKlaviyoBajoLaCabecera()
 
   if (!PUBLIC_KEY || !allowed) return null
 

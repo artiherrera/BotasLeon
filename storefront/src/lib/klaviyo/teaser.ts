@@ -31,6 +31,9 @@ import { useEffect, useState } from "react"
  *
  * Devuelve 0 cuando no hay teaser abajo, que es el caso normal.
  */
+/** Lo que se separa del borde derecho, igual que el aire de la cabecera. */
+const MARGEN = 12
+
 export function useAltoTeaserKlaviyo(): number {
   const [alto, setAlto] = useState(0)
 
@@ -81,4 +84,83 @@ export function useAltoTeaserKlaviyo(): number {
   }, [])
 
   return alto
+}
+
+/**
+ * Sube la pastilla del 10% a debajo de la cabecera, pegada a la derecha.
+ *
+ * Donde la deja Klaviyo —abajo a la izquierda, 168x64— se monta ENCIMA de la
+ * barra de pestañas del teléfono: tapa "Inicio" y "Explorar" con su z-index de
+ * 90000. Y arriba es donde la quiso el dueño (2026-09-26).
+ *
+ * SOLO SE MUEVE. No se esconde, no se sustituye y no se le pulsa nada: eso ya
+ * se intentó y acabó con el formulario abriéndose dentro de un elemento
+ * invisible y la pantalla del teléfono congelada. El vestuario va en
+ * globals.css; aquí solo van los cuatro números que dependen de medir.
+ *
+ * La altura se mide en cada pasada porque la cabecera es pegajosa y cambia de
+ * alto: lleva dentro la barra de avisos, que aparece y desaparece con la
+ * promoción y el idioma, y en un teléfono estrecho ocupa dos líneas.
+ */
+export function useTeaserKlaviyoBajoLaCabecera(): void {
+  useEffect(() => {
+    let pendiente = 0
+
+    const mover = () => {
+      document
+        .querySelectorAll<HTMLElement>('[class*="kl-teaser-"]')
+        .forEach((teaser) => {
+          const cs = window.getComputedStyle(teaser)
+          if (cs.display === "none" || cs.visibility === "hidden") return
+
+          const cabecera = document.querySelector("header")
+          const y = Math.round(
+            Math.max(8, (cabecera ? cabecera.getBoundingClientRect().bottom : 0) + 8),
+          )
+
+          const r = teaser.getBoundingClientRect()
+          if (r.width < 8 || r.height < 8) return
+          // ¿Ya está? Se pregunta por el rectángulo y no por los estilos que
+          // pusimos: Klaviyo los reescribe y hay que poder volver a ponerlos.
+          const aLaDerecha = Math.abs(window.innerWidth - r.right - MARGEN) <= 2
+          const aLaAltura = Math.abs(r.top - y) <= 4
+          if (aLaDerecha && aLaAltura) return
+
+          const st = teaser.style
+          st.setProperty("top", `${y}px`, "important")
+          st.setProperty("bottom", "auto", "important")
+          st.setProperty("left", "auto", "important")
+          st.setProperty("right", "0px", "important")
+          st.setProperty("margin", `0 ${MARGEN}px`, "important")
+        })
+    }
+
+    const pedirMovida = () => {
+      if (pendiente) return
+      pendiente = window.requestAnimationFrame(() => {
+        pendiente = 0
+        mover()
+      })
+    }
+
+    mover()
+    const observador = new MutationObserver(pedirMovida)
+    observador.observe(document.body, {
+      childList: true,
+      subtree: true,
+      attributes: true,
+      attributeFilter: ["style", "class"],
+    })
+    window.addEventListener("resize", pedirMovida)
+    window.addEventListener("scroll", pedirMovida, { passive: true })
+    window.addEventListener("klaviyoForms", pedirMovida)
+
+    return () => {
+      if (pendiente) window.cancelAnimationFrame(pendiente)
+      observador.disconnect()
+      window.removeEventListener("resize", pedirMovida)
+      window.removeEventListener("scroll", pedirMovida)
+      window.removeEventListener("klaviyoForms", pedirMovida)
+    }
+  }, [])
 }

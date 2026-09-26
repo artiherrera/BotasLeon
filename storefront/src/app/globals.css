@@ -107,6 +107,42 @@ body[data-cajon-abierto] .barra-cookies {
   display: none;
 }
 
+/* LA PASTILLA DEL 10% DE KLAVIYO, VESTIDA COMO EL SITIO.
+   Klaviyo la pinta negra, en Instrument Sans de 20px y con una sombra de 30px
+   —medido su marcado en vivo el 2026-09-26—, y encima de este sitio se veía
+   como un parche pegado. Aquí se le cambia la ropa: crema, filo de un pelo,
+   versalitas en cuero y sin sombra, que el sitio no tiene ninguna.
+
+   NO se le toca la estructura ni se esconde: un intento anterior la escondía
+   para sustituirla y Klaviyo dejaba el formulario abierto dentro de un
+   elemento invisible, con el desplazamiento del cuerpo bloqueado —la pantalla
+   congelada del dueño. Aquí solo se pinta encima; el elemento sigue siendo
+   suyo y su clic, el suyo.
+
+   Con !important porque Klaviyo escribe todo esto en el atributo `style`. El
+   selector no alcanza a la barra de abajo del sitio, que lleva `--kl-teaser,`
+   en su clase: sin guion final no hay coincidencia.
+
+   La posición NO está aquí: depende de lo que mida la cabecera, y eso solo se
+   sabe midiendo (ver lib/klaviyo/teaser.ts). */
+[class*="kl-teaser-"] {
+  filter: none !important;
+}
+[class*="kl-teaser-"] [role="button"] {
+  background-color: var(--color-bg) !important;
+  border: 1px solid var(--color-border) !important;
+  min-height: 44px !important;
+  padding: 10px 14px !important;
+}
+[class*="kl-teaser-"] p span,
+[class*="kl-teaser-"] strong {
+  color: var(--color-leather) !important;
+  font-family: var(--font-body) !important;
+  font-size: 0.8125rem !important;
+  font-weight: 500 !important;
+  letter-spacing: 0.08em !important;
+}
+
 body {
   /* Hueco al final para que la barra de abajo no tape el pie ni el último
      producto de una rejilla. */
