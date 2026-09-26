@@ -12,11 +12,22 @@ import { useEffect, useState } from "react"
  * podía llegar al checkout. Lo reportó el dueño con una captura desde su
  * teléfono, y se reprodujo en vivo: `kl-teaser-…`, 168×50, pegado abajo.
  *
- * Se mide su alto para que las barras del sitio se suban por encima. Hoy
- * devuelve 0 casi siempre, porque esa pastilla se esconde y en su lugar va la
- * nuestra (ver components/TeaserDescuento). Pero la medida se queda: si Klaviyo
- * cambia su marcado y deja de reconocerse, las barras del sitio siguen
- * protegidas. Es el cinturón debajo de los tirantes.
+ * Klaviyo no deja mover ese teaser desde aquí —se configura en su panel—, así
+ * que lo que se mueve es lo nuestro: se mide su alto y las barras del sitio se
+ * suben por encima.
+ *
+ * NO SE INTENTA MÁS QUE ESO, y es una cicatriz. El 2026-09-25 probé a moverlo
+ * por las bravas (al costado, luego bajo la cabecera) y después a esconderlo
+ * para poner una pastilla nuestra en su lugar. Las tres versiones salieron mal
+ * EN EL TELÉFONO DEL DUEÑO, no aquí: primero una franja negra cruzando la
+ * página, y al final lo peor —pasarle el clic a su elemento escondido llevaba a
+ * Klaviyo (dentro hay un enlace) o congelaba la pantalla, porque Klaviyo abre
+ * su formulario DENTRO de ese mismo elemento y yo lo mantenía oculto.
+ *
+ * La raíz es siempre la misma: Klaviyo no le enseña sus formularios a un
+ * navegador automatizado, así que ese marcado no lo he visto nunca y cada
+ * cambio se probaba en producción, con clientes dentro. Quien quiera volver a
+ * intentarlo que primero consiga verlo.
  *
  * Devuelve 0 cuando no hay teaser abajo, que es el caso normal.
  */

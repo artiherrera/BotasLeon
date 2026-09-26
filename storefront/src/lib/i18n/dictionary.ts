@@ -606,10 +606,6 @@ export const DICTIONARY: Record<string, Entry> = {
   "a11y.account": { es: "Mi cuenta", en: "My account" },
   "a11y.cart": { es: "Carrito", en: "Cart" },
   "a11y.openMenu": { es: "Abrir menú", en: "Open menu" },
-  // La pestaña del 10% que cuelga de la cabecera (ver TeaserDescuento). El
-  // texto es corto a propósito: cuelga sobre la foto del hero.
-  "teaser10.texto": { es: "10% de descuento", en: "10% off" },
-  "teaser10.cerrar": { es: "Cerrar el aviso del 10%", en: "Dismiss the 10% offer" },
   "a11y.closeMenu": { es: "Cerrar menú", en: "Close menu" },
   "a11y.nav": { es: "Navegación", en: "Navigation" },
   "a11y.language": { es: "Idioma", en: "Language" },
