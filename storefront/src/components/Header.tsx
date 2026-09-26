@@ -8,6 +8,7 @@ import { BarraAvisos } from "./BarraAvisos"
 import { MegaMenu } from "./MegaMenu"
 import { MobileNav } from "./MobileNav"
 import { BarraInferior } from "./BarraInferior"
+import { TeaserDescuento } from "./TeaserDescuento"
 import { SearchOverlay } from "./SearchOverlay"
 import { LocaleToggle } from "./LocaleToggle"
 import { useLocale } from "@/lib/i18n/context"
@@ -190,6 +191,11 @@ export function Header() {
       <SearchOverlay open={searchOpen} onClose={closeSearch} />
       {/* La navegación del teléfono. Va aquí porque la cabecera ya es cliente y
           tiene el carrito a mano; al ser `fixed`, su sitio en el árbol da igual. */}
+      {/* Cuelga del borde de abajo de la cabecera. Al ser hija suya viaja con
+          ella al desplazar, sin medir alturas. Solo aparece si Klaviyo dejó su
+          pastilla. */}
+      <TeaserDescuento />
+
       <BarraInferior />
     </header>
   )
