@@ -7,6 +7,7 @@ import { useCart } from "./CartProvider"
 import { BarraAvisos } from "./BarraAvisos"
 import { MegaMenu } from "./MegaMenu"
 import { MobileNav } from "./MobileNav"
+import { BarraInferior } from "./BarraInferior"
 import { SearchOverlay } from "./SearchOverlay"
 import { LocaleToggle } from "./LocaleToggle"
 import { useLocale } from "@/lib/i18n/context"
@@ -78,7 +79,10 @@ export function Header() {
       {/* px-3 en el teléfono más angosto que se usa hoy (360px): con los 16px de
           px-4, la bolsa se salía 6px de la pantalla y aparecía barra horizontal.
           El resto de la página conserva los 24px de aire del contenedor. */}
-      <div className="contenedor flex h-[72px] items-center gap-1.5 px-3 sm:px-4 md:gap-2 md:px-10 lg:gap-4">
+      {/* 56px de alto en el teléfono, 72 desde tablet. Con la navegación abajo,
+          aquí solo quedan el logo y el buscador: 72 era alto de cabecera con
+          seis controles, no con dos. Se recuperan 16px de bota a la vista. */}
+      <div className="contenedor flex h-14 md:h-[72px] items-center gap-1.5 px-3 sm:px-4 md:gap-2 md:px-10 lg:gap-4">
         {/* Hamburguesa — cubre hasta 1100px. Ver la cuenta de anchos en el
             comentario de arriba: a 1024 la fila no cabe. */}
         <MobileNav />
@@ -158,10 +162,13 @@ export function Header() {
           >
             <SearchIcon />
           </button>
+          {/* Cuenta y bolsa solo en escritorio: en el teléfono viven en la
+              barra de abajo, y repetirlas arriba era ruido y confusión sobre
+              cuál es "la de verdad". */}
           <Link
             href="/cuenta"
             aria-label={t("a11y.account")}
-            className="p-3 hover:bg-plate transition-colors duration-[180ms]"
+            className="hidden min-[1100px]:block p-3 hover:bg-plate transition-colors duration-[180ms]"
           >
             <UserIcon />
           </Link>
@@ -169,7 +176,7 @@ export function Header() {
             type="button"
             onClick={openCart}
             aria-label={itemCount > 0 ? `${t("a11y.cart")}: ${itemCount}` : t("a11y.cart")}
-            className="p-3 hover:bg-plate transition-colors duration-[180ms] relative cursor-pointer"
+            className="hidden min-[1100px]:flex p-3 hover:bg-plate transition-colors duration-[180ms] relative cursor-pointer"
           >
             <BagIcon />
             {itemCount > 0 && (
@@ -181,6 +188,9 @@ export function Header() {
         </div>
       </div>
       <SearchOverlay open={searchOpen} onClose={closeSearch} />
+      {/* La navegación del teléfono. Va aquí porque la cabecera ya es cliente y
+          tiene el carrito a mano; al ser `fixed`, su sitio en el árbol da igual. */}
+      <BarraInferior />
     </header>
   )
 }

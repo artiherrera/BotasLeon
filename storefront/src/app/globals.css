@@ -85,7 +85,25 @@
   --font-body: var(--font-instrument-sans);
 }
 
+/* ALTO DE LA BARRA DE NAVEGACIÓN DEL TELÉFONO.
+   Vive en una variable porque hay tres cosas que tienen que apilarse encima:
+   la barra de compra de la ficha, el mini resumen del carrito y el aviso de
+   cookies. Desde 1100px la barra no se pinta (ahí está el menú de escritorio)
+   y la variable vale cero, así que esas reglas no tienen que saber nada del
+   tamaño de pantalla. 57px = 56 de alto mínimo del botón + el borde. */
+:root {
+  --barra-inferior: 0px;
+}
+@media (max-width: 1099px) {
+  :root {
+    --barra-inferior: calc(57px + env(safe-area-inset-bottom));
+  }
+}
+
 body {
+  /* Hueco al final para que la barra de abajo no tape el pie ni el último
+     producto de una rejilla. */
+  padding-bottom: var(--barra-inferior);
   background: var(--color-bg);
   color: var(--color-text);
   font-family: var(--font-body);

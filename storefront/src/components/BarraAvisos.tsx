@@ -119,7 +119,12 @@ export function BarraAvisos() {
             promesas siguen estando bajo el botón de compra en cada ficha, que
             es donde de verdad deciden la venta. */}
         {PROMESAS_BARRA.length > 0 && (
-          <p className="text-[13.5px] leading-snug sm:hidden" aria-live="off">
+          <p
+            className={`text-[13.5px] leading-snug sm:hidden ${
+              PROMO_PAR.activa || hayPromo ? "hidden" : ""
+            }`}
+            aria-live="off"
+          >
             {/* La `key` cambia con la promesa: React vuelve a montar el span y
                 la animación de entrada corre otra vez. */}
             <span key={cual} className="relevo inline-block">

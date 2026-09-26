@@ -594,6 +594,13 @@ export const DICTIONARY: Record<string, Entry> = {
   "search.viewProduct": { es: "Ver {title}", en: "View {title}" },
 
   // ── Accesibilidad / labels de íconos ─────────────────────────────────
+  // Rótulos de la barra de navegación del teléfono (BarraInferior).
+  "tab.inicio": { es: "Inicio", en: "Home" },
+  "tab.explorar": { es: "Explorar", en: "Explore" },
+  "tab.whatsapp": { es: "WhatsApp", en: "WhatsApp" },
+  "tab.carrito": { es: "Carrito", en: "Cart" },
+  "tab.menu": { es: "Menú", en: "Menu" },
+
   "a11y.home": { es: "BotasLeón — Inicio", en: "BotasLeón — Home" },
   "a11y.search": { es: "Buscar", en: "Search" },
   "a11y.account": { es: "Mi cuenta", en: "My account" },

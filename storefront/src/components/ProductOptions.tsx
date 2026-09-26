@@ -281,7 +281,7 @@ export function ProductOptions({ product }: Props) {
     <div
       role="region"
       aria-label={t("pdp.actionsLabel")}
-      className={`md:hidden fixed inset-x-0 bottom-[var(--kl-teaser,0px)] z-40 bg-bg border-t border-border transition-transform duration-[180ms] ${
+      className={`md:hidden fixed inset-x-0 bottom-[calc(var(--barra-inferior)+var(--kl-teaser,0px))] z-40 bg-bg border-t border-border transition-transform duration-[180ms] ${
         showSticky ? "translate-y-0" : "translate-y-full pointer-events-none"
       }`}
       style={

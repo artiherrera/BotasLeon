@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useRef, useState } from "react"
+import { EVENTO_ABRIR_MENU } from "@/components/BarraInferior"
 import { createPortal } from "react-dom"
 import { LocalizedLink as Link } from "@/components/LocalizedLink"
 import Image from "next/image"
@@ -113,6 +114,15 @@ export function MobileNav() {
   // blur, pero el portal es lo que garantiza que no vuelva a pasar.
   useEffect(() => {
     setMounted(true)
+  }, [])
+
+  // La barra de abajo pide abrir este mismo cajón. Se comunica por evento y no
+  // por props porque MobileNav se monta dentro de la cabecera y la barra vive
+  // fuera; pasar el estado obligaría a subirlo hasta la raíz de cada página.
+  useEffect(() => {
+    const abrir = () => setOpen(true)
+    window.addEventListener(EVENTO_ABRIR_MENU, abrir)
+    return () => window.removeEventListener(EVENTO_ABRIR_MENU, abrir)
   }, [])
 
   useEffect(() => {
@@ -344,13 +354,18 @@ export function MobileNav() {
 
   return (
     <>
+      {/* LA HAMBURGUESA YA NO SE PINTA. El cajón se abre desde la pestaña
+          "Menú" de la barra de abajo, que en un teléfono queda a mano del
+          pulgar; esta esquina superior izquierda era el peor sitio posible.
+          El botón sigue en el árbol —oculto— porque al cerrar el cajón el
+          foco vuelve a él, que es lo que espera un lector de pantalla. */}
       <button
         ref={hamburgerRef}
         type="button"
         onClick={() => setOpen(true)}
         aria-label={t("a11y.openMenu")}
         aria-expanded={open}
-        className="min-[1100px]:hidden p-3 -ml-3 hover:bg-plate transition-colors duration-[180ms]"
+        className="hidden"
       >
         <HamburgerIcon />
       </button>

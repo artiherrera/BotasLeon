@@ -87,7 +87,7 @@ export function MiniCarrito() {
       aria-label={t("minicart.label")}
       data-minicarrito
       className={`${enFicha ? "hidden md:flex" : "flex"} fixed z-40 items-center gap-3 bg-bg/95 backdrop-blur-xl border-border shadow-[0_-8px_24px_rgba(0,0,0,0.08)]
-        inset-x-0 bottom-[var(--kl-teaser,0px)] border-t px-4 py-3
+        inset-x-0 bottom-[calc(var(--barra-inferior)+var(--kl-teaser,0px))] border-t px-4 py-3
         md:inset-x-auto md:right-6 md:bottom-[calc(1.5rem+var(--kl-teaser,0px))] md:border md:px-5 md:py-3`}
       style={
         {
