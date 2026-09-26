@@ -113,26 +113,44 @@ export function useTeaserKlaviyoAlCostado(): void {
           if (cs0.display === "none" || cs0.visibility === "hidden") return
 
           // El elemento que de verdad está fijado a la ventana: puede ser el
-          // teaser o cualquier envoltorio suyo.
+          // teaser o un envoltorio suyo.
+          //
+          // CON FRENO. Klaviyo mete el formulario y el teaser dentro de los
+          // mismos contenedores, y algunos también están fijados. Si se sube
+          // hasta uno de esos y se le manda medir lo que mide un texto, lo que
+          // se encoge es el formulario entero. Así que solo se adopta el
+          // envoltorio si es de este teaser y de nada más —mismo alto, salvo un
+          // margen—; si no, se mueve el teaser por su cuenta, que para eso
+          // `position: fixed` no necesita permiso de nadie.
+          const rTeaser = teaser.getBoundingClientRect()
           let objetivo = teaser
-          for (
-            let n: HTMLElement | null = teaser;
-            n && n !== document.body;
-            n = n.parentElement
-          ) {
-            if (window.getComputedStyle(n).position === "fixed") {
-              objetivo = n
+          if (window.getComputedStyle(teaser).position !== "fixed") {
+            let saltos = 0
+            for (
+              let n: HTMLElement | null = teaser.parentElement;
+              n && n !== document.body && saltos < 4;
+              n = n.parentElement, saltos++
+            ) {
+              if (window.getComputedStyle(n).position !== "fixed") continue
+              if (n.getBoundingClientRect().height <= rTeaser.height + 24) {
+                objetivo = n
+              }
               break
             }
           }
 
           const r = objetivo.getBoundingClientRect()
           if (r.width < 8 || r.height < 8) return
-          // ¿Ya está pegado a la derecha y despegado de arriba y de abajo?
+          // ¿Ya está donde quiero? Pegado a la derecha, lejos de arriba y de
+          // abajo, Y ESTRECHO. Lo último no es un capricho: la primera versión
+          // solo miraba la posición, y como la banda de Klaviyo es de ancho
+          // completo, "pegada a la derecha" ya era cierta el primer día —
+          // quedaba una franja negra cruzando la página por la mitad.
           const pegadoDerecha = Math.abs(window.innerWidth - r.right) <= 2
           const libreArriba = r.top > 48
           const libreAbajo = window.innerHeight - r.bottom > 48
-          if (pegadoDerecha && libreArriba && libreAbajo) return
+          const estrecho = r.width <= window.innerWidth * 0.7
+          if (pegadoDerecha && libreArriba && libreAbajo && estrecho) return
 
           const st = objetivo.style
           st.setProperty("position", "fixed", "important")
@@ -142,6 +160,20 @@ export function useTeaserKlaviyoAlCostado(): void {
           st.setProperty("right", "0px", "important")
           st.setProperty("transform", "translateY(-50%)", "important")
           st.setProperty("margin", "0", "important")
+          // QUE MIDA LO QUE MIDE SU TEXTO. Klaviyo pinta el teaser como una
+          // banda de lado a lado; pegada al borde derecho seguía tapando la
+          // página entera, solo que por el centro en vez de por abajo.
+          st.setProperty("width", "max-content", "important")
+          st.setProperty("max-width", "min(66vw, 260px)", "important")
+          // El ALTO no se toca: el problema era el ancho. Forzarlo a `auto`
+          // deja el texto pegado a los bordes, porque el relleno de Klaviyo
+          // viene del alto fijo; medido, la pastilla pasaba de 76px a 21.
+          // Si lo que está fijado era un envoltorio, la pastilla de dentro
+          // también tiene que encoger, o el envoltorio estrecho la recorta.
+          if (teaser !== objetivo) {
+            teaser.style.setProperty("width", "max-content", "important")
+            teaser.style.setProperty("max-width", "100%", "important")
+          }
         })
     }
 
