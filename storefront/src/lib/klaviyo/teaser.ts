@@ -94,9 +94,16 @@ export function useAltoTeaserKlaviyo(): number {
  * medido con el rectángulo real. Cuando ya está, no se toca; y si Klaviyo lo
  * devuelve abajo, se vuelve a mover.
  *
- * A media altura y no arriba ni abajo: arriba choca con la cabecera pegajosa y
- * abajo es de donde venimos. En el centro del borde derecho no tapa ningún
- * botón del sitio.
+ * JUSTO DEBAJO DE LA CABECERA, pegado a la derecha. Primero lo puse a media
+ * altura y el dueño lo corrigió (2026-09-26): en el centro parte la página en
+ * dos y se cruza con las fotos de las botas, que es lo que la gente vino a ver.
+ * Arriba se apoya en la cabecera, se lee como parte de ella y deja limpio todo
+ * lo de abajo.
+ *
+ * La altura NO va escrita a mano: se mide la cabecera en cada pasada. Es
+ * pegajosa y cambia de alto —lleva dentro la barra de avisos, que aparece y
+ * desaparece según la promoción y el idioma—, así que un número fijo hoy sería
+ * un hueco o un solape mañana. Por eso también se escucha el desplazamiento.
  *
  * Se llama UNA vez, desde KlaviyoLoader, que es el único sitio por el que entra
  * Klaviyo a la página.
@@ -139,26 +146,36 @@ export function useTeaserKlaviyoAlCostado(): void {
             }
           }
 
+          // Dónde empieza el sitio libre: debajo de la cabecera, con un dedo
+          // de aire. Si la cabecera se ha ido con el desplazamiento, el tope
+          // es el borde de la ventana.
+          const cabecera = document.querySelector("header")
+          const abajoDeLaCabecera = cabecera
+            ? cabecera.getBoundingClientRect().bottom
+            : 0
+          const y = Math.round(Math.max(8, abajoDeLaCabecera + 8))
+
           const r = objetivo.getBoundingClientRect()
           if (r.width < 8 || r.height < 8) return
-          // ¿Ya está donde quiero? Pegado a la derecha, lejos de arriba y de
-          // abajo, Y ESTRECHO. Lo último no es un capricho: la primera versión
-          // solo miraba la posición, y como la banda de Klaviyo es de ancho
-          // completo, "pegada a la derecha" ya era cierta el primer día —
-          // quedaba una franja negra cruzando la página por la mitad.
+          // ¿Ya está donde quiero? A la altura de la cabecera, pegado a la
+          // derecha Y ESTRECHO. Lo último no es un capricho: la primera
+          // versión solo miraba la posición, y como la banda de Klaviyo es de
+          // ancho completo, "pegada a la derecha" ya era cierta el primer día
+          // —quedaba una franja negra cruzando la página entera.
           const pegadoDerecha = Math.abs(window.innerWidth - r.right) <= 2
-          const libreArriba = r.top > 48
-          const libreAbajo = window.innerHeight - r.bottom > 48
+          const aLaAltura = Math.abs(r.top - y) <= 4
           const estrecho = r.width <= window.innerWidth * 0.7
-          if (pegadoDerecha && libreArriba && libreAbajo && estrecho) return
+          if (pegadoDerecha && aLaAltura && estrecho) return
 
           const st = objetivo.style
           st.setProperty("position", "fixed", "important")
-          st.setProperty("top", "50%", "important")
+          st.setProperty("top", `${y}px`, "important")
           st.setProperty("bottom", "auto", "important")
           st.setProperty("left", "auto", "important")
           st.setProperty("right", "0px", "important")
-          st.setProperty("transform", "translateY(-50%)", "important")
+          // Sin traslado: la posición ya es la buena, y el que traía Klaviyo
+          // para centrarse abajo la echaría a perder.
+          st.setProperty("transform", "none", "important")
           st.setProperty("margin", "0", "important")
           // QUE MIDA LO QUE MIDE SU TEXTO. Klaviyo pinta el teaser como una
           // banda de lado a lado; pegada al borde derecho seguía tapando la
@@ -194,12 +211,14 @@ export function useTeaserKlaviyoAlCostado(): void {
       attributeFilter: ["style", "class"],
     })
     window.addEventListener("resize", pedirMovida)
+    window.addEventListener("scroll", pedirMovida, { passive: true })
     window.addEventListener("klaviyoForms", pedirMovida)
 
     return () => {
       if (pendiente) window.cancelAnimationFrame(pendiente)
       observador.disconnect()
       window.removeEventListener("resize", pedirMovida)
+      window.removeEventListener("scroll", pedirMovida)
       window.removeEventListener("klaviyoForms", pedirMovida)
     }
   }, [])
