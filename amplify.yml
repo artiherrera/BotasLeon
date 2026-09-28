@@ -73,6 +73,26 @@ applications:
         build:
           commands:
             - npm run build
+        postBuild:
+          commands:
+            # FUERA LA CACHÉ DEL COMPILADOR ANTES DE EMPAQUETAR.
+            #
+            # El artefacto es todo `.next`, y ahí dentro viaja `.next/cache`:
+            # decenas de megas de caché de webpack y de imágenes que en
+            # producción no sirven para nada —Amplify la restaura por su cuenta
+            # desde `cache.paths` al empezar el build siguiente—. El 2026-09-28
+            # ese peso muerto reventó el límite: 246.6 MB contra los 230.7 que
+            # admite Amplify, y botasleon.com se quedó DOS despliegues sin
+            # publicar mientras .mx pasaba por los pelos. El sitio no se cae
+            # cuando esto ocurre: se congela en la versión anterior, que es peor
+            # porque no se nota.
+            #
+            # Se borra aquí, después de compilar, así que no alarga este build;
+            # lo que se pierde es la caché guardada para el SIGUIENTE, un par de
+            # minutos. Barato comparado con no poder desplegar.
+            - du -sh .next .next/cache 2>/dev/null || true
+            - rm -rf .next/cache
+            - echo "Tamaño del artefacto tras limpiar:" && du -sh .next
       artifacts:
         baseDirectory: .next
         files:
