@@ -90,8 +90,23 @@ applications:
             # Se borra aquí, después de compilar, así que no alarga este build;
             # lo que se pierde es la caché guardada para el SIGUIENTE, un par de
             # minutos. Barato comparado con no poder desplegar.
-            - du -sh .next .next/cache 2>/dev/null || true
+            - echo "Antes de limpiar:" && du -sh .next
             - rm -rf .next/cache
+            # FUERA LOS ARCHIVOS DE PRE-CARGA POR SEGMENTO.
+            #
+            # Next 16 escribe, junto a cada página, una carpeta `.segments` con
+            # una copia BYTE A BYTE de su payload RSC (68 KB por ficha, medido).
+            # No hay bandera para no generarla. Solo la piden los prefetch del
+            # router del cliente, y si no está, el cliente pide la página entera
+            # y navega igual: comprobado a mano —ficha, segunda ficha, botón
+            # atrás— sin un solo error en consola.
+            #
+            # Son 26 MB por idioma; en la .com, que hornea español e inglés,
+            # unos 50. Esa es la diferencia entre publicar y no publicar: el
+            # 2026-09-28 el build llegó a 232.7 MB contra los 230.7 que admite
+            # Amplify, y el sitio en dólares se quedó un día entero sirviendo la
+            # versión anterior sin avisar a nadie.
+            - find .next -type d -name "*.segments" -prune -exec rm -rf {} + || true
             - echo "Tamaño del artefacto tras limpiar:" && du -sh .next
       artifacts:
         baseDirectory: .next
