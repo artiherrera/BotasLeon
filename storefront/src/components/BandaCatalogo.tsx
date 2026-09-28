@@ -3,6 +3,7 @@
 import Image from "next/image"
 import { useT } from "@/lib/i18n/context"
 import { isMX } from "@/lib/market"
+import { CATALOGO_PDF } from "@/lib/catalogo"
 
 /**
  * El catálogo, con sitio propio en la portada.
@@ -61,7 +62,7 @@ export function BandaCatalogo() {
             {/* `download` no fuerza la descarga en un dominio distinto, pero
                 aquí el archivo es nuestro, así que sí baja en vez de abrirse. */}
             <a
-              href={isMX ? "/catalogo-es.pdf" : "/catalogo-en.pdf"}
+              href={isMX ? CATALOGO_PDF.es : CATALOGO_PDF.en}
               download
               className="btn btn-sec"
             >
