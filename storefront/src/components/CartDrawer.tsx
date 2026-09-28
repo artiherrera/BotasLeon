@@ -239,7 +239,18 @@ export function CartDrawer() {
           </div>
         ) : (
           <>
-            <div className="flex-1 overflow-y-auto px-6 py-4 divide-y divide-border">
+            {/* TODO LO QUE NO DECIDE NADA VIAJA AQUÍ DENTRO.
+                Antes el pie llevaba once cosas —cupón, IVA, entrega, envío,
+                tarjetas, meses, dos botones— y se comía 476 de los 844 px de un
+                teléfono: a los productos les quedaban 283 px de ventana para
+                505 px de botas (medido con tres pares el 2026-09-27). Se veía
+                media compra por una rendija, y el dueño lo dijo sin rodeos.
+
+                Ahora abajo solo se queda lo que se mira JUSTO antes de pagar:
+                cuánto es, cuánto me ahorré y el botón. El resto —que se lee una
+                vez, o ninguna— baja aquí y se desplaza con los productos. */}
+            <div className="flex-1 overflow-y-auto px-6 py-4">
+              <div className="divide-y divide-border">
               {lines.map((line) => {
                 const v = line.merchandise
                 // Lo que Shopify le quitó a ESTA línea (promoción del par).
@@ -351,15 +362,10 @@ export function CartDrawer() {
                   </div>
                 )
               })}
-            </div>
+              </div>
 
-            {/* Footer con totales + checkout */}
-            <div
-              className="shrink-0 border-t border-border px-6 pt-4 bg-bg-alt"
-              style={{
-                paddingBottom: "calc(1.25rem + env(safe-area-inset-bottom))",
-              }}
-            >
+              {/* Lo secundario, bajo una regla que lo separa de la compra. */}
+              <div className="mt-5 border-t border-border pt-5">
               {/* Código de descuento: chip si ya hay uno aplicado (validado por
                   Shopify), o input para escribirlo. El descuento viaja solo al
                   checkout hospedado porque queda en el carrito. */}
@@ -434,31 +440,6 @@ export function CartDrawer() {
                 </form>
               )}
 
-              <div className="flex justify-between items-baseline mt-2 mb-1">
-                <span className="cuerpo text-text-muted">{t("cart.subtotal")}</span>
-                <span className="precio text-text">
-                  {cart &&
-                    formatMoney(
-                      cart.cost.subtotalAmount.amount,
-                      cart.cost.subtotalAmount.currencyCode
-                    )}
-                </span>
-              </div>
-              {/* La promoción del par: el ahorro cuando ya aplica, el empujón
-                  cuando falta uno. Va ANTES de los totales, que es donde el
-                  ojo aterriza antes de tocar "Pagar". */}
-              <div className="mb-3">
-                <PromoParCarrito cart={cart} />
-              </div>
-
-              {discountTotal > 0 && (
-                <div className="flex justify-between items-baseline mb-1">
-                  <span className="cuerpo text-text-muted">{t("cart.discount")}</span>
-                  <span className="precio text-sm text-text">
-                    −{formatMoney(String(discountTotal), subtotalCurrency)}
-                  </span>
-                </div>
-              )}
               <p className="nota mt-1">
                 {t(isMX ? "cart.shippingTax" : "cart.shippingTaxUs")}
               </p>
@@ -484,6 +465,50 @@ export function CartDrawer() {
                   es lo que difiere el banco, no sobre el subtotal. */}
               <NotaMsiCarrito total={totalNum} moneda={subtotalCurrency} />
 
+              {/* La otra salida. Sin esto, la única forma de "no pagar aún" era
+                  la X, y cerrar con la X se siente como cancelar. */}
+              <button
+                type="button"
+                onClick={closeCart}
+                className="btn btn-ter mt-2 block w-full text-center py-3 text-sm text-text-muted hover:text-text transition-colors"
+              >
+                {t("cart.keepShopping")}
+              </button>
+              </div>
+            </div>
+
+            {/* Footer con totales + checkout */}
+            <div
+              className="shrink-0 border-t border-border px-6 pt-4 bg-bg-alt"
+              style={{
+                paddingBottom: "calc(1.25rem + env(safe-area-inset-bottom))",
+              }}
+            >
+              <div className="flex justify-between items-baseline mt-2 mb-1">
+                <span className="cuerpo text-text-muted">{t("cart.subtotal")}</span>
+                <span className="precio text-text">
+                  {cart &&
+                    formatMoney(
+                      cart.cost.subtotalAmount.amount,
+                      cart.cost.subtotalAmount.currencyCode
+                    )}
+                </span>
+              </div>
+              {/* La promoción del par: el ahorro cuando ya aplica, el empujón
+                  cuando falta uno. Va ANTES de los totales, que es donde el
+                  ojo aterriza antes de tocar "Pagar". */}
+              <div className="mb-3">
+                <PromoParCarrito cart={cart} />
+              </div>
+
+              {discountTotal > 0 && (
+                <div className="flex justify-between items-baseline mb-1">
+                  <span className="cuerpo text-text-muted">{t("cart.discount")}</span>
+                  <span className="precio text-sm text-text">
+                    −{formatMoney(String(discountTotal), subtotalCurrency)}
+                  </span>
+                </div>
+              )}
               {cart?.checkoutUrl ? (
                 sizeBlocked ? (
                   <>
@@ -512,15 +537,6 @@ export function CartDrawer() {
                   </a>
                 )
               ) : null}
-              {/* La otra salida. Sin esto, la única forma de "no pagar aún" era
-                  la X, y cerrar con la X se siente como cancelar. */}
-              <button
-                type="button"
-                onClick={closeCart}
-                className="btn btn-ter mt-2 block w-full text-center py-3 text-sm text-text-muted hover:text-text transition-colors"
-              >
-                {t("cart.keepShopping")}
-              </button>
             </div>
           </>
         )}
