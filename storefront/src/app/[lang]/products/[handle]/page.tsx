@@ -10,7 +10,6 @@ import { PDPMarca } from "@/components/PDPMarca"
 import { PDPAcordeones } from "@/components/PDPAcordeones"
 import { PDPAtributos } from "@/components/PDPAtributos"
 import { PDPCalificacion } from "@/components/PDPCalificacion"
-import { TiraAgregar } from "@/components/TiraAgregar"
 import { PDPConstruccion } from "@/components/PDPConstruccion"
 import { PDPNotasTalla } from "@/components/PDPNotasTalla"
 import { CompartirProducto } from "@/components/CompartirProducto"
@@ -233,36 +232,17 @@ export default async function ProductPage({ params }: Props) {
                 </div>
 
 
-                <ProductOptions product={product} />
-
-                {/* LAS DOS OFERTAS VAN DESPUÉS DE LA TALLA Y DEL BOTÓN.
-                    Primero las puse encima, razonando que el segundo par cambia
-                    cuánto vas a gastar. El dueño lo corrigió (2026-09-27) y
-                    tiene razón: quien abre esta ficha viene a comprar ESTA
-                    bota, y ponerle la oferta antes de que elija su talla le
-                    interrumpe lo que vino a hacer. Además empujaba "Agregar al
-                    carrito" fuera de la pantalla en un teléfono.
-
-                    No es lo mismo que el selector de paquetes de una tienda de
-                    dropshipping —"1 pack / 2 pack"— que sí va encima del botón:
-                    aquello CONFIGURA lo que compras; esto AÑADE un segundo
-                    producto, y un añadido se ofrece cuando el primero ya está
-                    resuelto. Aquí lo encuentra quien ya eligió talla, que es
-                    justo a quien le aplica el descuento. */}
-                <TiraAgregar
-                  insignia="promoPar.insignia"
-                  titulo="tira.par.titulo"
-                  nota="tira.par.nota"
-                  productos={hermanosPromo}
-                  descuentoPct={50}
+                {/* Las ofertas se pintan DENTRO de ProductOptions, entre la
+                    talla y los botones: el conjunto "bota + cinto" necesita la
+                    talla elegida, y esa vive ahí. Aquí solo se le pasan los
+                    productos, que es lo que sabe traer un componente de
+                    servidor. */}
+                <ProductOptions
+                  product={product}
+                  hermanosPromo={hermanosPromo}
+                  cintosPromo={cintosPromo}
                 />
-                <TiraAgregar
-                  insignia="tira.cinto.insignia"
-                  titulo="tira.cinto.titulo"
-                  nota="tira.cinto.nota"
-                  productos={cintosPromo}
-                  descuentoPct={50}
-                />
+
 
                 {/* Compartir, justo debajo de los botones de compra y del mismo
                     ancho. Estuvo arriba a la derecha como enlace chico y nadie

@@ -63,6 +63,22 @@ type CartContextValue = {
     quantity?: number,
     attributes?: Array<{ key: string; value: string }>
   ) => void
+  /**
+   * VARIAS LÍNEAS EN UNA SOLA LLAMADA. Lo pide el conjunto "bota + cinto" de la
+   * ficha: dos productos que entran juntos al carrito.
+   *
+   * No se resuelve llamando dos veces a `addItem`: las dos llamadas leerían el
+   * mismo `cartIdRef` antes de que la primera lo guarde, y con el carrito aún
+   * sin crear eso son DOS carritos, uno de los cuales se pierde con su línea
+   * dentro. Shopify acepta varias líneas por mutación; se manda una sola.
+   */
+  addItems: (
+    lineas: Array<{
+      merchandiseId: string
+      quantity?: number
+      attributes?: Array<{ key: string; value: string }>
+    }>
+  ) => void
   // "Comprar ahora": checkout directo con SOLO ese par. El carrito guardado no
   // se toca — es el comportamiento de Amazon y del botón nativo de Shopify.
   buyNow: (
@@ -264,6 +280,97 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   )
 
   /**
+   * Agregar VARIAS líneas de un golpe (ver el tipo, arriba, para el porqué).
+   *
+   * Los eventos de Klaviyo, Meta y GA se disparan una vez con el conjunto
+   * entero: para el embudo, "agregó bota + cinto" es un solo gesto del
+   * comprador, y contarlo dos veces inflaría el AddToCart de la campaña.
+   */
+  const addItems = useCallback(
+    (
+      lineas: Array<{
+        merchandiseId: string
+        quantity?: number
+        attributes?: Array<{ key: string; value: string }>
+      }>
+    ) => {
+      const limpias = lineas
+        .filter((l) => l.merchandiseId)
+        .map((l) => ({
+          merchandiseId: l.merchandiseId,
+          quantity: l.quantity ?? 1,
+          ...(l.attributes?.length ? { attributes: l.attributes } : {}),
+        }))
+      if (limpias.length === 0) return
+      startTransition(async () => {
+        const meter = async () => {
+          const id = cartIdRef.current
+          return id
+            ? await clientAddLines(id, limpias)
+            : await clientCreateCart(limpias, countryRef.current)
+        }
+        try {
+          let updated
+          try {
+            updated = await meter()
+          } catch (e) {
+            const msg = e instanceof Error ? e.message : String(e)
+            // Carrito caducado del lado de Shopify: se crea uno nuevo con las
+            // mismas líneas en vez de perder el gesto.
+            if (cartIdRef.current && /does not exist|not found/i.test(msg)) {
+              updated = await clientCreateCart(limpias, countryRef.current)
+            } else {
+              throw e
+            }
+          }
+          persist(updated)
+          const ultimas = updated.lines.slice(-limpias.length)
+          setLastAdded(ultimas[0]?.merchandise.product.title ?? null)
+          setIsOpen(true)
+          if (ultimas.length) {
+            const valor = ultimas.reduce(
+              (a, l) => a + parseFloat(l.cost.totalAmount.amount || "0"),
+              0
+            )
+            const moneda = ultimas[0].merchandise.price.currencyCode
+            track("Added to Cart", {
+              $value: parseFloat(updated.cost.subtotalAmount.amount),
+              Items: updated.lines.map((l) => ({
+                ProductName: l.merchandise.product.title,
+                ProductId: l.merchandise.product.handle,
+                Quantity: l.quantity,
+              })),
+              CheckoutURL: updated.checkoutUrl,
+            })
+            pixelTrack("AddToCart", {
+              content_type: "product",
+              content_ids: ultimas.map((l) => toContentId(l.merchandise.id)),
+              content_name: ultimas.map((l) => l.merchandise.product.title).join(" + "),
+              value: valor,
+              currency: moneda,
+            })
+            gaEvent("add_to_cart", {
+              currency: moneda,
+              value: valor,
+              items: ultimas.map((l) => ({
+                item_id: l.merchandise.product.handle,
+                item_name: l.merchandise.product.title,
+                price: parseFloat(l.merchandise.price.amount),
+                quantity: l.quantity,
+              })),
+            })
+          }
+        } catch (e) {
+          const msg = e instanceof Error ? e.message : String(e)
+          console.error("[cart] addItems falló:", e)
+          showToast(`No se pudo agregar al carrito: ${msg}`, "error")
+        }
+      })
+    },
+    [persist, showToast]
+  )
+
+  /**
    * Comprar ahora — se salta el carrito.
    *
    * Crea un carrito NUEVO y desechable con solo ese par, en el mercado del
@@ -448,6 +555,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         closeCart,
         toggleCart,
         addItem,
+        addItems,
         buyNow,
         setLineSize,
         updateLine,

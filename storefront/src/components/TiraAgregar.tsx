@@ -9,37 +9,46 @@ import { formatMoney } from "@/lib/utils"
 import type { Product } from "@/lib/shopify/types"
 
 /**
- * La oferta con los productos DENTRO, no con un enlace a otra página.
+ * La oferta con los productos DENTRO y armada como CONJUNTO: "bota + cinto".
  *
- * Hasta hoy la promoción del segundo par era una línea de texto con un "Ver los
- * botines" al final. El dueño lo cortó en seco (2026-09-27): "no quiero que se
- * vea esto, sino que se vean ahí directamente los botines… que no tengan que
- * cambiar la página". Tiene razón y es lo que hace cualquier tienda que vende
- * paquetes: la segunda unidad se elige donde se está decidiendo la primera, no
- * dos clics más allá. Un enlace, en este punto de la ficha, es una fuga.
+ * Nació como una línea de texto con un "Ver los botines" al final. El dueño la
+ * cortó en seco (2026-09-27): "no quiero que se vea esto, sino que se vean ahí
+ * directamente los botines… que no tengan que cambiar la página". Luego pidió
+ * el precio a mitad a la vista, y por último la forma: "quiero que se vea algo
+ * tipo BOTA + CINTO". Las tres cosas apuntan a lo mismo: que la oferta se
+ * entienda sin leer, mirando.
  *
- * MISMO COMPONENTE PARA LAS DOS PROMOCIONES. Los botines del "2º al 50%" y los
- * cintos a mitad son el mismo gesto: mira una foto, elige, agrega. Lo único que
- * cambia son los textos y qué productos entran, y eso llega por props. Cuando
- * mañana haya otra promoción, no hay componente nuevo que escribir.
+ * Así que al elegir una pieza se arma el conjunto —la bota que estás viendo, un
+ * "+", lo que elegiste— con el TOTAL de los dos y el ahorro debajo, y un solo
+ * botón que mete las dos cosas al carrito. Sin el conjunto, el comprador tenía
+ * que sumar de cabeza dos cifras que estaban en sitios distintos de la página.
  *
- * LA TALLA, SI EL PRODUCTO LA TIENE. Las botas la exigen —un pedido sin talla
- * es un pedido inservible, ver lib/cart/line-size— y los cintos no tienen, así
- * que para un cinto el paso desaparece solo y se agrega de un toque. La talla
- * viaja como atributo de línea, igual que en la ficha.
+ * VA ENTRE LA TALLA Y EL BOTÓN DE COMPRA (lo monta ProductOptions). Primero la
+ * puse encima de la talla: interrumpía lo que el comprador vino a hacer.
+ * Después, debajo del botón: ahí no la veía nadie, y el dueño lo dijo —"las
+ * tarjetas se ven después del agregar al carrito". Entre las dos cosas es donde
+ * cae la mirada de quien ya eligió talla y aún no ha pulsado.
  *
- * NO SE PROMETE EL PRECIO CON DESCUENTO EN CADA TARJETA, y es deliberado: el
- * 50% lo aplica Shopify cuando hay DOS en el carrito, así que una tarjeta que
- * dijera "$1,850" mentiría a quien agrega solo esa. Se dice dónde se aplica,
- * con esas palabras, y el carrito lo enseña cumplido.
+ * MISMO COMPONENTE PARA LAS DOS PROMOCIONES —el 2º al 50% y el cinto a mitad—
+ * porque es el mismo gesto: mira, elige, agrega. Cambian los textos y qué
+ * productos entran, que llegan por etiqueta desde Shopify.
+ *
+ * LA TALLA, SI LA PIEZA LA TIENE: las botas la exigen (un pedido sin talla es
+ * un pedido inservible, ver lib/cart/line-size) y los cintos no, así que para un
+ * cinto el paso desaparece solo.
+ *
+ * LAS DOS LÍNEAS ENTRAN EN UNA SOLA LLAMADA (addItems). Dos llamadas seguidas
+ * se pisan: leen el mismo id de carrito antes de que la primera lo guarde.
  */
 
 export function TiraAgregar({
   insignia,
   titulo,
   nota,
+  conjunto,
   productos,
   descuentoPct,
+  base,
 }: {
   /* Llegan CLAVES del diccionario, no texto ya traducido: la ficha es un
      componente de servidor y ahí no hay `t`. Traduce esta tira, que sí vive en
@@ -47,16 +56,32 @@ export function TiraAgregar({
   insignia: string
   titulo: string
   nota: string
+  /** Cómo se llama el conjunto ya armado: "Bota + cinto", "Los dos pares". */
+  conjunto: string
   productos: Product[]
   /**
-   * Porcentaje que descuenta Shopify sobre esta pieza (50 en las dos
-   * promociones de hoy). Con él, la tarjeta enseña el precio tachado, lo que
-   * queda y cuánto se ahorra. Sin él, solo el precio.
+   * Porcentaje que descuenta Shopify sobre la pieza elegida (50 en las dos
+   * promociones de hoy). Con él se enseña el precio tachado, lo que queda y
+   * cuánto se ahorra.
    */
   descuentoPct?: number
+  /**
+   * La pieza que ya se está viendo en la ficha, para armar el conjunto y
+   * meterla al carrito junto con la elegida. La talla y el aviso de "elige tu
+   * talla" viven en ProductOptions, así que llegan de ahí.
+   */
+  base?: {
+    titulo: string
+    imagen?: { url: string; altText?: string | null } | null
+    precio: { amount: string; currencyCode: string }
+    variantId?: string
+    talla: string | null
+    requiereTalla: boolean
+    pedirTalla: () => void
+  }
 }) {
   const { t } = useLocale()
-  const { addItem, isPending } = useCart()
+  const { addItem, addItems, isPending } = useCart()
   const [elegido, setElegido] = useState<string | null>(null)
   const [talla, setTalla] = useState<string | null>(null)
 
@@ -65,20 +90,52 @@ export function TiraAgregar({
   const producto = productos.find((p) => p.handle === elegido) ?? null
   const tallas = tallasDe(producto)
   const faltaTalla = !!producto && tallas.length > 0 && !talla
+  const faltaTallaBase = !!base?.requiereTalla && !base.talla
 
   const elegir = (p: Product) => {
     setElegido(p.handle === elegido ? null : p.handle)
     setTalla(null)
   }
 
+  const bruto = producto ? parseFloat(producto.priceRange.minVariantPrice.amount) : 0
+  const moneda = producto?.priceRange.minVariantPrice.currencyCode ?? "MXN"
+  const ahorro = descuentoPct ? (bruto * descuentoPct) / 100 : 0
+  const totalConjunto = base ? parseFloat(base.precio.amount) + bruto - ahorro : bruto - ahorro
+
   const agregar = () => {
     if (!producto || isPending || faltaTalla) return
     const v = producto.variants[0]
     if (!v) return
-    addItem(v.id, 1, talla ? [{ key: SIZE_ATTR, value: talla }] : undefined)
+    const atributos = talla ? [{ key: SIZE_ATTR, value: talla }] : undefined
+
+    // Sin la pieza base (o sin su talla) se agrega solo lo elegido; el aviso de
+    // talla lo enciende ProductOptions, que es quien lo sabe pintar.
+    if (!base?.variantId) {
+      addItem(v.id, 1, atributos)
+    } else if (faltaTallaBase) {
+      base.pedirTalla()
+      return
+    } else {
+      addItems([
+        {
+          merchandiseId: base.variantId,
+          quantity: 1,
+          ...(base.talla ? { attributes: [{ key: SIZE_ATTR, value: base.talla }] } : {}),
+        },
+        { merchandiseId: v.id, quantity: 1, ...(atributos ? { attributes: atributos } : {}) },
+      ])
+    }
     setElegido(null)
     setTalla(null)
   }
+
+  const etiquetaBoton = faltaTallaBase
+    ? t("pdp.selectSize")
+    : faltaTalla
+      ? t("tira.eligeTalla")
+      : base?.variantId
+        ? t("tira.agregarDos")
+        : t("tira.agregar")
 
   return (
     <section className="mb-6 border border-dashed border-leather/50 p-4">
@@ -87,10 +144,13 @@ export function TiraAgregar({
       <p className="nota mt-1">{t(nota)}</p>
 
       {/* Las fotos, en fila. En un teléfono se arrastran; en escritorio caben
-          las tres o cuatro que hay. */}
+          las que haya. */}
       <div className="-mx-1 mt-3 flex gap-2 overflow-x-auto px-1 pb-1">
         {productos.map((p) => {
           const activo = p.handle === elegido
+          const precio = parseFloat(p.priceRange.minVariantPrice.amount)
+          const mon = p.priceRange.minVariantPrice.currencyCode
+          const rebaja = descuentoPct ? (precio * descuentoPct) / 100 : 0
           return (
             <button
               key={p.id}
@@ -114,38 +174,67 @@ export function TiraAgregar({
               <span className="nota mt-1.5 block line-clamp-2 leading-snug text-text">
                 {nombreCorto(p.title)}
               </span>
-              {(() => {
-                const bruto = parseFloat(p.priceRange.minVariantPrice.amount)
-                const moneda = p.priceRange.minVariantPrice.currencyCode
-                if (!descuentoPct || !Number.isFinite(bruto)) {
-                  return (
-                    <span className="precio mt-0.5 block text-xs text-text-muted">
-                      {formatMoney(String(bruto), moneda)}
-                    </span>
-                  )
-                }
-                const ahorro = (bruto * descuentoPct) / 100
-                return (
-                  <>
-                    <span className="precio mt-0.5 block text-[11px] text-text-muted line-through">
-                      {formatMoney(String(bruto), moneda)}
-                    </span>
-                    <span className="precio block text-xs text-text">
-                      {formatMoney(String(bruto - ahorro), moneda)}
-                    </span>
-                    <span className="nota block text-[11px] leading-tight text-leather">
-                      {t("tira.ahorras")} {formatMoney(String(ahorro), moneda)}
-                    </span>
-                  </>
-                )
-              })()}
+              {rebaja > 0 ? (
+                <>
+                  <span className="precio mt-0.5 block text-[11px] text-text-muted line-through">
+                    {formatMoney(String(precio), mon)}
+                  </span>
+                  <span className="precio block text-xs text-text">
+                    {formatMoney(String(precio - rebaja), mon)}
+                  </span>
+                </>
+              ) : (
+                <span className="precio mt-0.5 block text-xs text-text-muted">
+                  {formatMoney(String(precio), mon)}
+                </span>
+              )}
             </button>
           )
         })}
       </div>
 
       {producto && (
-        <div className="mt-3">
+        <div className="mt-4">
+          {/* EL CONJUNTO ARMADO: lo que ya estás viendo, más lo que elegiste. */}
+          {base && (
+            <div className="mb-3 flex items-center gap-2 border-t border-border pt-3">
+              <span className="plato block w-[52px] shrink-0">
+                {base.imagen ? (
+                  <Image
+                    src={base.imagen.url}
+                    alt={base.imagen.altText || base.titulo}
+                    fill
+                    sizes="52px"
+                  />
+                ) : null}
+              </span>
+              <span className="precio text-text-muted" aria-hidden>
+                +
+              </span>
+              <span className="plato block w-[52px] shrink-0">
+                {producto.featuredImage ? (
+                  <Image
+                    src={producto.featuredImage.url}
+                    alt={producto.featuredImage.altText || producto.title}
+                    fill
+                    sizes="52px"
+                  />
+                ) : null}
+              </span>
+              <span className="ml-1 min-w-0 flex-1">
+                <span className="nota block leading-tight text-text">{t(conjunto)}</span>
+                <span className="precio block text-sm text-text">
+                  {formatMoney(String(totalConjunto), moneda)}
+                </span>
+                {ahorro > 0 && (
+                  <span className="nota block leading-tight text-leather">
+                    {t("tira.ahorras")} {formatMoney(String(ahorro), moneda)}
+                  </span>
+                )}
+              </span>
+            </div>
+          )}
+
           {tallas.length > 0 && (
             <>
               <p className="nota mb-1.5">
@@ -177,7 +266,7 @@ export function TiraAgregar({
             disabled={isPending || faltaTalla}
             className="btn btn-sec mt-3 w-full disabled:opacity-40"
           >
-            {faltaTalla ? t("tira.eligeTalla") : t("tira.agregar")}
+            {etiquetaBoton}
           </button>
         </div>
       )}
@@ -196,8 +285,8 @@ function tallasDe(p: Product | null): string[] {
 
 /**
  * "El Elegante en Venado Café" → "Venado Café" en la tarjeta chica: el modelo
- * ya se está viendo en grande arriba, y lo que distingue al segundo par es el
- * color. Si el título no trae "en", se deja tal cual.
+ * ya se está viendo en grande arriba, y lo que distingue a la segunda pieza es
+ * el color. Si el título no trae "en", se deja tal cual.
  */
 function nombreCorto(titulo: string): string {
   const i = titulo.indexOf(" en ")

@@ -16,6 +16,7 @@ import { useT } from "@/lib/i18n/context"
 import { isMX } from "@/lib/market"
 import { LocalizedLink as Link } from "@/components/LocalizedLink"
 import { useAltoTeaserKlaviyo } from "@/lib/klaviyo/teaser"
+import { TiraAgregar } from "@/components/TiraAgregar"
 
 const SIZE_OPTION_NAMES = ["Talla", "Talla del calzado", "Size"]
 
@@ -52,7 +53,16 @@ function isSizeOption(name: string): boolean {
   return SIZE_OPTION_NAMES.includes(name) || normalize(name).includes("talla")
 }
 
-export function ProductOptions({ product }: Props) {
+export function ProductOptions({
+  product,
+  hermanosPromo,
+  cintosPromo,
+}: Props & {
+  /** Los otros botines del "2º al 50%", ya sin este. Llegan de la página. */
+  hermanosPromo?: Product[]
+  /** Los cintos etiquetados para "cinto a mitad llevando botas". */
+  cintosPromo?: Product[]
+}) {
   const t = useT()
   const { addItem, buyNow, isPending } = useCart()
   const { selection, setOption, activeVariant } = usePDPVariant()
@@ -233,6 +243,23 @@ export function ProductOptions({ product }: Props) {
     isPending || (!needsSize && (!isAvailable || isUnknownCombo))
 
   const price = product.priceRange.minVariantPrice
+
+  /**
+   * Esta bota, como la ve el conjunto "bota + cinto" de las tiras de oferta.
+   *
+   * La variante y la talla se resuelven igual que en handleAdd —variante por
+   * talla, o variante única con la talla como atributo—, para que lo que entra
+   * al carrito desde la tira sea exactamente lo mismo que entra desde el botón.
+   */
+  const base = {
+    titulo: product.title,
+    imagen: product.featuredImage ?? product.images?.[0] ?? null,
+    precio: price,
+    variantId: (sizeOption ? activeVariant?.id : purchaseVariant?.id) ?? undefined,
+    talla: metaSizes.length > 0 ? metaSize : null,
+    requiereTalla: needsSize,
+    pedirTalla,
+  }
 
   // Botón de talla reusable (variante o metacampo comparten estilo).
   //
@@ -448,6 +475,40 @@ export function ProductOptions({ product }: Props) {
             </span>
           ))}
       </div>
+
+      {/* LAS OFERTAS, ENTRE LA TALLA Y EL BOTÓN. Aquí y no antes, porque quien
+          abre la ficha viene a comprar ESTA bota y la oferta encima del
+          selector le interrumpe lo que vino a hacer. Y aquí y no después de los
+          botones, donde las puse en el intento anterior: "las tarjetas se ven
+          después del agregar al carrito", dijo el dueño, y ahí no las ve nadie.
+          Este es el hueco donde cae la mirada de quien ya eligió talla y
+          todavía no ha pulsado.
+
+          Van dentro de ProductOptions —y no en la página— porque el conjunto
+          "bota + cinto" necesita la talla elegida y el aviso de "elige tu
+          talla", y las dos cosas viven aquí.
+
+          El 50% está escrito porque así están configurados los dos descuentos
+          automáticos en Shopify. Si allá cambia el porcentaje, cambia aquí: el
+          número no se puede leer desde la Storefront API. */}
+      <TiraAgregar
+        insignia="promoPar.insignia"
+        titulo="tira.par.titulo"
+        nota="tira.par.nota"
+        conjunto="tira.par.conjunto"
+        productos={hermanosPromo ?? []}
+        descuentoPct={50}
+        base={base}
+      />
+      <TiraAgregar
+        insignia="tira.cinto.insignia"
+        titulo="tira.cinto.titulo"
+        nota="tira.cinto.nota"
+        conjunto="tira.cinto.conjunto"
+        productos={cintosPromo ?? []}
+        descuentoPct={50}
+        base={base}
+      />
 
       {/* Siguen siendo dos caminos, pero ya no pesan lo mismo: agregar es el
           sólido y comprar ahora el de contorno. Antes eran dos botones de
