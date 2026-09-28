@@ -153,27 +153,33 @@ export function TiraAgregar({
           manda el conjunto armado. */}
       {!elegido && <p className="nota mt-2 text-text">{t(instruccion)}</p>}
 
-      {/* Las fotos, en fila. En un teléfono se arrastran; en escritorio caben
-          las que haya. */}
+      {/* CADA TARJETA ES EL COMBO, no una pieza suelta.
+          Antes eran cinco cintos y, al tocar uno, aparecía abajo el conjunto
+          armado. El dueño lo cortó: "en lugar de agregar cinto, que sea tipo
+          Bota + Cinto y el ahorro". Y es mejor: así no hay que imaginarse nada
+          ni tocar para enterarse de cuánto sale la pareja — cada tarjeta ya
+          enseña las dos fotos, el precio de los dos juntos y lo que se ahorra.
+          En un teléfono se arrastran; en escritorio caben las que haya. */}
       <div className="-mx-1 mt-3 flex gap-2 overflow-x-auto px-1 pb-1">
         {productos.map((p) => {
           const activo = p.handle === elegido
           const precio = parseFloat(p.priceRange.minVariantPrice.amount)
           const mon = p.priceRange.minVariantPrice.currencyCode
           const rebaja = descuentoPct ? (precio * descuentoPct) / 100 : 0
+          const conBase = !!base
+          const totalPareja = conBase ? parseFloat(base!.precio.amount) + precio - rebaja : precio - rebaja
           return (
             <button
               key={p.id}
               type="button"
               onClick={() => elegir(p)}
               aria-pressed={activo}
-              className={`relative w-[108px] shrink-0 cursor-pointer border p-1.5 text-left transition-colors duration-[180ms] ${
-                activo ? "border-text bg-plate" : "border-border hover:border-text-muted"
-              }`}
+              className={`relative shrink-0 cursor-pointer border p-2 text-left transition-colors duration-[180ms] ${
+                conBase ? "w-[164px]" : "w-[108px]"
+              } ${activo ? "border-text bg-plate" : "border-border hover:border-text-muted"}`}
             >
               {/* La palomita: sin ella, el único aviso de que la tarjeta quedó
-                  elegida era un borde un poco más oscuro, y el dueño dijo que
-                  seguía sin entenderse cómo se agregan estas cosas. */}
+                  elegida era un borde un poco más oscuro. */}
               {activo && (
                 <span className="absolute right-1 top-1 z-10 flex h-5 w-5 items-center justify-center rounded-full bg-text text-bg">
                   <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
@@ -181,20 +187,60 @@ export function TiraAgregar({
                   </svg>
                 </span>
               )}
-              <span className="plato block">
-                {p.featuredImage ? (
-                  <Image
-                    src={p.featuredImage.url}
-                    alt={p.featuredImage.altText || p.title}
-                    fill
-                    sizes="108px"
-                  />
-                ) : null}
-              </span>
+
+              {conBase ? (
+                <span className="flex items-center gap-1.5">
+                  <span className="plato block w-[62px] shrink-0">
+                    {base!.imagen ? (
+                      <Image
+                        src={base!.imagen.url}
+                        alt={base!.imagen.altText || base!.titulo}
+                        fill
+                        sizes="62px"
+                      />
+                    ) : null}
+                  </span>
+                  <span className="precio text-sm text-text-muted" aria-hidden>+</span>
+                  <span className="plato block w-[62px] shrink-0">
+                    {p.featuredImage ? (
+                      <Image
+                        src={p.featuredImage.url}
+                        alt={p.featuredImage.altText || p.title}
+                        fill
+                        sizes="62px"
+                      />
+                    ) : null}
+                  </span>
+                </span>
+              ) : (
+                <span className="plato block">
+                  {p.featuredImage ? (
+                    <Image
+                      src={p.featuredImage.url}
+                      alt={p.featuredImage.altText || p.title}
+                      fill
+                      sizes="108px"
+                    />
+                  ) : null}
+                </span>
+              )}
+
               <span className="nota mt-1.5 block line-clamp-2 leading-snug text-text">
-                {nombreCorto(p.title)}
+                {conBase ? `${t(conjunto)} · ${nombreCorto(p.title)}` : nombreCorto(p.title)}
               </span>
-              {rebaja > 0 ? (
+
+              {conBase ? (
+                <>
+                  <span className="precio mt-0.5 block text-sm text-text">
+                    {formatMoney(String(totalPareja), mon)}
+                  </span>
+                  {rebaja > 0 && (
+                    <span className="nota block leading-tight text-leather">
+                      {t("tira.ahorras")} {formatMoney(String(rebaja), mon)}
+                    </span>
+                  )}
+                </>
+              ) : rebaja > 0 ? (
                 <>
                   <span className="precio mt-0.5 block text-[11px] text-text-muted line-through">
                     {formatMoney(String(precio), mon)}
@@ -215,46 +261,6 @@ export function TiraAgregar({
 
       {producto && (
         <div className="mt-4">
-          {/* EL CONJUNTO ARMADO: lo que ya estás viendo, más lo que elegiste. */}
-          {base && (
-            <div className="mb-3 flex items-center gap-2 border-t border-border pt-3">
-              <span className="plato block w-[52px] shrink-0">
-                {base.imagen ? (
-                  <Image
-                    src={base.imagen.url}
-                    alt={base.imagen.altText || base.titulo}
-                    fill
-                    sizes="52px"
-                  />
-                ) : null}
-              </span>
-              <span className="precio text-text-muted" aria-hidden>
-                +
-              </span>
-              <span className="plato block w-[52px] shrink-0">
-                {producto.featuredImage ? (
-                  <Image
-                    src={producto.featuredImage.url}
-                    alt={producto.featuredImage.altText || producto.title}
-                    fill
-                    sizes="52px"
-                  />
-                ) : null}
-              </span>
-              <span className="ml-1 min-w-0 flex-1">
-                <span className="nota block leading-tight text-text">{t(conjunto)}</span>
-                <span className="precio block text-sm text-text">
-                  {formatMoney(String(totalConjunto), moneda)}
-                </span>
-                {ahorro > 0 && (
-                  <span className="nota block leading-tight text-leather">
-                    {t("tira.ahorras")} {formatMoney(String(ahorro), moneda)}
-                  </span>
-                )}
-              </span>
-            </div>
-          )}
-
           {tallas.length > 0 && (
             <>
               <p className="nota mb-1.5">
