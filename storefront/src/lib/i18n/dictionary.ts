@@ -629,6 +629,38 @@ export const DICTIONARY: Record<string, Entry> = {
   "tira.talla": { es: "Talla para", en: "Size for" },
   "tira.eligeTalla": { es: "Elige la talla", en: "Choose the size" },
   "tira.agregar": { es: "Agregar al carrito", en: "Add to cart" },
+  // La página de combos. "Combo" aquí es literal: dos piezas DISTINTAS que se
+  // llevan juntas. El segundo par a mitad no lo es —lo corrigió el dueño en su
+  // día— y por eso su bloque se llama por su nombre, no "combo".
+  "combos.eyebrow": { es: "Promociones", en: "Promotions" },
+  "combos.titulo": { es: "Arma tu combo", en: "Build your combo" },
+  "combos.intro": {
+    es: "Dos promociones vivas en la tienda. Elige las piezas y las tallas aquí; el descuento se aplica solo en el carrito.",
+    en: "Two live promotions. Pick the pieces and sizes here; the discount applies by itself in the cart.",
+  },
+  "combos.cinto.titulo": { es: "Bota + cinto", en: "Boot + belt" },
+  "combos.cinto.nota": {
+    es: "Llevando botas, el cinto sale a mitad de precio. Aquí van las más vendidas; con cualquier otra del catálogo también aplica.",
+    en: "With boots, the belt is half off. These are the best sellers; any other boot in the catalog works too.",
+  },
+  "combos.cinto.rotuloA": { es: "Elige tu bota", en: "Pick your boot" },
+  "combos.cinto.rotuloB": { es: "Elige tu cinto, a mitad", en: "Pick your belt, half off" },
+  "combos.par.titulo": { es: "Dos pares, el segundo a mitad", en: "Two pairs, second at half" },
+  "combos.par.nota": {
+    es: "Puedes combinar modelos y colores: no tienen que ser el mismo par.",
+    en: "Mix models and colors: they don't have to be the same pair.",
+  },
+  "combos.par.rotuloA": { es: "Elige el primero", en: "Pick the first one" },
+  "combos.par.rotuloB": { es: "Elige el segundo, a mitad", en: "Pick the second, half off" },
+  "combos.total": { es: "Total del combo", en: "Combo total" },
+  "combos.elige": { es: "Elige las dos piezas para ver el total.", en: "Pick both pieces to see the total." },
+  "combos.completa": { es: "Elige las dos piezas y sus tallas", en: "Pick both pieces and their sizes" },
+  "combos.agregar": { es: "Agregar el combo", en: "Add the combo" },
+  "combos.pie": {
+    es: "Los descuentos los aplica la tienda al llegar al carrito, no se necesita código. El del cinto es uno por pedido; el del segundo par descuenta una pieza por par.",
+    en: "Discounts are applied in the cart, no code needed. One belt per order; the second-pair discount takes one item off per pair.",
+  },
+  "nav.combos": { es: "Combos", en: "Combos" },
   "tira.ahorras": { es: "Ahorras", en: "You save" },
   "tira.par.instruccion": {
     es: "Toca el que quieras para verlo junto al tuyo.",
