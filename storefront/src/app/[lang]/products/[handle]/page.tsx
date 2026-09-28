@@ -10,7 +10,7 @@ import { PDPMarca } from "@/components/PDPMarca"
 import { PDPAcordeones } from "@/components/PDPAcordeones"
 import { PDPAtributos } from "@/components/PDPAtributos"
 import { PDPCalificacion } from "@/components/PDPCalificacion"
-import { PDPPromoPar } from "@/components/PDPPromoPar"
+import { TiraAgregar } from "@/components/TiraAgregar"
 import { PDPConstruccion } from "@/components/PDPConstruccion"
 import { PDPNotasTalla } from "@/components/PDPNotasTalla"
 import { CompartirProducto } from "@/components/CompartirProducto"
@@ -26,6 +26,8 @@ import {
   LocalizedPrice,
 } from "@/components/LocalizedProductContent"
 import { absoluteUrl } from "@/lib/seo"
+import { ETIQUETA_PROMO_PAR, ETIQUETA_PROMO_CINTO, enPromoPar } from "@/lib/promocion"
+import { isBoot } from "@/lib/shopify"
 
 /**
  * PDP — Página de detalle de producto.
@@ -111,6 +113,23 @@ export default async function ProductPage({ params }: Props) {
   // hay match, se muestra como texto (evita un link a 404). getBrands está
   // cacheado y el PDP es estático → corre en build, sin costo en runtime.
   const brands = await getBrands().catch(() => [])
+
+  // LOS PRODUCTOS DE LAS PROMOCIONES, para enseñarlos dentro de la ficha en vez
+  // de mandar al comprador a otra página (ver TiraAgregar). Se piden por
+  // etiqueta: quién entra y quién sale lo decide el dueño desde Shopify, sin
+  // desplegar. Si Shopify falla, la ficha se pinta sin las tiras.
+  const [hermanosPromo, cintosPromo] = await Promise.all([
+    enPromoPar(product)
+      ? getProducts({ first: 12, query: `tag:${ETIQUETA_PROMO_PAR}` })
+          .then((r) => r.products.filter((p) => p.handle !== product.handle))
+          .catch(() => [])
+      : Promise.resolve([]),
+    isBoot(product)
+      ? getProducts({ first: 12, query: `tag:${ETIQUETA_PROMO_CINTO}` })
+          .then((r) => r.products)
+          .catch(() => [])
+      : Promise.resolve([]),
+  ])
   // Match insensible a mayúsculas/espacios: el `name` de la marca puede diferir
   // del vendor solo en capitalización (ej. "FORAJIDAS" vs "Forajidas") y el chip
   // debe salir igual. Shopify ya busca vendors sin distinguir mayúsculas.
@@ -213,11 +232,31 @@ export default async function ProductPage({ params }: Props) {
                   <PDPCalificacion product={product} />
                 </div>
 
-                {/* El segundo a mitad de precio, entre el precio y la talla:
-                    es lo que cambia cuánto vas a gastar. */}
-                <PDPPromoPar product={product} />
+                {/* LAS PROMOCIONES, CON SUS PRODUCTOS DENTRO, entre el
+                    precio y la talla: es lo que cambia cuánto vas a gastar, y
+                    se decide antes de elegir talla. Cada tira solo existe si
+                    Shopify devolvió productos con su etiqueta. */}
+                <TiraAgregar
+                  insignia="promoPar.insignia"
+                  titulo="tira.par.titulo"
+                  nota="tira.par.nota"
+                  productos={hermanosPromo}
+                />
 
                 <ProductOptions product={product} />
+
+                {/* EL CINTO VA DESPUÉS DEL BOTÓN, no antes. El segundo par
+                    cambia cuánto vas a gastar y por eso se decide arriba; el
+                    cinto es un añadido, y puesto antes del botón solo conseguía
+                    empujar "Agregar al carrito" fuera de la pantalla en un
+                    teléfono. Aquí lo encuentra quien ya decidió la bota, que es
+                    justo a quien le aplica el descuento. */}
+                <TiraAgregar
+                  insignia="tira.cinto.insignia"
+                  titulo="tira.cinto.titulo"
+                  nota="tira.cinto.nota"
+                  productos={cintosPromo}
+                />
 
                 {/* Compartir, justo debajo de los botones de compra y del mismo
                     ancho. Estuvo arriba a la derecha como enlace chico y nadie

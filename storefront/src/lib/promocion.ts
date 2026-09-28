@@ -82,6 +82,16 @@ export function formatoCuentaRegresiva(r: Restante): string {
  */
 export const ETIQUETA_PROMO_PAR = "promo-2do-50"
 
+/**
+ * Los cintos que entran en "cinto a mitad llevando botas".
+ *
+ * El descuento vive en Shopify (automático, tipo "Compra X y obtén Y": una bota
+ * de la colección Botas → un cinto de la colección Cinturones al 50%, máximo
+ * uno por pedido). La etiqueta solo ANUNCIA, igual que la del par: si se quita
+ * el descuento en Shopify hay que quitar la etiqueta, o el sitio miente.
+ */
+export const ETIQUETA_PROMO_CINTO = "promo-cinto"
+
 export const enPromoPar = (p: { tags?: string[] | null } | null | undefined): boolean =>
   (p?.tags ?? []).includes(ETIQUETA_PROMO_PAR)
 

@@ -606,6 +606,29 @@ export const DICTIONARY: Record<string, Entry> = {
   "a11y.account": { es: "Mi cuenta", en: "My account" },
   "a11y.cart": { es: "Carrito", en: "Cart" },
   "a11y.openMenu": { es: "Abrir menú", en: "Open menu" },
+  // La tira que enseña los productos de una promoción dentro de la ficha (ver
+  // TiraAgregar). Textos cortos: compite con el botón de compra, no con la
+  // descripción.
+  "tira.par.titulo": {
+    es: "Llévate el segundo a mitad de precio.",
+    en: "Take the second one at half price.",
+  },
+  "tira.par.nota": {
+    es: "Elígelo aquí mismo. Puedes combinar modelos y colores; el descuento se aplica en el carrito.",
+    en: "Pick it right here. Mix models and colors; the discount applies in the cart.",
+  },
+  "tira.cinto.insignia": { es: "Cinto al 50%", en: "Belt at 50%" },
+  "tira.cinto.titulo": {
+    es: "Suma un cinto a mitad de precio.",
+    en: "Add a belt at half price.",
+  },
+  "tira.cinto.nota": {
+    es: "Llevando botas, el cinto sale a mitad. Se aplica en el carrito.",
+    en: "With boots, the belt is half off. Applied in the cart.",
+  },
+  "tira.talla": { es: "Talla para", en: "Size for" },
+  "tira.eligeTalla": { es: "Elige la talla", en: "Choose the size" },
+  "tira.agregar": { es: "Agregar al carrito", en: "Add to cart" },
   "a11y.closeMenu": { es: "Cerrar menú", en: "Close menu" },
   "a11y.nav": { es: "Navegación", en: "Navigation" },
   "a11y.language": { es: "Idioma", en: "Language" },
