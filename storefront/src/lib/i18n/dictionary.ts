@@ -630,7 +630,16 @@ export const DICTIONARY: Record<string, Entry> = {
   "tira.eligeTalla": { es: "Elige la talla", en: "Choose the size" },
   "tira.agregar": { es: "Agregar al carrito", en: "Add to cart" },
   "tira.ahorras": { es: "Ahorras", en: "You save" },
-  "tira.agregarDos": { es: "Agregar los dos", en: "Add both" },
+  "tira.par.instruccion": {
+    es: "Toca el que quieras para verlo junto al tuyo.",
+    en: "Tap the one you want to see it next to yours.",
+  },
+  "tira.cinto.instruccion": {
+    es: "Toca un cinto para verlo junto a tu bota.",
+    en: "Tap a belt to see it next to your boot.",
+  },
+  "tira.par.boton": { es: "Agregar los dos pares", en: "Add both pairs" },
+  "tira.cinto.boton": { es: "Agregar bota + cinto", en: "Add boot + belt" },
   "tira.par.conjunto": { es: "Los dos pares", en: "Both pairs" },
   "tira.cinto.conjunto": { es: "Bota + cinto", en: "Boot + belt" },
   "a11y.closeMenu": { es: "Cerrar menú", en: "Close menu" },

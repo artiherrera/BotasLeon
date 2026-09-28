@@ -45,7 +45,9 @@ export function TiraAgregar({
   insignia,
   titulo,
   nota,
+  instruccion,
   conjunto,
+  boton,
   productos,
   descuentoPct,
   base,
@@ -56,8 +58,12 @@ export function TiraAgregar({
   insignia: string
   titulo: string
   nota: string
+  /** El paso, escrito: "Toca el cinto que quieras…". */
+  instruccion: string
   /** Cómo se llama el conjunto ya armado: "Bota + cinto", "Los dos pares". */
   conjunto: string
+  /** Qué dice el botón cuando el conjunto está armado. */
+  boton: string
   productos: Product[]
   /**
    * Porcentaje que descuenta Shopify sobre la pieza elegida (50 en las dos
@@ -134,7 +140,7 @@ export function TiraAgregar({
     : faltaTalla
       ? t("tira.eligeTalla")
       : base?.variantId
-        ? t("tira.agregarDos")
+        ? t(boton)
         : t("tira.agregar")
 
   return (
@@ -142,6 +148,11 @@ export function TiraAgregar({
       <p className="nav-label text-leather">{t(insignia)}</p>
       <p className="cuerpo mt-1.5 text-text">{t(titulo)}</p>
       <p className="nota mt-1">{t(nota)}</p>
+      {/* La instrucción, en una línea y solo mientras no hay nada elegido: el
+          dueño seguía viendo confuso cómo se agregan estas piezas, y un paso
+          escrito vale más que un botón bonito. Desaparece al elegir, cuando ya
+          manda el conjunto armado. */}
+      {!elegido && <p className="nota mt-2 text-text">{t(instruccion)}</p>}
 
       {/* Las fotos, en fila. En un teléfono se arrastran; en escritorio caben
           las que haya. */}
@@ -157,10 +168,20 @@ export function TiraAgregar({
               type="button"
               onClick={() => elegir(p)}
               aria-pressed={activo}
-              className={`w-[108px] shrink-0 cursor-pointer border p-1.5 text-left transition-colors duration-[180ms] ${
+              className={`relative w-[108px] shrink-0 cursor-pointer border p-1.5 text-left transition-colors duration-[180ms] ${
                 activo ? "border-text bg-plate" : "border-border hover:border-text-muted"
               }`}
             >
+              {/* La palomita: sin ella, el único aviso de que la tarjeta quedó
+                  elegida era un borde un poco más oscuro, y el dueño dijo que
+                  seguía sin entenderse cómo se agregan estas cosas. */}
+              {activo && (
+                <span className="absolute right-1 top-1 z-10 flex h-5 w-5 items-center justify-center rounded-full bg-text text-bg">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                    <path d="m5 12 5 5L20 7" />
+                  </svg>
+                </span>
+              )}
               <span className="plato block">
                 {p.featuredImage ? (
                   <Image

@@ -495,7 +495,9 @@ export function ProductOptions({
         insignia="promoPar.insignia"
         titulo="tira.par.titulo"
         nota="tira.par.nota"
+        instruccion="tira.par.instruccion"
         conjunto="tira.par.conjunto"
+        boton="tira.par.boton"
         productos={hermanosPromo ?? []}
         descuentoPct={50}
         base={base}
@@ -504,35 +506,41 @@ export function ProductOptions({
         insignia="tira.cinto.insignia"
         titulo="tira.cinto.titulo"
         nota="tira.cinto.nota"
+        instruccion="tira.cinto.instruccion"
         conjunto="tira.cinto.conjunto"
+        boton="tira.cinto.boton"
         productos={cintosPromo ?? []}
         descuentoPct={50}
         base={base}
       />
 
-      {/* Siguen siendo dos caminos, pero ya no pesan lo mismo: agregar es el
-          sólido y comprar ahora el de contorno. Antes eran dos botones de
-          ancho completo casi idénticos y ninguno mandaba. La lógica de los dos
-          (guardia de talla, talla como atributo de línea) no cambia.
-          El observador de la barra pegajosa se cuelga del primario. */}
+      {/* COMPRAR AHORA MANDA, agregar al carrito acompaña. Lo pidió el dueño
+          (2026-09-28) y es coherente con esta tienda: aquí no se hace la compra
+          semanal, se compra un par de botas, y el camino corto al checkout es
+          el que él quiere empujar. Antes era al revés.
+
+          El observador de la barra pegajosa se queda colgado del botón de
+          comprar, que ahora es el principal: la barra que aparece al perderlo
+          de vista ofrece justo esa acción. La lógica de los dos (guardia de
+          talla, talla como atributo de línea) no cambia. */}
       <button
         ref={ctaRef}
-        type="button"
-        onClick={handleAdd}
-        disabled={ctaDisabled}
-        aria-busy={isPending}
-        className="btn w-full"
-      >
-        {ctaLabel}
-      </button>
-      <button
         type="button"
         onClick={handleBuyNow}
         disabled={ctaDisabled}
         aria-busy={isPending}
-        className="btn btn-sec w-full"
+        className="btn w-full"
       >
         {buyLabel}
+      </button>
+      <button
+        type="button"
+        onClick={handleAdd}
+        disabled={ctaDisabled}
+        aria-busy={isPending}
+        className="btn btn-sec w-full"
+      >
+        {ctaLabel}
       </button>
 
       {mounted ? createPortal(stickyBar, document.body) : null}
