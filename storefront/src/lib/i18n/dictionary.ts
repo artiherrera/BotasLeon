@@ -629,6 +629,7 @@ export const DICTIONARY: Record<string, Entry> = {
   "tira.talla": { es: "Talla para", en: "Size for" },
   "tira.eligeTalla": { es: "Elige la talla", en: "Choose the size" },
   "tira.agregar": { es: "Agregar al carrito", en: "Add to cart" },
+  "tira.ahorras": { es: "Ahorras", en: "You save" },
   "a11y.closeMenu": { es: "Cerrar menú", en: "Close menu" },
   "a11y.nav": { es: "Navegación", en: "Navigation" },
   "a11y.language": { es: "Idioma", en: "Language" },

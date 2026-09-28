@@ -232,30 +232,36 @@ export default async function ProductPage({ params }: Props) {
                   <PDPCalificacion product={product} />
                 </div>
 
-                {/* LAS PROMOCIONES, CON SUS PRODUCTOS DENTRO, entre el
-                    precio y la talla: es lo que cambia cuánto vas a gastar, y
-                    se decide antes de elegir talla. Cada tira solo existe si
-                    Shopify devolvió productos con su etiqueta. */}
+
+                <ProductOptions product={product} />
+
+                {/* LAS DOS OFERTAS VAN DESPUÉS DE LA TALLA Y DEL BOTÓN.
+                    Primero las puse encima, razonando que el segundo par cambia
+                    cuánto vas a gastar. El dueño lo corrigió (2026-09-27) y
+                    tiene razón: quien abre esta ficha viene a comprar ESTA
+                    bota, y ponerle la oferta antes de que elija su talla le
+                    interrumpe lo que vino a hacer. Además empujaba "Agregar al
+                    carrito" fuera de la pantalla en un teléfono.
+
+                    No es lo mismo que el selector de paquetes de una tienda de
+                    dropshipping —"1 pack / 2 pack"— que sí va encima del botón:
+                    aquello CONFIGURA lo que compras; esto AÑADE un segundo
+                    producto, y un añadido se ofrece cuando el primero ya está
+                    resuelto. Aquí lo encuentra quien ya eligió talla, que es
+                    justo a quien le aplica el descuento. */}
                 <TiraAgregar
                   insignia="promoPar.insignia"
                   titulo="tira.par.titulo"
                   nota="tira.par.nota"
                   productos={hermanosPromo}
+                  descuentoPct={50}
                 />
-
-                <ProductOptions product={product} />
-
-                {/* EL CINTO VA DESPUÉS DEL BOTÓN, no antes. El segundo par
-                    cambia cuánto vas a gastar y por eso se decide arriba; el
-                    cinto es un añadido, y puesto antes del botón solo conseguía
-                    empujar "Agregar al carrito" fuera de la pantalla en un
-                    teléfono. Aquí lo encuentra quien ya decidió la bota, que es
-                    justo a quien le aplica el descuento. */}
                 <TiraAgregar
                   insignia="tira.cinto.insignia"
                   titulo="tira.cinto.titulo"
                   nota="tira.cinto.nota"
                   productos={cintosPromo}
+                  descuentoPct={50}
                 />
 
                 {/* Compartir, justo debajo de los botones de compra y del mismo

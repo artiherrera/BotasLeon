@@ -39,6 +39,7 @@ export function TiraAgregar({
   titulo,
   nota,
   productos,
+  descuentoPct,
 }: {
   /* Llegan CLAVES del diccionario, no texto ya traducido: la ficha es un
      componente de servidor y ahí no hay `t`. Traduce esta tira, que sí vive en
@@ -47,6 +48,12 @@ export function TiraAgregar({
   titulo: string
   nota: string
   productos: Product[]
+  /**
+   * Porcentaje que descuenta Shopify sobre esta pieza (50 en las dos
+   * promociones de hoy). Con él, la tarjeta enseña el precio tachado, lo que
+   * queda y cuánto se ahorra. Sin él, solo el precio.
+   */
+  descuentoPct?: number
 }) {
   const { t } = useLocale()
   const { addItem, isPending } = useCart()
@@ -90,7 +97,7 @@ export function TiraAgregar({
               type="button"
               onClick={() => elegir(p)}
               aria-pressed={activo}
-              className={`w-[96px] shrink-0 cursor-pointer border p-1.5 text-left transition-colors duration-[180ms] ${
+              className={`w-[108px] shrink-0 cursor-pointer border p-1.5 text-left transition-colors duration-[180ms] ${
                 activo ? "border-text bg-plate" : "border-border hover:border-text-muted"
               }`}
             >
@@ -100,19 +107,38 @@ export function TiraAgregar({
                     src={p.featuredImage.url}
                     alt={p.featuredImage.altText || p.title}
                     fill
-                    sizes="96px"
+                    sizes="108px"
                   />
                 ) : null}
               </span>
               <span className="nota mt-1.5 block line-clamp-2 leading-snug text-text">
                 {nombreCorto(p.title)}
               </span>
-              <span className="precio mt-0.5 block text-xs text-text-muted">
-                {formatMoney(
-                  p.priceRange.minVariantPrice.amount,
-                  p.priceRange.minVariantPrice.currencyCode,
-                )}
-              </span>
+              {(() => {
+                const bruto = parseFloat(p.priceRange.minVariantPrice.amount)
+                const moneda = p.priceRange.minVariantPrice.currencyCode
+                if (!descuentoPct || !Number.isFinite(bruto)) {
+                  return (
+                    <span className="precio mt-0.5 block text-xs text-text-muted">
+                      {formatMoney(String(bruto), moneda)}
+                    </span>
+                  )
+                }
+                const ahorro = (bruto * descuentoPct) / 100
+                return (
+                  <>
+                    <span className="precio mt-0.5 block text-[11px] text-text-muted line-through">
+                      {formatMoney(String(bruto), moneda)}
+                    </span>
+                    <span className="precio block text-xs text-text">
+                      {formatMoney(String(bruto - ahorro), moneda)}
+                    </span>
+                    <span className="nota block text-[11px] leading-tight text-leather">
+                      {t("tira.ahorras")} {formatMoney(String(ahorro), moneda)}
+                    </span>
+                  </>
+                )
+              })()}
             </button>
           )
         })}
