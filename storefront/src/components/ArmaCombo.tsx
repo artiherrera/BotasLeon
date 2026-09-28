@@ -4,9 +4,8 @@ import { useState } from "react"
 import Image from "next/image"
 import { useCart } from "@/components/CartProvider"
 import { useLocale } from "@/lib/i18n/context"
-import { tallasDe, lineaDe, nombreCorto } from "@/lib/combos"
+import { tallasDe, lineaDe, nombreCorto, type Pieza } from "@/lib/combos"
 import { formatMoney } from "@/lib/utils"
-import type { Product } from "@/lib/shopify/types"
 
 /**
  * El armador de combos: dos piezas, elegidas aquí, al carrito de un golpe.
@@ -42,8 +41,8 @@ export function ArmaCombo({
   nota: string
   rotuloA: string
   rotuloB: string
-  piezasA: Product[]
-  piezasB: Product[]
+  piezasA: Pieza[]
+  piezasB: Pieza[]
   descuentoPctB?: number
 }) {
   const { t } = useLocale()
@@ -157,13 +156,13 @@ function Lado({
 }: {
   numero: number
   rotulo: string
-  piezas: Product[]
+  piezas: Pieza[]
   elegido: string | null
   onElegir: (handle: string) => void
   talla: string | null
   onTalla: (t: string) => void
   tallas: string[]
-  pieza: Product | null
+  pieza: Pieza | null
   descuentoPct?: number
 }) {
   const { t } = useLocale()

@@ -5,9 +5,8 @@ import Image from "next/image"
 import { useCart } from "@/components/CartProvider"
 import { useLocale } from "@/lib/i18n/context"
 import { SIZE_ATTR } from "@/lib/cart/line-size"
-import { tallasDe, lineaDe, nombreCorto } from "@/lib/combos"
+import { tallasDe, lineaDe, nombreCorto, type Pieza } from "@/lib/combos"
 import { formatMoney } from "@/lib/utils"
-import type { Product } from "@/lib/shopify/types"
 
 /**
  * La oferta con los productos DENTRO y armada como CONJUNTO: "bota + cinto".
@@ -65,7 +64,7 @@ export function TiraAgregar({
   conjunto: string
   /** Qué dice el botón cuando el conjunto está armado. */
   boton: string
-  productos: Product[]
+  productos: Pieza[]
   /**
    * Porcentaje que descuenta Shopify sobre la pieza elegida (50 en las dos
    * promociones de hoy). Con él se enseña el precio tachado, lo que queda y
@@ -99,7 +98,7 @@ export function TiraAgregar({
   const faltaTalla = !!producto && tallas.length > 0 && !talla
   const faltaTallaBase = !!base?.requiereTalla && !base.talla
 
-  const elegir = (p: Product) => {
+  const elegir = (p: Pieza) => {
     setElegido(p.handle === elegido ? null : p.handle)
     setTalla(null)
   }

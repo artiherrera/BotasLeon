@@ -4,6 +4,7 @@ import { ArmaCombo } from "@/components/ArmaCombo"
 import { T } from "@/components/T"
 import { getProducts, getProductsByTag, isBoot } from "@/lib/shopify"
 import { ETIQUETA_PROMO_PAR, ETIQUETA_PROMO_CINTO } from "@/lib/promocion"
+import { aPieza } from "@/lib/combos"
 import { pageMetadata } from "@/lib/seo"
 
 /**
@@ -49,7 +50,7 @@ export default async function CombosPage() {
       .catch(() => []),
   ])
 
-  const botas = listado.filter(isBoot).slice(0, CUANTAS_BOTAS)
+  const botas = listado.filter(isBoot).slice(0, CUANTAS_BOTAS).map(aPieza)
 
   return (
     <>
@@ -74,7 +75,7 @@ export default async function CombosPage() {
               rotuloA="combos.cinto.rotuloA"
               rotuloB="combos.cinto.rotuloB"
               piezasA={botas}
-              piezasB={cintos}
+              piezasB={cintos.map(aPieza)}
             />
             <ArmaCombo
               insignia="promoPar.insignia"
@@ -82,8 +83,8 @@ export default async function CombosPage() {
               nota="combos.par.nota"
               rotuloA="combos.par.rotuloA"
               rotuloB="combos.par.rotuloB"
-              piezasA={botinesPromo}
-              piezasB={botinesPromo}
+              piezasA={botinesPromo.map(aPieza)}
+              piezasB={botinesPromo.map(aPieza)}
             />
           </div>
 

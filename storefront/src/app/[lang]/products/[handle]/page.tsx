@@ -26,6 +26,7 @@ import {
 } from "@/components/LocalizedProductContent"
 import { absoluteUrl } from "@/lib/seo"
 import { ETIQUETA_PROMO_PAR, ETIQUETA_PROMO_CINTO, enPromoPar } from "@/lib/promocion"
+import { aPieza } from "@/lib/combos"
 import { isBoot } from "@/lib/shopify"
 
 /**
@@ -120,10 +121,12 @@ export default async function ProductPage({ params }: Props) {
   const [hermanosPromo, cintosPromo] = await Promise.all([
     enPromoPar(product)
       ? getProductsByTag(ETIQUETA_PROMO_PAR).then((ps) =>
-          ps.filter((p) => p.handle !== product.handle),
+          ps.filter((p) => p.handle !== product.handle).map(aPieza),
         )
       : Promise.resolve([]),
-    isBoot(product) ? getProductsByTag(ETIQUETA_PROMO_CINTO) : Promise.resolve([]),
+    isBoot(product)
+      ? getProductsByTag(ETIQUETA_PROMO_CINTO).then((ps) => ps.map(aPieza))
+      : Promise.resolve([]),
   ])
   // Match insensible a mayúsculas/espacios: el `name` de la marca puede diferir
   // del vendor solo en capitalización (ej. "FORAJIDAS" vs "Forajidas") y el chip

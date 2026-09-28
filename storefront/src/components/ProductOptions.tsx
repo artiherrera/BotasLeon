@@ -17,6 +17,7 @@ import { isMX } from "@/lib/market"
 import { LocalizedLink as Link } from "@/components/LocalizedLink"
 import { useAltoTeaserKlaviyo } from "@/lib/klaviyo/teaser"
 import { TiraAgregar } from "@/components/TiraAgregar"
+import type { Pieza } from "@/lib/combos"
 
 const SIZE_OPTION_NAMES = ["Talla", "Talla del calzado", "Size"]
 
@@ -59,9 +60,9 @@ export function ProductOptions({
   cintosPromo,
 }: Props & {
   /** Los otros botines del "2º al 50%", ya sin este. Llegan de la página. */
-  hermanosPromo?: Product[]
+  hermanosPromo?: Pieza[]
   /** Los cintos etiquetados para "cinto a mitad llevando botas". */
-  cintosPromo?: Product[]
+  cintosPromo?: Pieza[]
 }) {
   const t = useT()
   const { addItem, buyNow, isPending } = useCart()
