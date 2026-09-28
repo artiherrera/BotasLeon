@@ -12,6 +12,7 @@ import { shopifyFetch } from "./client"
 import {
   GET_PRODUCTS_QUERY,
   GET_PRODUCT_BY_HANDLE_QUERY,
+  GET_PRODUCTS_DETAIL_BY_QUERY,
   GET_COLLECTIONS_QUERY,
   GET_COLLECTION_BY_HANDLE_QUERY,
   GET_PRODUCTS_WITH_TAXONOMY_QUERY,
@@ -184,6 +185,45 @@ async function getProductByHandleImpl(handle: string): Promise<Product | null> {
     // devuelve null (→ el PDP dispara notFound()) en vez de tirar la página.
     console.error(`[getProductByHandle] handle=${handle}:`, e instanceof Error ? e.message : e)
     return null
+  }
+}
+
+/**
+ * Los productos de una etiqueta, con su ficha completa.
+ *
+ * Es lo que comen las tiras de promoción de la ficha (ver TiraAgregar): quién
+ * entra lo decide el dueño etiquetando en Shopify, y aquí llegan con TODAS sus
+ * variantes, que es lo que hace falta para agregar la talla correcta sin abrir
+ * la ficha de la pieza.
+ *
+ * Un fallo de Shopify devuelve lista vacía: la promoción no se anuncia, pero la
+ * ficha se pinta igual.
+ */
+export async function getProductsByTag(tag: string, first = 12): Promise<Product[]> {
+  type Resp = {
+    products: Edge<
+      Omit<Product, "images" | "variants"> & {
+        images: Edge<Product["images"][number]>
+        variants: Edge<Product["variants"][number]>
+      } & JudgemeMetafields
+    >
+  }
+  try {
+    const data = await shopifyFetch<Resp>(
+      GET_PRODUCTS_DETAIL_BY_QUERY,
+      { first, query: `tag:${tag}` },
+      { tags: ["products"] }
+    )
+    return data.products.edges.map((e) =>
+      applyJudgeme({
+        ...e.node,
+        images: e.node.images.edges.map((i) => i.node),
+        variants: e.node.variants.edges.map((v) => v.node),
+      })
+    )
+  } catch (e) {
+    console.error(`[getProductsByTag] tag=${tag}:`, e instanceof Error ? e.message : e)
+    return []
   }
 }
 

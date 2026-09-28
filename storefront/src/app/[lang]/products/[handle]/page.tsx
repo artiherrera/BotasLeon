@@ -19,7 +19,7 @@ import { RelatedProducts } from "@/components/RelatedProducts"
 import { RecentlyViewed } from "@/components/RecentlyViewed"
 import { ProductJsonLd, BreadcrumbJsonLd } from "@/components/StructuredData"
 import { ProductViewedTracker } from "@/components/ProductViewedTracker"
-import { getProductByHandle, getProducts, getBrands } from "@/lib/shopify"
+import { getProductByHandle, getProducts, getProductsByTag, getBrands } from "@/lib/shopify"
 import {
   LocalizedProductTitle,
   LocalizedPrice,
@@ -119,15 +119,11 @@ export default async function ProductPage({ params }: Props) {
   // desplegar. Si Shopify falla, la ficha se pinta sin las tiras.
   const [hermanosPromo, cintosPromo] = await Promise.all([
     enPromoPar(product)
-      ? getProducts({ first: 12, query: `tag:${ETIQUETA_PROMO_PAR}` })
-          .then((r) => r.products.filter((p) => p.handle !== product.handle))
-          .catch(() => [])
+      ? getProductsByTag(ETIQUETA_PROMO_PAR).then((ps) =>
+          ps.filter((p) => p.handle !== product.handle),
+        )
       : Promise.resolve([]),
-    isBoot(product)
-      ? getProducts({ first: 12, query: `tag:${ETIQUETA_PROMO_CINTO}` })
-          .then((r) => r.products)
-          .catch(() => [])
-      : Promise.resolve([]),
+    isBoot(product) ? getProductsByTag(ETIQUETA_PROMO_CINTO) : Promise.resolve([]),
   ])
   // Match insensible a mayúsculas/espacios: el `name` de la marca puede diferir
   // del vendor solo en capitalización (ej. "FORAJIDAS" vs "Forajidas") y el chip

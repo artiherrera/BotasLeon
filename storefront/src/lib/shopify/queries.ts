@@ -247,6 +247,29 @@ export const GET_PRODUCT_BY_HANDLE_QUERY = /* GraphQL */ `
   ${PRODUCT_DETAIL_FRAGMENT}
 `
 
+/**
+ * Productos por búsqueda, pero con la ficha COMPLETA (todas las variantes).
+ *
+ * La consulta de listado trae `variants(first: 1)`, que a las tarjetas les
+ * basta porque 101 de 103 productos son de variante única. A las tiras de
+ * promoción no: ahí se agrega al carrito una pieza que el comprador elige sin
+ * abrir su ficha, y si esa pieza tiene la talla como VARIANTE —un cinturón en
+ * pulgadas, por ejemplo— con la primera variante se le mandaría siempre la
+ * misma medida. Son cinco o seis productos por promoción: el peso extra no se
+ * nota y el pedido sale bien.
+ */
+export const GET_PRODUCTS_DETAIL_BY_QUERY = /* GraphQL */ `
+  query GetProductsDetail($first: Int!, $query: String) ${inContext('ES')} {
+    products(first: $first, query: $query, sortKey: BEST_SELLING) {
+      edges { node { ...ProductDetailFields } }
+    }
+  }
+  ${IMAGE_FRAGMENT}
+  ${MONEY_FRAGMENT}
+  ${VARIANT_FRAGMENT}
+  ${PRODUCT_DETAIL_FRAGMENT}
+`
+
 export const GET_COLLECTIONS_QUERY = /* GraphQL */ `
   query GetCollections($first: Int!) {
     collections(first: $first) {
