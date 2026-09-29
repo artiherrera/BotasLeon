@@ -663,12 +663,12 @@ export const DICTIONARY: Record<string, Entry> = {
   "nav.combos": { es: "Combos", en: "Combos" },
   "tira.ahorras": { es: "Ahorras", en: "You save" },
   "tira.par.instruccion": {
-    es: "Toca el par que quieras y elige su talla.",
-    en: "Tap the pairing you want and choose its size.",
+    es: "Cambia el segundo par aquí, y elige su talla.",
+    en: "Swap the second pair here, and choose its size.",
   },
   "tira.cinto.instruccion": {
-    es: "Toca el combo que quieras y elige la medida del cinto.",
-    en: "Tap the combo you want and choose the belt size.",
+    es: "Cambia de cinto aquí, y elige su medida.",
+    en: "Swap the belt here, and choose its size.",
   },
   "tira.par.boton": { es: "Agregar los dos pares", en: "Add both pairs" },
   "tira.cinto.boton": { es: "Agregar bota + cinto", en: "Add boot + belt" },

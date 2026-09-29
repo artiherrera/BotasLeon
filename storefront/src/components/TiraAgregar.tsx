@@ -149,11 +149,6 @@ export function TiraAgregar({
       <p className="nav-label text-leather">{t(insignia)}</p>
       <p className="cuerpo mt-1.5 text-text">{t(titulo)}</p>
       <p className="nota mt-1">{t(nota)}</p>
-      {/* La instrucción, en una línea y solo mientras no hay nada elegido: el
-          dueño seguía viendo confuso cómo se agregan estas piezas, y un paso
-          escrito vale más que un botón bonito. Desaparece al elegir, cuando ya
-          manda el conjunto armado. */}
-      {!elegido && <p className="nota mt-2 text-text">{t(instruccion)}</p>}
 
       {/* UN SOLO COMBO A LA VISTA, y miniaturas para cambiar la segunda pieza.
           Antes se pintaban las cinco combinaciones completas, una al lado de
@@ -199,34 +194,55 @@ export function TiraAgregar({
         </div>
       )}
 
-      {/* Las otras opciones, en miniatura. Solo si hay de dónde escoger. */}
+      {/* LAS OTRAS OPCIONES, CON SU NOMBRE Y SU PRECIO. Primero las puse en
+          miniaturas de 48px peladas y el dueño lo cortó: "muy pequeñas, sin el
+          nombre visible". Tenía razón — "Piel Granulada Café" y "Piel Granulada
+          Negra" son dos fotos de cinto casi idénticas a ese tamaño, y encima
+          cuestan distinto, así que sin nombre ni precio se elige a ciegas.
+
+          VAN EN VARIAS LÍNEAS (flex-wrap), no en una fila que se arrastra: así
+          el ancho mínimo de este bloque es el de UNA tarjeta y no el de las
+          cinco. Esa fila de una sola línea fue justo lo que le robó 300px a la
+          foto del producto. */}
       {productos.length > 1 && (
-        <div className="-mx-1 mt-3 flex flex-wrap gap-1.5 px-1">
-          {productos.map((p) => {
-            const activo = p.handle === elegido
-            return (
-              <button
-                key={p.id}
-                type="button"
-                onClick={() => elegir(p)}
-                aria-pressed={activo}
-                aria-label={nombreCorto(p.title)}
-                title={nombreCorto(p.title)}
-                className={`plato block w-[48px] shrink-0 cursor-pointer border transition-colors duration-[180ms] ${
-                  activo ? "border-text" : "border-transparent opacity-60 hover:opacity-100"
-                }`}
-              >
-                {p.featuredImage ? (
-                  <Image
-                    src={p.featuredImage.url}
-                    alt={p.featuredImage.altText || p.title}
-                    fill
-                    sizes="48px"
-                  />
-                ) : null}
-              </button>
-            )
-          })}
+        <div className="mt-4">
+          <p className="nota mb-2">{t(instruccion)}</p>
+          <div className="flex flex-wrap gap-2">
+            {productos.map((p) => {
+              const activo = p.handle === elegido
+              const precio = parseFloat(p.priceRange.minVariantPrice.amount)
+              const mon = p.priceRange.minVariantPrice.currencyCode
+              const rebaja = descuentoPct ? (precio * descuentoPct) / 100 : 0
+              return (
+                <button
+                  key={p.id}
+                  type="button"
+                  onClick={() => elegir(p)}
+                  aria-pressed={activo}
+                  className={`w-[104px] shrink-0 cursor-pointer border p-1.5 text-left transition-colors duration-[180ms] ${
+                    activo ? "border-text bg-plate" : "border-border hover:border-text-muted"
+                  }`}
+                >
+                  <span className="plato block">
+                    {p.featuredImage ? (
+                      <Image
+                        src={p.featuredImage.url}
+                        alt={p.featuredImage.altText || p.title}
+                        fill
+                        sizes="104px"
+                      />
+                    ) : null}
+                  </span>
+                  <span className="nota mt-1.5 block line-clamp-2 leading-snug text-text">
+                    {nombreCorto(p.title)}
+                  </span>
+                  <span className="precio block text-xs text-leather">
+                    {formatMoney(String(precio - rebaja), mon)}
+                  </span>
+                </button>
+              )
+            })}
+          </div>
         </div>
       )}
 
