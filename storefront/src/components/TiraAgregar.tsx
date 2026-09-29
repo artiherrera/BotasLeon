@@ -1,6 +1,5 @@
 "use client"
 
-import { useState } from "react"
 import Image from "next/image"
 import { useLocale } from "@/lib/i18n/context"
 import { tallasDe, lineaDe, nombreCorto, type Pieza } from "@/lib/combos"
@@ -67,15 +66,6 @@ export function TiraAgregar({
   onSeleccion: (s: SeleccionOferta) => void
 }) {
   const { t } = useLocale()
-  /**
-   * PLEGADA DE ENTRADA. Desplegadas, las dos ofertas metían 1.400px entre el
-   * selector de talla y el botón de compra: en un teléfono el botón quedaba a
-   * 2.918px, dos pantallas y media por debajo de la talla, y quien llega de un
-   * anuncio elige su número y no encuentra cómo pagar. Plegada ocupa una línea
-   * y dice lo único que importa antes de abrirla: cuánto se ahorra.
-   */
-  const [abierto, setAbierto] = useState(false)
-
   if (productos.length === 0) return null
 
   const producto = productos.find((p) => p.handle === seleccion?.handle) ?? null
@@ -98,188 +88,154 @@ export function TiraAgregar({
     else onSeleccion({ handle: p.handle, talla: null })
   }
 
-  const desplegada = abierto || !!producto
-
-  // PLEGADA: una línea. La insignia, el gancho y el ahorro, con un enlace para
-  // abrirla. Nada de botones — el único botón de la ficha es el de comprar.
-  if (!desplegada) {
-    return (
-      <section className="mb-4 min-w-0 border border-dashed border-leather/50 px-4 py-3">
-        <button
-          type="button"
-          onClick={() => setAbierto(true)}
-          className="flex w-full cursor-pointer items-center justify-between gap-3 text-left"
-        >
-          <span className="min-w-0">
-            <span className="nav-label block text-leather">{t(insignia)}</span>
-            <span className="cuerpo block text-text">{t(titulo)}</span>
-            {ahorroMinimo > 0 && (
-              <span className="nota block text-leather">
-                {t("tira.ahorrasDesde")} {formatMoney(String(ahorroMinimo), moneda)}
-              </span>
-            )}
-          </span>
-          <span className="cuerpo shrink-0 text-leather underline underline-offset-4">
-            {t("tira.elegir")}
-          </span>
-        </button>
-      </section>
-    )
-  }
+  const precioBase = base ? parseFloat(base.precio.amount) : 0
+  const conCinto = !!producto
 
   return (
-    <section className="mb-6 min-w-0 border border-dashed border-leather/50 p-4">
+    <section className="mb-6 min-w-0 border-2 border-leather/60 bg-plate/40 p-4">
       <p className="nav-label text-leather">{t(insignia)}</p>
       <p className="cuerpo mt-1.5 text-text">{t(titulo)}</p>
-      <p className="nota mt-1">{t(nota)}</p>
 
-      {/* El conjunto armado, solo cuando hay algo marcado. Mientras no, el
-          ahorro se anuncia igual: es el gancho y tiene que leerse sin tocar. */}
-      {producto ? (
-        <div className="mt-3 flex items-center gap-2 border-t border-border pt-3">
-          {base && (
-            <>
-              <span className="plato block w-[76px] shrink-0">
-                {base.imagen ? (
-                  <Image
-                    src={base.imagen.url}
-                    alt={base.imagen.altText || base.titulo}
-                    fill
-                    sizes="76px"
-                  />
-                ) : null}
-              </span>
-              <span className="precio text-sm text-text-muted" aria-hidden>
-                +
-              </span>
-            </>
-          )}
-          <span className="plato block w-[76px] shrink-0">
-            {producto.featuredImage ? (
-              <Image
-                src={producto.featuredImage.url}
-                alt={producto.featuredImage.altText || producto.title}
-                fill
-                sizes="76px"
-              />
-            ) : null}
-          </span>
-          <span className="ml-1 min-w-0 flex-1">
-            <span className="nota block leading-tight text-text">
-              {base
-                ? `${t(conjunto)} · ${nombreCorto(producto.title)}`
-                : nombreCorto(producto.title)}
+      {/* LA DECISIÓN, EN DOS OPCIONES A LA VISTA.
+          Ese es el punto entero de esta pieza, y lo dijo el dueño con todas las
+          letras: "la idea es que la persona deje de pensar entre comprar una
+          bota o no, sino entre comprar una bota CON O SIN CINTO". Una oferta
+          escondida detrás de un "Elegir" —como la dejé un rato— no provoca esa
+          comparación: la esconde. Las dos opciones van juntas, con sus precios
+          enfrentados, y la del combo enseña lo que se ahorra.
+
+          NO viene marcada la del combo: sería meterle al cliente un cinto que
+          no pidió y cobrárselo. Se ofrece, no se cuela. */}
+      {base && (
+        <div className="mt-3 space-y-2">
+          <button
+            type="button"
+            onClick={() => onSeleccion(null)}
+            aria-pressed={!conCinto}
+            className={`flex w-full cursor-pointer items-center gap-3 border px-3 py-3 text-left transition-colors duration-[180ms] ${
+              !conCinto ? "border-text bg-bg" : "border-border hover:border-text-muted"
+            }`}
+          >
+            <span className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border ${!conCinto ? "border-text" : "border-border"}`}>
+              {!conCinto && <span className="h-2.5 w-2.5 rounded-full bg-text" />}
             </span>
-            <span className="precio block text-base text-text">
-              {formatMoney(String(total), moneda)}
+            <span className="min-w-0 flex-1 cuerpo text-text">{t("tira.soloBota")}</span>
+            <span className="precio shrink-0 text-text">
+              {formatMoney(String(precioBase), moneda)}
             </span>
-            {ahorro > 0 && (
-              <span className="nota block leading-tight text-leather">
-                {t("tira.ahorras")} {formatMoney(String(ahorro), moneda)}
+          </button>
+
+          <button
+            type="button"
+            onClick={() => {
+              if (!conCinto) onSeleccion({ handle: productos[0].handle, talla: null })
+            }}
+            aria-pressed={conCinto}
+            className={`flex w-full cursor-pointer items-start gap-3 border px-3 py-3 text-left transition-colors duration-[180ms] ${
+              conCinto ? "border-text bg-bg" : "border-border hover:border-text-muted"
+            }`}
+          >
+            <span className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border ${conCinto ? "border-text" : "border-border"}`}>
+              {conCinto && <span className="h-2.5 w-2.5 rounded-full bg-text" />}
+            </span>
+            <span className="min-w-0 flex-1">
+              <span className="cuerpo block text-text">{t(conjunto)}</span>
+              <span className="nota block text-leather">
+                {conCinto
+                  ? `${t("tira.ahorras")} ${formatMoney(String(ahorro), moneda)}`
+                  : `${t("tira.ahorrasDesde")} ${formatMoney(String(ahorroMinimo), moneda)}`}
               </span>
-            )}
-          </span>
+            </span>
+            <span className="precio shrink-0 text-text">
+              {formatMoney(
+                String(
+                  conCinto
+                    ? total
+                    : precioBase +
+                        parseFloat(productos[0].priceRange.minVariantPrice.amount) -
+                        rebajaDe(productos[0]),
+                ),
+                moneda,
+              )}
+            </span>
+          </button>
         </div>
-      ) : (
-        ahorroMinimo > 0 && (
-          <p className="nota mt-2 text-leather">
-            {t("tira.ahorrasDesde")} {formatMoney(String(ahorroMinimo), moneda)}
-          </p>
-        )
       )}
 
-      <p className="nota mb-2 mt-4">{t(instruccion)}</p>
-      <div className="flex flex-wrap gap-2">
-        {productos.map((p) => {
-          const activo = p.handle === seleccion?.handle
-          const precio = parseFloat(p.priceRange.minVariantPrice.amount)
-          const mon = p.priceRange.minVariantPrice.currencyCode
-          const rebaja = rebajaDe(p)
-          return (
-            <button
-              key={p.id}
-              type="button"
-              onClick={() => marcar(p)}
-              aria-pressed={activo}
-              className={`relative w-[144px] shrink-0 cursor-pointer border p-2 text-left transition-colors duration-[180ms] ${
-                activo ? "border-text bg-plate" : "border-border hover:border-text-muted"
-              }`}
-            >
-              {activo && (
-                <span className="absolute right-1.5 top-1.5 z-10 flex h-5 w-5 items-center justify-center rounded-full bg-text text-bg">
-                  <svg
-                    width="12"
-                    height="12"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2.5"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    aria-hidden
-                  >
-                    <path d="m5 12 5 5L20 7" />
-                  </svg>
-                </span>
-              )}
-              <span className="plato block">
-                {p.featuredImage ? (
-                  <Image
-                    src={p.featuredImage.url}
-                    alt={p.featuredImage.altText || p.title}
-                    fill
-                    sizes="144px"
-                  />
-                ) : null}
-              </span>
-              <span className="nota mt-2 block line-clamp-2 leading-snug text-text">
-                {nombreCorto(p.title)}
-              </span>
-              {rebaja > 0 ? (
-                <span className="mt-0.5 block">
-                  <span className="precio text-[11px] text-text-muted line-through">
-                    {formatMoney(String(precio), mon)}
-                  </span>{" "}
-                  <span className="precio text-sm text-text">
-                    {formatMoney(String(precio - rebaja), mon)}
+      {/* Elegido el combo, lo que falta: cuál y de qué medida. */}
+      {conCinto && (
+        <div className="mt-4 border-t border-border pt-4">
+          <p className="nota mb-2">{t(instruccion)}</p>
+          <div className="flex flex-wrap gap-2">
+            {productos.map((p) => {
+              const activo = p.handle === seleccion?.handle
+              const precio = parseFloat(p.priceRange.minVariantPrice.amount)
+              const mon = p.priceRange.minVariantPrice.currencyCode
+              const rebaja = rebajaDe(p)
+              return (
+                <button
+                  key={p.id}
+                  type="button"
+                  onClick={() => onSeleccion({ handle: p.handle, talla: null })}
+                  aria-pressed={activo}
+                  className={`relative w-[132px] shrink-0 cursor-pointer border p-2 text-left transition-colors duration-[180ms] ${
+                    activo ? "border-text bg-bg" : "border-border hover:border-text-muted"
+                  }`}
+                >
+                  {activo && (
+                    <span className="absolute right-1.5 top-1.5 z-10 flex h-5 w-5 items-center justify-center rounded-full bg-text text-bg">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                        <path d="m5 12 5 5L20 7" />
+                      </svg>
+                    </span>
+                  )}
+                  <span className="plato block">
+                    {p.featuredImage ? (
+                      <Image src={p.featuredImage.url} alt={p.featuredImage.altText || p.title} fill sizes="132px" />
+                    ) : null}
                   </span>
-                </span>
-              ) : (
-                <span className="precio mt-0.5 block text-sm text-text-muted">
-                  {formatMoney(String(precio), mon)}
-                </span>
-              )}
-            </button>
-          )
-        })}
-      </div>
-
-      {/* La talla de la pieza marcada. Sin botón: lo que falta para comprar lo
-          dice el botón principal, que es el único que queda. */}
-      {producto && tallas.length > 0 && (
-        <div className="mt-4">
-          <p className="nota mb-1.5">
-            {t("tira.talla")} {nombreCorto(producto.title)}
-          </p>
-          <div className="flex flex-wrap gap-1.5">
-            {tallas.map((s) => (
-              <button
-                key={s}
-                type="button"
-                onClick={() => onSeleccion({ handle: producto.handle, talla: s })}
-                aria-pressed={seleccion?.talla === s}
-                className={`h-10 min-w-[44px] cursor-pointer border px-2 text-sm transition-colors duration-[180ms] ${
-                  seleccion?.talla === s
-                    ? "border-text bg-text text-bg"
-                    : "border-border text-text hover:border-text"
-                }`}
-              >
-                {s}
-              </button>
-            ))}
+                  <span className="nota mt-2 block line-clamp-2 leading-snug text-text">
+                    {nombreCorto(p.title)}
+                  </span>
+                  <span className="mt-0.5 block">
+                    <span className="precio text-[11px] text-text-muted line-through">
+                      {formatMoney(String(precio), mon)}
+                    </span>{" "}
+                    <span className="precio text-sm text-text">
+                      {formatMoney(String(precio - rebaja), mon)}
+                    </span>
+                  </span>
+                </button>
+              )
+            })}
           </div>
-          {faltaTalla && (
-            <p className="nota mt-1.5 font-medium text-text">{t("tira.eligeTalla")}</p>
+
+          {tallas.length > 0 && (
+            <div className="mt-4">
+              <p className="nota mb-1.5">
+                {t("tira.talla")} {nombreCorto(producto.title)}
+              </p>
+              <div className="flex flex-wrap gap-1.5">
+                {tallas.map((s) => (
+                  <button
+                    key={s}
+                    type="button"
+                    onClick={() => onSeleccion({ handle: producto.handle, talla: s })}
+                    aria-pressed={seleccion?.talla === s}
+                    className={`h-10 min-w-[44px] cursor-pointer border px-2 text-sm transition-colors duration-[180ms] ${
+                      seleccion?.talla === s
+                        ? "border-text bg-text text-bg"
+                        : "border-border text-text hover:border-text"
+                    }`}
+                  >
+                    {s}
+                  </button>
+                ))}
+              </div>
+              {faltaTalla && (
+                <p className="nota mt-1.5 font-medium text-text">{t("tira.eligeTalla")}</p>
+              )}
+            </div>
           )}
         </div>
       )}
@@ -287,7 +243,7 @@ export function TiraAgregar({
   )
 }
 
-/** La línea de carrito de lo marcado, o null si falta la talla. */
+/** La línea de carrito de lo elegido, o null si falta la talla. */
 export function lineaDeSeleccion(
   productos: Pieza[],
   seleccion: SeleccionOferta
@@ -299,7 +255,7 @@ export function lineaDeSeleccion(
   return lineaDe(p, seleccion.talla)
 }
 
-/** Lo que suma al precio lo marcado, ya con su rebaja aplicada. */
+/** Lo que suma al precio lo elegido, ya con su rebaja aplicada. */
 export function importeDeSeleccion(
   productos: Pieza[],
   seleccion: SeleccionOferta,
@@ -312,7 +268,7 @@ export function importeDeSeleccion(
   return precio - (precio * descuentoPct) / 100
 }
 
-/** ¿Hay algo marcado a lo que le falte la talla? Lo usa el botón principal. */
+/** ¿Hay algo elegido a lo que le falte la talla? Lo usa el botón principal. */
 export function faltaTallaDeSeleccion(
   productos: Pieza[],
   seleccion: SeleccionOferta
