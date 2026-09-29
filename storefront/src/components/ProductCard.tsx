@@ -11,7 +11,7 @@ import { atributosDeTarjeta } from "@/lib/shopify/facets"
 import { facetLabel } from "@/lib/facets-i18n"
 import { enPromoPar } from "@/lib/promocion"
 import { saleInfo } from "@/lib/utils"
-import { esFotoDeAmbiente } from "@/lib/fotos"
+import { clasePlato } from "@/lib/fotos"
 
 /**
  * Tarjeta de producto para grids (home, listing, marca page).
@@ -118,7 +118,7 @@ export function ProductCard({
           portada; mezclar tratos dentro de la misma tarjeta haría que la bota
           cambiara de tamaño al pasar el cursor. */}
       <div
-        className={`plato ${esFotoDeAmbiente(gallery[0]) ? "plato-foto" : ""} shrink-0 mb-3`}
+        className={`plato ${clasePlato(gallery[0])} shrink-0 mb-3`}
       >
         {gallery.length === 0 ? (
           <PlaceholderImage />

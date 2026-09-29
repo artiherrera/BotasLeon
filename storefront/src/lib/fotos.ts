@@ -18,17 +18,65 @@
  * dueño lo describió como "un feo canva de fondo". Llenando el cuadro no queda
  * ni un milímetro de franja, y la bota se ve más grande.
  *
- * LA PROPORCIÓN ES EL DETECTOR, y no es una corazonada: se muestrearon 28 fotos
- * cuadradas repartidas por todo el catálogo y las 28 tienen fondo claro de
- * estudio. Cero excepciones. Cuadrada = estudio; vertical = ambiente.
+ * EL CATÁLOGO CAMBIÓ DE PROPORCIÓN (2026-09-28) y esta regla se quedó al revés
+ * de la realidad. Hoy, de 481 fotos, 468 son 4:5 —la proporción EXACTA del
+ * plato—, 5 siguen cuadradas y 8 tienen otra medida. Con el detector viejo
+ * ("no cuadrada = ambiente") el catálogo ENTERO caía del lado que se llena a
+ * sangre con un 4% de zoom, así que a todas las botas les recortaba un 2% por
+ * lado: "ahora se ven horribles, todas cortadas", y con razón.
  *
- * Si algún día se sube una foto de ambiente YA CUADRADA, esta regla la tratará
- * como de estudio y se verá oscura sobre el plato. La señal buena de verdad
- * sería un metacampo en Shopify que dijera de qué tipo es cada foto.
+ * Ahora el detector compara contra el PLATO, no contra el cuadrado: una foto
+ * que ya viene en 4:5 cabe entera y no hay nada que recortar ni que fundir.
+ * Las cuadradas que quedan conservan el trato de estudio (contain + multiply,
+ * que funde las franjas de crema), y solo las 8 raras se llenan a sangre.
+ *
+ * La señal buena de verdad seguiría siendo un metacampo en Shopify diciendo de
+ * qué tipo es cada foto; mientras no exista, la proporción es lo que hay.
+ */
+/** La proporción del plato: 4:5, la misma en tarjetas, galería y carrito. */
+export const PROPORCION_PLATO = 4 / 5
+
+/** ¿La foto viene EXACTAMENTE en la proporción del plato? */
+export function llenaElPlato(
+  im: { width?: number | null; height?: number | null } | null | undefined
+): boolean {
+  if (!im?.width || !im?.height) return false
+  return Math.abs(im.width / im.height - PROPORCION_PLATO) <= 0.015
+}
+
+/** ¿Es cuadrada? (las que quedan del catálogo viejo) */
+function esCuadrada(
+  im: { width?: number | null; height?: number | null } | null | undefined
+): boolean {
+  if (!im?.width || !im?.height) return false
+  return Math.abs(im.width / im.height - 1) <= 0.01
+}
+
+/**
+ * De ambiente = ni cuadrada ni 4:5. Hoy son 8 fotos de 481.
+ *
+ * Esas sí se llenan a sangre: con `contain` dejarían franjas de plato a los
+ * lados, que es el "feo canva de fondo" del que venimos.
  */
 export function esFotoDeAmbiente(
   im: { width?: number | null; height?: number | null } | null | undefined
 ): boolean {
   if (!im?.width || !im?.height) return false
-  return Math.abs(im.width / im.height - 1) > 0.01
+  return !esCuadrada(im) && !llenaElPlato(im)
+}
+
+/**
+ * Las clases del plato para esta foto. UN solo sitio decide, y de aquí beben
+ * la tarjeta, la galería y las miniaturas.
+ *
+ *   4:5      → "plato-exacta": entera, sin recorte y sin zoom.
+ *   cuadrada → "" (trato de estudio: contain + multiply, franjas fundidas).
+ *   otra     → "plato-foto": a sangre.
+ */
+export function clasePlato(
+  im: { width?: number | null; height?: number | null } | null | undefined
+): string {
+  if (llenaElPlato(im)) return "plato-exacta"
+  if (esFotoDeAmbiente(im)) return "plato-foto"
+  return ""
 }

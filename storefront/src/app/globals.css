@@ -448,6 +448,29 @@ input[type="search"]:focus-visible {
   .plato-mini img {
     transform: scale(1.12);
   }
+  /* FOTO QUE YA VIENE EN LA PROPORCIÓN DEL PLATO (4:5).
+     Desde el 2026-09-28 es el catálogo entero: 468 de 481 fotos. Cabe exacta,
+     así que se enseña ENTERA —nada de recortar ni de agrandar—. Sin multiply:
+     ese se inventó para fundir las franjas de crema que dejaba una foto
+     cuadrada dentro de un marco 4:5, y aquí no hay franjas que fundir; encima
+     ensuciaría los medios tonos de la piel.
+
+     El plato va transparente por lo mismo que en .plato-foto: si un redondeo de
+     medio píxel deja asomar un pelo por la orilla, que lo que asome sea el
+     crema de la página y no el beige del plato (ver la nota de las franjas de
+     Android, más arriba).
+
+     OJO CON EL ORDEN: tiene la misma especificidad que `.plato img`,
+     `.plato-foto img` y `.plato-mini img`, y gana por ir DESPUÉS. Moverla
+     arriba la deja sin efecto y sin aviso. */
+  .plato-exacta {
+    background-color: transparent;
+  }
+  .plato-exacta img {
+    object-fit: contain;
+    mix-blend-mode: multiply;
+    transform: none;
+  }
   /* El multiply solo es seguro contra un fondo claro. Sobre el negro del zoom
      (bg-black/95) la foto saldría NEGRA, sin error de consola: la lupa, que es
      lo que sustituye al probador físico en una venta a distancia, quedaría
