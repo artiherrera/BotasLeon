@@ -628,7 +628,6 @@ export const DICTIONARY: Record<string, Entry> = {
   },
   "tira.talla": { es: "Talla para", en: "Size for" },
   "tira.eligeTalla": { es: "Elige la talla", en: "Choose the size" },
-  "tira.agregar": { es: "Agregar al carrito", en: "Add to cart" },
   // La página de combos. "Combo" aquí es literal: dos piezas DISTINTAS que se
   // llevan juntas. El segundo par a mitad no lo es —lo corrigió el dueño en su
   // día— y por eso su bloque se llama por su nombre, no "combo".
@@ -662,16 +661,15 @@ export const DICTIONARY: Record<string, Entry> = {
   },
   "nav.combos": { es: "Combos", en: "Combos" },
   "tira.ahorras": { es: "Ahorras", en: "You save" },
+  "tira.ahorrasDesde": { es: "Ahorras desde", en: "Save from" },
   "tira.par.instruccion": {
-    es: "Cambia el segundo par aquí, y elige su talla.",
-    en: "Swap the second pair here, and choose its size.",
+    es: "Marca el segundo par y se suma a tu compra. Tócalo otra vez para quitarlo.",
+    en: "Tick the second pair and it joins your purchase. Tap again to remove it.",
   },
   "tira.cinto.instruccion": {
-    es: "Cambia de cinto aquí, y elige su medida.",
-    en: "Swap the belt here, and choose its size.",
+    es: "Marca el cinto que quieras y se suma a tu compra. Tócalo otra vez para quitarlo.",
+    en: "Tick the belt you want and it joins your purchase. Tap again to remove it.",
   },
-  "tira.par.boton": { es: "Agregar los dos pares", en: "Add both pairs" },
-  "tira.cinto.boton": { es: "Agregar bota + cinto", en: "Add boot + belt" },
   "tira.par.conjunto": { es: "Los dos pares", en: "Both pairs" },
   "tira.cinto.conjunto": { es: "Bota + cinto", en: "Boot + belt" },
   "a11y.closeMenu": { es: "Cerrar menú", en: "Close menu" },

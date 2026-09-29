@@ -85,6 +85,14 @@ type CartContextValue = {
     merchandiseId: string,
     attributes?: Array<{ key: string; value: string }>
   ) => void
+  /** Comprar ahora con varias piezas (el combo bota + cinto). */
+  buyNowVarios: (
+    lineas: Array<{
+      merchandiseId: string
+      quantity?: number
+      attributes?: Array<{ key: string; value: string }>
+    }>
+  ) => void
   updateLine: (lineId: string, quantity: number) => void
   // Fija/cambia la TALLA de una línea (atributo, no variante — ver
   // lib/cart/line-size.ts). Permite agregar sin talla y elegirla en el carrito.
@@ -430,6 +438,70 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     [showToast]
   )
 
+  /**
+   * Comprar ahora, pero con VARIAS piezas: la bota y el cinto del combo.
+   *
+   * Mismo trato que `buyNow` —carrito nuevo y desechable, el guardado no se
+   * toca— con la única diferencia de que entran juntas. Existe porque la ficha
+   * dejó de tener un botón por oferta: hay UNO solo, "Comprar ahora", y lo que
+   * el comprador haya marcado arriba viaja con él.
+   */
+  const buyNowVarios = useCallback(
+    (
+      lineas: Array<{
+        merchandiseId: string
+        quantity?: number
+        attributes?: Array<{ key: string; value: string }>
+      }>
+    ) => {
+      const limpias = lineas
+        .filter((l) => l.merchandiseId)
+        .map((l) => ({
+          merchandiseId: l.merchandiseId,
+          quantity: l.quantity ?? 1,
+          ...(l.attributes?.length ? { attributes: l.attributes } : {}),
+        }))
+      if (limpias.length === 0) return
+      startTransition(async () => {
+        try {
+          const rapido = await clientCreateCart(limpias, countryRef.current)
+          const valor = parseFloat(rapido.cost.subtotalAmount.amount)
+          const moneda = rapido.cost.subtotalAmount.currencyCode
+          track("Started Checkout", {
+            $value: valor,
+            currency: moneda,
+            ItemCount: rapido.totalQuantity,
+            items: rapido.lines.map((l) => ({
+              ProductName: l.merchandise.product.title,
+              ItemId: l.merchandise.id,
+              Quantity: l.quantity,
+              Price: parseFloat(l.cost.totalAmount.amount),
+              ProductCategories: [],
+              ProductURL: `/products/${l.merchandise.product.handle}`,
+            })),
+            CheckoutURL: rapido.checkoutUrl,
+          })
+          gaEvent("begin_checkout", {
+            currency: moneda,
+            value: valor,
+            items: rapido.lines.map((l) => ({
+              item_id: l.merchandise.product.handle,
+              item_name: l.merchandise.product.title,
+              price: parseFloat(l.merchandise.price.amount),
+              quantity: l.quantity,
+            })),
+          })
+          window.location.assign(withDiscount(checkoutHref(rapido.checkoutUrl)))
+        } catch (e) {
+          const msg = e instanceof Error ? e.message : String(e)
+          console.error("[cart] buyNowVarios falló:", e)
+          showToast(`No se pudo iniciar el pago: ${msg}`, "error")
+        }
+      })
+    },
+    [showToast]
+  )
+
   const updateLine = useCallback(
     (lineId: string, quantity: number) => {
       const id = cartIdRef.current
@@ -556,6 +628,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         toggleCart,
         addItem,
         addItems,
+        buyNowVarios,
         buyNow,
         setLineSize,
         updateLine,

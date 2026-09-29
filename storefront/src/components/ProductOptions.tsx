@@ -16,7 +16,13 @@ import { useT } from "@/lib/i18n/context"
 import { isMX } from "@/lib/market"
 import { LocalizedLink as Link } from "@/components/LocalizedLink"
 import { useAltoTeaserKlaviyo } from "@/lib/klaviyo/teaser"
-import { TiraAgregar } from "@/components/TiraAgregar"
+import {
+  TiraAgregar,
+  lineaDeSeleccion,
+  importeDeSeleccion,
+  faltaTallaDeSeleccion,
+  type SeleccionOferta,
+} from "@/components/TiraAgregar"
 import type { Pieza } from "@/lib/combos"
 
 const SIZE_OPTION_NAMES = ["Talla", "Talla del calzado", "Size"]
@@ -65,7 +71,7 @@ export function ProductOptions({
   cintosPromo?: Pieza[]
 }) {
   const t = useT()
-  const { addItem, buyNow, isPending } = useCart()
+  const { addItem, addItems, buyNow, buyNowVarios, isPending } = useCart()
   const { selection, setOption, activeVariant } = usePDPVariant()
 
   // Handle del metaobject "Sexo objetivo" — para conversión MX→US.
@@ -166,23 +172,37 @@ export function ProductOptions({
     return () => observer.disconnect()
   }, [])
 
+  /** Qué se compra de ESTA ficha: variante por talla, o variante única con la
+   *  talla como atributo de línea. Null si no hay nada comprable. */
+  const lineaPrincipal = ():
+    | { merchandiseId: string; attributes?: Array<{ key: string; value: string }> }
+    | null => {
+    if (sizeOption) {
+      return activeVariant?.availableForSale ? { merchandiseId: activeVariant.id } : null
+    }
+    if (metaSizes.length > 0 && metaSize) {
+      const v = product.variants[0]
+      return v ? { merchandiseId: v.id, attributes: [{ key: "Talla", value: metaSize }] } : null
+    }
+    return purchaseVariant?.availableForSale ? { merchandiseId: purchaseVariant.id } : null
+  }
+
   const handleAdd = () => {
     if (isPending) return
     if (needsSize) { pedirTalla(); return }
+    if (faltaTallaDeOferta) return
     const marcar = () => {
       setJustAdded(true)
       if (addedTimer.current) clearTimeout(addedTimer.current)
       addedTimer.current = setTimeout(() => setJustAdded(false), 2000)
     }
-    if (sizeOption) {
-      if (activeVariant?.availableForSale) { marcar(); addItem(activeVariant.id, 1) }
-    } else if (metaSizes.length > 0 && metaSize) {
-      // Talla de metacampo → guardarla como atributo de la línea del pedido.
-      const v = product.variants[0]
-      if (v) { marcar(); addItem(v.id, 1, [{ key: "Talla", value: metaSize }]) }
-    } else if (purchaseVariant?.availableForSale) {
-      marcar(); addItem(purchaseVariant.id, 1)
-    }
+    // Lo marcado en las ofertas entra EN LA MISMA llamada: dos `addItem`
+    // seguidos se pisan (ver addItems en CartProvider).
+    const linea = lineaPrincipal()
+    if (!linea) return
+    marcar()
+    if (extras.length) addItems([linea, ...extras])
+    else addItem(linea.merchandiseId, 1, linea.attributes)
   }
 
   // Comprar ahora — mismo guardia de talla y misma resolución de línea que
@@ -190,21 +210,69 @@ export function ProductOptions({
   const handleBuyNow = () => {
     if (isPending) return
     if (needsSize) { pedirTalla(); return }
-    if (sizeOption) {
-      if (activeVariant?.availableForSale) buyNow(activeVariant.id)
-    } else if (metaSizes.length > 0 && metaSize) {
-      const v = product.variants[0]
-      if (v) buyNow(v.id, [{ key: "Talla", value: metaSize }])
-    } else if (purchaseVariant?.availableForSale) {
-      buyNow(purchaseVariant.id)
-    }
+    if (faltaTallaDeOferta) return
+    const linea = lineaPrincipal()
+    if (!linea) return
+    if (extras.length) buyNowVarios([linea, ...extras])
+    else buyNow(linea.merchandiseId, linea.attributes)
   }
 
   // Rótulos fijos aunque falte talla: con dos botones, repetir "Selecciona tu
   // talla" en ambos no distingue nada, y el clic ya avisa y hace scroll. El
   // aviso como rótulo se conserva solo en la barra pegajosa (un solo botón).
+  const price = product.priceRange.minVariantPrice
+
+  /**
+   * Esta bota, como la ve el conjunto "bota + cinto" de las tiras de oferta.
+   *
+   * La variante y la talla se resuelven igual que en handleAdd —variante por
+   * talla, o variante única con la talla como atributo—, para que lo que entra
+   * al carrito desde la tira sea exactamente lo mismo que entra desde el botón.
+   */
+  /**
+   * Las dos ofertas, marcadas aquí y no dentro de cada tira: lo marcado tiene
+   * que viajar con el botón principal, que es el único botón de compra que
+   * queda en la ficha ("todo debe ser a la comprar ahora").
+   */
+  const [ofertaPar, setOfertaPar] = useState<SeleccionOferta>(null)
+  const [ofertaCinto, setOfertaCinto] = useState<SeleccionOferta>(null)
+
+  const hermanos = hermanosPromo ?? []
+  const cintos = cintosPromo ?? []
+
+  /** Esta bota, como la ven las tiras para armar el conjunto. */
+  const base = {
+    titulo: product.title,
+    imagen: product.featuredImage ?? product.images?.[0] ?? null,
+    precio: price,
+  }
+
+  // Las piezas marcadas, ya convertidas en líneas de carrito. Una pieza a la
+  // que le falte talla NO produce línea: el botón lo dice y no deja comprar.
+  const extras = [
+    lineaDeSeleccion(hermanos, ofertaPar),
+    lineaDeSeleccion(cintos, ofertaCinto),
+  ].filter((l): l is NonNullable<typeof l> => !!l)
+
+  const faltaTallaDeOferta =
+    faltaTallaDeSeleccion(hermanos, ofertaPar) ||
+    faltaTallaDeSeleccion(cintos, ofertaCinto)
+
+  // El total que va a pagar: esta bota más lo marcado, ya con su rebaja.
+  const totalConOfertas =
+    parseFloat(price.amount) +
+    importeDeSeleccion(hermanos, ofertaPar) +
+    importeDeSeleccion(cintos, ofertaCinto)
+
+  /* EL BOTÓN LLEVA EL TOTAL cuando hay ofertas marcadas: es la única señal de
+     que lo de arriba entra en la compra, ahora que las tiras no tienen botón
+     propio. Sin esto, marcar un cinto no cambiaría nada a la vista. */
   const buyLabel = sizeNudge
     ? t("pdp.selectSize")
+    : faltaTallaDeOferta
+    ? t("tira.eligeTalla")
+    : extras.length > 0 && !needsSize
+    ? `${t("pdp.buyNow")} · ${formatMoney(String(totalConOfertas), price.currencyCode)}`
     : isPending
     ? t("pdp.buying")
     : isUnknownCombo
@@ -215,6 +283,8 @@ export function ProductOptions({
 
   const ctaLabel = sizeNudge
     ? t("pdp.selectSize")
+    : faltaTallaDeOferta
+    ? t("tira.eligeTalla")
     : justAdded
     ? t("pdp.added")
     : isPending
@@ -242,25 +312,6 @@ export function ProductOptions({
   // habilitado para poder avisar al hacer clic.
   const ctaDisabled =
     isPending || (!needsSize && (!isAvailable || isUnknownCombo))
-
-  const price = product.priceRange.minVariantPrice
-
-  /**
-   * Esta bota, como la ve el conjunto "bota + cinto" de las tiras de oferta.
-   *
-   * La variante y la talla se resuelven igual que en handleAdd —variante por
-   * talla, o variante única con la talla como atributo—, para que lo que entra
-   * al carrito desde la tira sea exactamente lo mismo que entra desde el botón.
-   */
-  const base = {
-    titulo: product.title,
-    imagen: product.featuredImage ?? product.images?.[0] ?? null,
-    precio: price,
-    variantId: (sizeOption ? activeVariant?.id : purchaseVariant?.id) ?? undefined,
-    talla: metaSizes.length > 0 ? metaSize : null,
-    requiereTalla: needsSize,
-    pedirTalla,
-  }
 
   // Botón de talla reusable (variante o metacampo comparten estilo).
   //
@@ -498,10 +549,11 @@ export function ProductOptions({
         nota="tira.par.nota"
         instruccion="tira.par.instruccion"
         conjunto="tira.par.conjunto"
-        boton="tira.par.boton"
-        productos={hermanosPromo ?? []}
+        productos={hermanos}
         descuentoPct={50}
         base={base}
+        seleccion={ofertaPar}
+        onSeleccion={setOfertaPar}
       />
       <TiraAgregar
         insignia="tira.cinto.insignia"
@@ -509,10 +561,11 @@ export function ProductOptions({
         nota="tira.cinto.nota"
         instruccion="tira.cinto.instruccion"
         conjunto="tira.cinto.conjunto"
-        boton="tira.cinto.boton"
-        productos={cintosPromo ?? []}
+        productos={cintos}
         descuentoPct={50}
         base={base}
+        seleccion={ofertaCinto}
+        onSeleccion={setOfertaCinto}
       />
 
       {/* COMPRAR AHORA MANDA, agregar al carrito acompaña. Lo pidió el dueño
