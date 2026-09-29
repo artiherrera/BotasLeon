@@ -175,7 +175,25 @@ export function ProductGallery({ images, title }: Props) {
           type="button"
           onClick={() => openLightbox(activeIdx)}
           aria-label="Ampliar imagen"
-          className={`plato ${clasePlato(active)} block flex-1 min-w-0 cursor-zoom-in`}
+          /* TECHO DE ALTO PARA QUE LA FOTO QUEPA EN LA PANTALLA.
+             Al ensanchar la columna (el 2026-09-29, cuando dejó de comérsela la
+             tira de ofertas) la foto ganó ancho y, por ser 4:5, ganó MÁS alto:
+             637x796 en una pantalla de 900 y 549x784 en una de 800. En las dos
+             se salía por abajo y había que desplazar para ver la bota entera —
+             "las imágenes son demasiado grandes, se salen de la página".
+
+             Se limita el ANCHO, no el alto: el plato mantiene su proporción 4:5
+             por CSS, así que capando el ancho a (alto disponible × 0.8) el alto
+             queda por debajo de la ventana solo. Los 220px descontados son el
+             cromo de arriba (avisos + cabecera + migas) más un respiro. El
+             `mx-auto` centra la foto en la columna cuando sobra sitio.
+
+             Y `self-start` NO es decorativo: sin él la foto es una celda flex
+             que se estira al alto de la columna de miniaturas (9 miniaturas =
+             784px), y ese estirado ANULA la proporción 4:5 — capar el ancho
+             encogía la foto pero el alto seguía clavado en 784. Con self-start
+             manda la proporción y el alto sale del ancho. */
+          className={`plato ${clasePlato(active)} mx-auto block w-full min-w-0 max-w-[calc((100dvh-220px)*0.8)] flex-1 self-start cursor-zoom-in`}
         >
           <Image
             key={active.url}
