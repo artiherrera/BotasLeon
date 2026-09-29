@@ -190,6 +190,41 @@ export default async function ProductPage({ params }: Props) {
                   ProductGallery). Antes la galería iba acotada a min(90vw,50vh)
                   y centrada, con 24px de margen y una fila de puntitos. Desde
                   md vuelve al ancho de su columna. */}
+              {/* NOMBRE Y PRECIO ANTES DE LA FOTO, SOLO EN MÓVIL.
+                  La ficha abría con la galería a pantalla completa, así que en
+                  un iPhone el nombre caía en y=891 y el precio en y=1054: los
+                  dos FUERA de la primera pantalla (844). Quien llega de un
+                  anuncio que promete "$3,699" entra y no ve el precio
+                  confirmado; tiene que desplazar para saber si es la bota que
+                  le enseñaron. Medido el 2026-09-29.
+
+                  Va como <p>, no como <h1>: el encabezado de verdad sigue en la
+                  columna de la derecha y dos h1 en una página es un error. En
+                  escritorio esta cabecera no existe (lg:hidden) porque allá el
+                  nombre y el precio ya se ven a la derecha de la foto. */}
+              <div className="lg:hidden">
+                <PDPMarca
+                  vendor={product.vendor}
+                  brandHandle={brand?.handle}
+                  brandName={brand?.name}
+                />
+                <LocalizedProductTitle
+                  handle={product.handle}
+                  fallback={product.title}
+                  como="p"
+                  className="display-m text-text mb-2"
+                />
+                <div className="mb-4 flex flex-wrap items-baseline gap-x-4 gap-y-1">
+                  <LocalizedPrice
+                    amount={price.amount}
+                    currency={price.currencyCode}
+                    compareAt={compareAt?.amount}
+                    size="pdp"
+                  />
+                  <PDPCalificacion product={product} />
+                </div>
+              </div>
+
               <div className="-mx-6 md:mx-0">
                 <ProductGalleryConnected />
               </div>
@@ -209,6 +244,8 @@ export default async function ProductPage({ params }: Props) {
                   tarjetas se desplaza dentro de su ancho, que es para lo que se
                   hizo. */}
               <div className="min-w-0 lg:sticky lg:top-[124px] lg:self-start">
+                {/* Nombre y precio: en móvil ya se leyeron arriba de la foto. */}
+                <div className="hidden lg:block">
                 <PDPMarca
                   vendor={product.vendor}
                   brandHandle={brand?.handle}
@@ -223,6 +260,8 @@ export default async function ProductPage({ params }: Props) {
 
                 {/* Qué bota es, antes del precio. La ficha pasaba del nombre a
                     la cifra sin decir nada. */}
+                </div>
+
                 <PDPAtributos product={product} />
 
                 {/* PRECIO, MESES Y CALIFICACIÓN EN UN SOLO BLOQUE. Los meses

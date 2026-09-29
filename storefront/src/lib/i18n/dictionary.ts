@@ -662,6 +662,7 @@ export const DICTIONARY: Record<string, Entry> = {
   "nav.combos": { es: "Combos", en: "Combos" },
   "tira.ahorras": { es: "Ahorras", en: "You save" },
   "tira.ahorrasDesde": { es: "Ahorras desde", en: "Save from" },
+  "tira.elegir": { es: "Elegir", en: "Choose" },
   "tira.par.instruccion": {
     es: "Marca el segundo par y se suma a tu compra. Tócalo otra vez para quitarlo.",
     en: "Tick the second pair and it joins your purchase. Tap again to remove it.",

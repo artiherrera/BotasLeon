@@ -136,13 +136,22 @@ export function LocalizedProductTitle({
   handle,
   fallback,
   className,
+  como: Etiqueta = "h1",
 }: {
   handle: string
   fallback: string
   className?: string
+  /**
+   * Con qué etiqueta se pinta. Por omisión `h1`, que es lo correcto en la
+   * ficha. La cabecera de móvil repite nombre y precio ARRIBA de la galería
+   * —quien llega de un anuncio tiene que ver el precio sin desplazar— y esa
+   * copia va como `p`: dos `h1` en la misma página es justo lo que no se debe
+   * hacer, y el `h1` de verdad sigue en la columna de la derecha.
+   */
+  como?: "h1" | "p"
 }) {
   const t = useProductTranslation(handle)
-  return <h1 className={className}>{t?.title?.trim() || fallback}</h1>
+  return <Etiqueta className={className}>{t?.title?.trim() || fallback}</Etiqueta>
 }
 
 /**

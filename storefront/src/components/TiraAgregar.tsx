@@ -1,5 +1,6 @@
 "use client"
 
+import { useState } from "react"
 import Image from "next/image"
 import { useLocale } from "@/lib/i18n/context"
 import { tallasDe, lineaDe, nombreCorto, type Pieza } from "@/lib/combos"
@@ -66,6 +67,14 @@ export function TiraAgregar({
   onSeleccion: (s: SeleccionOferta) => void
 }) {
   const { t } = useLocale()
+  /**
+   * PLEGADA DE ENTRADA. Desplegadas, las dos ofertas metían 1.400px entre el
+   * selector de talla y el botón de compra: en un teléfono el botón quedaba a
+   * 2.918px, dos pantallas y media por debajo de la talla, y quien llega de un
+   * anuncio elige su número y no encuentra cómo pagar. Plegada ocupa una línea
+   * y dice lo único que importa antes de abrirla: cuánto se ahorra.
+   */
+  const [abierto, setAbierto] = useState(false)
 
   if (productos.length === 0) return null
 
@@ -87,6 +96,35 @@ export function TiraAgregar({
   const marcar = (p: Pieza) => {
     if (p.handle === seleccion?.handle) onSeleccion(null)
     else onSeleccion({ handle: p.handle, talla: null })
+  }
+
+  const desplegada = abierto || !!producto
+
+  // PLEGADA: una línea. La insignia, el gancho y el ahorro, con un enlace para
+  // abrirla. Nada de botones — el único botón de la ficha es el de comprar.
+  if (!desplegada) {
+    return (
+      <section className="mb-4 min-w-0 border border-dashed border-leather/50 px-4 py-3">
+        <button
+          type="button"
+          onClick={() => setAbierto(true)}
+          className="flex w-full cursor-pointer items-center justify-between gap-3 text-left"
+        >
+          <span className="min-w-0">
+            <span className="nav-label block text-leather">{t(insignia)}</span>
+            <span className="cuerpo block text-text">{t(titulo)}</span>
+            {ahorroMinimo > 0 && (
+              <span className="nota block text-leather">
+                {t("tira.ahorrasDesde")} {formatMoney(String(ahorroMinimo), moneda)}
+              </span>
+            )}
+          </span>
+          <span className="cuerpo shrink-0 text-leather underline underline-offset-4">
+            {t("tira.elegir")}
+          </span>
+        </button>
+      </section>
+    )
   }
 
   return (
