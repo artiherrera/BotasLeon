@@ -607,7 +607,7 @@ export const DICTIONARY: Record<string, Entry> = {
   "a11y.cart": { es: "Carrito", en: "Cart" },
   "a11y.openMenu": { es: "Abrir menú", en: "Open menu" },
   // La tira que enseña los productos de una promoción dentro de la ficha (ver
-  // TiraAgregar). Textos cortos: compite con el botón de compra, no con la
+  // OpcionesCompra). Textos cortos: compiten con el botón de compra, no con la
   // descripción.
   "tira.par.titulo": {
     es: "Llévate el segundo a mitad de precio.",
@@ -661,6 +661,10 @@ export const DICTIONARY: Record<string, Entry> = {
   },
   "nav.combos": { es: "Combos", en: "Combos" },
   "tira.ahorras": { es: "Ahorras", en: "You save" },
+  "opciones.titulo": { es: "Qué te llevas", en: "What you're getting" },
+  "opciones.solo": { es: "Solo la bota", en: "The boot only" },
+  "opciones.cinto": { es: "+ un cinto a mitad de precio", en: "+ a belt at half price" },
+  "opciones.par": { es: "+ un segundo par a mitad de precio", en: "+ a second pair at half price" },
   "tira.soloBota": { es: "Solo la bota", en: "Boot only" },
   "tira.ahorrasDesde": { es: "Ahorras desde", en: "Save from" },
   "tira.elegir": { es: "Elegir", en: "Choose" },

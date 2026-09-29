@@ -6,7 +6,7 @@ import type { Product } from "@/lib/shopify/types"
  *
  * Vive aquí, y no dentro de un componente, porque lo usan los dos sitios donde
  * se arma una oferta sin abrir el producto: las tiras de la ficha
- * (TiraAgregar) y el armador de la página de combos (ArmaCombo).
+ * (OpcionesCompra) y el armador de la página de combos (ArmaCombo).
  *
  * EL CATÁLOGO TIENE LAS TALLAS DE DOS MANERAS y las dos hay que atenderlas:
  * las botas las llevan en el metacampo `shopify.shoe-size` (son de variante

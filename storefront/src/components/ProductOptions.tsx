@@ -16,13 +16,8 @@ import { useT } from "@/lib/i18n/context"
 import { isMX } from "@/lib/market"
 import { LocalizedLink as Link } from "@/components/LocalizedLink"
 import { useAltoTeaserKlaviyo } from "@/lib/klaviyo/teaser"
-import {
-  TiraAgregar,
-  lineaDeSeleccion,
-  importeDeSeleccion,
-  faltaTallaDeSeleccion,
-  type SeleccionOferta,
-} from "@/components/TiraAgregar"
+import { OpcionesCompra, type Eleccion } from "@/components/OpcionesCompra"
+import { lineaDe, tallasDe } from "@/lib/combos"
 import type { Pieza } from "@/lib/combos"
 
 const SIZE_OPTION_NAMES = ["Talla", "Talla del calzado", "Size"]
@@ -234,35 +229,34 @@ export function ProductOptions({
    * que viajar con el botón principal, que es el único botón de compra que
    * queda en la ficha ("todo debe ser a la comprar ahora").
    */
-  const [ofertaPar, setOfertaPar] = useState<SeleccionOferta>(null)
-  const [ofertaCinto, setOfertaCinto] = useState<SeleccionOferta>(null)
+  const [ofertaPar, setOfertaPar] = useState<Eleccion>(null)
 
   const hermanos = hermanosPromo ?? []
   const cintos = cintosPromo ?? []
 
-  /** Esta bota, como la ven las tiras para armar el conjunto. */
-  const base = {
-    titulo: product.title,
-    imagen: product.featuredImage ?? product.images?.[0] ?? null,
-    precio: price,
-  }
+  /** Los grupos que se ofrecen, en el orden en que se leen: primero el añadido
+   *  barato (el cinto), después el caro (el segundo par). */
+  const grupos = [
+    { id: "cinto", etiqueta: "opciones.cinto", pregunta: "tira.cinto.instruccion", productos: cintos, descuentoPct: 50 },
+    { id: "par", etiqueta: "opciones.par", pregunta: "tira.par.instruccion", productos: hermanos, descuentoPct: 50 },
+  ]
 
-  // Las piezas marcadas, ya convertidas en líneas de carrito. Una pieza a la
-  // que le falte talla NO produce línea: el botón lo dice y no deja comprar.
-  const extras = [
-    lineaDeSeleccion(hermanos, ofertaPar),
-    lineaDeSeleccion(cintos, ofertaCinto),
-  ].filter((l): l is NonNullable<typeof l> => !!l)
+  const grupoElegido = grupos.find((g) => g.id === ofertaPar?.grupo) ?? null
+  const piezaElegida = grupoElegido?.productos.find((p) => p.handle === ofertaPar?.handle) ?? null
 
+  // Lo añadido, ya como línea de carrito. Sin talla elegida no hay línea: el
+  // botón lo dice y no deja comprar.
   const faltaTallaDeOferta =
-    faltaTallaDeSeleccion(hermanos, ofertaPar) ||
-    faltaTallaDeSeleccion(cintos, ofertaCinto)
+    !!piezaElegida && tallasDe(piezaElegida).length > 0 && !ofertaPar?.talla
+  const lineaExtra =
+    piezaElegida && !faltaTallaDeOferta ? lineaDe(piezaElegida, ofertaPar?.talla ?? null) : null
+  const extras = lineaExtra ? [lineaExtra] : []
 
-  // El total que va a pagar: esta bota más lo marcado, ya con su rebaja.
   const totalConOfertas =
     parseFloat(price.amount) +
-    importeDeSeleccion(hermanos, ofertaPar) +
-    importeDeSeleccion(cintos, ofertaCinto)
+    (piezaElegida
+      ? parseFloat(piezaElegida.priceRange.minVariantPrice.amount) * 0.5
+      : 0)
 
   /* EL BOTÓN LLEVA EL TOTAL cuando hay ofertas marcadas: es la única señal de
      que lo de arriba entra en la compra, ahora que las tiras no tienen botón
@@ -543,29 +537,15 @@ export function ProductOptions({
           El 50% está escrito porque así están configurados los dos descuentos
           automáticos en Shopify. Si allá cambia el porcentaje, cambia aquí: el
           número no se puede leer desde la Storefront API. */}
-      <TiraAgregar
-        insignia="promoPar.insignia"
-        titulo="tira.par.titulo"
-        nota="tira.par.nota"
-        instruccion="tira.par.instruccion"
-        conjunto="tira.par.conjunto"
-        productos={hermanos}
-        descuentoPct={50}
-        base={base}
-        seleccion={ofertaPar}
-        onSeleccion={setOfertaPar}
-      />
-      <TiraAgregar
-        insignia="tira.cinto.insignia"
-        titulo="tira.cinto.titulo"
-        nota="tira.cinto.nota"
-        instruccion="tira.cinto.instruccion"
-        conjunto="tira.cinto.conjunto"
-        productos={cintos}
-        descuentoPct={50}
-        base={base}
-        seleccion={ofertaCinto}
-        onSeleccion={setOfertaCinto}
+      {/* UNA SOLA DECISIÓN: qué se lleva. Antes cada promoción tenía su caja y
+          cada caja repetía "Solo la bota"; se podían marcar cosas que se
+          contradecían. "Creo que esto es muy confuso", y lo era. */}
+      <OpcionesCompra
+        precioBase={parseFloat(price.amount)}
+        moneda={price.currencyCode}
+        grupos={grupos}
+        eleccion={ofertaPar}
+        onEleccion={setOfertaPar}
       />
 
       {/* COMPRAR AHORA MANDA, agregar al carrito acompaña. Lo pidió el dueño

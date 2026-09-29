@@ -191,7 +191,7 @@ async function getProductByHandleImpl(handle: string): Promise<Product | null> {
 /**
  * Los productos de una etiqueta, con su ficha completa.
  *
- * Es lo que comen las tiras de promoción de la ficha (ver TiraAgregar): quién
+ * Es lo que comen las opciones de compra de la ficha (ver OpcionesCompra): quién
  * entra lo decide el dueño etiquetando en Shopify, y aquí llegan con TODAS sus
  * variantes, que es lo que hace falta para agregar la talla correcta sin abrir
  * la ficha de la pieza.

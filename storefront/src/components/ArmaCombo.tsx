@@ -10,7 +10,7 @@ import { formatMoney } from "@/lib/utils"
 /**
  * El armador de combos: dos piezas, elegidas aquí, al carrito de un golpe.
  *
- * Es el hermano mayor de TiraAgregar. En la ficha, una de las dos piezas ya
+ * Es el hermano mayor de OpcionesCompra. En la ficha, una de las dos piezas ya
  * está decidida —la bota que estás mirando— y solo falta elegir la otra. En la
  * página de combos no hay nada decidido, así que se eligen las dos: la bota y
  * el cinto, o los dos pares.

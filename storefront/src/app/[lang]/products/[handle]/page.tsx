@@ -115,7 +115,7 @@ export default async function ProductPage({ params }: Props) {
   const brands = await getBrands().catch(() => [])
 
   // LOS PRODUCTOS DE LAS PROMOCIONES, para enseñarlos dentro de la ficha en vez
-  // de mandar al comprador a otra página (ver TiraAgregar). Se piden por
+  // de mandar al comprador a otra página (ver OpcionesCompra). Se piden por
   // etiqueta: quién entra y quién sale lo decide el dueño desde Shopify, sin
   // desplegar. Si Shopify falla, la ficha se pinta sin las tiras.
   const [hermanosPromo, cintosPromo] = await Promise.all([
