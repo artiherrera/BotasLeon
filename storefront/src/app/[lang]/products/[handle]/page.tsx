@@ -198,7 +198,17 @@ export default async function ProductPage({ params }: Props) {
               {/* 108px de cromo fijo (36 de avisos + 72 de cabecera) + 16 de aire. Con el
                   88 de antes, el nombre del producto quedaba medio tapado al
                   llegar la columna al tope. */}
-              <div className="lg:sticky lg:top-[124px] lg:self-start">
+              {/* min-w-0: SIN ESTO LA COLUMNA NO ENCOGE Y SE COME LA GALERÍA.
+                  Una celda de rejilla trae `min-width: auto`, o sea que nunca
+                  baja del ancho mínimo de su contenido. Las tiras de oferta son
+                  una fila de tarjetas de 164px con desplazamiento lateral: cinco
+                  cintos dan 886px de mínimo, y el 55/45 de esta rejilla se
+                  convirtió en 410/886. La foto del producto quedó a 334px de
+                  ancho en una pantalla de 1440 —"están muy pequeñas", y con
+                  razón—. Con min-w-0 mandan las fracciones, y la fila de
+                  tarjetas se desplaza dentro de su ancho, que es para lo que se
+                  hizo. */}
+              <div className="min-w-0 lg:sticky lg:top-[124px] lg:self-start">
                 <PDPMarca
                   vendor={product.vendor}
                   brandHandle={brand?.handle}

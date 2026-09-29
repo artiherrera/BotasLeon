@@ -88,7 +88,9 @@ export function TiraAgregar({
 }) {
   const { t } = useLocale()
   const { addItem, addItems, isPending } = useCart()
-  const [elegido, setElegido] = useState<string | null>(null)
+  // Arranca con la primera elegida: así el combo se ve armado y con su precio
+  // sin tocar nada. Un selector vacío obliga a adivinar qué pasa al tocar.
+  const [elegido, setElegido] = useState<string | null>(productos[0]?.handle ?? null)
   const [talla, setTalla] = useState<string | null>(null)
 
   if (productos.length === 0) return null
@@ -99,7 +101,7 @@ export function TiraAgregar({
   const faltaTallaBase = !!base?.requiereTalla && !base.talla
 
   const elegir = (p: Pieza) => {
-    setElegido(p.handle === elegido ? null : p.handle)
+    setElegido(p.handle)
     setTalla(null)
   }
 
@@ -143,7 +145,7 @@ export function TiraAgregar({
         : t("tira.agregar")
 
   return (
-    <section className="mb-6 border border-dashed border-leather/50 p-4">
+    <section className="mb-6 min-w-0 border border-dashed border-leather/50 p-4">
       <p className="nav-label text-leather">{t(insignia)}</p>
       <p className="cuerpo mt-1.5 text-text">{t(titulo)}</p>
       <p className="nota mt-1">{t(nota)}</p>
@@ -153,111 +155,80 @@ export function TiraAgregar({
           manda el conjunto armado. */}
       {!elegido && <p className="nota mt-2 text-text">{t(instruccion)}</p>}
 
-      {/* CADA TARJETA ES EL COMBO, no una pieza suelta.
-          Antes eran cinco cintos y, al tocar uno, aparecía abajo el conjunto
-          armado. El dueño lo cortó: "en lugar de agregar cinto, que sea tipo
-          Bota + Cinto y el ahorro". Y es mejor: así no hay que imaginarse nada
-          ni tocar para enterarse de cuánto sale la pareja — cada tarjeta ya
-          enseña las dos fotos, el precio de los dos juntos y lo que se ahorra.
-          En un teléfono se arrastran; en escritorio caben las que haya. */}
-      <div className="-mx-1 mt-3 flex gap-2 overflow-x-auto px-1 pb-1">
-        {productos.map((p) => {
-          const activo = p.handle === elegido
-          const precio = parseFloat(p.priceRange.minVariantPrice.amount)
-          const mon = p.priceRange.minVariantPrice.currencyCode
-          const rebaja = descuentoPct ? (precio * descuentoPct) / 100 : 0
-          const conBase = !!base
-          const totalPareja = conBase ? parseFloat(base!.precio.amount) + precio - rebaja : precio - rebaja
-          return (
-            <button
-              key={p.id}
-              type="button"
-              onClick={() => elegir(p)}
-              aria-pressed={activo}
-              className={`relative shrink-0 cursor-pointer border p-2 text-left transition-colors duration-[180ms] ${
-                conBase ? "w-[164px]" : "w-[108px]"
-              } ${activo ? "border-text bg-plate" : "border-border hover:border-text-muted"}`}
-            >
-              {/* La palomita: sin ella, el único aviso de que la tarjeta quedó
-                  elegida era un borde un poco más oscuro. */}
-              {activo && (
-                <span className="absolute right-1 top-1 z-10 flex h-5 w-5 items-center justify-center rounded-full bg-text text-bg">
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-                    <path d="m5 12 5 5L20 7" />
-                  </svg>
-                </span>
-              )}
-
-              {conBase ? (
-                <span className="flex items-center gap-1.5">
-                  <span className="plato block w-[62px] shrink-0">
-                    {base!.imagen ? (
-                      <Image
-                        src={base!.imagen.url}
-                        alt={base!.imagen.altText || base!.titulo}
-                        fill
-                        sizes="62px"
-                      />
-                    ) : null}
-                  </span>
-                  <span className="precio text-sm text-text-muted" aria-hidden>+</span>
-                  <span className="plato block w-[62px] shrink-0">
-                    {p.featuredImage ? (
-                      <Image
-                        src={p.featuredImage.url}
-                        alt={p.featuredImage.altText || p.title}
-                        fill
-                        sizes="62px"
-                      />
-                    ) : null}
-                  </span>
-                </span>
-              ) : (
-                <span className="plato block">
-                  {p.featuredImage ? (
-                    <Image
-                      src={p.featuredImage.url}
-                      alt={p.featuredImage.altText || p.title}
-                      fill
-                      sizes="108px"
-                    />
-                  ) : null}
-                </span>
-              )}
-
-              <span className="nota mt-1.5 block line-clamp-2 leading-snug text-text">
-                {conBase ? `${t(conjunto)} · ${nombreCorto(p.title)}` : nombreCorto(p.title)}
+      {/* UN SOLO COMBO A LA VISTA, y miniaturas para cambiar la segunda pieza.
+          Antes se pintaban las cinco combinaciones completas, una al lado de
+          otra. Dos problemas: el dueño lo vio recargado —"en vez de mostrar
+          todas las combinaciones"— y, en escritorio, esa fila de tarjetas de
+          164px fijaba un ancho mínimo de 886px que le robaba el sitio a la foto
+          del producto (quedaba en 334px de 1440: "las imágenes están muy
+          pequeñas"). Un combo y un puñado de miniaturas dicen lo mismo, ocupan
+          un tercio y dejan respirar a la foto. */}
+      {producto && (
+        <div className="mt-3 flex items-center gap-2">
+          <span className="plato block w-[72px] shrink-0">
+            {base?.imagen ? (
+              <Image src={base.imagen.url} alt={base.imagen.altText || base.titulo} fill sizes="72px" />
+            ) : null}
+          </span>
+          {base && (
+            <span className="precio text-sm text-text-muted" aria-hidden>+</span>
+          )}
+          <span className="plato block w-[72px] shrink-0">
+            {producto.featuredImage ? (
+              <Image
+                src={producto.featuredImage.url}
+                alt={producto.featuredImage.altText || producto.title}
+                fill
+                sizes="72px"
+              />
+            ) : null}
+          </span>
+          <span className="ml-1 min-w-0 flex-1">
+            <span className="nota block leading-tight text-text">
+              {base ? `${t(conjunto)} · ${nombreCorto(producto.title)}` : nombreCorto(producto.title)}
+            </span>
+            <span className="precio block text-base text-text">
+              {formatMoney(String(totalConjunto), moneda)}
+            </span>
+            {ahorro > 0 && (
+              <span className="nota block leading-tight text-leather">
+                {t("tira.ahorras")} {formatMoney(String(ahorro), moneda)}
               </span>
+            )}
+          </span>
+        </div>
+      )}
 
-              {conBase ? (
-                <>
-                  <span className="precio mt-0.5 block text-sm text-text">
-                    {formatMoney(String(totalPareja), mon)}
-                  </span>
-                  {rebaja > 0 && (
-                    <span className="nota block leading-tight text-leather">
-                      {t("tira.ahorras")} {formatMoney(String(rebaja), mon)}
-                    </span>
-                  )}
-                </>
-              ) : rebaja > 0 ? (
-                <>
-                  <span className="precio mt-0.5 block text-[11px] text-text-muted line-through">
-                    {formatMoney(String(precio), mon)}
-                  </span>
-                  <span className="precio block text-xs text-text">
-                    {formatMoney(String(precio - rebaja), mon)}
-                  </span>
-                </>
-              ) : (
-                <span className="precio mt-0.5 block text-xs text-text-muted">
-                  {formatMoney(String(precio), mon)}
-                </span>
-              )}
-            </button>
-          )
-        })}
-      </div>
+      {/* Las otras opciones, en miniatura. Solo si hay de dónde escoger. */}
+      {productos.length > 1 && (
+        <div className="-mx-1 mt-3 flex flex-wrap gap-1.5 px-1">
+          {productos.map((p) => {
+            const activo = p.handle === elegido
+            return (
+              <button
+                key={p.id}
+                type="button"
+                onClick={() => elegir(p)}
+                aria-pressed={activo}
+                aria-label={nombreCorto(p.title)}
+                title={nombreCorto(p.title)}
+                className={`plato block w-[48px] shrink-0 cursor-pointer border transition-colors duration-[180ms] ${
+                  activo ? "border-text" : "border-transparent opacity-60 hover:opacity-100"
+                }`}
+              >
+                {p.featuredImage ? (
+                  <Image
+                    src={p.featuredImage.url}
+                    alt={p.featuredImage.altText || p.title}
+                    fill
+                    sizes="48px"
+                  />
+                ) : null}
+              </button>
+            )
+          })}
+        </div>
+      )}
 
       {producto && (
         <div className="mt-4">
