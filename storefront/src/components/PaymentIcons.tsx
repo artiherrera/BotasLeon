@@ -1,3 +1,4 @@
+import Image from "next/image"
 import { isMX } from "@/lib/market"
 import { T } from "@/components/T"
 
@@ -19,16 +20,26 @@ import { T } from "@/components/T"
  * logos en la misma página comparten `clip0_...` y el navegador aplica el
  * primero a los tres: se ven cuadros de color sin dibujo.
  *
- * FALTA OXXO, y no lo invento. El encargo pide su logo oficial y dice, con
- * razón, que no se redibuje; en el repo no está y una aproximación hecha a mano
- * sería exactamente lo que se prohíbe. En cuanto el dueño deje el archivo en
- * public/payment-logos/oxxo.svg se añade aquí y aparece solo en México.
+ * OXXO VA COMO IMAGEN, no en línea, y no es un capricho: el archivo que entregó
+ * el dueño (2026-09-30) es un WebP de 1280x649 con el nombre cambiado a .svg.
+ * No hay vector que pegar. Servido con extensión .svg el navegador lo habría
+ * rechazado —el tipo no coincide con el contenido—, así que se renombró a
+ * .webp y se pinta con <Image>. Sigue saliendo de nuestro dominio: ningún CDN
+ * ajeno. Si algún día llega el SVG oficial, se pega aquí como los otros tres y
+ * gana nitidez en pantallas de mucha densidad.
  *
  * POR MERCADO: OXXO es un método mexicano y solo se anuncia en botasleon.mx.
  * En el sitio en dólares van las tres tarjetas.
  */
 
-type Medio = { clave: string; nombre: string; dibujo: React.ReactNode }
+type Medio = {
+  clave: string
+  nombre: string
+  /** Vector pegado en línea (las tres tarjetas). */
+  dibujo?: React.ReactNode
+  /** Mapa de bits servido desde /public (OXXO, por ahora). */
+  imagen?: { src: string; ancho: number; alto: number }
+}
 
 const VISA: React.ReactNode = (
   <>
@@ -73,11 +84,17 @@ const MEDIOS: Medio[] = [
   { clave: "amex", nombre: "American Express", dibujo: AMEX },
 ]
 
+/** Pago en efectivo, mexicano: solo se anuncia en botasleon.mx. */
+const OXXO: Medio = {
+  clave: "oxxo",
+  nombre: "OXXO",
+  imagen: { src: "/payment-logos/oxxo.webp", ancho: 1280, alto: 649 },
+}
+
 export function PaymentIcons({ className = "" }: { className?: string }) {
-  // isMX se resuelve al compilar: en el build de Estados Unidos, la rama de
-  // OXXO ni siquiera llega al navegador.
-  const medios = MEDIOS
-  void isMX
+  // isMX se resuelve al compilar: en el build de Estados Unidos, OXXO ni
+  // siquiera llega al navegador.
+  const medios = isMX ? [...MEDIOS, OXXO] : MEDIOS
 
   return (
     <div className={`flex flex-wrap items-center gap-x-3 gap-y-1.5 ${className}`}>
@@ -87,15 +104,29 @@ export function PaymentIcons({ className = "" }: { className?: string }) {
       <ul role="list" className="m-0 flex list-none items-center gap-2 p-0">
         {medios.map((m) => (
           <li key={m.clave} className="flex">
-            <svg
-              viewBox="0 0 780 500"
-              role="img"
-              aria-label={m.nombre}
-              className="h-7 w-auto"
-            >
-              <title>{m.nombre}</title>
-              {m.dibujo}
-            </svg>
+            {m.imagen ? (
+              <Image
+                src={m.imagen.src}
+                alt={m.nombre}
+                width={m.imagen.ancho}
+                height={m.imagen.alto}
+                /* Se pinta a 28px de alto (≈56 de ancho). Sin este `sizes`,
+                   Next pedía variantes de hasta 3840px para un logo del tamaño
+                   de una uña. */
+                sizes="56px"
+                className="h-7 w-auto"
+              />
+            ) : (
+              <svg
+                viewBox="0 0 780 500"
+                role="img"
+                aria-label={m.nombre}
+                className="h-7 w-auto"
+              >
+                <title>{m.nombre}</title>
+                {m.dibujo}
+              </svg>
+            )}
           </li>
         ))}
       </ul>
