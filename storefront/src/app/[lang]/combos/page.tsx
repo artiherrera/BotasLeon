@@ -67,7 +67,7 @@ export default async function CombosPage() {
             <T k="combos.intro" />
           </p>
 
-          <div className="mt-10 grid gap-6 lg:grid-cols-2">
+          <div className="mt-10 grid min-w-0 gap-6 [&>*]:min-w-0 lg:grid-cols-2">
             <ArmaCombo
               insignia="tira.cinto.insignia"
               titulo="combos.cinto.titulo"

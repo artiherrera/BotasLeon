@@ -82,7 +82,13 @@ export function ArmaCombo({
   }
 
   return (
-    <section className="border border-dashed border-leather/50 p-5 md:p-6">
+    /* min-w-0 NO es decorativo: sin él, la fila de tarjetas de abajo fija un
+       ancho mínimo igual a la suma de todas (doce botas de 116px = 1.500px), y
+       en un teléfono la PÁGINA ENTERA se estira a ese ancho. El navegador la
+       encoge para que quepa y todo se ve diminuto: "la ventana de combos se ve
+       horrible en el celular" (2026-09-30). Con min-w-0 mandan las columnas y
+       la fila se arrastra dentro de su ancho, que es para lo que se hizo. */
+    <section className="min-w-0 border border-dashed border-leather/50 p-5 md:p-6">
       <p className="nav-label text-leather">{t(insignia)}</p>
       <h2 className="display-m mt-2">{t(titulo)}</h2>
       <p className="cuerpo mt-2 max-w-[60ch] text-text-muted">{t(nota)}</p>
@@ -167,14 +173,14 @@ function Lado({
 }) {
   const { t } = useLocale()
   return (
-    <div className="mt-6">
+    <div className="mt-6 min-w-0">
       {/* El número no es adorno: son dos pasos y en ese orden, porque el
           descuento cae sobre la segunda pieza. */}
       <p className="nav-label text-text">
         <span className="text-text-muted">{numero}.</span> {rotulo}
       </p>
 
-      <div className="-mx-1 mt-3 flex gap-2 overflow-x-auto px-1 pb-1">
+      <div className="-mx-1 mt-3 flex min-w-0 gap-2 overflow-x-auto px-1 pb-1">
         {piezas.map((p) => {
           const activo = p.handle === elegido
           const precio = parseFloat(p.priceRange.minVariantPrice.amount)
