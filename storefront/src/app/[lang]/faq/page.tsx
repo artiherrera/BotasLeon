@@ -2,7 +2,7 @@ import { ContentPage } from "@/components/ContentPage"
 import { LocalizedLink as Link } from "@/components/LocalizedLink"
 import { Localized } from "@/components/Localized"
 import { pageMetadata } from "@/lib/seo"
-import { DIAS_CAMBIO_TALLA, HAY_CAMBIO_DE_TALLA } from "@/lib/exchange"
+import { DIAS_CAMBIO_TALLA } from "@/lib/exchange"
 
 export default function FaqPage() {
   return (
@@ -40,21 +40,6 @@ export default function FaqPage() {
             </p>
 
             <h2>¿Aceptan cambios o devoluciones?</h2>
-            {HAY_CAMBIO_DE_TALLA ? (
-              <p>
-                <strong>Únicamente los modelos seleccionados</strong> —los que
-                muestran el aviso <strong>Cambio de talla gratis</strong> en su
-                ficha— se pueden cambiar por otra talla del mismo modelo sin costo:
-                nosotros cubrimos los dos envíos. Tienes {DIAS_CAMBIO_TALLA} días
-                naturales desde la entrega, con la bota sin uso y en su empaque
-                original. En los demás modelos aceptamos cambios solo por defecto
-                de fabricación o error en el envío. No hacemos reembolsos de
-                dinero por talla, color o modelo mal elegidos. Revisa la{" "}
-                <Link href="/guia-tallas">guía de tallas</Link> antes de comprar y
-                escríbenos si tienes dudas. Política completa en{" "}
-                <Link href="/devoluciones">Devoluciones</Link>.
-              </p>
-            ) : (
               <p>
                 Solo aceptamos cambios por defecto de fabricación o error en el
                 envío (1 cambio por pedido, dentro de {DIAS_CAMBIO_TALLA} días
@@ -65,7 +50,6 @@ export default function FaqPage() {
                 tienes dudas antes de comprar. Política completa en{" "}
                 <Link href="/devoluciones">Devoluciones</Link>.
               </p>
-            )}
 
             <h2>¿Qué métodos de pago aceptan?</h2>
             <p>

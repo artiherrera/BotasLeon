@@ -39,6 +39,13 @@ export function NotaAjuste() {
   )
 }
 
+/**
+ * Fuera "Lo que hay que saber: la suela de cuero resbala…" (2026-09-30, encargo
+ * del dueño). Era el mismo párrafo en las 103 fichas y lo primero que leía el
+ * comprador debajo de la talla: una pega genérica, escrita por nosotros, sobre
+ * una bota que no había visto todavía. Queda la nota del modelo de la foto, que
+ * sí ayuda a elegir número.
+ */
 export function PDPNotasTalla() {
   const t = useT()
 
@@ -47,10 +54,6 @@ export function PDPNotasTalla() {
       <p className="text-sm leading-snug text-text-muted">
         <span className="text-text">{t("talla.modeloTitulo")}</span>{" "}
         {t("talla.modelo")}
-      </p>
-      <p className="text-sm leading-snug text-text-muted">
-        <span className="text-text">{t("talla.honestoTitulo")}</span>{" "}
-        {t("talla.honesto")}
       </p>
     </div>
   )

@@ -17,6 +17,7 @@ import { isMX } from "@/lib/market"
 import { LocalizedLink as Link } from "@/components/LocalizedLink"
 import { useAltoTeaserKlaviyo } from "@/lib/klaviyo/teaser"
 import { OpcionesCompra, type Eleccion } from "@/components/OpcionesCompra"
+import { PaymentIcons } from "@/components/PaymentIcons"
 import { lineaDe, tallasDe } from "@/lib/combos"
 import type { Pieza } from "@/lib/combos"
 
@@ -576,6 +577,10 @@ export function ProductOptions({
       >
         {ctaLabel}
       </button>
+
+      {/* Los medios de pago, pegados a los botones: es el momento en que el
+          comprador se pregunta si esta tienda cobra de verdad. */}
+      <PaymentIcons className="mt-3" />
 
       {mounted ? createPortal(stickyBar, document.body) : null}
     </div>

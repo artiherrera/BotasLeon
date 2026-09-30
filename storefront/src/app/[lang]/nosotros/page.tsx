@@ -55,7 +55,6 @@ export default function NosotrosPage() {
               <li>Si la bota es vaquera, es hecha en León</li>
               <li>Si decimos cuero, es cuero (no PU ni sintético)</li>
               <li>Si decimos exótica, viene con su certificado CITES</li>
-              <li>Si no te queda, te la cambiamos</li>
               <li>Si tiene defecto, te la reponemos</li>
             </ul>
 

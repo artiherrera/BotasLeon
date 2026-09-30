@@ -2,8 +2,7 @@
 
 import Image from "next/image"
 import { LocalizedLink as Link } from "@/components/LocalizedLink"
-import { EnlaceOtroMercado } from "./EnlaceOtroMercado"
-import { PaymentBadges } from "./PaymentBadges"
+import { PaymentIcons } from "./PaymentIcons"
 import { SocialIcons } from "./SocialIcons"
 import { whatsappHref } from "@/lib/whatsapp"
 import { useLocale } from "@/lib/i18n/context"
@@ -140,10 +139,10 @@ export function Footer() {
       {/* La línea normal (--color-border) sobre plato da 1.13:1 y no se ve:
           los divisores de esta superficie usan border-border-plate. */}
       <div className="border-t border-border-plate">
-        {/* PaymentBadges en su propio row centrado. El texto "Procesado
+        {/* Los medios de pago en su propio row centrado. El texto "Procesado
             por Shopify" ya vive dentro del componente — no duplicar. */}
         <div className="contenedor pt-6 pb-4 flex justify-center">
-          <PaymentBadges />
+          <PaymentIcons className="justify-center" />
         </div>
       </div>
 
@@ -151,7 +150,12 @@ export function Footer() {
         <div className="contenedor py-6 flex flex-col sm:flex-row items-center justify-between gap-3 nota">
           <p>© {new Date().getFullYear()} BotasLeón · León, Guanajuato, México.</p>
           {/* Solo aparece en la .mx: la vuelta al sitio en dólares. */}
-          <EnlaceOtroMercado className="text-text-muted" />
+          {/* SIN "Shop in USD · United States" (2026-09-30, encargo del dueño).
+              Ojo con lo que NO cambia: ese enlace solo se pintaba en la .mx —en
+              el sitio en dólares el componente ya devolvía null—, así que la
+              .com se queda exactamente igual. Tampoco se toca la redirección
+              por país ni la preferencia de mercado: solo deja de verse.
+              Para devolverlo, volver a montar EnlaceOtroMercado aquí. */}
           <p>{t("footer.madeIn")}</p>
         </div>
       </div>
