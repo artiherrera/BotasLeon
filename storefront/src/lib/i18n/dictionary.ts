@@ -13,6 +13,7 @@ type Entry = Record<Locale, string>
 
 export const DICTIONARY: Record<string, Entry> = {
   // ── Recuperadas del barrido i18n (se perdieron en edición paralela) ──
+  "pay.aceptamos": { es: "Aceptamos", en: "We accept" },
   "pay.methodsLabel": { es: "Métodos de pago aceptados", en: "Accepted payment methods" },
   "pay.secureNote": { es: "Pago 100% seguro · Procesado por Shopify", en: "100% secure checkout · Processed by Shopify" },
   "pdp.actionsLabel": { es: "Acciones del producto", en: "Product actions" },
@@ -42,15 +43,8 @@ export const DICTIONARY: Record<string, Entry> = {
   "recent.title": { es: "Sigue donde te quedaste", en: "Pick up where you left off" },
   "trust.exchange30": { es: "Garantía 15 días", en: "15-day warranty" },
 
-  // Cambio de talla en modelos seleccionados (solo México — ver lib/exchange.ts).
   // El plazo exacto NO se repite aquí: vive solo en /devoluciones, para que no
   // haya dos números que puedan quedar desfasados.
-  "exchange.badge.title": { es: "Cambio de talla gratis", en: "Free size exchange" },
-  "exchange.badge.sub": {
-    es: "Si no es tu talla, la cambiamos. Nosotros cubrimos los dos envíos.",
-    en: "Wrong size? We swap it and cover both shipments.",
-  },
-  "exchange.badge.link": { es: "Ver condiciones", en: "See terms" },
 
   // Meses sin intereses — solo México (ver lib/msi.ts). El NÚMERO de meses no
   // vive aquí sino en MESES_MSI, para no tener dos cifras que puedan
@@ -871,11 +865,6 @@ export const DICTIONARY: Record<string, Entry> = {
     es: "Arturo mide 1.78, calza 27 y usa la 27.",
     en: "Arturo is 5'10\", wears a 9 US and is wearing a 9.",
   },
-  "talla.honestoTitulo": { es: "Lo que hay que saber:", en: "Worth knowing:" },
-  "talla.honesto": {
-    es: "la suela de cuero resbala los primeros días hasta que se raya con el uso; la piel es natural y su veta cambia de un par a otro; en persona el color se ve un poco más claro que en la foto.",
-    en: "the leather sole is slippery for the first few days until it scuffs in; the leather is natural, so the grain differs from pair to pair; in person the colour looks a little lighter than in the photo.",
-  },
 
   // ── Franja de construcción ────────────────────────────────────────────
   // Faltan forro, suela y vira: los dos primeros están vacíos en los 106
@@ -932,14 +921,6 @@ export const DICTIONARY: Record<string, Entry> = {
   "promesa.envioUs": {
     es: "Entrega en Estados Unidos en 2–3 días hábiles",
     en: "Delivered in the USA in 2–3 business days",
-  },
-  "promesa.cambio": {
-    es: "Cambio de talla sin costo si no te queda",
-    en: "Free size exchange if it doesn't fit",
-  },
-  "promesa.cambioNota": {
-    es: "Sin estrenar · modelos seleccionados",
-    en: "Unworn · selected models",
   },
   // Quinta promesa, APAGADA por defecto (PROMESA_VIDEO en lib/promesas.ts).
   // El informe la propone, pero no consta en ninguna parte del repo ni de las

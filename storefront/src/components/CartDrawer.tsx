@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react"
 import Image from "next/image"
 import { LocalizedLink as Link } from "@/components/LocalizedLink"
 import { useCart } from "./CartProvider"
-import { PaymentBadges } from "./PaymentBadges"
+import { PaymentIcons } from "./PaymentIcons"
 import { CustomsTaxIdField, useCustomsGate } from "./CustomsTaxIdField"
 import { formatMoney } from "@/lib/utils"
 import { FreeShippingProgress } from "@/components/FreeShippingProgress"
@@ -455,9 +455,6 @@ export function CartDrawer() {
 
               <CustomsTaxIdField />
 
-              <div className="mb-4">
-                <PaymentBadges />
-              </div>
 
               {/* Los meses, JUSTO ANTES de pagar. Se anunciaban en la ficha y
                   aquí no se decía nada: quien elegía la bota por los meses
@@ -509,6 +506,9 @@ export function CartDrawer() {
                   </span>
                 </div>
               )}
+              {/* Los medios de pago, junto a Pagar. */}
+              <PaymentIcons className="mb-3 justify-center" />
+
               {cart?.checkoutUrl ? (
                 sizeBlocked ? (
                   <>

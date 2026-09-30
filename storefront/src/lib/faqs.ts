@@ -63,12 +63,11 @@ export const FAQS: FAQ[] = [
   },
   {
     question: "¿Aceptan cambios o devoluciones?",
-    // Misma política que /faq y /devoluciones de cada mercado (ver
-    // lib/exchange.ts): en México hay cambio de talla gratis en modelos
-    // marcados; en EE.UU. no.
-    answer: isMX
-      ? "Únicamente los modelos seleccionados —los que muestran el aviso Cambio de talla gratis en su ficha— se pueden cambiar por otra talla del mismo modelo sin costo: nosotros cubrimos los dos envíos, dentro de 7 días naturales desde la entrega, con la bota sin uso y en su empaque original. En los demás modelos aceptamos cambios solo por defecto de fabricación o error en el envío. No hacemos reembolsos de dinero por talla, color o modelo mal elegidos; revisa la guía de tallas y escríbenos por WhatsApp si tienes dudas. Garantía de 15 días por defecto de fabricación confirmado."
-      : "Solo aceptamos cambios por defecto de fabricación o error en el envío: 1 cambio por pedido, dentro de 7 días naturales, con el producto sin uso y en su empaque original. No hacemos reembolsos por talla, color o modelo mal elegidos, así que te recomendamos revisar la guía de tallas y escribirnos por WhatsApp si tienes dudas antes de comprar. Contamos con garantía de 15 días por defecto de fabricación confirmado.",
+    // Sin la promesa de cambio de talla gratis (2026-09-30, encargo del
+    // dueño): los dos mercados publican la misma política, que es la que ya
+    // regía en Estados Unidos.
+    answer:
+      "Solo aceptamos cambios por defecto de fabricación o error en el envío: 1 cambio por pedido, dentro de 7 días naturales, con el producto sin uso y en su empaque original. No hacemos reembolsos por talla, color o modelo mal elegidos, así que te recomendamos revisar la guía de tallas y escribirnos por WhatsApp si tienes dudas antes de comprar. Contamos con garantía de 15 días por defecto de fabricación confirmado.",
     questionEn: "Can I return or exchange my order?",
     answerEn:
       "Orders shipped to the United States are final sale — we don't offer returns or size exchanges. Please check our size guide (Mexican cm, U.S., and EU) before ordering, and message us at contacto@botasleon.com if you're unsure about your size.",

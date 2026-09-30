@@ -1,6 +1,5 @@
 import { isMX } from "@/lib/market"
 import { ENVIO_GRATIS_SIEMPRE } from "@/lib/shipping-policy"
-import { admiteCambioDeTalla } from "@/lib/exchange"
 
 /**
  * Las promesas de venta que van bajo el botón de compra en la ficha.
@@ -23,15 +22,25 @@ export type Promesa = {
 }
 
 /**
- * La quinta promesa del informe —"te mandamos video del par exacto antes de
- * enviarlo"— viene APAGADA. No es una decisión de diseño: busqué "video" en el
- * diccionario, en las FAQ, en las políticas y en el resto del repo y no consta
- * en ninguna parte que ese video se mande siempre. Encenderla es prometerlo en
- * 103 fichas, y eso lo decide el dueño, no el código.
+ * "Te mandamos video del par exacto antes de enviarlo".
+ *
+ * Estuvo apagada porque prometerlo en 103 fichas lo decide el dueño, no el
+ * código. El 2026-09-30 lo decidió: su encargo enumera las promesas vigentes y
+ * esta es la primera de las cuatro. Encendida.
  */
-export const PROMESA_VIDEO = false
+export const PROMESA_VIDEO = true
 
+/**
+ * Las promesas vigentes, y solo esas cuatro (encargo del 2026-09-30): video del
+ * par exacto, asesoría de talla por WhatsApp, pago protegido y envío gratis. El
+ * cambio de talla sin costo se retiró del sitio entero ese mismo día.
+ *
+ * `tags` ya no decide nada aquí —lo usaba la promesa de cambio— pero se
+ * conserva la firma: la llaman con el producto y mañana puede volver a haber
+ * una promesa por modelo.
+ */
 export function promesasDeFicha(tags?: readonly string[] | null): Promesa[] {
+  void tags
   const lista: Promesa[] = []
 
   if (PROMESA_VIDEO) lista.push({ llave: "promesa.video", icono: "video" })
@@ -39,13 +48,6 @@ export function promesasDeFicha(tags?: readonly string[] | null): Promesa[] {
   // La asesoría por WhatsApp existe en los dos mercados: el botón y el número
   // están en lib/whatsapp.ts y el buscador de talla ya ofrece escribirnos.
   lista.push({ llave: "promesa.whatsapp", icono: "whatsapp" })
-
-  // Cambio de talla: solo México, y solo en los modelos que el dueño etiquete
-  // con "cambio-de-talla" en Shopify. Hoy no hay ninguno etiquetado, así que
-  // esta promesa no se pinta en ninguna ficha hasta que los etiquete.
-  if (admiteCambioDeTalla(tags)) {
-    lista.push({ llave: "promesa.cambio", nota: "promesa.cambioNota", icono: "cambio" })
-  }
 
   // Envío: gratis de verdad en México; en Estados Unidos lo que se promete es
   // la rapidez, porque el envío cuesta más de 100 dólares y prometerlo gratis

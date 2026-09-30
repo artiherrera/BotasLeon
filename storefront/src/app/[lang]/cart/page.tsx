@@ -6,7 +6,7 @@ import { LocalizedLink as Link } from "@/components/LocalizedLink"
 import { Header } from "@/components/Header"
 import { Footer } from "@/components/Footer"
 import { useCart } from "@/components/CartProvider"
-import { PaymentBadges } from "@/components/PaymentBadges"
+import { PaymentIcons } from "@/components/PaymentIcons"
 import { CustomsTaxIdField } from "@/components/CustomsTaxIdField"
 import { useLocale, useT } from "@/lib/i18n/context"
 import { isMX } from "@/lib/market"
@@ -356,7 +356,7 @@ export default function CartPage() {
               <CustomsTaxIdField />
 
               <div className="mb-4">
-                <PaymentBadges />
+                <PaymentIcons className="justify-center" />
               </div>
 
               {/* Los meses, justo antes de pagar. Sobre el TOTAL, que es lo que

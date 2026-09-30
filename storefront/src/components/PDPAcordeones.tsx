@@ -5,7 +5,6 @@ import { LocalizedLink as Link } from "@/components/LocalizedLink"
 import { useLocale } from "@/lib/i18n/context"
 import { facetLabel } from "@/lib/facets-i18n"
 import { primerValor } from "@/lib/shopify/facets"
-import { admiteCambioDeTalla } from "@/lib/exchange"
 import { ENVIO_GRATIS_SIEMPRE } from "@/lib/shipping-policy"
 import { ProductDescriptionBody } from "./LocalizedProductContent"
 import type { Brand, Product } from "@/lib/shopify/types"
@@ -52,8 +51,6 @@ export function PDPAcordeones({
   agregar(t("pdp.detailStyle"), primerValor(product.bootStyle)?.label)
   agregar(t("pdp.detailColor"), primerValor(product.color)?.label)
   agregar(t("product.type"), product.productType)
-
-  const cambioDeTalla = admiteCambioDeTalla(product.tags)
 
   return (
     <div className="mt-10 border-t border-border">
@@ -144,12 +141,6 @@ export function PDPAcordeones({
           {/* Por MERCADO, nunca por idioma: botasleon.com/es vende a Estados
               Unidos y ahí el envío gratis sería una promesa falsa. */}
           <li>{t(ENVIO_GRATIS_SIEMPRE ? "promesa.envioMx" : "promesa.envioUs")}</li>
-          {cambioDeTalla && (
-            <li>
-              {t("promesa.cambio")}{" "}
-              <span className="nota">{t("promesa.cambioNota")}</span>
-            </li>
-          )}
         </ul>
         <div className="cuerpo mt-3 flex flex-wrap gap-x-6 gap-y-1">
           <Link
