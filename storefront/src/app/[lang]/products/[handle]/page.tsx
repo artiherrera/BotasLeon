@@ -187,9 +187,19 @@ export default async function ProductPage({ params }: Props) {
                 fijos y la foto —limitada por el alto de la pantalla— medía 480
                 en un MacBook: quedaba centrada con 80px de aire a cada lado y
                 parecía encogida. "Se ven mucho más pequeñas", y era eso.
-                minmax(0,1fr) en la segunda columna es lo que le permite
-                encoger; sin ese 0, el contenido vuelve a fijar el ancho. */}
-              <div className="grid grid-cols-1 lg:grid-cols-[auto_minmax(0,1fr)] gap-8 lg:gap-12">
+                minmax(0,1fr) en la segunda columna era lo que le permitía
+                encoger; sin ese 0, el contenido vuelve a fijar el ancho.
+
+                Y UN TOPE AL TEXTO (46rem), con el conjunto centrado. Con `1fr`
+                a secas, en un monitor ancho la columna de texto se estiraba a
+                1.800px mientras la foto seguía limitada por el alto de la
+                pantalla: la ficha se veía partida, con la bota pequeña a un
+                lado y un desierto de texto al otro. Así lo vio el dueño el
+                2026-10-04 comparando su monitor (la .com) con una pantalla más
+                chica (la .mx) y pensó que un sitio era distinto del otro: era
+                la misma página en dos anchos. Con el tope, los dos se ven igual
+                a partir de 1.300px. */}
+              <div className="grid grid-cols-1 gap-8 lg:grid-cols-[auto_minmax(0,46rem)] lg:justify-center lg:gap-12">
               {/* EN MÓVIL, DE ORILLA A ORILLA, como la galería de Lucchese que
                   el dueño pidió copiar (2026-09-17): -mx-6 anula el aire lateral
                   del contenedor y la foto ocupa las 390 columnas del teléfono;

@@ -335,7 +335,14 @@ export function ProductOptions({
         onClick={onClick}
         aria-pressed={active}
         disabled={!available && !active}
-        className={`flex min-h-[44px] min-w-[3.25rem] flex-col items-center justify-center gap-0.5 rounded-boton border px-3 py-1.5 leading-none whitespace-nowrap transition-colors duration-[180ms] ${
+        /* MISMA CASILLA EN LOS DOS MERCADOS. En México la talla llega en dos
+             renglones ("25 / US 6") y en Estados Unidos en uno ("US 6"), así que
+             la casilla medía 54px de alto allá y 44 aquí: la misma ficha se veía
+             distinta según el sitio, y el dueño lo notó (2026-10-04). Con el
+             alto fijo, el renglón único se centra en la misma caja y las dos
+             rejillas se leen igual. El ancho sí puede variar: "US 10.5" ocupa
+             más que "27", y forzarlo dejaría huecos raros. */
+          className={`flex min-h-[54px] min-w-[3.25rem] flex-col items-center justify-center gap-0.5 rounded-boton border px-3 py-1.5 leading-none whitespace-nowrap transition-colors duration-[180ms] ${
           active
             ? "border-text bg-text text-bg"
             : available
