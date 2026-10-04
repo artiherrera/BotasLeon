@@ -141,11 +141,45 @@ export function ProductGallery({ images, title }: Props) {
 
   return (
     <div>
-      {/* === DESKTOP: rail vertical de miniaturas (izquierda) + principal
-          (derecha), estilo Amazon. Hover en la miniatura cambia la grande. === */}
-      <div className="hidden md:flex md:gap-3">
+      {/* === ESCRITORIO: foto grande arriba, miniaturas en TIRA HORIZONTAL
+          debajo — como la del teléfono, y como la pidió el dueño el
+          2026-10-03. Estuvo en columna a la izquierda (estilo Amazon) y él la
+          quería de vuelta horizontal.
+
+          Lo que cuesta: la tira ocupa alto, y el alto es justo lo que limita a
+          la foto para que la bota quepa entera en pantalla. Por eso ahora se
+          descuentan 300px en vez de 220 —el cromo de arriba más la tira— y la
+          foto sale algo más chica que con el rail lateral. Es el intercambio de
+          poner las miniaturas debajo, y está medido abajo en el commit. === */}
+      <div className="hidden md:block">
+        <button
+          type="button"
+          onClick={() => openLightbox(activeIdx)}
+          aria-label="Ampliar imagen"
+          /* El ancho sale del ALTO de la ventana, no del 100% de su columna:
+             la columna de la galería se ajusta a la foto (rejilla `auto` en la
+             ficha), así que pedirle el 100% sería una pescadilla que se muerde
+             la cola. Capando el ancho, el plato mantiene su 4:5 por CSS y el
+             alto queda por debajo de la ventana solo. */
+          className={`plato ${clasePlato(active)} block w-[calc((100dvh-300px)*0.8)] min-w-0 max-w-full cursor-zoom-in`}
+        >
+          <Image
+            key={active.url}
+            src={active.url}
+            alt={active.altText || title}
+            fill
+            preload
+            sizes="(max-width: 1024px) 100vw, 45vw"
+          />
+        </button>
+
         {hasMultiple && (
-          <div className="flex flex-col gap-2 w-16 shrink-0">
+          /* La tira va atada al ancho de la foto y se arrastra dentro de él.
+             Sin ese ancho fijo, nueve miniaturas fijarían el ancho MÍNIMO de la
+             columna (9 × 72 = 648px) y volverían a estirar la galería — el
+             mismo fallo que encogió la foto del producto y reventó la página de
+             combos en el teléfono. */
+          <div className="mt-2 flex w-[calc((100dvh-300px)*0.8)] max-w-full gap-2 overflow-x-auto pb-1">
             {images.map((img, idx) => (
               <button
                 key={img.url}
@@ -154,7 +188,7 @@ export function ProductGallery({ images, title }: Props) {
                 onMouseEnter={() => setActiveIdx(idx)}
                 aria-label={`Ver imagen ${idx + 1}`}
                 aria-current={idx === activeIdx}
-                className={`plato plato-mini ${clasePlato(img)} transition-opacity duration-[180ms] ${
+                className={`plato plato-mini ${clasePlato(img)} w-[64px] shrink-0 transition-opacity duration-[180ms] ${
                   idx === activeIdx
                     ? "ring-2 ring-leather"
                     : "opacity-60 hover:opacity-100"
@@ -170,40 +204,6 @@ export function ProductGallery({ images, title }: Props) {
             ))}
           </div>
         )}
-
-        <button
-          type="button"
-          onClick={() => openLightbox(activeIdx)}
-          aria-label="Ampliar imagen"
-          /* TECHO DE ALTO PARA QUE LA FOTO QUEPA EN LA PANTALLA.
-             Al ensanchar la columna (el 2026-09-29, cuando dejó de comérsela la
-             tira de ofertas) la foto ganó ancho y, por ser 4:5, ganó MÁS alto:
-             637x796 en una pantalla de 900 y 549x784 en una de 800. En las dos
-             se salía por abajo y había que desplazar para ver la bota entera —
-             "las imágenes son demasiado grandes, se salen de la página".
-
-             Se limita el ANCHO, no el alto: el plato mantiene su proporción 4:5
-             por CSS, así que capando el ancho a (alto disponible × 0.8) el alto
-             queda por debajo de la ventana solo. Los 220px descontados son el
-             cromo de arriba (avisos + cabecera + migas) más un respiro. El
-             `mx-auto` centra la foto en la columna cuando sobra sitio.
-
-             Y `self-start` NO es decorativo: sin él la foto es una celda flex
-             que se estira al alto de la columna de miniaturas (9 miniaturas =
-             784px), y ese estirado ANULA la proporción 4:5 — capar el ancho
-             encogía la foto pero el alto seguía clavado en 784. Con self-start
-             manda la proporción y el alto sale del ancho. */
-          className={`plato ${clasePlato(active)} block w-[calc((100dvh-220px)*0.8)] min-w-0 max-w-full flex-1 self-start cursor-zoom-in`}
-        >
-          <Image
-            key={active.url}
-            src={active.url}
-            alt={active.altText || title}
-            fill
-            preload
-            sizes="(max-width: 1024px) 100vw, 55vw"
-          />
-        </button>
       </div>
 
       {/* === MOBILE: carrusel scroll-snap + dots === */}
