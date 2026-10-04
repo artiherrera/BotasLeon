@@ -43,12 +43,26 @@ export function ProductGallery({ images, title }: Props) {
   // aquí arriba, antes del return temprano de "sin imágenes".)
   const stripRef = useRef<HTMLDivElement | null>(null)
   const thumbRefs = useRef<Array<HTMLButtonElement | null>>([])
+  // La tira de ESCRITORIO necesita lo mismo, y no lo tenía: al elegir una foto
+  // del final había que arrastrar a mano para ver cuál quedó marcada. Ahora
+  // las dos tiras centran la activa solas. Son refs distintas porque las dos
+  // existen en el DOM a la vez (una la esconde el CSS según el ancho).
+  const stripEscritorioRef = useRef<HTMLDivElement | null>(null)
+  const thumbEscritorioRefs = useRef<Array<HTMLButtonElement | null>>([])
   useEffect(() => {
-    const strip = stripRef.current
-    const thumb = thumbRefs.current[activeIdx]
-    if (!strip || !thumb) return
-    const left = thumb.offsetLeft - (strip.clientWidth - thumb.clientWidth) / 2
-    strip.scrollTo({ left: Math.max(0, left), behavior: "smooth" })
+    const centrar = (
+      tira: HTMLDivElement | null,
+      mini: HTMLButtonElement | null | undefined,
+    ) => {
+      if (!tira || !mini) return
+      // Si no hay nada que desplazar, no se toca: evita saltos en pantallas
+      // anchas donde caben todas.
+      if (tira.scrollWidth <= tira.clientWidth + 1) return
+      const left = mini.offsetLeft - (tira.clientWidth - mini.clientWidth) / 2
+      tira.scrollTo({ left: Math.max(0, left), behavior: "smooth" })
+    }
+    centrar(stripRef.current, thumbRefs.current[activeIdx])
+    centrar(stripEscritorioRef.current, thumbEscritorioRefs.current[activeIdx])
   }, [activeIdx])
 
   useEffect(() => {
@@ -179,19 +193,34 @@ export function ProductGallery({ images, title }: Props) {
              columna (9 × 72 = 648px) y volverían a estirar la galería — el
              mismo fallo que encogió la foto del producto y reventó la página de
              combos en el teléfono. */
-          <div className="mt-2 flex w-[calc((100dvh-300px)*0.8)] max-w-full gap-2 overflow-x-auto pb-1">
+          <div
+            ref={stripEscritorioRef}
+            className="sin-barra mt-2 flex w-[calc((100dvh-300px)*0.8)] max-w-full gap-2 overflow-x-auto pb-1"
+          >
             {images.map((img, idx) => (
               <button
                 key={img.url}
+                ref={(el) => {
+                  thumbEscritorioRefs.current[idx] = el
+                }}
                 type="button"
+                /* SIN cambiar al pasar el ratón. Con el rail vertical el hover
+                   era cómodo, pero con la tira abajo —que ahora se centra sola
+                   en la foto elegida— rozarla por encima la hacía moverse bajo
+                   el cursor y el usuario perdía lo que estaba mirando. Se elige
+                   pulsando, que es lo que se hace en un teléfono y lo que
+                   espera cualquiera en una tira horizontal. */
                 onClick={() => setActiveIdx(idx)}
-                onMouseEnter={() => setActiveIdx(idx)}
                 aria-label={`Ver imagen ${idx + 1}`}
                 aria-current={idx === activeIdx}
+                /* La miniatura activa se distingue por el BRILLO, no por un
+                   marco. El anillo en cuero que llevaba antes era el único
+                   recuadro de color del sitio y se comía la foto: "pusiste un
+                   marco horrible" (2026-10-04). Las apagadas van al 45% —el
+                   mismo trato que la tira del teléfono, unas líneas más abajo—,
+                   así que la activa se lee sola sin dibujarle nada encima. */
                 className={`plato plato-mini ${clasePlato(img)} w-[64px] shrink-0 transition-opacity duration-[180ms] ${
-                  idx === activeIdx
-                    ? "ring-2 ring-leather"
-                    : "opacity-60 hover:opacity-100"
+                  idx === activeIdx ? "opacity-100" : "opacity-45 hover:opacity-100"
                 }`}
               >
                 <Image
@@ -283,7 +312,7 @@ export function ProductGallery({ images, title }: Props) {
             ref={stripRef}
             role="tablist"
             aria-label="Imágenes del producto"
-            className="pg-mobile-track flex overflow-x-auto"
+            className="sin-barra pg-mobile-track flex overflow-x-auto"
             style={{ scrollbarWidth: "none", msOverflowStyle: "none", WebkitOverflowScrolling: "touch" }}
           >
             {images.map((img, idx) => {

@@ -463,6 +463,19 @@ input[type="search"]:focus-visible {
      OJO CON EL ORDEN: tiene la misma especificidad que `.plato img`,
      `.plato-foto img` y `.plato-mini img`, y gana por ir DESPUÉS. Moverla
      arriba la deja sin efecto y sin aviso. */
+  /* Tira que se desplaza sin enseñar la barra del navegador.
+     La barra gris del sistema, cruzando debajo de unas miniaturas de 64px, es
+     lo primero que se ve y no dice nada: el que se mueva ya lo cuenta la propia
+     tira, y en el teléfono esa barra ni siquiera existe. Se esconde en los tres
+     motores; el desplazamiento —rueda, dedo, teclado— sigue intacto. */
+  .sin-barra {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  .sin-barra::-webkit-scrollbar {
+    display: none;
+  }
+
   .plato-exacta {
     background-color: transparent;
   }
