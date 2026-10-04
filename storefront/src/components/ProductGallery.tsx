@@ -49,6 +49,54 @@ export function ProductGallery({ images, title }: Props) {
   // existen en el DOM a la vez (una la esconde el CSS según el ancho).
   const stripEscritorioRef = useRef<HTMLDivElement | null>(null)
   const thumbEscritorioRefs = useRef<Array<HTMLButtonElement | null>>([])
+  /**
+   * FLECHAS EN LA TIRA DE ESCRITORIO.
+   *
+   * Al esconder la barra del navegador —que era fea, y con razón— el ratón se
+   * quedó sin ninguna forma de mover la tira: pulsar una miniatura centra esa,
+   * pero a las que quedan fuera no se llega. "Funcionó para adelantar, pero no
+   * para regresar". Las flechas son la misma pieza que ya usa el riel de
+   * productos: cuadradas, 44px, sin círculos ni sombras, y se apagan al llegar
+   * al extremo. El dedo y el trackpad siguen arrastrando como siempre.
+   */
+  const [alInicio, setAlInicio] = useState(true)
+  const [alFinal, setAlFinal] = useState(false)
+  const [hayDesborde, setHayDesborde] = useState(false)
+  const medirTira = useCallback(() => {
+    const t = stripEscritorioRef.current
+    if (!t) return
+    setHayDesborde(t.scrollWidth > t.clientWidth + 8)
+    setAlInicio(t.scrollLeft <= 8)
+    setAlFinal(t.scrollLeft + t.clientWidth >= t.scrollWidth - 8)
+  }, [])
+  /**
+   * La rueda del ratón mueve la tira DE LADO.
+   *
+   * Es lo que de verdad resuelve "no puedo regresar": sin barra visible, un
+   * ratón normal no tenía forma de mover la tira, y las flechas son una ayuda,
+   * no la solución. Con esto, el gesto de siempre —girar la rueda encima de la
+   * tira— la recorre. Solo se intercepta cuando hay algo que recorrer y cuando
+   * el gesto es claramente vertical: un trackpad que ya manda desplazamiento
+   * horizontal se deja en paz.
+   */
+  useEffect(() => {
+    const t = stripEscritorioRef.current
+    if (!t) return
+    const alGirar = (e: WheelEvent) => {
+      if (t.scrollWidth <= t.clientWidth + 8) return
+      if (Math.abs(e.deltaY) <= Math.abs(e.deltaX)) return
+      e.preventDefault()
+      t.scrollBy({ left: e.deltaY, behavior: "auto" })
+    }
+    t.addEventListener("wheel", alGirar, { passive: false })
+    return () => t.removeEventListener("wheel", alGirar)
+  }, [])
+
+  const moverTira = (dir: 1 | -1) => {
+    const t = stripEscritorioRef.current
+    if (!t) return
+    t.scrollBy({ left: dir * t.clientWidth * 0.85, behavior: "smooth" })
+  }
   useEffect(() => {
     const centrar = (
       tira: HTMLDivElement | null,
@@ -63,7 +111,8 @@ export function ProductGallery({ images, title }: Props) {
     }
     centrar(stripRef.current, thumbRefs.current[activeIdx])
     centrar(stripEscritorioRef.current, thumbEscritorioRefs.current[activeIdx])
-  }, [activeIdx])
+    medirTira()
+  }, [activeIdx, medirTira])
 
   useEffect(() => {
     setMounted(true)
@@ -193,9 +242,11 @@ export function ProductGallery({ images, title }: Props) {
              columna (9 × 72 = 648px) y volverían a estirar la galería — el
              mismo fallo que encogió la foto del producto y reventó la página de
              combos en el teléfono. */
+          <div className="group/tira relative mt-2 w-[calc((100dvh-300px)*0.8)] max-w-full">
           <div
             ref={stripEscritorioRef}
-            className="sin-barra mt-2 flex w-[calc((100dvh-300px)*0.8)] max-w-full gap-2 overflow-x-auto pb-1"
+            onScroll={medirTira}
+            className="sin-barra flex gap-2 overflow-x-auto scroll-smooth pb-1 motion-reduce:scroll-auto"
           >
             {images.map((img, idx) => (
               <button
@@ -231,6 +282,35 @@ export function ProductGallery({ images, title }: Props) {
                 />
               </button>
             ))}
+          </div>
+
+          {hayDesborde && (
+            <>
+              <button
+                type="button"
+                onClick={() => moverTira(-1)}
+                disabled={alInicio}
+                aria-label="Miniaturas anteriores"
+                /* Discretas a propósito: aparecen al acercar el cursor a la
+                   tira y se apagan en el extremo. Una flecha siempre encendida
+                   encima de una foto es justo el tipo de cromo del que venimos
+                   (el marco y la barra). Quien usa dedo o trackpad no las
+                   necesita: arrastra. */
+                className="absolute left-0 top-1/2 z-10 flex h-9 w-9 -translate-y-1/2 items-center justify-center border border-border bg-bg/95 text-text opacity-0 transition duration-[180ms] hover:bg-text hover:text-bg focus-visible:opacity-100 group-hover/tira:opacity-100 disabled:pointer-events-none disabled:opacity-0"
+              >
+                ‹
+              </button>
+              <button
+                type="button"
+                onClick={() => moverTira(1)}
+                disabled={alFinal}
+                aria-label="Miniaturas siguientes"
+                className="absolute right-0 top-1/2 z-10 flex h-9 w-9 -translate-y-1/2 items-center justify-center border border-border bg-bg/95 text-text opacity-0 transition duration-[180ms] hover:bg-text hover:text-bg focus-visible:opacity-100 group-hover/tira:opacity-100 disabled:pointer-events-none disabled:opacity-0"
+              >
+                ›
+              </button>
+            </>
+          )}
           </div>
         )}
       </div>
