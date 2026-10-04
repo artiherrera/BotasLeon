@@ -182,7 +182,14 @@ export default async function ProductPage({ params }: Props) {
             {/* 55/45: la foto es lo que vende una bota que no te puedes probar,
                 así que se lleva la mitad grande. La columna de compra se queda
                 fija mientras la galería se desplaza. */}
-            <div className="grid grid-cols-1 lg:grid-cols-[55fr_45fr] gap-8 lg:gap-16">
+            {/* LA COLUMNA DE LA FOTO SE AJUSTA A LA FOTO (auto), y el texto se queda
+                con lo que sobre. Con el 55/45 de antes, la galería tenía 637px
+                fijos y la foto —limitada por el alto de la pantalla— medía 480
+                en un MacBook: quedaba centrada con 80px de aire a cada lado y
+                parecía encogida. "Se ven mucho más pequeñas", y era eso.
+                minmax(0,1fr) en la segunda columna es lo que le permite
+                encoger; sin ese 0, el contenido vuelve a fijar el ancho. */}
+              <div className="grid grid-cols-1 lg:grid-cols-[auto_minmax(0,1fr)] gap-8 lg:gap-12">
               {/* EN MÓVIL, DE ORILLA A ORILLA, como la galería de Lucchese que
                   el dueño pidió copiar (2026-09-17): -mx-6 anula el aire lateral
                   del contenedor y la foto ocupa las 390 columnas del teléfono;

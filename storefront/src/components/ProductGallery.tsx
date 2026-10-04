@@ -193,7 +193,7 @@ export function ProductGallery({ images, title }: Props) {
              784px), y ese estirado ANULA la proporción 4:5 — capar el ancho
              encogía la foto pero el alto seguía clavado en 784. Con self-start
              manda la proporción y el alto sale del ancho. */
-          className={`plato ${clasePlato(active)} mx-auto block w-full min-w-0 max-w-[calc((100dvh-220px)*0.8)] flex-1 self-start cursor-zoom-in`}
+          className={`plato ${clasePlato(active)} block w-[calc((100dvh-220px)*0.8)] min-w-0 max-w-full flex-1 self-start cursor-zoom-in`}
         >
           <Image
             key={active.url}
