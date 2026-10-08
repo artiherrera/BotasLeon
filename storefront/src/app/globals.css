@@ -213,6 +213,24 @@ input[type="search"]:focus-visible {
  * de rol (@layer components) y las utilidades de Tailwind (@layer utilities)
  * ganan, que es como tiene que ser. */
 @layer base {
+  /* EL CURSOR DE MANO EN LOS BOTONES.
+     Tailwind v4 cambió su base: un <button> ya no lleva `cursor: pointer`, y
+     nadie se dio cuenta hasta que el dueño quiso borrar una línea del carrito
+     y vio que "Quitar" no parecía pulsable (2026-10-08). Medido entonces: los
+     enlaces sí tenían la mano y NINGÚN botón del sitio la tenía — quitar,
+     cambiar talla, +/−, el cupón, las casillas de talla, los filtros.
+
+     Va en @layer base para que cualquier utilidad del JSX le siga ganando: la
+     foto grande de la galería conserva su `cursor-zoom-in`, y un botón
+     deshabilitado, su `not-allowed`. Por eso también el :not(:disabled).
+
+     `summary` entra por lo mismo: los acordeones de la ficha son <details>. */
+  button:not(:disabled),
+  [role="button"]:not(:disabled),
+  summary {
+    cursor: pointer;
+  }
+
   h1, .h1, h2, .h2, h3, .h3, h4, .h4 {
     font-family: var(--font-display);
     font-weight: 400;
