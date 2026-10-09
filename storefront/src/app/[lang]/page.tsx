@@ -15,6 +15,7 @@ import { absoluteUrl } from "@/lib/seo"
 import { getHeroSlides, getProductsByStyle, getProductsByTaxonomy, isBoot } from "@/lib/shopify"
 import { BandaCatalogo } from "@/components/BandaCatalogo"
 import { BotasExoticas } from "@/components/BotasExoticas"
+import { RecentlyViewed } from "@/components/RecentlyViewed"
 
 // Canonical + hreflang del home POR IDIOMA (las hijas lo hacen vía pageMetadata).
 // El title/description los hereda del layout (ya localizados) — no los reescribimos.
@@ -50,6 +51,9 @@ export const revalidate = 60
  * Orden de la portada — la arquitectura la fijó el dueño (2026-09-17):
  *   1. Header (la barra de avisos va dentro de él, para que salga en todo el sitio)
  *   2. HeroPortada — una sola foto, sin carrusel
+ *   2b. RecentlyViewed — "Sigue donde te quedaste". Solo se pinta si el
+ *       visitante YA vio botas (localStorage); para quien llega por primera
+ *       vez no existe, así que no desplaza nada de lo de abajo.
  *   3. LoMasNuevo — cuatro botas reales en el segundo golpe de vista (×2: hombre, mujer)
  *   4. BotasExoticas — ocho exóticas al azar, sin mirar el sexo
  *   5. Cinturones — los cintos como tarjetas (antes era un banner con una foto)
@@ -99,6 +103,11 @@ export default async function HomePage() {
         </h1>
 
         <HeroPortada slides={heroSlides} />
+
+        {/* Lo primero después de la foto para quien vuelve: la bota que estaba
+            viendo, no el catálogo entero otra vez. Sin historial devuelve
+            null. */}
+        <RecentlyViewed />
 
         <LoMasNuevo
           products={nuevosHombre}

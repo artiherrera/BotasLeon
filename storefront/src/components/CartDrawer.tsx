@@ -16,6 +16,7 @@ import { useFocusTrap } from "@/lib/useFocusTrap"
 import { useMarcarCajonAbierto } from "@/lib/cajones"
 import { useT } from "@/lib/i18n/context"
 import { PromoParCarrito } from "@/components/PromoParCarrito"
+import { RecentlyViewed } from "@/components/RecentlyViewed"
 import { checkoutHref } from "@/lib/checkout"
 import { isMX } from "@/lib/market"
 import { CartLineSize } from "@/components/CartLineSize"
@@ -215,8 +216,13 @@ export function CartDrawer() {
 
         {/* Empty state */}
         {isEmpty ? (
-          <div className="flex-1 flex flex-col items-center justify-center text-center px-6 py-16">
-            <div className="w-20 h-20 mb-6 text-text-subtle">
+          /* Centrado CUANDO CABE, con desplazamiento cuando no. El vacío ya no
+             es solo un icono y una frase: debajo van las botas que esta
+             persona estaba viendo, y en un teléfono de 844px eso pasaba del
+             borde. Sin el overflow quedaba cortado y sin manera de llegar. */
+          <div className="flex-1 overflow-y-auto">
+          <div className="flex min-h-full flex-col items-center justify-center text-center px-6 py-10">
+            <div className="w-16 h-16 mb-5 text-text-subtle">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z" />
                 <path d="M3 6h18" />
@@ -236,6 +242,12 @@ export function CartDrawer() {
             >
               {t("cart.viewCatalog")}
             </Link>
+
+            {/* Carrito vacío con historial: la salida más corta no es el
+                catálogo entero, es la bota que esta persona ya estaba viendo.
+                Sin historial no se pinta nada y el vacío queda como estaba. */}
+            <RecentlyViewed variante="cajon" onNavegar={closeCart} />
+          </div>
           </div>
         ) : (
           <>

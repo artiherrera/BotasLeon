@@ -886,7 +886,13 @@ export function ProductsListing({
           )
         ) : (
           <>
-            <div className="grid grid-cols-2 gap-x-3 gap-y-8 md:grid-cols-3 md:gap-x-6 md:gap-y-10">
+            {/* Cuántas botas se ven de un golpe. Tres por fila a cualquier
+                ancho dejaba una pantalla de escritorio con seis botas y medio
+                metro de aire a los lados. Ahora: dos en el teléfono, tres en
+                tableta, cuatro desde 1280 y cinco desde 1600. No hay sexta
+                fila posible sin romper los 1440px de caja del sitio (saldrían
+                tarjetas de 162px, el tamaño que tienen en un teléfono). */}
+            <div className="grid grid-cols-2 gap-x-3 gap-y-8 md:grid-cols-3 md:gap-x-6 md:gap-y-10 xl:grid-cols-4 3xl:grid-cols-5">
               {sorted.map((p) => (
                 <ProductCard key={p.id} product={p} />
               ))}

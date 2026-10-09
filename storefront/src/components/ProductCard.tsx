@@ -206,7 +206,12 @@ export function ProductCard({
   )
 }
 
-const SIZES = "(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
+// Lo que mide la tarjeta DE VERDAD en cada tramo, ahora que el listado llega a
+// cinco por fila: a 1440px una tarjeta de cuatro columnas mide 256px, no los
+// 360 que pedía el 25vw de antes. Declararlo de más hace que el navegador baje
+// una foto del doble de peso por cada bota de la rejilla.
+const SIZES =
+  "(max-width: 768px) 50vw, (max-width: 1024px) 33vw, (max-width: 1280px) 25vw, (max-width: 1600px) 18vw, 260px"
 
 function CardGallery({
   images,

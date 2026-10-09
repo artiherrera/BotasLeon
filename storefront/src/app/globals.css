@@ -76,6 +76,14 @@
      vez. Con 1440 la bota de una tarjeta crece ~60% sin cambiar de foto. */
   --container-7xl: 1440px;
 
+  /* Un escalón de pantalla por encima de xl (1280), para las rejillas que
+     caben de cinco en monitores grandes. Va declarado AQUÍ y no como
+     `min-[1600px]:` suelto porque Tailwind v4 agrupa los media queries
+     arbitrarios en px ANTES de los breakpoints con nombre (que van en rem):
+     `min-[1600px]:grid-cols-5` salía en el CSS antes de `xl:grid-cols-4` y
+     perdía contra él a 1600px. Medido. */
+  --breakpoint-3xl: 100rem;
+
   /* === Tipografía === */
   /* Instrument Serif (display) + Instrument Sans (todo lo demás), en archivos
      locales de src/fonts. NO se bajan de Google en el build: un deploy real
