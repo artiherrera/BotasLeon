@@ -3,31 +3,20 @@
 import { useT } from "@/lib/i18n/context"
 
 /**
- * Las dos notas que van bajo el selector de talla, y el dato del modelo.
+ * La nota de ajuste que va bajo el selector de talla.
  *
- * Es el equivalente a la línea de Gymshark sobre sus leggings: decir de
- * antemano lo que el cliente descubriría al abrir la caja. En una venta a
- * distancia esa honestidad no cuesta ventas, ahorra devoluciones — que aquí
- * cuestan un envío de ida y otro de vuelta.
+ * Es un TEXTO DEL SITIO, no del producto, y hay que saberlo al leerlo: vale
+ * igual para todas las botas porque habla de cómo trabaja el taller, no de un
+ * modelo concreto. El metacampo shopify.footwear-fit está vacío en los 116
+ * productos (medido), así que no hay de dónde sacar una nota por bota. Cuando
+ * el dueño escriba las suyas, el hueco es ese metacampo y esto pasa a leerlo.
  *
- * SON TEXTOS DEL SITIO, NO DEL PRODUCTO, y hay que saberlo al leerlos: valen
- * igual para las 106 botas porque hablan de cómo trabaja el taller, no de un
- * modelo concreto. El informe las pedía "del modelo", y eso exigiría 106 notas
- * escritas a mano: el metacampo shopify.footwear-fit está vacío en los 106
- * productos (medido), así que no hay de dónde sacarlas. Cuando el dueño
- * escriba las suyas, el hueco es un metacampo y esto pasa a leerlo.
+ * Va PEGADA al selector y no debajo de los botones de compra: es lo único de
+ * la ficha que cambia qué número eliges, y para eso tiene que leerse ANTES de
+ * elegir.
  *
- * El dato del modelo va aquí y no en un acordeón porque no existe acordeón de
- * talla —los cuatro son Descripción, Detalles, El taller y Envíos— y porque
- * este es el momento en que alguien está decidiendo su número.
- */
-/**
- * La nota de AJUSTE va pegada al selector, no bajo los botones: es la única de
- * las tres que cambia qué número eliges, y para eso tiene que leerse ANTES de
- * elegir. Las otras dos son honestidad sobre el producto y pueden ir después
- * del botón — subirlas las tres empujaría el "Agregar al carrito" por debajo
- * del pliegue en un teléfono, que es justo lo que se arregló cerrando el
- * acordeón de descripción.
+ * PENDIENTE: también sale en los 5 cinturones, que tienen selector de talla y
+ * no tienen empeine.
  */
 export function NotaAjuste() {
   const t = useT()
@@ -39,22 +28,22 @@ export function NotaAjuste() {
   )
 }
 
-/**
- * Fuera "Lo que hay que saber: la suela de cuero resbala…" (2026-09-30, encargo
- * del dueño). Era el mismo párrafo en las 103 fichas y lo primero que leía el
- * comprador debajo de la talla: una pega genérica, escrita por nosotros, sobre
- * una bota que no había visto todavía. Queda la nota del modelo de la foto, que
- * sí ayuda a elegir número.
+/* FUERA LA NOTA DEL MODELO DE LA FOTO (2026-10-08).
+ *
+ * Decía, en las 116 fichas: «En la foto: Arturo mide 1.78, calza 27 y usa la
+ * 27.» No era verdad en ninguna. Las fotos del catálogo son de producto —
+ * perfil, tres cuartos, el par, detalle de punta, suela—: NO hay una persona
+ * en ellas. Encima salía igual en las 44 botas de mujer, atribuyéndoles las
+ * medidas de un hombre, y en los 5 cinturones, donde "calza 27" no quiere
+ * decir nada. La versión en inglés además convertía mal (decía 9 US cuando
+ * 27 MX de hombre son 8: MX = US + 19).
+ *
+ * Nació copiando la línea de Gymshark sobre sus leggings —decir de antemano
+ * lo que el cliente descubriría al abrir la caja— y sobrevivió a la limpieza
+ * del 2026-09-30 con el argumento de que "sí ayuda a elegir número". Ayuda
+ * cuando hay alguien en la foto. Aquí no lo había.
+ *
+ * Si algún día se fotografían botas puestas, esto vuelve, pero POR PRODUCTO
+ * (un metacampo), no como texto del sitio: quien aparece en la foto cambia de
+ * una bota a otra.
  */
-export function PDPNotasTalla() {
-  const t = useT()
-
-  return (
-    <div className="mt-4 space-y-2">
-      <p className="text-sm leading-snug text-text-muted">
-        <span className="text-text">{t("talla.modeloTitulo")}</span>{" "}
-        {t("talla.modelo")}
-      </p>
-    </div>
-  )
-}

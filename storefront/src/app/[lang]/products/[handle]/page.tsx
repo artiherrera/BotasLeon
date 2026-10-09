@@ -11,7 +11,6 @@ import { PDPAcordeones } from "@/components/PDPAcordeones"
 import { PDPAtributos } from "@/components/PDPAtributos"
 import { PDPCalificacion } from "@/components/PDPCalificacion"
 import { PDPConstruccion } from "@/components/PDPConstruccion"
-import { PDPNotasTalla } from "@/components/PDPNotasTalla"
 import { CompartirProducto } from "@/components/CompartirProducto"
 import { formatMoney } from "@/lib/utils"
 import { ProductReviewBlock } from "@/components/ProductReviewBlock"
@@ -317,10 +316,6 @@ export default async function ProductPage({ params }: Props) {
                   titulo={product.title}
                   precio={formatMoney(price.amount, price.currencyCode)}
                 />
-
-                {/* Lo que el cliente descubriría al abrir la caja, dicho antes
-                    de que pague. */}
-                <PDPNotasTalla />
 
                 <PDPTrustBlock product={product} />
 

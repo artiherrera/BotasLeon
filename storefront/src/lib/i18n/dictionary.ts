@@ -860,11 +860,9 @@ export const DICTIONARY: Record<string, Entry> = {
     es: "queda fiel a tu número; si tienes el empeine alto, sube media talla.",
     en: "true to size; if you have a high instep, go up half a size.",
   },
-  "talla.modeloTitulo": { es: "En la foto:", en: "In the photo:" },
-  "talla.modelo": {
-    es: "Arturo mide 1.78, calza 27 y usa la 27.",
-    en: "Arturo is 5'10\", wears a 9 US and is wearing a 9.",
-  },
+  // Aquí vivían "talla.modeloTitulo" y "talla.modelo" —«En la foto: Arturo
+  // mide 1.78, calza 27 y usa la 27»—. Se borraron el 2026-10-08: no hay
+  // ninguna persona en las fotos del catálogo. Ver PDPNotasTalla.tsx.
 
   // ── Franja de construcción ────────────────────────────────────────────
   // Faltan forro, suela y vira: los dos primeros están vacíos en los 106
