@@ -3,12 +3,14 @@
 import { LocalizedLink as Link } from "@/components/LocalizedLink"
 import { useT } from "@/lib/i18n/context"
 import { enPromoPar, PROMO_PAR } from "@/lib/promocion"
-import { formatMoney } from "@/lib/utils"
 import type { Cart } from "@/lib/shopify/types"
 
 /**
- * La promoción del par, en el carrito: el ahorro cuando ya aplica y el empujón
- * cuando falta uno.
+ * La promoción del par, en el carrito: el empujón cuando falta uno.
+ *
+ * El ahorro ya aplicado se pinta en ResumenPago, junto al total y en el acento
+ * de la casa. Aquí se queda el empujón porque es de otra naturaleza: no
+ * informa de lo que pasó, propone lo siguiente.
  *
  * EL AHORRO NO SE PUEDE CALCULAR RESTANDO. Con un descuento automático,
  * Shopify entrega el subtotal YA rebajado, así que `subtotal − total` da cero
@@ -17,7 +19,7 @@ import type { Cart } from "@/lib/shopify/types"
  * 2026-09-24). El ahorro real solo está en los `discountAllocations` de cada
  * línea, y de ahí sale.
  *
- * EL EMPUJÓN es la otra mitad, y probablemente la que más vende: quien lleva
+ * EL EMPUJÓN es probablemente lo que más vende de todo el carrito: quien lleva
  * UN botín de la promoción no sabe que el segundo va a mitad. Se le dice justo
  * antes de pagar, con el enlace a los tres modelos, porque el descuento se
  * arma combinando —dos botines distintos también cuentan (comprobado contra la
@@ -57,20 +59,10 @@ export function PromoParCarrito({ cart }: { cart: Cart | null }) {
   const ahorro = ahorroPromoPar(cart)
   const piezas = piezasEnPromo(cart)
 
-  if (ahorro) {
-    return (
-      <div className="flex items-baseline justify-between gap-3 border border-dashed border-leather/50 px-3 py-2">
-        <span className="nota text-text">
-          {t("promoPar.carritoAhorro")}
-          {ahorro.titulo ? ` · ${ahorro.titulo}` : ""}
-        </span>
-        <span className="precio whitespace-nowrap text-sm text-text">
-          −{formatMoney(String(ahorro.monto), ahorro.moneda)}
-        </span>
-      </div>
-    )
-  }
-
+  // El AHORRO ya no se pinta aquí: se mudó al resumen de pago, en grande y
+  // con el precio de lista tachado al lado (ver ResumenPago.tsx). Aquí se
+  // queda el empujón, que es lo único que puede cambiar lo que se lleva.
+  if (ahorro && piezas >= 2) return null
   if (!PROMO_PAR.activa || piezas !== 1) return null
 
   return (

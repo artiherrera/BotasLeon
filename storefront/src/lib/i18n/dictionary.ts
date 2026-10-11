@@ -536,6 +536,15 @@ export const DICTIONARY: Record<string, Entry> = {
     es: "Envío a todo Estados Unidos",
     en: "Ships across the USA",
   },
+  // El ahorro y lo que se paga, en el pie del carrito (ResumenPago.tsx).
+  "cart.ahorroHoy": { es: "Hoy te ahorras", en: "You save today" },
+  // Solo la .mx: ahí el precio lleva IVA y el envío es gratis sin condición
+  // (lib/shipping-policy.ts). En la .com el envío lo cotiza el checkout.
+  "cart.incluye": { es: "IVA y envío incluidos", en: "VAT and shipping included" },
+  "cart.envioAlPagar": {
+    es: "Envío calculado al pagar",
+    en: "Shipping calculated at checkout",
+  },
   "cart.checkout": { es: "Pagar", en: "Checkout" },
   // Envío gratis: SOLO existe en el mercado mexicano, hoy sin monto mínimo
   // (ver lib/shipping-policy.ts). El sitio de EE.UU. no renderiza estas claves

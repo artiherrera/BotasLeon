@@ -17,6 +17,7 @@ import { SIZE_ATTR, isDefaultOption, missingSizeLines } from "@/lib/cart/line-si
 import { formatMoney } from "@/lib/utils"
 import { NotaMsiCarrito } from "@/components/NotaMsiCarrito"
 import { PromoParCarrito } from "@/components/PromoParCarrito"
+import { ResumenPago } from "@/components/ResumenPago"
 import {
   getPendingDiscount,
   setPendingDiscount as savePendingDiscount,
@@ -274,23 +275,18 @@ export default function CartPage() {
             <aside className="bg-bg-alt p-6 h-fit lg:sticky lg:top-[124px]">
               <h2 className="eyebrow text-text-muted mb-4">{t("cart.summary")}</h2>
 
-              {/* La promoción del par, antes de los números: el ahorro si ya
-                  aplica, el empujón si falta uno. */}
-              <div className="mb-4">
+              {/* El empujón de la promoción del par, antes de los números.
+                  El ahorro ya aplicado va abajo, en el resumen. */}
+              <div className="empty:hidden mb-4">
                 <PromoParCarrito cart={cart} />
               </div>
 
+              {/* Sin renglón de "Subtotal": con un descuento automático
+                  Shopify ya lo entrega rebajado, así que repetía la cifra del
+                  total dos veces con nombres distintos. La cuenta completa
+                  —lista tachada, ahorro y total— la pinta el resumen de
+                  abajo. */}
               <div className="space-y-2 mb-6">
-                <div className="flex justify-between cuerpo text-text-muted">
-                  <span>Subtotal</span>
-                  <span className="text-text">
-                    {cart &&
-                      formatMoney(
-                        cart.cost.subtotalAmount.amount,
-                        cart.cost.subtotalAmount.currencyCode
-                      )}
-                  </span>
-                </div>
                 <div className="flex justify-between cuerpo text-text-muted">
                   <span>{locale === "en" ? "Shipping" : "Envío"}</span>
                   <span className="text-text">
@@ -305,16 +301,10 @@ export default function CartPage() {
                 </div>
               </div>
 
-              <div className="flex justify-between items-baseline pt-4 border-t border-border mb-6">
-                <span className="text-sm font-medium text-text">{isMX ? t("cart.total") : t("cart.subtotal")}</span>
-                <span className="precio precio-ficha text-text">
-                  {cart &&
-                    formatMoney(
-                      cart.cost.subtotalAmount.amount,
-                      cart.cost.subtotalAmount.currencyCode
-                    )}
-                </span>
-              </div>
+              {/* Mismo resumen que el cajón: el ahorro en su banda y el
+                  total en grande. Los renglones de arriba ya dicen envío y
+                  entrega, así que aquí la nota sobraría. */}
+              <ResumenPago cart={cart} conNota={false} className="mb-6 border-t border-border pt-4" />
 
               {/* Cupón manual — desplegable para no añadir ruido visual a quien
                   no trae código */}

@@ -32,10 +32,13 @@
   --color-text-muted: #6E6659;
   --color-text-subtle: #6E6659;
   --color-muted: #6E6659;
-  --color-leather: #6B4A2E;     /* ÚNICO acento. Cinco usos: eyebrow del taller,
+  --color-leather: #6B4A2E;     /* ÚNICO acento. Seis usos: eyebrow del taller,
                                    enlaces "Ver todo →" y enlaces en texto,
                                    estrellas, estado activo/hover del primario,
-                                   badge "Más vendida". Nada más. */
+                                   badge "Más vendida" y el AHORRO del carrito.
+                                   Nada más. El ahorro se ganó el acento: es lo
+                                   único de la pantalla de pago que el cliente
+                                   tiene que ver sin buscarlo. */
   --color-border: #E7E1D3;      /* bordes y divisores — siempre 1px */
   /* La misma línea sobre el plato da 1.13:1: no se ve. Este tono se usa para
      las reglas de sección dentro de bloques con fondo plato. */
@@ -348,6 +351,10 @@ input[type="search"]:focus-visible {
     font-variant-numeric: tabular-nums;
   }
   .precio-ficha { font-size: 1.5rem; }
+  /* El número que el cliente PAGA, en el carrito. Es el más grande del cajón
+     a propósito: salía a 16px, igual que el texto corriente y más pequeño que
+     el nombre de la bota. Ver ResumenPago.tsx. */
+  .precio-total { font-size: 1.875rem; letter-spacing: -0.01em; }
 
   /* Menú principal y pie. Las mayúsculas se quedan en las etiquetas; los
      titulares van siempre en tipo oración. */

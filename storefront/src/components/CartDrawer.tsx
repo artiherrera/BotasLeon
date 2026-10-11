@@ -16,6 +16,7 @@ import { useFocusTrap } from "@/lib/useFocusTrap"
 import { useMarcarCajonAbierto } from "@/lib/cajones"
 import { useT } from "@/lib/i18n/context"
 import { PromoParCarrito } from "@/components/PromoParCarrito"
+import { ResumenPago } from "@/components/ResumenPago"
 import { RecentlyViewed } from "@/components/RecentlyViewed"
 import { checkoutHref } from "@/lib/checkout"
 import { isMX } from "@/lib/market"
@@ -309,9 +310,12 @@ export function CartDrawer() {
                             cantidad en dos líneas y una llega a mitad de
                             precio. Sin el precio anterior tachado, esa línea
                             parece un error de la tienda. */}
-                        <p className="precio text-sm text-text whitespace-nowrap">
+                        {/* El precio de la línea, un punto más grande que el
+                            texto que lo rodea: es el segundo número que se
+                            mira, después del total. */}
+                        <p className="precio text-text whitespace-nowrap">
                           {descuentoLinea > 0 && (
-                            <span className="mr-1.5 text-text-muted line-through">
+                            <span className="mr-1.5 text-[0.8125rem] font-normal text-text-muted line-through">
                               {formatMoney(
                                 String(
                                   parseFloat(line.cost.totalAmount.amount) + descuentoLinea
@@ -374,6 +378,20 @@ export function CartDrawer() {
                   </div>
                 )
               })}
+              </div>
+
+              {/* EL EMPUJÓN, PEGADO A LAS BOTAS Y NO EN EL PIE.
+                  "Agrega otro y el segundo sale a mitad de precio" es una
+                  propuesta, no una cifra: se lee junto a lo que ya elegiste,
+                  no junto al botón de pagar. Y en el pie costaba 76px de los
+                  844 de un teléfono — tres renglones quitándole ventana a las
+                  botas, que es la pelea que este cajón ya perdió una vez.
+
+                  Antes no se veía NUNCA cuando había cualquier descuento: la
+                  caja del ahorro se pintaba en su lugar. Quien llevaba un
+                  botín rebajado era justo a quien había que decírselo. */}
+              <div className="empty:hidden mt-4">
+                <PromoParCarrito cart={cart} />
               </div>
 
               {/* Lo secundario, bajo una regla que lo separa de la compra. */}
@@ -452,9 +470,6 @@ export function CartDrawer() {
                 </form>
               )}
 
-              <p className="nota mt-1">
-                {t(isMX ? "cart.shippingTax" : "cart.shippingTaxUs")}
-              </p>
               {/* Entrega estimada: no saber cuándo llega es motivo de abandono
                   (Baymard). Cifras de /envios de cada mercado. */}
               <p className="nota mt-1 mb-4">
@@ -493,31 +508,11 @@ export function CartDrawer() {
                 paddingBottom: "calc(1.25rem + env(safe-area-inset-bottom))",
               }}
             >
-              <div className="flex justify-between items-baseline mt-2 mb-1">
-                <span className="cuerpo text-text-muted">{t("cart.subtotal")}</span>
-                <span className="precio text-text">
-                  {cart &&
-                    formatMoney(
-                      cart.cost.subtotalAmount.amount,
-                      cart.cost.subtotalAmount.currencyCode
-                    )}
-                </span>
-              </div>
-              {/* La promoción del par: el ahorro cuando ya aplica, el empujón
-                  cuando falta uno. Va ANTES de los totales, que es donde el
-                  ojo aterriza antes de tocar "Pagar". */}
-              <div className="mb-3">
-                <PromoParCarrito cart={cart} />
-              </div>
+              {/* Cuánto te ahorras y cuánto pagas. El descuento de código ya
+                  va sumado ahí dentro, así que no hay renglón aparte: el chip
+                  del código, con su monto, sigue arriba junto al campo. */}
+              <ResumenPago cart={cart} className="mb-3" />
 
-              {discountTotal > 0 && (
-                <div className="flex justify-between items-baseline mb-1">
-                  <span className="cuerpo text-text-muted">{t("cart.discount")}</span>
-                  <span className="precio text-sm text-text">
-                    −{formatMoney(String(discountTotal), subtotalCurrency)}
-                  </span>
-                </div>
-              )}
               {/* Los medios de pago, junto a Pagar. */}
               <PaymentIcons className="mb-3 justify-center" />
 
