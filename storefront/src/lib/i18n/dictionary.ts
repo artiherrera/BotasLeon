@@ -567,6 +567,11 @@ export const DICTIONARY: Record<string, Entry> = {
   "cart.chooseSize": { es: "Elige tu talla", en: "Choose your size" },
   "cart.changeSize": { es: "Cambiar", en: "Change" },
   "cart.changeSizeTitle": { es: "Cambiar talla", en: "Change size" },
+  // Sin Tax ID no se puede pasar a pagar en la .com (aduana de EE.UU.).
+  "cart.taxIdBlocked": {
+    es: "Falta tu Tax ID para la aduana — toca aquí para escribirlo",
+    en: "We need your Tax ID for U.S. customs — tap here to enter it",
+  },
   "cart.sizeBlocked": {
     es: "Elige la talla de cada par para continuar.",
     en: "Choose a size for each pair to continue.",

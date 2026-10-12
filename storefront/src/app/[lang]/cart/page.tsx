@@ -7,7 +7,7 @@ import { Header } from "@/components/Header"
 import { Footer } from "@/components/Footer"
 import { useCart } from "@/components/CartProvider"
 import { PaymentIcons } from "@/components/PaymentIcons"
-import { CustomsTaxIdField } from "@/components/CustomsTaxIdField"
+import { CustomsTaxIdField, useCustomsGate, enfocarTaxId } from "@/components/CustomsTaxIdField"
 import { useLocale, useT } from "@/lib/i18n/context"
 import { isMX } from "@/lib/market"
 import { FreeShippingProgress } from "@/components/FreeShippingProgress"
@@ -40,6 +40,8 @@ export default function CartPage() {
   const { locale } = useLocale()
   const t = useT()
   const sizeBlocked = missingSizeLines(cart).length > 0 // sin talla no se puede surtir
+  // Sin Tax ID no cruza la aduana de EE.UU. En la .mx nunca bloquea.
+  const { blocked: aduanaBloquea } = useCustomsGate()
   // El único candado que queda es la talla: sin ella el pedido no se puede
   // surtir. La aceptación de aranceles se retiró (estos productos no los causan).
   const [pendingDiscount, setPendingDiscount] = useState<string | null>(null)
@@ -275,6 +277,10 @@ export default function CartPage() {
             <aside className="carrito-grande bg-bg-alt p-6 h-fit lg:sticky lg:top-[124px]">
               <h2 className="eyebrow text-text-muted mb-4">{t("cart.summary")}</h2>
 
+              {/* Obligatorio desde el 2026-10-12 y, por eso, arriba del todo:
+                  sin él el botón de pagar no se activa. En la .mx no se pinta. */}
+              <CustomsTaxIdField />
+
               {/* El empujón de la promoción del par, antes de los números.
                   El ahorro ya aplicado va abajo, en el resumen. */}
               <div className="empty:hidden mb-4">
@@ -343,8 +349,6 @@ export default function CartPage() {
 
               <FreeShippingProgress amount={subtotalNum} currency={subtotalCurrency} />
 
-              <CustomsTaxIdField />
-
               <div className="mb-4">
                 <PaymentIcons className="justify-center" />
               </div>
@@ -359,7 +363,7 @@ export default function CartPage() {
               )}
 
               {cart?.checkoutUrl ? (
-                sizeBlocked ? (
+                sizeBlocked || aduanaBloquea ? (
                   <>
                     <button
                       type="button"
@@ -373,7 +377,17 @@ export default function CartPage() {
                     >
                       {t("cart.checkout")}
                     </button>
-                    <p className="nota font-semibold text-text text-center mt-2">{t("cart.sizeBlocked")}</p>
+                    {sizeBlocked ? (
+                      <p className="nota font-semibold text-text text-center mt-2">{t("cart.sizeBlocked")}</p>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={enfocarTaxId}
+                        className="nota mt-2 block w-full text-center font-semibold text-text underline underline-offset-4"
+                      >
+                        {t("cart.taxIdBlocked")}
+                      </button>
+                    )}
                   </>
                 ) : (
                   <a

@@ -5,7 +5,7 @@ import Image from "next/image"
 import { LocalizedLink as Link } from "@/components/LocalizedLink"
 import { useCart } from "./CartProvider"
 import { PaymentIcons } from "./PaymentIcons"
-import { CustomsTaxIdField, useCustomsGate } from "./CustomsTaxIdField"
+import { CustomsTaxIdField, useCustomsGate, enfocarTaxId } from "./CustomsTaxIdField"
 import { formatMoney } from "@/lib/utils"
 import { FreeShippingProgress } from "@/components/FreeShippingProgress"
 import { clearPendingDiscount, getPendingDiscount, withDiscount } from "@/lib/discount/client"
@@ -53,6 +53,9 @@ export function CartDrawer() {
   } = useCart()
   const t = useT()
   const sizeBlocked = missingSizeLines(cart).length > 0 // sin talla no se puede surtir
+  // Sin Tax ID no cruza la aduana de EE.UU.: obligatorio desde el 2026-10-12.
+  // En la .mx `blocked` es siempre false (ver CustomsTaxIdField).
+  const { blocked: aduanaBloquea } = useCustomsGate()
   // Traduce el NOMBRE de la opción/atributo (Talla/Color/Material vienen en
   // español desde Shopify) sin tocar el valor. Si no lo conocemos, lo deja igual.
   const optLabel = (name: string): string => {
@@ -402,6 +405,12 @@ export function CartDrawer() {
 
               {/* Lo secundario, bajo una regla que lo separa de la compra. */}
               <div className="mt-5 border-t border-border pt-5">
+              {/* EL TAX ID VA PRIMERO, no al final de lo secundario: desde que
+                  es obligatorio ya no es un dato "por si acaso", es la puerta
+                  del pago. Enterrado debajo del cupón y de la entrega, el
+                  comprador llegaba al botón bloqueado sin saber por qué. En la
+                  .mx no se pinta. */}
+              <CustomsTaxIdField />
               {/* Código de descuento: chip si ya hay uno aplicado (validado por
                   Shopify), o input para escribirlo. El descuento viaja solo al
                   checkout hospedado porque queda en el carrito. */}
@@ -486,9 +495,6 @@ export function CartDrawer() {
                   hay envío gratis y el componente devuelve null. */}
               <FreeShippingProgress amount={totalNum} currency={subtotalCurrency} />
 
-              <CustomsTaxIdField />
-
-
               {/* Los meses, JUSTO ANTES de pagar. Se anunciaban en la ficha y
                   aquí no se decía nada: quien elegía la bota por los meses
                   llegaba al botón sin verlos confirmados. Sobre el TOTAL, que
@@ -523,7 +529,7 @@ export function CartDrawer() {
               <PaymentIcons className="mb-3 justify-center" />
 
               {cart?.checkoutUrl ? (
-                sizeBlocked ? (
+                sizeBlocked || aduanaBloquea ? (
                   <>
                     <button
                       type="button"
@@ -538,7 +544,20 @@ export function CartDrawer() {
                       {t("cart.checkout")}
                     </button>
                     {/* La talla manda: sin ella el pedido no se puede surtir. */}
-                    <p className="nota font-semibold text-text text-center mt-2">{t("cart.sizeBlocked")}</p>
+                    {sizeBlocked ? (
+                      <p className="nota font-semibold text-text text-center mt-2">{t("cart.sizeBlocked")}</p>
+                    ) : (
+                      // El aviso del Tax ID ES el camino al campo: está arriba,
+                      // dentro de la zona que se desplaza, y un comprador con
+                      // el botón bloqueado no tiene por qué ir a buscarlo.
+                      <button
+                        type="button"
+                        onClick={enfocarTaxId}
+                        className="nota mt-2 block w-full text-center font-semibold text-text underline underline-offset-4"
+                      >
+                        {t("cart.taxIdBlocked")}
+                      </button>
+                    )}
                   </>
                 ) : (
                   <a
