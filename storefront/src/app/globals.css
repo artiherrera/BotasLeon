@@ -354,7 +354,28 @@ input[type="search"]:focus-visible {
   /* El número que el cliente PAGA, en el carrito. Es el más grande del cajón
      a propósito: salía a 16px, igual que el texto corriente y más pequeño que
      el nombre de la bota. Ver ResumenPago.tsx. */
-  .precio-total { font-size: 1.875rem; letter-spacing: -0.01em; }
+  .precio-total { font-size: 2.125rem; letter-spacing: -0.015em; }
+
+  /* EL CARRITO HABLA MÁS ALTO QUE EL RESTO DEL SITIO.
+     *
+     * Medido el 2026-10-12 en un teléfono de 390px: DIECISÉIS de los veinte
+     * textos del cajón salían a 12.5px —la talla, "Cambiar", "Quitar", la
+     * entrega, los meses, el empujón de la promoción— y el nombre de la bota a
+     * 14. Es el tamaño de una nota al pie, y ahí dentro no hay notas al pie:
+     * hay una compra. El dueño lo dijo dos veces, la segunda sin rodeos: "todo
+     * se sigue viendo muy pequeño".
+     *
+     * El sitio entero no sube: una ficha se LEE y un catálogo se OJEA, y ahí
+     * 12.5px en un dato secundario está bien. El carrito se DECIDE, con el
+     * pulgar encima del botón. Por eso el escalón vive aquí, acotado a los dos
+     * sitios donde se paga —el cajón y /cart—, y no en las clases del sistema.
+     *
+     * Son las tres clases de texto chico que usa el carrito. Lo demás (el
+     * total, el ahorro, el nombre, el precio de cada línea, el botón) lleva su
+     * tamaño escrito en el componente, porque son piezas, no texto corrido. */
+  .carrito-grande .nota { font-size: 0.875rem; }
+  .carrito-grande .cuerpo { font-size: 1rem; }
+  .carrito-grande .nav-label { font-size: 0.875rem; }
 
   /* Menú principal y pie. Las mayúsculas se quedan en las etiquetas; los
      titulares van siempre en tipo oración. */

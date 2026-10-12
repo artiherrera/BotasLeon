@@ -177,13 +177,16 @@ export function CartDrawer() {
         aria-modal="true"
         aria-label={t("cart.ariaLabel")}
         inert={!isOpen}
-        className={`fixed top-0 right-0 h-full w-full sm:w-[28rem] bg-bg border-l border-border z-50 transition-transform duration-[180ms] flex flex-col ${
+        // `carrito-grande` sube el texto chico de todo el cajón un escalón
+        // (ver globals.css). 30rem y no 28: con la letra más grande, el nombre
+        // de la bota y su precio se peleaban el renglón.
+        className={`carrito-grande fixed top-0 right-0 h-full w-full sm:w-[30rem] bg-bg border-l border-border z-50 transition-transform duration-[180ms] flex flex-col ${
           isOpen ? "translate-x-0" : "translate-x-full"
         }`}
       >
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-5 border-b border-border">
-          <h2 className="font-body text-base font-medium text-text">
+          <h2 className="font-body text-lg font-medium text-text">
             {t("cart.title")}
             {cart && cart.totalQuantity > 0 && (
               <span className="text-text-muted font-normal ml-2">
@@ -298,38 +301,20 @@ export function CartDrawer() {
                     </Link>
 
                     <div className="flex-1 min-w-0">
-                      <div className="flex justify-between gap-3">
-                        <Link
-                          href={`/products/${v.product.handle}`}
-                          onClick={closeCart}
-                          className="nombre-producto text-sm text-text leading-snug hover:underline underline-offset-4 line-clamp-2"
-                        >
-                          {v.product.title}
-                        </Link>
-                        {/* Con la promoción del par, Shopify parte la
-                            cantidad en dos líneas y una llega a mitad de
-                            precio. Sin el precio anterior tachado, esa línea
-                            parece un error de la tienda. */}
-                        {/* El precio de la línea, un punto más grande que el
-                            texto que lo rodea: es el segundo número que se
-                            mira, después del total. */}
-                        <p className="precio text-text whitespace-nowrap">
-                          {descuentoLinea > 0 && (
-                            <span className="mr-1.5 text-[0.8125rem] font-normal text-text-muted line-through">
-                              {formatMoney(
-                                String(
-                                  parseFloat(line.cost.totalAmount.amount) + descuentoLinea
-                                ),
-                                line.cost.totalAmount.currencyCode
-                              )}
-                            </span>
-                          )}
-                          {formatMoney(
-                            line.cost.totalAmount.amount,
-                            line.cost.totalAmount.currencyCode
-                          )}
-                        </p>
-                      </div>
+                      {/* EL NOMBRE SE LLEVA EL RENGLÓN ENTERO.
+                          Compartía fila con el precio y, con la letra ya en su
+                          tamaño, al nombre le quedaban 155px de los 390 del
+                          teléfono: "El Elegante en Venado Café" salía cortado
+                          en "El Elegante en Venado…". El precio baja dos
+                          renglones, debajo de la talla, donde además se lee
+                          junto a lo que lo explica. */}
+                      <Link
+                        href={`/products/${v.product.handle}`}
+                        onClick={closeCart}
+                        className="nombre-producto block text-[1.0625rem] text-text leading-snug hover:underline underline-offset-4 line-clamp-2"
+                      >
+                        {v.product.title}
+                      </Link>
                       {subtitle && (
                         <p className="nota mt-1">{subtitle}</p>
                       )}
@@ -337,6 +322,27 @@ export function CartDrawer() {
                       <div className="mt-2">
                         <CartLineSize line={line} compact />
                       </div>
+
+                      {/* Con la promoción del par, Shopify parte la cantidad en
+                          dos líneas y una llega a mitad de precio. Sin el
+                          precio anterior tachado, esa línea parece un error de
+                          la tienda. */}
+                      <p className="precio mt-2 text-[1.1875rem] text-text">
+                        {descuentoLinea > 0 && (
+                          <span className="mr-2 text-sm font-normal text-text-muted line-through">
+                            {formatMoney(
+                              String(
+                                parseFloat(line.cost.totalAmount.amount) + descuentoLinea
+                              ),
+                              line.cost.totalAmount.currencyCode
+                            )}
+                          </span>
+                        )}
+                        {formatMoney(
+                          line.cost.totalAmount.amount,
+                          line.cost.totalAmount.currencyCode
+                        )}
+                      </p>
 
                       <div className="flex items-center justify-between mt-3">
                         <div className="inline-flex items-center border border-border">
@@ -347,11 +353,11 @@ export function CartDrawer() {
                             }
                             disabled={isPending || line.quantity <= 1}
                             aria-label={t("cart.decrease")}
-                            className="w-11 h-11 flex items-center justify-center hover:bg-bg-alt disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                            className="w-12 h-12 flex items-center justify-center text-lg hover:bg-bg-alt disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
                           >
                             −
                           </button>
-                          <span className="w-8 text-center text-sm">
+                          <span className="w-8 text-center text-base">
                             {line.quantity}
                           </span>
                           <button
@@ -359,7 +365,7 @@ export function CartDrawer() {
                             onClick={() => updateLine(line.id, line.quantity + 1)}
                             disabled={isPending}
                             aria-label={t("cart.increase")}
-                            className="w-11 h-11 flex items-center justify-center hover:bg-bg-alt disabled:opacity-40 transition-colors"
+                            className="w-12 h-12 flex items-center justify-center text-lg hover:bg-bg-alt disabled:opacity-40 transition-colors"
                           >
                             +
                           </button>
@@ -494,7 +500,7 @@ export function CartDrawer() {
               <button
                 type="button"
                 onClick={closeCart}
-                className="btn btn-ter mt-2 block w-full text-center py-3 text-sm text-text-muted hover:text-text transition-colors"
+                className="btn btn-ter mt-2 block w-full text-center py-3 text-base text-text-muted hover:text-text transition-colors"
               >
                 {t("cart.keepShopping")}
               </button>
@@ -527,7 +533,7 @@ export function CartDrawer() {
                       // el botón bloqueado seguía leyéndose como el que sí
                       // paga, y el comprador lo picaba sin entender por qué no
                       // pasaba nada.
-                      className="btn btn-sec w-full"
+                      className="btn btn-sec h-14 w-full text-[1.0625rem]"
                     >
                       {t("cart.checkout")}
                     </button>
@@ -538,7 +544,7 @@ export function CartDrawer() {
                   <a
                     href={withDiscount(checkoutHref(cart.checkoutUrl))}
                     onClick={handleCheckoutClick}
-                    className="btn w-full"
+                    className="btn h-14 w-full text-[1.0625rem]"
                   >
                     {t("cart.checkout")}
                   </a>

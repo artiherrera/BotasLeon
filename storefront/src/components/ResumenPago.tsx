@@ -79,9 +79,9 @@ export function ResumenPago({
   return (
     <div className={className}>
       {ahorro > 0 && (
-        <div className="mb-3 flex items-center justify-between gap-3 border border-leather/40 bg-bg px-3 py-2.5">
+        <div className="mb-3 flex items-center justify-between gap-3 border border-leather/40 bg-bg px-3.5 py-3">
           <span className="cuerpo font-medium text-text">{t("cart.ahorroHoy")}</span>
-          <span className="precio whitespace-nowrap text-[1.0625rem] text-leather">
+          <span className="precio whitespace-nowrap text-[1.375rem] text-leather">
             −{formatMoney(String(ahorro), moneda)}
           </span>
         </div>
@@ -93,7 +93,7 @@ export function ResumenPago({
         </span>
         <span className="flex min-w-0 items-baseline gap-2">
           {ahorro > 0 && (
-            <span className="precio text-sm font-normal text-text-muted line-through">
+            <span className="precio text-base font-normal text-text-muted line-through">
               {formatMoney(String(lista), moneda)}
             </span>
           )}

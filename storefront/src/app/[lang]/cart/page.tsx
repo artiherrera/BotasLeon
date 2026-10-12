@@ -272,7 +272,7 @@ export default function CartPage() {
             </div>
 
             {/* Sidebar — resumen + checkout */}
-            <aside className="bg-bg-alt p-6 h-fit lg:sticky lg:top-[124px]">
+            <aside className="carrito-grande bg-bg-alt p-6 h-fit lg:sticky lg:top-[124px]">
               <h2 className="eyebrow text-text-muted mb-4">{t("cart.summary")}</h2>
 
               {/* El empujón de la promoción del par, antes de los números.
