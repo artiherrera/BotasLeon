@@ -193,8 +193,9 @@ const LOAD_MORE_QUERY = /* GraphQL */ `
     $first: Int!
     $after: String
     $sortKey: ProductSortKeys
+    $reverse: Boolean
   ) ${inContext()} {
-    products(first: $first, after: $after, sortKey: $sortKey) {
+    products(first: $first, after: $after, sortKey: $sortKey, reverse: $reverse) {
       edges {
         node {
           id
@@ -236,10 +237,13 @@ export async function loadMoreProducts({
   after,
   first = 24,
   sortKey = "BEST_SELLING",
+  reverse = false,
 }: {
   after: string | null
   first?: number
   sortKey?: string
+  /** CREATED_AT sin esto devuelve las botas MÁS VIEJAS primero. */
+  reverse?: boolean
 }): Promise<{ products: Product[]; pageInfo: PageInfo }> {
   if (!DOMAIN || !TOKEN) {
     throw new Error("Faltan NEXT_PUBLIC_SHOPIFY env vars")
@@ -254,7 +258,7 @@ export async function loadMoreProducts({
     },
     body: JSON.stringify({
       query: LOAD_MORE_QUERY,
-      variables: { first, after, sortKey },
+      variables: { first, after, sortKey, reverse },
     }),
   })
 

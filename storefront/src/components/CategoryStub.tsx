@@ -43,7 +43,12 @@ export async function CategoryStub({
   configHint,
   initialStyle,
 }: Props) {
-  const products = await getProductsByTaxonomy(taxonomyKey, taxonomyHandle)
+  // Lo más nuevo primero, igual que el catálogo: el orden por ventas de
+  // Shopify no refleja nada real en esta tienda y escondía las botas recién
+  // subidas. getProductsByTaxonomy invierte solo cuando el orden es por fecha.
+  const products = await getProductsByTaxonomy(taxonomyKey, taxonomyHandle, undefined, {
+    sortKey: "CREATED_AT",
+  })
 
   return (
     <>

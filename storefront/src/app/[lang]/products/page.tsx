@@ -26,7 +26,18 @@ export default async function ProductsPage() {
   let pageInfo: PageInfo | undefined
   let fetchError: string | null = null
   try {
-    const res = await getProducts({ first: 48, sortKey: "BEST_SELLING" })
+    // LO MÁS NUEVO PRIMERO, no "lo más vendido".
+    // Shopify ordena por ventas, y en esta tienda las ventas todavía no dicen
+    // nada: el orden que salía no se parecía a ninguna realidad del negocio
+    // —lo dijo el dueño— y además enterraba las botas recién subidas, que son
+    // las que se anuncian. `reverse` es obligatorio: CREATED_AT sin él
+    // devuelve las más viejas primero. Misma convención que usa
+    // getProductsByTaxonomy para "Lo más nuevo" de la portada.
+    const res = await getProducts({
+      first: 48,
+      sortKey: "CREATED_AT",
+      reverse: true,
+    })
     products = res.products
     pageInfo = res.pageInfo
   } catch (e) {

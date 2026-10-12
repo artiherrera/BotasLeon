@@ -139,9 +139,21 @@ function isLightHex(hex: string): boolean {
 type SortKey = "default" | "recientes" | "precio-asc" | "precio-desc" | "titulo"
 
 // Valores = LLAVES del diccionario i18n (se traducen con t() al render).
-const SORT_LABELS: Record<SortKey, string> = {
-  default: "sort.bestselling",
-  recientes: "sort.newest",
+//
+// "default" ES EL ORDEN DEL SERVIDOR, y el servidor ya ordena por fecha de
+// alta: lo más nuevo primero. Por eso la etiqueta dice "Más recientes" y la
+// opción suelta que decía lo mismo desapareció — eran dos entradas para el
+// mismo orden.
+//
+// FUERA "MÁS VENDIDOS". Era el orden de arranque y no correspondía a ninguna
+// realidad del negocio (lo dijo el dueño): Shopify ordena por ventas y en esta
+// tienda casi no hay historial, así que el resultado es arbitrario y enterraba
+// las botas recién subidas, que son justo las que se anuncian. Para traerlo de
+// vuelta el día que las ventas signifiquen algo hace falta refrescar desde
+// Shopify —no se puede reconstruir aquí con lo ya cargado—, así que ofrecerlo
+// en el menú sin eso sería un botón que miente.
+const SORT_LABELS: Partial<Record<SortKey, string>> = {
+  default: "sort.newest",
   "precio-asc": "sort.priceAsc",
   "precio-desc": "sort.priceDesc",
   titulo: "sort.nameAz",
@@ -322,7 +334,8 @@ export function ProductsListing({
     })
   }, [allProducts, filters])
 
-  // Sort después de filtrar — default conserva el orden del server (BEST_SELLING).
+  // Sort después de filtrar — default conserva el orden del server (CREATED_AT
+  // invertido: lo más nuevo primero).
   // Hacemos copia para no mutar el array filtrado.
   const sorted = useMemo(() => {
     if (sortKey === "default") return filtered
@@ -806,7 +819,7 @@ export function ProductsListing({
             >
               {(Object.keys(SORT_LABELS) as SortKey[]).map((key) => (
                 <option key={key} value={key}>
-                  {t(SORT_LABELS[key])}
+                  {t(SORT_LABELS[key] ?? "")}
                 </option>
               ))}
             </select>
@@ -912,10 +925,15 @@ export function ProductsListing({
                     if (!pageInfo?.endCursor || loadingMore) return
                     setLoadingMore(true)
                     try {
+                      // EL MISMO ORDEN QUE EL SERVIDOR. Si aquí se pidiera
+                      // otro, "Cargar más" devolvería botas que ya están
+                      // arriba y saltaría otras: la segunda página de un
+                      // orden no empalma con la primera de otro.
                       const next = await loadMoreProducts({
                         after: pageInfo.endCursor,
                         first: 24,
-                        sortKey: "BEST_SELLING",
+                        sortKey: "CREATED_AT",
+                        reverse: true,
                       })
                       setAllProducts((prev) => [...prev, ...next.products])
                       setPageInfo(next.pageInfo)
