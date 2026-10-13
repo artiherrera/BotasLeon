@@ -45,3 +45,7 @@ next-env.d.ts
 
 # generado por scripts/generate-sitemap.mjs en cada build
 /public/sitemap.xml
+# generado por scripts/generate-descuentos.mjs en cada build, y DISTINTO en
+# cada mercado (pesos y dólares dan descuentos distintos): versionarlo sería
+# publicar los precios de la otra tienda hasta que corra el prebuild.
+/public/descuentos.json

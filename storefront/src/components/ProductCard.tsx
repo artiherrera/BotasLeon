@@ -104,7 +104,7 @@ export function ProductCard({
     ...atributosDeTarjeta(product).map((label) => facetLabel(label, locale)),
   ].join(" · ")
 
-  const { onSale } = saleInfo(minPrice.amount, compareAt?.amount)
+  const { onSale, discountPct } = saleInfo(minPrice.amount, compareAt?.amount)
   const promoPar = enPromoPar(product)
   const nueva = esNueva(product.createdAt)
 
@@ -159,9 +159,12 @@ export function ProductCard({
               {t("promoPar.insignia")}
             </span>
           )}
-          {onSale && !promoPar && (
-            <span className="bg-bg text-text border border-border eyebrow text-xs px-2 py-1">
-              {t("card.badgeOutlet")}
+          {/* CUÁNTO, no "Outlet": "-20%" dice algo y una etiqueta genérica no.
+              Desde 10% para arriba; por debajo basta con el precio tachado,
+              porque un "-2%" encima de la foto es ruido con pretensiones. */}
+          {onSale && !promoPar && discountPct >= 10 && (
+            <span className="bg-bg text-text border border-text eyebrow text-xs px-2 py-1">
+              −{discountPct}%
             </span>
           )}
           {nueva && product.availableForSale && !onSale && !promoPar && (

@@ -9,6 +9,7 @@ import { ProductCard } from "./ProductCard"
 import { loadProductsByHandles } from "@/lib/search/client"
 import { formatMoney } from "@/lib/utils"
 import type { Product } from "@/lib/shopify/types"
+import { cargarDescuentos, conDescuento, type MapaDescuentos } from "@/lib/descuentos"
 
 /**
  * RecentlyViewed — "Sigue donde te quedaste".
@@ -86,6 +87,9 @@ export function RecentlyViewed({
   const t = useT()
   const [items, setItems] = useState<ViewedItem[]>([])
   const [productos, setProductos] = useState<Product[] | null>(null)
+  // Lo que cada bota cuesta de verdad. Es el ÚNICO lugar del sitio donde se
+  // enseña: decisión del dueño (ver lib/descuentos.ts).
+  const [descuentos, setDescuentos] = useState<MapaDescuentos>({})
 
   useEffect(() => {
     let stored: ViewedItem[] = []
@@ -136,6 +140,16 @@ export function RecentlyViewed({
   const aPedir = others.slice(0, variante === "cajon" ? 4 : EN_PANTALLA)
   const llaves = aPedir.map((x) => x.handle).join(",")
 
+  useEffect(() => {
+    let vigente = true
+    cargarDescuentos().then((d) => {
+      if (vigente) setDescuentos(d)
+    })
+    return () => {
+      vigente = false
+    }
+  }, [])
+
   // Los datos completos de esas botas, en vivo.
   useEffect(() => {
     if (!llaves) return
@@ -164,7 +178,10 @@ export function RecentlyViewed({
             <MiniaturaGuardada
               key={item.handle}
               item={item}
-              producto={productos?.find((p) => p.handle === item.handle) ?? null}
+              producto={(() => {
+                const p = productos?.find((x) => x.handle === item.handle)
+                return p ? conDescuento(p, descuentos[p.handle]) : null
+              })()}
               onNavegar={onNavegar}
             />
           ))}
@@ -184,7 +201,13 @@ export function RecentlyViewed({
           lee como una sección más de la portada. */}
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-6">
         {productos && productos.length > 0
-          ? productos.map((p) => <ProductCard key={p.id} product={p} conGenero />)
+          ? productos.map((p) => (
+              <ProductCard
+                key={p.id}
+                product={conDescuento(p, descuentos[p.handle])}
+                conGenero
+              />
+            ))
           : aPedir.map((item) => <EsqueletoGuardado key={item.handle} item={item} />)}
       </div>
     </section>
@@ -229,6 +252,8 @@ function MiniaturaGuardada({
   const loc = useProductTranslation(item.handle)
   const title = loc?.title?.trim() || producto?.title || item.title
   const precio = producto?.priceRange.minVariantPrice
+  const antes = producto?.compareAtPriceRange?.minVariantPrice
+  const rebajada = !!antes && parseFloat(antes.amount) > parseFloat(precio?.amount ?? "0")
   const foto = producto?.featuredImage?.url || item.image
   return (
     <li>
@@ -248,8 +273,15 @@ function MiniaturaGuardada({
           {title}
         </p>
         {precio && (
-          <p className="precio mt-0.5 text-sm text-text">
-            {formatMoney(precio.amount, precio.currencyCode)}
+          <p className="precio mt-0.5 text-sm">
+            <span className={rebajada ? "text-leather" : "text-text"}>
+              {formatMoney(precio.amount, precio.currencyCode)}
+            </span>
+            {rebajada && antes && (
+              <span className="ml-1.5 font-normal text-text-subtle line-through">
+                {formatMoney(antes.amount, antes.currencyCode)}
+              </span>
+            )}
           </p>
         )}
       </Link>

@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "prebuild": "node scripts/generate-sitemap.mjs && node scripts/generate-catalog.mjs",
+    "prebuild": "node scripts/generate-sitemap.mjs && node scripts/generate-catalog.mjs && node scripts/generate-descuentos.mjs",
     "catalog": "node scripts/generate-catalog.mjs",
     "build": "next build",
     "start": "next start",
