@@ -641,9 +641,12 @@ export const DICTIONARY: Record<string, Entry> = {
   // día— y por eso su bloque se llama por su nombre, no "combo".
   "combos.eyebrow": { es: "Promociones", en: "Promotions" },
   "combos.titulo": { es: "Arma tu combo", en: "Build your combo" },
+  // "Dos promociones" mientras hubo dos. El segundo par se apagó el 2026-10-13
+  // y su bloque dejó de pintarse solo (ArmaCombo devuelve null sin piezas),
+  // pero este texto se habría quedado contando una que ya no existe.
   "combos.intro": {
-    es: "Dos promociones vivas en la tienda. Elige las piezas y las tallas aquí; el descuento se aplica solo en el carrito.",
-    en: "Two live promotions. Pick the pieces and sizes here; the discount applies by itself in the cart.",
+    es: "Las promociones vivas de la tienda. Elige las piezas y las tallas aquí; el descuento se aplica solo en el carrito.",
+    en: "The store's live promotions. Pick the pieces and sizes here; the discount applies by itself in the cart.",
   },
   "combos.cinto.titulo": { es: "Bota + cinto", en: "Boot + belt" },
   "combos.cinto.nota": {
@@ -664,8 +667,8 @@ export const DICTIONARY: Record<string, Entry> = {
   "combos.completa": { es: "Elige las dos piezas y sus tallas", en: "Pick both pieces and their sizes" },
   "combos.agregar": { es: "Agregar el combo", en: "Add the combo" },
   "combos.pie": {
-    es: "Los descuentos los aplica la tienda al llegar al carrito, no se necesita código. El del cinto es uno por pedido; el del segundo par descuenta una pieza por par.",
-    en: "Discounts are applied in the cart, no code needed. One belt per order; the second-pair discount takes one item off per pair.",
+    es: "Los descuentos los aplica la tienda al llegar al carrito, no se necesita código. El del cinto es uno por pedido.",
+    en: "Discounts are applied in the cart, no code needed. One belt per order.",
   },
   "nav.combos": { es: "Combos", en: "Combos" },
   "tira.ahorras": { es: "Ahorras", en: "You save" },

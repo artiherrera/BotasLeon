@@ -35,7 +35,7 @@ export const revalidate = 300
 export const metadata = pageMetadata({
   title: "Combos",
   description:
-    "Arma tu combo: bota y cinto a mitad de precio, o el segundo par al 50%. Elige tallas y agrégalo completo en un toque.",
+    "Arma tu combo: llevando botas, el cinto sale a mitad de precio. Elige tallas y agrégalo completo en un toque.",
   path: "/combos",
 })
 

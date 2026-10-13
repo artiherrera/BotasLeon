@@ -96,7 +96,23 @@ export const enPromoPar = (p: { tags?: string[] | null } | null | undefined): bo
   (p?.tags ?? []).includes(ETIQUETA_PROMO_PAR)
 
 export const PROMO_PAR = {
-  activa: true,
+  /**
+   * APAGADA el 2026-10-13: el dueño la dio por terminada.
+   *
+   * Lo que la apaga de verdad son DOS cosas, y las dos ya están: la etiqueta
+   * `promo-2do-50` desapareció de los 118 productos (medido ese día contra la
+   * Storefront API) y el descuento automático de Shopify se retiró. Esta
+   * bandera es la tercera pata, la única que no depende del panel: la barra de
+   * avisos se pinta en TODAS las páginas, también en las que no cargan
+   * productos, así que no puede leer etiquetas. Mientras estuvo en `true` sin
+   * respaldo, botasleon.com anunciaba "Second ankle boot, half price" en lo
+   * alto de cada página de una promoción que ya no existía — con la pauta
+   * corriendo.
+   *
+   * Para revivirla: `true` aquí, la etiqueta en los productos y el descuento
+   * en Shopify. Las tres, o el sitio miente.
+   */
+  activa: false,
   /**
    * A dónde lleva el aviso. La marca El Malcreado son exactamente los tres
    * botines de la promoción, así que sirve de página de la promo sin inventar
