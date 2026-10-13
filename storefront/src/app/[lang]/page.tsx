@@ -106,8 +106,15 @@ export default async function HomePage() {
 
         {/* Lo primero después de la foto para quien vuelve: la bota que estaba
             viendo, no el catálogo entero otra vez. Sin historial devuelve
-            null. */}
-        <RecentlyViewed />
+            null.
+
+            SIN AIRE ABAJO, a propósito: cada sección del sitio reserva 96px
+            arriba y 96 abajo, y donde dos se tocan eso suma 192 — medido en la
+            portada. Debajo de las tarjetas era un hueco que parecía un error.
+            Aquí se queda el de arriba y el de abajo lo pone la sección que
+            sigue, así la distancia es la misma que entre dos secciones
+            cualesquiera. */}
+        <RecentlyViewed className="contenedor border-t border-border pt-16 pb-0 md:pt-24" />
 
         <LoMasNuevo
           products={nuevosHombre}

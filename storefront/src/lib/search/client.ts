@@ -13,6 +13,11 @@
 import type { Product, PageInfo } from "@/lib/shopify/types"
 
 import { inContext } from "@/lib/market"
+import {
+  IMAGE_FRAGMENT,
+  MONEY_FRAGMENT,
+  PRODUCT_CARD_FRAGMENT,
+} from "@/lib/shopify/queries"
 
 const DOMAIN = process.env.NEXT_PUBLIC_SHOPIFY_STORE_DOMAIN
 const TOKEN = process.env.NEXT_PUBLIC_SHOPIFY_STOREFRONT_ACCESS_TOKEN
@@ -232,6 +237,78 @@ const LOAD_MORE_QUERY = /* GraphQL */ `
     }
   }
 `
+
+/**
+ * Los productos de una lista de handles, con TODO lo que pinta una tarjeta:
+ * marca, fotos, precio, precio de comparación, insignias, reseñas y sexo.
+ *
+ * Lo pide "Sigue donde te quedaste", que solo guarda handles en el navegador.
+ * Se consulta a Shopify EN VIVO en vez de guardar el precio en localStorage:
+ * un precio guardado se queda viejo, y enseñar un precio que no es sale mucho
+ * más caro que una petición. Si una bota se borró de la tienda, no vuelve en
+ * la respuesta y deja de aparecer en la tira, que es lo correcto.
+ *
+ * SE PIDE UNO POR UNO, CON ALIAS, no con `query: "handle:a OR handle:b"`. Ese
+ * filtro NO existe en la Storefront API: lo acepta sin protestar y devuelve el
+ * catálogo entero, así que la tira habría enseñado botas al azar en vez de las
+ * que la persona vio. Medido contra la API el 2026-10-13 — devolvió cinco
+ * botas, ninguna de las dos pedidas. Con alias cada bota es exacta y el orden
+ * lo ponemos nosotros.
+ */
+export async function loadProductsByHandles(handles: string[]): Promise<Product[]> {
+  // Vienen de localStorage, que cualquiera puede editar: solo minúsculas,
+  // números y guiones, y un tope sano. Van como VARIABLES de GraphQL, no
+  // interpoladas en el texto de la consulta.
+  const limpios = handles
+    .filter((h) => /^[a-z0-9-]{1,120}$/.test(h))
+    .slice(0, 12)
+  if (!DOMAIN || !TOKEN || limpios.length === 0) return []
+
+  const firma = limpios.map((_, i) => `$h${i}: String!`).join(", ")
+  const cuerpo = limpios
+    .map((_, i) => `p${i}: product(handle: $h${i}) { ...ProductCardFields }`)
+    .join("\n    ")
+  const query = /* GraphQL */ `
+    query PorHandles(${firma}) ${inContext("ES")} {
+      ${cuerpo}
+    }
+    ${IMAGE_FRAGMENT}
+    ${MONEY_FRAGMENT}
+    ${PRODUCT_CARD_FRAGMENT}
+  `
+  const variables = Object.fromEntries(limpios.map((h, i) => [`h${i}`, h]))
+
+  const res = await fetch(`https://${DOMAIN}/api/${VERSION}/graphql.json`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "X-Shopify-Storefront-Access-Token": TOKEN,
+      Accept: "application/json",
+    },
+    body: JSON.stringify({ query, variables }),
+  })
+  if (!res.ok) throw new Error(`Shopify HTTP ${res.status}`)
+  const json = await res.json()
+  if (json.errors?.length) {
+    throw new Error(json.errors.map((e: { message: string }) => e.message).join("; "))
+  }
+
+  // En el orden en que se pidieron, y sin los nulos (botas borradas).
+  return limpios
+    .map((_, i) => json.data?.[`p${i}`] as NodoCrudo | null)
+    .filter((n): n is NodoCrudo => !!n)
+    .map(aplanarTarjeta)
+}
+
+/** Como aplanarVariantes, pero también con las fotos de la galería. */
+function aplanarTarjeta(node: NodoCrudo): Product {
+  const plano = aplanarVariantes(node)
+  const crudas = (node as unknown as { images?: { edges?: Array<{ node: unknown }> } }).images
+  return {
+    ...plano,
+    images: Array.isArray(crudas) ? crudas : (crudas?.edges?.map((e) => e.node) ?? []),
+  } as Product
+}
 
 export async function loadMoreProducts({
   after,

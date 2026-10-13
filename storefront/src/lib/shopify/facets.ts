@@ -57,6 +57,21 @@ export function primerValor(metafield: TaxonomyMetafield): ValorTaxonomia | null
  * Devuelve las etiquetas en español (como vienen de Shopify); traducirlas es
  * cosa de quien pinta, con facetLabel().
  */
+/**
+ * "Hombre" o "Mujer" para la tarjeta, como llave del diccionario.
+ *
+ * Sale del metaobjeto shopify.target-gender, el mismo que usa la conversión de
+ * tallas MX→US. Cobertura medida el 2026-10-13: 113 de 118 productos (los 5
+ * sin sexo son cinturones). Si no lo tiene, no se inventa: se devuelve null y
+ * la tarjeta no pinta el rótulo.
+ */
+export function generoDeTarjeta(product: Product): string | null {
+  const handle = product.targetGender?.references?.edges?.[0]?.node?.handle
+  if (handle === "masculino") return "nav.men"
+  if (handle === "femenino") return "nav.women"
+  return null
+}
+
 export function atributosDeTarjeta(product: Product): string[] {
   const horma = primerValor(product.toeStyle)?.label
   const piel = primerValor(product.material)?.label

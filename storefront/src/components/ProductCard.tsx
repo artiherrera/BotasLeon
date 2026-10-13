@@ -7,7 +7,7 @@ import type { Product, Image as ShopifyImage } from "@/lib/shopify/types"
 import { JudgemeStars } from "./JudgemeStars"
 import { LocalizedPrice, useProductTranslation } from "./LocalizedProductContent"
 import { useLocale, useT } from "@/lib/i18n/context"
-import { atributosDeTarjeta } from "@/lib/shopify/facets"
+import { atributosDeTarjeta, generoDeTarjeta } from "@/lib/shopify/facets"
 import { facetLabel } from "@/lib/facets-i18n"
 import { enPromoPar } from "@/lib/promocion"
 import { saleInfo } from "@/lib/utils"
@@ -46,6 +46,7 @@ export function ProductCard({
   product,
   singleImage = false,
   empezarEnSegunda = false,
+  conGenero = false,
 }: {
   product: Product
   /**
@@ -62,6 +63,13 @@ export function ProductCard({
    * solo tiene una foto no hay nada que voltear y se queda como está.
    */
   empezarEnSegunda?: boolean
+  /**
+   * Antepone "Hombre" o "Mujer" a la línea de atributos. Se enciende donde la
+   * lista mezcla sexos —el catálogo completo, "Sigue donde te quedaste"— y se
+   * deja apagado en /hombre y /mujer, donde sería la misma palabra en todas
+   * las tarjetas de la pantalla.
+   */
+  conGenero?: boolean
 }) {
   const t = useT()
   const { locale } = useLocale()
@@ -87,9 +95,14 @@ export function ProductCard({
   /* "Horma · Piel": los dos únicos atributos que existen en los 103 productos
      (la suela no está capturada en ninguno). Vienen de Shopify en español, así
      que en el sitio en inglés hay que pasarlos por facetLabel. */
-  const atributos = atributosDeTarjeta(product)
-    .map((label) => facetLabel(label, locale))
-    .join(" · ")
+  // "Mujer · Redonda · Cuero". El sexo va PRIMERO porque es lo que primero se
+  // descarta al mirar una bota, y solo donde la lista mezcla: en /mujer, donde
+  // las 44 botas son de mujer, repetirlo 44 veces es ruido, no información.
+  const genero = conGenero ? generoDeTarjeta(product) : null
+  const atributos = [
+    ...(genero ? [t(genero)] : []),
+    ...atributosDeTarjeta(product).map((label) => facetLabel(label, locale)),
+  ].join(" · ")
 
   const { onSale } = saleInfo(minPrice.amount, compareAt?.amount)
   const promoPar = enPromoPar(product)

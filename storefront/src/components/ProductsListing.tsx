@@ -362,6 +362,21 @@ export function ProductsListing({
     }
   }, [filtered, sortKey])
 
+  /* "Hombre" / "Mujer" en la tarjeta, SOLO cuando la lista mezcla. En el
+     catálogo completo dice de un vistazo si una bota es de hombre o de mujer
+     —que a simple vista no siempre se sabe—; en /mujer serían 44 tarjetas
+     repitiendo la misma palabra, que es ruido. Se decide mirando lo que hay en
+     pantalla, así que ninguna ruta tiene que acordarse de pasarlo. */
+  const generosMezclados = useMemo(
+    () =>
+      new Set(
+        sorted.map(
+          (p) => p.targetGender?.references?.edges?.[0]?.node?.handle ?? "sin"
+        )
+      ).size > 1,
+    [sorted]
+  )
+
   const activeCount =
     filters.vendors.size +
     filters.sizes.size +
@@ -907,7 +922,7 @@ export function ProductsListing({
                 tarjetas de 162px, el tamaño que tienen en un teléfono). */}
             <div className="grid grid-cols-2 gap-x-3 gap-y-8 md:grid-cols-3 md:gap-x-6 md:gap-y-10 xl:grid-cols-4 3xl:grid-cols-5">
               {sorted.map((p) => (
-                <ProductCard key={p.id} product={p} />
+                <ProductCard key={p.id} product={p} conGenero={generosMezclados} />
               ))}
             </div>
 

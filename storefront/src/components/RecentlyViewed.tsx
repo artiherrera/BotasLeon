@@ -5,32 +5,45 @@ import Image from "next/image"
 import { LocalizedLink as Link } from "@/components/LocalizedLink"
 import { useT } from "@/lib/i18n/context"
 import { useProductTranslation } from "./LocalizedProductContent"
+import { ProductCard } from "./ProductCard"
+import { loadProductsByHandles } from "@/lib/search/client"
+import { formatMoney } from "@/lib/utils"
+import type { Product } from "@/lib/shopify/types"
 
 /**
  * RecentlyViewed — "Sigue donde te quedaste".
  *
- * Persistimos los últimos 10 productos vistos en localStorage. Dos modos:
+ * Guarda en el navegador los últimos 10 handles vistos. Dos modos:
  *
- *  - CON producto actual (el PDP): lo agregamos al inicio, dedup, recorte
- *    a 10 y guardamos. Para el render lo filtramos — no tiene sentido
- *    mostrarlo viéndose a sí mismo.
- *  - SIN producto actual (la portada, el catálogo): solo LEEMOS. Pintar la
- *    portada no es "ver" una bota, así que no escribe nada.
+ *  - CON producto actual (el PDP): lo mete al inicio, quita repetidos, recorta
+ *    a 10 y guarda. Al pintar se filtra a sí mismo — no tiene sentido mostrar
+ *    la bota que ya estás viendo.
+ *  - SIN producto actual (la portada, el catálogo): solo LEE. Abrir la portada
+ *    no es "ver" una bota, así que no escribe nada.
  *
- * El historial es de 10 porque la portada tiene ancho para dos filas de
- * cinco; en móvil se cortan a seis con CSS (dos filas de tres) para no
- * empujar el resto de la página.
+ * LAS TARJETAS SON LAS DEL SITIO, NO MINIATURAS. Antes esto pintaba una foto
+ * chica y el nombre en gris; el dueño lo vio y lo dijo en dos palabras: "muy
+ * soso". Ahora usa el mismo <ProductCard> del catálogo, así que trae marca,
+ * modelo, sexo, horma, piel, estrellas, precio, precio tachado si lo hay y las
+ * insignias de promoción. Una tira que enseña menos que el catálogo es una
+ * tira que no vende.
  *
- * Guardamos { handle, title, image } completos para evitar un fetch
- * extra a Shopify. Trade-off: si el título cambia en admin, vemos el
- * stale hasta que el usuario vuelva a entrar al producto.
+ * POR ESO LOS PRECIOS SE PIDEN EN VIVO. En el navegador solo se guardan los
+ * handles; marca y precio salen de Shopify al montar. Guardar el precio en
+ * localStorage habría ahorrado una petición y, a cambio, un día enseñaría un
+ * precio viejo — y enseñar un precio que no es sale mucho más caro que una
+ * petición. Si una bota desapareció de la tienda, no vuelve en la respuesta y
+ * deja de aparecer aquí, que es justo lo que debe pasar.
  *
- * Si el localStorage no está disponible (SSR, modo privado, etc.) o no
- * hay otros productos, retornamos null silenciosamente.
+ * Mientras llegan los datos (o si Shopify falla) se pintan las fotos
+ * guardadas: la sección nunca parpadea en vacío ni desaparece.
  */
 
 const STORAGE_KEY = "botasleon:recently-viewed"
 const MAX_ITEMS = 10
+/** Cuántas se enseñan: cuatro llenan la fila del escritorio y dos filas
+ *  limpias en teléfono. Sin huérfanas colgando. */
+const EN_PANTALLA = 4
 
 type ViewedItem = {
   handle: string
@@ -45,11 +58,11 @@ type Props = {
   currentImage?: string | null
   /**
    * Dónde se pinta:
-   *  - "pagina"  → sección de ancho completo con su propio aire (PDP, portada,
+   *  - "pagina"  → sección de ancho completo con tarjetas (PDP, portada,
    *                final del catálogo).
-   *  - "cajon"   → bloque estrecho dentro del carrito vacío: sin contenedor,
-   *                dos por fila y solo cuatro. El cajón mide 400px y el dueño
-   *                ya tuvo que pelear una vez para que no se llenara de cosas.
+   *  - "cajon"   → bloque estrecho dentro del carrito vacío: foto, nombre y
+   *                precio. El cajón mide 480px y el dueño ya tuvo que pelear
+   *                una vez para que no se llenara de cosas.
    */
   variante?: "pagina" | "cajon"
   /**
@@ -58,6 +71,8 @@ type Props = {
    * abierto encima de la bota que acabas de abrir.
    */
   onNavegar?: () => void
+  /** Clases del <section>. La portada aprieta el aire de abajo. */
+  className?: string
 }
 
 export function RecentlyViewed({
@@ -66,9 +81,11 @@ export function RecentlyViewed({
   currentImage,
   variante = "pagina",
   onNavegar,
+  className,
 }: Props) {
   const t = useT()
   const [items, setItems] = useState<ViewedItem[]>([])
+  const [productos, setProductos] = useState<Product[] | null>(null)
 
   useEffect(() => {
     let stored: ViewedItem[] = []
@@ -116,6 +133,26 @@ export function RecentlyViewed({
   }, [currentHandle, currentTitle, currentImage])
 
   const others = items.filter((x) => x.handle !== currentHandle)
+  const aPedir = others.slice(0, variante === "cajon" ? 4 : EN_PANTALLA)
+  const llaves = aPedir.map((x) => x.handle).join(",")
+
+  // Los datos completos de esas botas, en vivo.
+  useEffect(() => {
+    if (!llaves) return
+    let vigente = true
+    loadProductsByHandles(llaves.split(","))
+      .then((ps) => {
+        if (vigente) setProductos(ps)
+      })
+      .catch(() => {
+        // Shopify caído o sin red: nos quedamos con las fotos guardadas.
+        if (vigente) setProductos(null)
+      })
+    return () => {
+      vigente = false
+    }
+  }, [llaves])
+
   if (others.length < 1) return null
 
   if (variante === "cajon") {
@@ -123,82 +160,78 @@ export function RecentlyViewed({
       <section className="mt-10 w-full border-t border-border pt-6 text-left">
         <p className="eyebrow text-xs text-text-muted mb-3">{t("recent.title")}</p>
         <ul className="grid grid-cols-2 gap-3">
-          {others.slice(0, 4).map((item) => (
-            <RecentItem key={item.handle} item={item} onNavegar={onNavegar} />
+          {aPedir.map((item) => (
+            <MiniaturaGuardada
+              key={item.handle}
+              item={item}
+              producto={productos?.find((p) => p.handle === item.handle) ?? null}
+              onNavegar={onNavegar}
+            />
           ))}
         </ul>
       </section>
     )
   }
 
-  /** Hasta dónde llega la última fila COMPLETA (3 por fila abajo de lg, 5
-      arriba). Con menos de una fila no hay nada que cortar. */
-  const filaCompleta = (porFila: number, tope: number) =>
-    others.length <= porFila
-      ? others.length
-      : Math.min(tope, Math.floor(others.length / porFila) * porFila)
-  const topeChico = filaCompleta(3, 6)
-  const topeGrande = filaCompleta(5, MAX_ITEMS)
-
   return (
-    <section className="contenedor seccion border-t border-border">
+    <section className={className ?? "contenedor seccion border-t border-border"}>
       {/* Eyebrow genérico: va en gris. El cuero está reservado al eyebrow del
           taller, a los enlaces, a las estrellas y al hover del botón primario. */}
       <p className="eyebrow text-xs text-text-muted mb-2">{t("recent.eyebrow")}</p>
       <h3 className="display-m text-text mb-6">{t("recent.title")}</h3>
-      {/* Cinco por fila de 1024 para arriba (antes seis, que dejaba las fotos
-          en miniaturas de 150px); tres en teléfono y tableta, con tope de dos
-          filas para no empujar media portada.
-
-          Las filas se cortan COMPLETAS: con seis botas en el historial, un
-          escritorio pinta cinco y no cinco más una huérfana colgando sola a la
-          izquierda. Por eso el corte se calcula dos veces, una por tamaño. */}
-      <ul className="grid grid-cols-3 lg:grid-cols-5 gap-4 md:gap-6">
-        {others.map((item, i) => (
-          <RecentItem
-            key={item.handle}
-            item={item}
-            enChico={i < topeChico}
-            enGrande={i < topeGrande}
-            onNavegar={onNavegar}
-          />
-        ))}
-      </ul>
+      {/* Misma rejilla que "Lo más nuevo" y que las exóticas: dos por fila en
+          teléfono, cuatro en escritorio. La tira deja de ser un apéndice y se
+          lee como una sección más de la portada. */}
+      <div className="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-6">
+        {productos && productos.length > 0
+          ? productos.map((p) => <ProductCard key={p.id} product={p} conGenero />)
+          : aPedir.map((item) => <EsqueletoGuardado key={item.handle} item={item} />)}
+      </div>
     </section>
   )
 }
 
 /**
- * Un item del strip. Es su propio componente para poder usar el hook de
- * traducción (en inglés cambia el título por su versión EN — mismo fetch
- * cacheado que usan las tarjetas y el PDP).
+ * Lo que se pinta mientras llegan los datos de Shopify: la foto guardada y el
+ * nombre, en el mismo plato y con el mismo ritmo que la tarjeta real, para que
+ * al llegar los precios nada salte de sitio.
  */
-function RecentItem({
+function EsqueletoGuardado({ item }: { item: ViewedItem }) {
+  const loc = useProductTranslation(item.handle)
+  const title = loc?.title?.trim() || item.title
+  return (
+    <Link href={`/products/${item.handle}`} className="group block">
+      <div className="plato mb-3">
+        {item.image && (
+          <Image src={item.image} alt={title} fill sizes="(max-width: 768px) 50vw, 25vw" />
+        )}
+      </div>
+      <p className="nombre-producto px-1 text-text line-clamp-2">{title}</p>
+    </Link>
+  )
+}
+
+/**
+ * La versión del cajón del carrito: foto, nombre y precio. Aquí no cabe una
+ * tarjeta entera —son 480px de ancho y arriba va la compra—, pero el precio sí
+ * cabe, y sin precio una bota no es una oferta: es una foto.
+ */
+function MiniaturaGuardada({
   item,
-  enChico = true,
-  enGrande = true,
+  producto,
   onNavegar,
 }: {
   item: ViewedItem
-  /** Si entra en la última fila completa de 3 (teléfono y tableta). */
-  enChico?: boolean
-  /** Si entra en la última fila completa de 5 (1024 para arriba). */
-  enGrande?: boolean
+  producto: Product | null
   onNavegar?: () => void
 }) {
   const t = useT()
   const loc = useProductTranslation(item.handle)
-  const title = loc?.title?.trim() || item.title
-  const visibilidad =
-    enChico && enGrande
-      ? undefined
-      : enGrande
-        ? "hidden lg:block"
-        : enChico
-          ? "lg:hidden"
-          : "hidden"
+  const title = loc?.title?.trim() || producto?.title || item.title
+  const precio = producto?.priceRange.minVariantPrice
+  const foto = producto?.featuredImage?.url || item.image
   return (
-    <li className={visibilidad}>
+    <li>
       <Link
         href={`/products/${item.handle}`}
         onClick={onNavegar}
@@ -209,13 +242,16 @@ function RecentItem({
             devuelve una foto que aún no carga, se ve el fondo cálido y no un
             cuadro blanco, así que el SVG de silueta que había aquí sobra. */}
         <div className="plato mb-2">
-          {item.image && (
-            <Image src={item.image} alt={title} fill sizes="(max-width: 768px) 33vw, 20vw" />
-          )}
+          {foto && <Image src={foto} alt={title} fill sizes="200px" />}
         </div>
         <p className="nota text-text line-clamp-2 group-hover:underline underline-offset-4">
           {title}
         </p>
+        {precio && (
+          <p className="precio mt-0.5 text-sm text-text">
+            {formatMoney(precio.amount, precio.currencyCode)}
+          </p>
+        )}
       </Link>
     </li>
   )
