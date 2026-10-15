@@ -338,25 +338,41 @@ export function ProductsListing({
   // invertido: lo más nuevo primero).
   // Hacemos copia para no mutar el array filtrado.
   const sorted = useMemo(() => {
-    if (sortKey === "default") return filtered
-    const arr = [...filtered]
+    // LO AGOTADO, AL FINAL. Vale para cualquier orden: una bota que no se
+    // puede comprar ocupando el primer renglón es una pantalla desperdiciada,
+    // y en un catálogo de cinco por fila eso es toda la primera fila. El
+    // orden de cada grupo se respeta —el sort de JS es estable—, así que
+    // dentro de lo disponible siguen saliendo las más nuevas primero.
+    const porExistencia = (lista: Product[]) =>
+      [...lista].sort(
+        (a, b) => Number(b.availableForSale !== false) - Number(a.availableForSale !== false)
+      )
+
+    if (sortKey === "default") return porExistencia(filtered)
+    const arr = porExistencia(filtered)
     switch (sortKey) {
       case "recientes":
-        return arr.sort((a, b) => (b.createdAt ?? "").localeCompare(a.createdAt ?? ""))
+        return porExistencia(
+          arr.sort((a, b) => (b.createdAt ?? "").localeCompare(a.createdAt ?? ""))
+        )
       case "precio-asc":
-        return arr.sort(
-          (a, b) =>
-            parseFloat(a.priceRange.minVariantPrice.amount) -
-            parseFloat(b.priceRange.minVariantPrice.amount)
+        return porExistencia(
+          arr.sort(
+            (a, b) =>
+              parseFloat(a.priceRange.minVariantPrice.amount) -
+              parseFloat(b.priceRange.minVariantPrice.amount)
+          )
         )
       case "precio-desc":
-        return arr.sort(
-          (a, b) =>
-            parseFloat(b.priceRange.minVariantPrice.amount) -
-            parseFloat(a.priceRange.minVariantPrice.amount)
+        return porExistencia(
+          arr.sort(
+            (a, b) =>
+              parseFloat(b.priceRange.minVariantPrice.amount) -
+              parseFloat(a.priceRange.minVariantPrice.amount)
+          )
         )
       case "titulo":
-        return arr.sort((a, b) => a.title.localeCompare(b.title))
+        return porExistencia(arr.sort((a, b) => a.title.localeCompare(b.title)))
       default:
         return arr
     }

@@ -93,27 +93,31 @@ export const ETIQUETA_PROMO_PAR = "promo-2do-50"
 export const ETIQUETA_PROMO_CINTO = "promo-cinto"
 
 /**
- * LA PROMOCIÓN DEL CINTO, APAGADA el 2026-10-14.
+ * LA PROMOCIÓN DEL CINTO: "Tu cinto al 50% con tus botas". VIVA.
  *
- * El descuento ya no existe en Shopify. Comprobado contra la Storefront API en
- * las tres combinaciones posibles, con carritos de verdad:
+ * El 2026-10-14 la di por muerta y la apagué. Me equivoqué: probé con El
+ * Elegante, y con esa bota el descuento del cinto NUNCA aparece. El dueño lo
+ * corrigió y al medirlo bien salió algo más importante que la promoción.
  *
- *   cinto solo .......................... $1,299, sin descuento
- *   cinto + bota CON descuento propio ... $1,299, sin descuento
- *   cinto + bota SIN descuento propio ... $1,299, sin descuento
+ * SHOPIFY APLICA UN SOLO DESCUENTO AUTOMÁTICO POR PEDIDO, y se queda con el
+ * que más vale. Medido con carritos reales el 2026-10-15:
  *
- * Y sin embargo los cinco cintos conservan la etiqueta `promo-cinto`, que es
- * lo único que el sitio miraba para prometer "a mitad de precio": lo decía la
- * caja de compra de CADA ficha y el bloque entero de /combos. Es la misma
- * trampa que ya pasó con el segundo par —la etiqueta anuncia, el descuento
- * cobra, y si se separan el sitio miente—, solo que esta vez con un precio
- * exacto de por medio.
+ *   La Estephania sola ............ −$80            (su "🔥 Hoy te ahorras")
+ *   La Estephania + cinto ......... cinto −$499.50, y la bota PIERDE sus $80
+ *   El Elegante + cinto ........... bota −$1,190,   y el cinto se queda en $999
  *
- * Esta bandera es el interruptor que no depende del panel. Para revivirla:
- * crear otra vez el descuento automático en Shopify, comprobar con un carrito
- * que aplica, y poner `true`. Las dos cosas, o ninguna.
+ * O sea: las dos promociones se pelean. Como 113 de las 118 botas llevan su
+ * propio "🔥 Hoy te ahorras" y en la mayoría vale más de $499.50, el cinto a
+ * mitad casi nunca llega a aplicarse aunque esté bien configurado.
+ *
+ * SE ARREGLA EN SHOPIFY, NO AQUÍ: cada descuento automático tiene su apartado
+ * de "Combinaciones". Si los dos se marcan como combinables con descuentos de
+ * producto, se suman y la promesa del sitio —cinto a mitad con cualquier
+ * bota— se vuelve verdad siempre. Mientras esa casilla no esté marcada, el
+ * sitio promete algo que el carrito solo cumple en las botas cuyo descuento
+ * propio sea menor que medio cinto.
  */
-export const PROMO_CINTO = { activa: false } as const
+export const PROMO_CINTO = { activa: true } as const
 
 export const enPromoPar = (p: { tags?: string[] | null } | null | undefined): boolean =>
   (p?.tags ?? []).includes(ETIQUETA_PROMO_PAR)
