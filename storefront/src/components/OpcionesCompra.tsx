@@ -154,96 +154,60 @@ export function OpcionesCompra({
         })}
       </div>
 
-      {/* Elegida una fila con extra: cuál y de qué talla. Nada más. */}
-      {grupoElegido && (
-        <div className="mt-4 border-t border-border pt-4">
-          <p className="nota mb-2">{t(grupoElegido.pregunta)}</p>
+      {/* LAS PIEZAS, A LA VISTA DESDE EL PRIMER MOMENTO.
+          Antes había que marcar "+ un cinto a mitad de precio" para que
+          aparecieran los cintos. El dueño lo dijo dos veces, la segunda sin
+          rodeos: "quiero que se vea sin necesidad de poner agregar cinto".
+          Tiene razón: un renglón de texto no vende un cinto, la foto del
+          cinto vende el cinto. Tocar una foto ES elegir la opción, así que la
+          decisión sigue siendo una sola y la bolita de arriba se marca sola. */}
+      {conProductos.map((g) => (
+        <div key={`piezas-${g.id}`} className="mt-4 border-t border-border pt-4">
+          <p className="nota mb-2">{t(g.pregunta)}</p>
           <div className="flex flex-wrap gap-2">
-            {grupoElegido.productos.map((p) => {
-              const activo = p.handle === eleccion?.handle
-              const precio = parseFloat(p.priceRange.minVariantPrice.amount)
-              const mon = p.priceRange.minVariantPrice.currencyCode
-              const menos = rebaja(grupoElegido, p)
-              return (
-                <button
-                  key={p.id}
-                  type="button"
-                  onClick={() =>
-                    onEleccion({ grupo: grupoElegido.id, handle: p.handle, talla: null })
-                  }
-                  aria-pressed={activo}
-                  className={`relative w-[132px] shrink-0 cursor-pointer border p-2 text-left transition-colors duration-[180ms] ${
-                    activo ? "border-text bg-bg" : "border-border hover:border-text-muted"
-                  }`}
-                >
-                  {activo && (
-                    <span className="absolute right-1.5 top-1.5 z-10 flex h-5 w-5 items-center justify-center rounded-full bg-text text-bg">
-                      <svg
-                        width="12"
-                        height="12"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2.5"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        aria-hidden
-                      >
-                        <path d="m5 12 5 5L20 7" />
-                      </svg>
-                    </span>
-                  )}
-                  <span className="plato block">
-                    {p.featuredImage ? (
-                      <Image
-                        src={p.featuredImage.url}
-                        alt={p.featuredImage.altText || p.title}
-                        fill
-                        sizes="132px"
-                      />
-                    ) : null}
-                  </span>
-                  <span className="nota mt-2 block line-clamp-2 leading-snug text-text">
-                    {nombreCorto(p.title)}
-                  </span>
-                  <span className="mt-0.5 block">
-                    <span className="precio text-[11px] text-text-muted line-through">
-                      {formatMoney(String(precio), mon)}
-                    </span>{" "}
-                    <span className="precio text-sm text-text">
-                      {formatMoney(String(precio - menos), mon)}
-                    </span>
-                  </span>
-                </button>
-              )
-            })}
+            {g.productos.map((pz) => (
+              <Miniatura
+                key={pz.id}
+                pieza={pz}
+                activo={eleccion?.grupo === g.id && pz.handle === eleccion?.handle}
+                menos={rebaja(g, pz)}
+                onElegir={() =>
+                  onEleccion(
+                    eleccion?.grupo === g.id && pz.handle === eleccion?.handle
+                      ? null
+                      : { grupo: g.id, handle: pz.handle, talla: null }
+                  )
+                }
+              />
+            ))}
           </div>
 
-          {tallas.length > 0 && piezaElegida && (
+          {/* La talla, solo de la pieza elegida de ESTE grupo. */}
+          {grupoElegido?.id === g.id && piezaElegida && tallas.length > 0 && (
             <div className="mt-4">
               <p className="nota mb-1.5">
                 {t("tira.talla")} {nombreCorto(piezaElegida.title)}
               </p>
               <div className="flex flex-wrap gap-1.5">
-                {tallas.map((s) => (
+                {tallas.map((talla) => (
                   <button
-                    key={s}
+                    key={talla}
                     type="button"
                     onClick={() =>
                       onEleccion({
-                        grupo: grupoElegido.id,
+                        grupo: g.id,
                         handle: piezaElegida.handle,
-                        talla: s,
+                        talla,
                       })
                     }
-                    aria-pressed={eleccion?.talla === s}
-                    className={`h-10 min-w-[44px] cursor-pointer border px-2 text-sm transition-colors duration-[180ms] ${
-                      eleccion?.talla === s
+                    aria-pressed={eleccion?.talla === talla}
+                    className={`h-11 min-w-[44px] cursor-pointer border px-2 text-sm transition-colors duration-[180ms] ${
+                      eleccion?.talla === talla
                         ? "border-text bg-text text-bg"
                         : "border-border text-text hover:border-text"
                     }`}
                   >
-                    {s}
+                    {talla}
                   </button>
                 ))}
               </div>
@@ -253,7 +217,78 @@ export function OpcionesCompra({
             </div>
           )}
         </div>
-      )}
+      ))}
+
     </section>
+  )
+}
+
+/**
+ * Una pieza de una promoción: foto, nombre corto y el precio partido. Es el
+ * mismo ladrillo que antes vivía escondido dentro de la fila seleccionada;
+ * ahora se pinta siempre, porque lo que vende es la foto.
+ */
+function Miniatura({
+  pieza,
+  activo,
+  menos,
+  onElegir,
+}: {
+  pieza: Pieza
+  activo: boolean
+  /** Lo que la promoción le quita a ESTA pieza. */
+  menos: number
+  onElegir: () => void
+}) {
+  const precio = parseFloat(pieza.priceRange.minVariantPrice.amount)
+  const moneda = pieza.priceRange.minVariantPrice.currencyCode
+  return (
+    <button
+      type="button"
+      onClick={onElegir}
+      aria-pressed={activo}
+      className={`relative w-[132px] shrink-0 cursor-pointer border p-2 text-left transition-colors duration-[180ms] ${
+        activo ? "border-text bg-bg" : "border-border hover:border-text-muted"
+      }`}
+    >
+      {activo && (
+        <span className="absolute right-1.5 top-1.5 z-10 flex h-5 w-5 items-center justify-center rounded-full bg-text text-bg">
+          <svg
+            width="12"
+            height="12"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden
+          >
+            <path d="m5 12 5 5L20 7" />
+          </svg>
+        </span>
+      )}
+      <span className="plato block">
+        {pieza.featuredImage ? (
+          <Image
+            src={pieza.featuredImage.url}
+            alt={pieza.featuredImage.altText || pieza.title}
+            fill
+            sizes="132px"
+          />
+        ) : null}
+      </span>
+      <span className="nota mt-2 block line-clamp-2 leading-snug text-text">
+        {nombreCorto(pieza.title)}
+      </span>
+      <span className="mt-0.5 block">
+        <span className="precio text-[11px] text-text-muted line-through">
+          {formatMoney(String(precio), moneda)}
+        </span>{" "}
+        <span className="precio text-sm text-text">
+          {formatMoney(String(precio - menos), moneda)}
+        </span>
+      </span>
+    </button>
   )
 }
