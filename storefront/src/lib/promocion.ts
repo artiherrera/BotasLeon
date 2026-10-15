@@ -92,6 +92,29 @@ export const ETIQUETA_PROMO_PAR = "promo-2do-50"
  */
 export const ETIQUETA_PROMO_CINTO = "promo-cinto"
 
+/**
+ * LA PROMOCIÓN DEL CINTO, APAGADA el 2026-10-14.
+ *
+ * El descuento ya no existe en Shopify. Comprobado contra la Storefront API en
+ * las tres combinaciones posibles, con carritos de verdad:
+ *
+ *   cinto solo .......................... $1,299, sin descuento
+ *   cinto + bota CON descuento propio ... $1,299, sin descuento
+ *   cinto + bota SIN descuento propio ... $1,299, sin descuento
+ *
+ * Y sin embargo los cinco cintos conservan la etiqueta `promo-cinto`, que es
+ * lo único que el sitio miraba para prometer "a mitad de precio": lo decía la
+ * caja de compra de CADA ficha y el bloque entero de /combos. Es la misma
+ * trampa que ya pasó con el segundo par —la etiqueta anuncia, el descuento
+ * cobra, y si se separan el sitio miente—, solo que esta vez con un precio
+ * exacto de por medio.
+ *
+ * Esta bandera es el interruptor que no depende del panel. Para revivirla:
+ * crear otra vez el descuento automático en Shopify, comprobar con un carrito
+ * que aplica, y poner `true`. Las dos cosas, o ninguna.
+ */
+export const PROMO_CINTO = { activa: false } as const
+
 export const enPromoPar = (p: { tags?: string[] | null } | null | undefined): boolean =>
   (p?.tags ?? []).includes(ETIQUETA_PROMO_PAR)
 

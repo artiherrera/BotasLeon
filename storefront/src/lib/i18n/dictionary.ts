@@ -670,6 +670,28 @@ export const DICTIONARY: Record<string, Entry> = {
     es: "Los descuentos los aplica la tienda al llegar al carrito, no se necesita código. El del cinto es uno por pedido.",
     en: "Discounts are applied in the cart, no code needed. One belt per order.",
   },
+  // Sugerencia del carrito (SugerenciaCinto.tsx). NO dice "otros compradores
+  // también llevaron": eso necesita datos de compra conjunta que esta tienda
+  // todavía no tiene. Dice lo que sí es verdad, que además vende más.
+  "combos.vacio": {
+    es: "Ahora mismo no hay combos activos. Las promociones van y vienen: cuando haya una, aquí la verás armada y lista.",
+    en: "There are no active combos right now. Promotions come and go: when one is live, you'll find it here ready to build.",
+  },
+  "combos.vacioCta": { es: "Ver todas las botas", en: "See all boots" },
+  "sugerencia.titulo": {
+    es: "Añade un cinto a mitad de precio",
+    en: "Add a belt at half price",
+  },
+  "sugerencia.nota": {
+    es: "Llevando botas, el cinto sale a la mitad. Uno por pedido, sin código.",
+    en: "With boots, the belt is half off. One per order, no code needed.",
+  },
+  // Sin promoción viva no se habla de mitades: es un cinto, a su precio.
+  "sugerencia.tituloSolo": { es: "Complétalo con un cinto", en: "Finish it with a belt" },
+  "sugerencia.juego": { es: "Del mismo tono que tu bota", en: "Same tone as your boot" },
+  "sugerencia.medida": { es: "Medida del cinto (pulgadas)", en: "Belt size (inches)" },
+  "sugerencia.eligeMedida": { es: "Elige la medida", en: "Pick the size" },
+  "sugerencia.agregar": { es: "Agregar el cinto", en: "Add the belt" },
   "nav.combos": { es: "Combos", en: "Combos" },
   "tira.ahorras": { es: "Ahorras", en: "You save" },
   "opciones.titulo": { es: "Qué te llevas", en: "What you're getting" },

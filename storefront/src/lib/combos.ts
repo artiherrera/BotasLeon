@@ -42,6 +42,8 @@ export type Pieza = {
     selectedOptions?: Array<{ name: string; value: string }>
   }>
   shoeSizes?: Product["shoeSizes"]
+  /** Para emparejar el cinto con el tono de la bota (SugerenciaCinto). */
+  color?: Product["color"]
 }
 
 /** Deja el producto en los huesos con los que trabajan las tiras y el armador. */
@@ -59,20 +61,44 @@ export function aPieza(p: Product): Pieza {
       selectedOptions: v.selectedOptions,
     })),
     shoeSizes: p.shoeSizes,
+    color: p.color,
   }
 }
 
 /** Nombres con los que Shopify puede llamar a la opción de talla. */
 const OPCION_TALLA = ["talla", "talla del calzado", "size", "medida"]
 
-/** La opción de VARIANTE que es la talla, si el producto la tiene así. */
+/**
+ * La opción de VARIANTE que es la talla, si el producto la tiene así.
+ *
+ * EL CASO "Title". Dos de los cinco cintos de la promoción —El Bravo y El
+ * Caporal— tienen la medida cargada en una opción que en Shopify se llama
+ * "Title", con los valores 30, 32, 34, 36, 38, 40 y 42. Buscando solo por
+ * nombre no se encontraba, así que `tallasDe` devolvía vacío: no se pintaban
+ * medidas y `lineaDe` caía en la primera variante. Resultado: quien eligiera
+ * esos dos cintos se llevaba SIEMPRE la 30, sin que nadie se lo preguntara.
+ * Es el mismo error que ya costó una vez, por otra puerta.
+ *
+ * Por eso hay un segundo intento: una sola opción, más de un valor y TODOS
+ * numéricos es una talla, se llame como se llame. El numérico es lo que evita
+ * confundirla con un color o un material.
+ */
 export function opcionTalla(p: Pieza | null) {
-  return (
-    p?.options.find((o) => {
-      const n = o.name.trim().toLowerCase()
-      return OPCION_TALLA.includes(n) || n.includes("talla") || n.includes("medida")
-    }) ?? null
-  )
+  const porNombre = p?.options.find((o) => {
+    const n = o.name.trim().toLowerCase()
+    return OPCION_TALLA.includes(n) || n.includes("talla") || n.includes("medida")
+  })
+  if (porNombre) return porNombre
+
+  const unica = p?.options.length === 1 ? p.options[0] : null
+  if (
+    unica &&
+    unica.values.length > 1 &&
+    unica.values.every((v) => Number.isFinite(parseFloat(v)))
+  ) {
+    return unica
+  }
+  return null
 }
 
 /** Tallas del producto, en orden numérico, vengan de la variante o del metacampo. */

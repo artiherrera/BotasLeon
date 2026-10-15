@@ -2,8 +2,9 @@ import { Header } from "@/components/Header"
 import { Footer } from "@/components/Footer"
 import { ArmaCombo } from "@/components/ArmaCombo"
 import { T } from "@/components/T"
+import { LocalizedLink } from "@/components/LocalizedLink"
 import { getProducts, getProductsByTag, isBoot } from "@/lib/shopify"
-import { ETIQUETA_PROMO_PAR, ETIQUETA_PROMO_CINTO } from "@/lib/promocion"
+import { ETIQUETA_PROMO_PAR, ETIQUETA_PROMO_CINTO, PROMO_CINTO } from "@/lib/promocion"
 import { aPieza } from "@/lib/combos"
 import { pageMetadata } from "@/lib/seo"
 
@@ -44,7 +45,7 @@ const CUANTAS_BOTAS = 12
 export default async function CombosPage() {
   const [botinesPromo, cintos, listado] = await Promise.all([
     getProductsByTag(ETIQUETA_PROMO_PAR),
-    getProductsByTag(ETIQUETA_PROMO_CINTO),
+    PROMO_CINTO.activa ? getProductsByTag(ETIQUETA_PROMO_CINTO) : Promise.resolve([]),
     getProducts({ first: 40, sortKey: "BEST_SELLING" })
       .then((r) => r.products)
       .catch(() => []),
@@ -67,6 +68,20 @@ export default async function CombosPage() {
             <T k="combos.intro" />
           </p>
 
+          {/* SIN PROMOCIONES VIVAS esta página es un título y un hueco. Las
+              dos se apagaron en octubre de 2026 (ver lib/promocion.ts), y
+              mientras no vuelva ninguna vale más mandar al catálogo que dejar
+              al visitante mirando un espacio en blanco. */}
+          {botinesPromo.length === 0 && cintos.length === 0 ? (
+            <div className="mt-10 border border-border bg-bg-alt p-8 max-w-2xl">
+              <p className="cuerpo text-text">
+                <T k="combos.vacio" />
+              </p>
+              <LocalizedLink href="/products" className="btn btn-sec mt-5">
+                <T k="combos.vacioCta" />
+              </LocalizedLink>
+            </div>
+          ) : (
           <div className="mt-10 grid min-w-0 gap-6 [&>*]:min-w-0 lg:grid-cols-2">
             <ArmaCombo
               insignia="tira.cinto.insignia"
@@ -87,10 +102,13 @@ export default async function CombosPage() {
               piezasB={botinesPromo.map(aPieza)}
             />
           </div>
+          )}
 
-          <p className="nota mt-8 max-w-[60ch]">
-            <T k="combos.pie" />
-          </p>
+          {(botinesPromo.length > 0 || cintos.length > 0) && (
+            <p className="nota mt-8 max-w-[60ch]">
+              <T k="combos.pie" />
+            </p>
+          )}
         </div>
       </main>
       <Footer />

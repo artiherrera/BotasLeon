@@ -24,7 +24,7 @@ import {
   LocalizedPrice,
 } from "@/components/LocalizedProductContent"
 import { absoluteUrl } from "@/lib/seo"
-import { ETIQUETA_PROMO_PAR, ETIQUETA_PROMO_CINTO, enPromoPar } from "@/lib/promocion"
+import { ETIQUETA_PROMO_PAR, ETIQUETA_PROMO_CINTO, PROMO_CINTO, enPromoPar } from "@/lib/promocion"
 import { aPieza } from "@/lib/combos"
 import { isBoot } from "@/lib/shopify"
 
@@ -123,7 +123,11 @@ export default async function ProductPage({ params }: Props) {
           ps.filter((p) => p.handle !== product.handle).map(aPieza),
         )
       : Promise.resolve([]),
-    isBoot(product)
+    // PROMO_CINTO.activa manda sobre la etiqueta: el descuento del cinto se
+    // retiró de Shopify y los cinco cintos siguen etiquetados, así que mirar
+    // solo la etiqueta hacía que cada ficha ofreciera "a mitad de precio" algo
+    // que la caja cobra entero. Ver lib/promocion.ts.
+    isBoot(product) && PROMO_CINTO.activa
       ? getProductsByTag(ETIQUETA_PROMO_CINTO).then((ps) => ps.map(aPieza))
       : Promise.resolve([]),
   ])

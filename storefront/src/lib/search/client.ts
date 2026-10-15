@@ -14,6 +14,8 @@ import type { Product, PageInfo } from "@/lib/shopify/types"
 
 import { inContext } from "@/lib/market"
 import {
+  GET_PRODUCTS_DETAIL_BY_QUERY,
+  GET_PRODUCTS_QUERY,
   IMAGE_FRAGMENT,
   MONEY_FRAGMENT,
   PRODUCT_CARD_FRAGMENT,
@@ -237,6 +239,59 @@ const LOAD_MORE_QUERY = /* GraphQL */ `
     }
   }
 `
+
+/**
+ * Los productos de una consulta de Shopify, con todas sus variantes.
+ *
+ * Recibe la consulta tal cual de Shopify ("product_type:Cinturones",
+ * "tag:promo-cinto"). Ojo: `handle:` NO existe como filtro —para eso están los
+ * alias de loadProductsByHandles—, pero `tag:` y `product_type:` sí.
+ *
+ * Se guarda en memoria: el cajón del carrito se abre muchas veces por visita y
+ * los cinco cintos no cambian entre una apertura y otra.
+ *
+ * CON TODAS LAS VARIANTES, no con la consulta de tarjeta. El fragmento de
+ * tarjeta trae `variants(first: 1)` —a las tarjetas les basta, porque 101 de
+ * 103 botas son de variante única— pero un cinto tiene siete medidas en siete
+ * variantes. Con una sola, elegir la 36 no encontraba su variante y el botón
+ * de agregar no hacía NADA, en silencio. Medido en el navegador antes de
+ * publicarlo. Son cinco productos: el peso extra no se nota.
+ */
+const porEtiqueta = new Map<string, Promise<Product[]>>()
+
+export function loadProductsByQuery(consulta: string, first = 12): Promise<Product[]> {
+  const enMemoria = porEtiqueta.get(consulta)
+  if (enMemoria) return enMemoria
+  const promesa = (async () => {
+    if (!DOMAIN || !TOKEN) return []
+    const res = await fetch(`https://${DOMAIN}/api/${VERSION}/graphql.json`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-Shopify-Storefront-Access-Token": TOKEN,
+        Accept: "application/json",
+      },
+      body: JSON.stringify({
+        query: GET_PRODUCTS_DETAIL_BY_QUERY,
+        variables: { first, query: consulta },
+      }),
+    })
+    if (!res.ok) throw new Error(`Shopify HTTP ${res.status}`)
+    const json = await res.json()
+    if (json.errors?.length) {
+      throw new Error(json.errors.map((e: { message: string }) => e.message).join("; "))
+    }
+    return (json.data.products.edges as Array<{ node: NodoCrudo }>).map((e) =>
+      aplanarTarjeta(e.node)
+    )
+  })().catch(() => {
+    // Que un fallo no deje la memoria envenenada para toda la sesión.
+    porEtiqueta.delete(consulta)
+    return [] as Product[]
+  })
+  porEtiqueta.set(consulta, promesa)
+  return promesa
+}
 
 /**
  * Los productos de una lista de handles, con TODO lo que pinta una tarjeta:

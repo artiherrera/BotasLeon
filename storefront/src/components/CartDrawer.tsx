@@ -18,6 +18,7 @@ import { useT } from "@/lib/i18n/context"
 import { PromoParCarrito } from "@/components/PromoParCarrito"
 import { ResumenPago } from "@/components/ResumenPago"
 import { RecentlyViewed } from "@/components/RecentlyViewed"
+import { SugerenciaCinto } from "@/components/SugerenciaCinto"
 import { checkoutHref } from "@/lib/checkout"
 import { isMX } from "@/lib/market"
 import { CartLineSize } from "@/components/CartLineSize"
@@ -388,6 +389,11 @@ export function CartDrawer() {
                 )
               })}
               </div>
+
+              {/* El cinto que va con la bota. Debajo de lo que ya eligió, que
+                  es donde se mira "¿me falta algo?". Solo si hay botas y aún
+                  no hay cinto. */}
+              <SugerenciaCinto cart={cart} />
 
               {/* EL EMPUJÓN, PEGADO A LAS BOTAS Y NO EN EL PIE.
                   "Agrega otro y el segundo sale a mitad de precio" es una
