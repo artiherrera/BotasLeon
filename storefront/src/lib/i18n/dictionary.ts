@@ -894,6 +894,15 @@ export const DICTIONARY: Record<string, Entry> = {
   // ── Notas de talla (bajo el selector) ─────────────────────────────────
   // Valen para las 106 botas: hablan de cómo trabaja el taller, no de un
   // modelo. Ver PDPNotasTalla.tsx para por qué no son por producto.
+  // LA MEDIDA DE UN CINTO NO ES LA DEL PANTALÓN. Se mide de la hebilla al
+  // agujero de en medio, así que va dos pulgadas por encima de la talla de
+  // pantalón. Lo pidió el dueño el 2026-10-19: era la duda que llegaba por
+  // WhatsApp y la causa de los cambios de cinto.
+  "talla.cintoTitulo": { es: "Tu medida:", en: "Your size:" },
+  "talla.cinto": {
+    es: "dos pulgadas más que tu pantalón. Si usas 32, tu cinto es 34.",
+    en: "two inches up from your pants size. If you wear a 32, your belt is a 34.",
+  },
   "talla.ajusteTitulo": { es: "Ajuste:", en: "Fit:" },
   "talla.ajuste": {
     es: "queda fiel a tu número; si tienes el empeine alto, sube media talla.",

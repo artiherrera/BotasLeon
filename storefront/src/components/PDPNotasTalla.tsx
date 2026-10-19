@@ -28,6 +28,27 @@ export function NotaAjuste() {
   )
 }
 
+/**
+ * La guía del CINTO, que no es la de una bota.
+ *
+ * Un cinto se mide de la hebilla al agujero de en medio, no de la cintura, así
+ * que la medida va dos pulgadas por encima de la talla de pantalón: quien usa
+ * 32 necesita un 34. Era la pregunta que llegaba por WhatsApp y la razón de
+ * los cambios de cinto, y hasta hoy el sitio no lo decía en ninguna parte.
+ *
+ * Sustituye a la nota de ajuste donde toca: "si tienes el empeine alto, sube
+ * media talla" se pintaba también en los cinco cintos, que no tienen empeine.
+ */
+export function NotaCinto() {
+  const t = useT()
+  return (
+    <p className="mt-3 text-sm leading-snug text-text-muted">
+      <span className="text-text">{t("talla.cintoTitulo")}</span>{" "}
+      {t("talla.cinto")}
+    </p>
+  )
+}
+
 /* FUERA LA NOTA DEL MODELO DE LA FOTO (2026-10-08).
  *
  * Decía, en las 116 fichas: «En la foto: Arturo mide 1.78, calza 27 y usa la

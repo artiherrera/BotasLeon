@@ -7,7 +7,7 @@ import { useCart } from "./CartProvider"
 import { usePDPVariant } from "./PDPVariantContext"
 import { ColorSwatch } from "./ColorSwatch"
 import { SizeFinder } from "./SizeFinder"
-import { NotaAjuste } from "./PDPNotasTalla"
+import { NotaAjuste, NotaCinto } from "./PDPNotasTalla"
 import { formatSizeWithUs } from "@/lib/sizes"
 import { formatMoney } from "@/lib/utils"
 import { COLOR_OPTION_NAMES, findVariantBySelection } from "@/lib/pdp/variants"
@@ -73,6 +73,9 @@ export function ProductOptions({
   // Handle del metaobject "Sexo objetivo" — para conversión MX→US.
   const genderHandle =
     product.targetGender?.references?.edges?.[0]?.node?.handle ?? null
+
+  /** Los cintos se miden en pulgadas y con otra regla. Ver NotaCinto. */
+  const esCinturon = (product.productType ?? "").toLowerCase().includes("cintur")
 
   // ¿La talla viene como VARIANTE (opción del producto)?
   const sizeOption = product.options.find((o) => isSizeOption(o.name)) ?? null
@@ -504,8 +507,10 @@ export function ProductOptions({
             </p>
           )}
 
-          {/* Cómo queda el número, antes de elegirlo. */}
-          <NotaAjuste />
+          {/* Cómo queda el número, antes de elegirlo. Un cinto tiene su propia
+              guía —dos pulgadas sobre el pantalón— y no tiene empeine, así que
+              la nota de las botas ahí sobraba. */}
+          {esCinturon ? <NotaCinto /> : <NotaAjuste />}
 
           {/* Buscador de talla (marca conocida / medir el pie) */}
           <SizeFinder genderHandle={genderHandle} />

@@ -190,6 +190,10 @@ export function SugerenciaCinto({ cart }: { cart: Cart | null }) {
           {tallas.length > 0 && (
             <>
               <p className="nota mb-1.5">{t("sugerencia.medida")}</p>
+              <p className="nota mb-2">
+                <span className="text-text">{t("talla.cintoTitulo")}</span>{" "}
+                {t("talla.cinto")}
+              </p>
               <div className="flex flex-wrap gap-1.5">
                 {tallas.map((s) => (
                   <button

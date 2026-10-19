@@ -211,6 +211,13 @@ export function OpcionesCompra({
                   </button>
                 ))}
               </div>
+              {/* La guía del cinto, donde se elige la medida del cinto. */}
+              {g.id === "cinto" && (
+                <p className="nota mt-1.5">
+                  <span className="text-text">{t("talla.cintoTitulo")}</span>{" "}
+                  {t("talla.cinto")}
+                </p>
+              )}
               {faltaTalla && (
                 <p className="nota mt-1.5 font-medium text-text">{t("tira.eligeTalla")}</p>
               )}
