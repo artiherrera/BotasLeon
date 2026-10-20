@@ -41,18 +41,62 @@ import type { Cart } from "@/lib/shopify/types"
  * llamarle "total" sería prometer un precio que no es.
  */
 
-/** Ahorro de producto: lo que Shopify descontó LÍNEA por línea. */
-function ahorroDeLineas(cart: Cart | null): number {
-  if (!cart) return 0
-  return cart.lines.reduce(
-    (a, l) =>
-      a +
-      (l.discountAllocations ?? []).reduce(
-        (b, d) => b + parseFloat(d.discountedAmount.amount || "0"),
-        0
-      ),
-    0
-  )
+/** Con esto empiezan los códigos que pone el sitio (ver lib/cinto-mitad). */
+const PREFIJO_CINTO = "CINTOMITAD-"
+
+type Asignacion = {
+  discountedAmount: { amount: string }
+  title?: string
+  code?: string
+}
+
+/**
+ * CADA DESCUENTO CON SU NOMBRE Y SU MONTO, sumado por nombre.
+ *
+ * Antes el resumen enseñaba un solo renglón con la suma de todo y el título
+ * del primer descuento. Con la promoción del cinto conviviendo con el
+ * "🔥 Hoy te ahorras" de la bota eso quedó corto: dos descuentos distintos
+ * bajo un nombre que solo describía uno.
+ *
+ * El NOMBRE: los descuentos automáticos traen su título de Shopify. Los de
+ * código solo traen el código, así que el nuestro —reconocible por el
+ * prefijo— se pinta con el nombre de la promoción, y un código escrito por el
+ * cliente se pinta con el código, que es como lo conoce.
+ *
+ * EL MONTO siempre sale de Shopify. Aquí no se calcula ningún precio.
+ */
+function descuentosDelCarrito(
+  cart: Cart | null,
+  etiquetaCinto: string
+): Array<{ etiqueta: string; monto: number }> {
+  if (!cart) return []
+  const todas: Asignacion[] = [
+    ...((cart.discountAllocations ?? []) as Asignacion[]),
+    ...cart.lines.flatMap((l) => (l.discountAllocations ?? []) as Asignacion[]),
+  ]
+  const porEtiqueta = new Map<string, number>()
+  for (const a of todas) {
+    const monto = parseFloat(a.discountedAmount?.amount || "0")
+    if (!(monto > 0)) continue
+    const etiqueta = a.title
+      ? limpiaTitulo(a.title)
+      : a.code?.startsWith(PREFIJO_CINTO)
+        ? etiquetaCinto
+        : (a.code ?? "")
+    if (!etiqueta) continue
+    porEtiqueta.set(etiqueta, (porEtiqueta.get(etiqueta) ?? 0) + monto)
+  }
+  return [...porEtiqueta.entries()].map(([etiqueta, monto]) => ({ etiqueta, monto }))
+}
+
+/**
+ * Los descuentos de esta tienda se llaman "🔥 Hoy te ahorras $580": el título
+ * YA trae el monto. Puesto al lado de su propia cifra se leería "Hoy te
+ * ahorras $580 −$580". Se recorta el monto del final y se respeta el resto,
+ * emoji incluido: es como el dueño los nombró.
+ */
+function limpiaTitulo(titulo: string): string {
+  return titulo.replace(/\s*[-−]?\s*\$\s?[\d.,]+\s*$/, "").trim()
 }
 
 export function ResumenPago({
@@ -72,18 +116,22 @@ export function ResumenPago({
   const subtotal = parseFloat(cart.cost.subtotalAmount.amount)
   const total = parseFloat(cart.cost.totalAmount.amount)
   // Descuento de orden (código): Shopify lo aplica DESPUÉS del subtotal.
-  const porCodigo = Math.max(0, subtotal - total)
-  const ahorro = ahorroDeLineas(cart) + porCodigo
+  const desglose = descuentosDelCarrito(cart, t("cart.cintoMitad"))
+  const ahorro = desglose.reduce((a, d) => a + d.monto, 0)
   const lista = total + ahorro
 
   return (
     <div className={className}>
-      {ahorro > 0 && (
-        <div className="mb-3 flex items-center justify-between gap-3 border border-leather/40 bg-bg px-3.5 py-3">
-          <span className="cuerpo font-medium text-text">{t("cart.ahorroHoy")}</span>
-          <span className="precio whitespace-nowrap text-[1.375rem] text-leather">
-            −{formatMoney(String(ahorro), moneda)}
-          </span>
+      {desglose.length > 0 && (
+        <div className="mb-3 space-y-2 border border-leather/40 bg-bg px-3.5 py-3">
+          {desglose.map((d) => (
+            <div key={d.etiqueta} className="flex items-baseline justify-between gap-3">
+              <span className="cuerpo min-w-0 font-medium text-text">{d.etiqueta}</span>
+              <span className="precio whitespace-nowrap text-[1.375rem] text-leather">
+                −{formatMoney(String(d.monto), moneda)}
+              </span>
+            </div>
+          ))}
         </div>
       )}
 

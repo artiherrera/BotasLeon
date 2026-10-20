@@ -25,7 +25,14 @@ const ENDPOINT = DOMAIN
   ? `https://${DOMAIN}/api/${VERSION}/graphql.json`
   : ""
 
-const CART_FRAGMENT = /* GraphQL */ `
+/**
+ * Se exporta para que el sincronizador del cinto (servidor) devuelva el
+ * carrito con EXACTAMENTE la misma forma que maneja el navegador. Si cada lado
+ * pidiera sus campos, el carrito que llega del servidor perdería piezas —la
+ * talla, las tallas disponibles, el descuento por línea— y el cajón se
+ * repintaría a medias.
+ */
+export const CART_FRAGMENT = /* GraphQL */ `
   fragment CartFields on Cart {
     id
     checkoutUrl

@@ -25,6 +25,7 @@ import {
 } from "@/lib/discount/client"
 import { track } from "@/lib/klaviyo/client"
 import { gaEvent } from "@/lib/ga/events"
+import { faltaCodigoCinto, sincronizarCintoEnServidor } from "@/lib/cinto-mitad/cliente"
 
 /**
  * /cart — vista full-page del carrito.
@@ -63,6 +64,28 @@ export default function CartPage() {
     setPendingDiscount(code)
     setCouponInput("")
     showToast(`Código "${code}" guardado. Se aplica al pagar.`, "success")
+  }
+
+  /**
+   * Último seguro antes de salir al checkout de Shopify.
+   *
+   * Cada movimiento del carrito ya sincroniza, así que lo normal es que el
+   * código ya esté puesto y este clic no espere nada. Pero un carrito abierto
+   * en otra pestaña, o restaurado de ayer, puede llegar aquí sin él: en ese
+   * caso se frena la navegación el tiempo que tarde la llamada —menos de un
+   * segundo— y se sale con el descuento puesto. Salir sin él significaría
+   * cobrarle al cliente el cinto entero.
+   */
+  const alPagar = async (e: React.MouseEvent<HTMLAnchorElement>) => {
+    const url = e.currentTarget.href
+    if (cart && faltaCodigoCinto(cart)) {
+      e.preventDefault()
+      await sincronizarCintoEnServidor(cart.id)
+      handleCheckoutClick()
+      window.location.href = url
+      return
+    }
+    handleCheckoutClick()
   }
 
   const handleCheckoutClick = () => {
@@ -392,7 +415,7 @@ export default function CartPage() {
                 ) : (
                   <a
                     href={withDiscount(checkoutHref(cart.checkoutUrl), pendingDiscount)}
-                    onClick={handleCheckoutClick}
+                    onClick={alPagar}
                     className="btn w-full"
                   >
                     {t("cart.checkout")}
