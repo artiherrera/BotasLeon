@@ -11,7 +11,17 @@ import type { Cart } from "@/lib/shopify/types"
  */
 
 /** Con esto empiezan los códigos que administra el sitio. No es un código. */
-const PREFIJO = "CINTOMITAD-"
+export const PREFIJO = "CINTOMITAD-"
+
+/**
+ * ¿Este código lo escribió el cliente, o lo puso el sitio?
+ *
+ * Los nuestros NO se enseñan en "¿Tienes un código de descuento?": el cliente
+ * no lo escribió, no lo conoce y no debería poder quitarlo de ahí —si lo
+ * quitara, el sincronizador volvería a ponerlo y se vería como un parpadeo—.
+ * El descuento sí se ve: en la línea del cinto y en el resumen, con su nombre.
+ */
+export const esCodigoDelSitio = (code: string) => code.startsWith(PREFIJO)
 
 const TIPOS_BOTA = ["botines", "clasicas", "exoticas", "vaqueras", "rancho", "largas"]
 

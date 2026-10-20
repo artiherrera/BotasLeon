@@ -20,7 +20,11 @@ import { ResumenPago } from "@/components/ResumenPago"
 import { RecentlyViewed } from "@/components/RecentlyViewed"
 import { SugerenciaCinto } from "@/components/SugerenciaCinto"
 import { checkoutHref } from "@/lib/checkout"
-import { faltaCodigoCinto, sincronizarCintoEnServidor } from "@/lib/cinto-mitad/cliente"
+import {
+  esCodigoDelSitio,
+  faltaCodigoCinto,
+  sincronizarCintoEnServidor,
+} from "@/lib/cinto-mitad/cliente"
 import { isMX } from "@/lib/market"
 import { CartLineSize } from "@/components/CartLineSize"
 import { SIZE_ATTR, isDefaultOption, missingSizeLines } from "@/lib/cart/line-size"
@@ -72,7 +76,11 @@ export function CartDrawer() {
   const [mostrarCupon, setMostrarCupon] = useState(false)
 
   // Código(s) de descuento válidos ya aplicados en el carrito.
-  const appliedCodes = (cart?.discountCodes ?? []).filter((d) => d.applicable)
+  // Solo los que escribió el cliente. El del cinto lo pone el sitio y se
+  // enseña en el resumen, no como cupón (ver lib/cinto-mitad/cliente.ts).
+  const appliedCodes = (cart?.discountCodes ?? []).filter(
+    (d) => d.applicable && !esCodigoDelSitio(d.code)
+  )
 
   // Auto-aplica un código pendiente (llegó por link mágico /discount?code=CODE)
   // al abrir el carrito, para que también se valide y muestre aquí. Un intento
