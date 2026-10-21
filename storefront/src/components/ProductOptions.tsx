@@ -93,6 +93,16 @@ export function ProductOptions({
 
   const hasSizes = !!sizeOption || metaSizes.length > 0
 
+  // Tono de cada color de esta ficha (custom.colores), si lo tiene.
+  const tonos = useMemo<Record<string, string>>(() => {
+    try {
+      const v = product.colores?.value
+      return v ? (JSON.parse(v) as Record<string, string>) : {}
+    } catch {
+      return {}
+    }
+  }, [product.colores])
+
   // Talla elegida cuando viene del metacampo (estado local, no es variante).
   const [metaSize, setMetaSize] = useState<string | null>(null)
   const [showSizeError, setShowSizeError] = useState(false)
@@ -440,6 +450,7 @@ export function ProductOptions({
                     <ColorSwatch
                       key={value}
                       value={value}
+                      hex={tonos[value]}
                       isActive={isActive}
                       isAvailable={candidateAvailable}
                       onClick={() => setOption(option.name, value)}

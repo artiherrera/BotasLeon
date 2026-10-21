@@ -24,12 +24,21 @@ type Props = {
   isActive: boolean
   isAvailable: boolean
   onClick: () => void
+  /** Tono propio de esta ficha (custom.colores). Gana sobre el LUT. */
+  hex?: string
 }
 
-export function ColorSwatch({ value, isActive, isAvailable, onClick }: Props) {
-  const colorEntry = lookupColor(value)
-  const hex = colorEntry?.hex ?? "#B0B0B0"
-  const isLight = colorEntry?.isLight ?? false
+/** Claro = necesita borde extra sobre el fondo crema. */
+function esClaro(hex: string): boolean {
+  const n = parseInt(hex.slice(1), 16)
+  const r = (n >> 16) & 255, g = (n >> 8) & 255, b = n & 255
+  return (0.299 * r + 0.587 * g + 0.114 * b) / 255 > 0.78
+}
+
+export function ColorSwatch({ value, isActive, isAvailable, onClick, hex: propio }: Props) {
+  const colorEntry = propio ? null : lookupColor(value)
+  const hex = propio ?? colorEntry?.hex ?? "#B0B0B0"
+  const isLight = propio ? esClaro(propio) : (colorEntry?.isLight ?? false)
 
   const ariaLabel = `Color ${value}${
     isActive ? " (seleccionado)" : ""

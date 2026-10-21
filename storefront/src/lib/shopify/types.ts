@@ -91,6 +91,8 @@ export type Product = {
   // Tallas como metacampo de categoría (shopify.shoe-size), para productos
   // donde la talla NO se cargó como variante. Mismo shape que color/material.
   shoeSizes?: TaxonomyMetafield
+  /** custom.colores: {"Nombre del color": "#HEX"} — tono del cuadrito por ficha. */
+  colores?: { value: string } | null
   // Sexo objetivo (Shopify target-gender). Solo el handle del metaobject,
   // sin fields — usamos handle directo para mapear MX→US sizes
   targetGender?: {

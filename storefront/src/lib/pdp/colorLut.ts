@@ -33,6 +33,13 @@ const COLOR_LUT: Record<string, ColorEntry> = {
   cognac: { hex: "#9F4F1F" },
   tabaco: { hex: "#8B4513" },
   whiskey: { hex: "#A0522D" },
+  // Coñac con o sin tilde (normalize() quita la del ñ → "conac"), shedrón
+  // (naranja rojizo), brandy y nogal. Respaldo: las fichas que juntan colores
+  // traen su propio tono en custom.colores.
+  conac: { hex: "#9F4F1F" },
+  shedron: { hex: "#C0562E" },
+  brandy: { hex: "#92422B" },
+  nogal: { hex: "#8A5232" },
 
   // Tonos cálidos
   miel: { hex: "#C19A6B" },
@@ -69,6 +76,10 @@ const COLOR_LUT: Record<string, ColorEntry> = {
   oro: { hex: "#D4AF37" },
   dorado: { hex: "#D4AF37" },
   bronce: { hex: "#CD7F32" },
+
+  // Pelo de vaca y tonos encendidos
+  jaspeado: { hex: "#8A847B" },
+  naranja: { hex: "#C0622A" },
 }
 
 function normalize(s: string): string {

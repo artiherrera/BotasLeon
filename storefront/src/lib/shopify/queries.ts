@@ -150,6 +150,10 @@ export const PRODUCT_DETAIL_FRAGMENT = /* GraphQL */ `
     variants(first: 100) {
       edges { node { ...VariantFields } }
     }
+    # Tono de cada color para el cuadrito del selector, sacado de la foto:
+    # {"Coñac": "#994A23"}. Va por ficha porque un mismo nombre ("Miel") es
+    # un tono distinto en caimán que en bisonte. Si falta, se usa colorLut.
+    colores: metafield(namespace: "custom", key: "colores") { value }
     targetGender: metafield(namespace: "shopify", key: "target-gender") {
       references(first: 5) {
         edges { node { ... on Metaobject { handle } } }
