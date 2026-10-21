@@ -29,6 +29,7 @@ import { track } from "@/lib/klaviyo/client"
 import { pixelTrack, toContentId } from "@/lib/meta/pixel"
 import { gaEvent } from "@/lib/ga/events"
 import type { Cart } from "@/lib/shopify/types"
+import { sincronizarCintoEnServidor } from "@/lib/cinto-mitad/cliente"
 
 /**
  * CartProvider — estado del carrito 100% en cliente.
@@ -152,6 +153,11 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       .then((c) => {
         if (c) {
           setCart(c)
+          // El carrito guardado puede venir de otra pestaña, de ayer, o de
+          // antes de que existiera la promoción: que el servidor lo revise.
+          sincronizarCintoEnServidor(c.id).then((corregido) => {
+            if (corregido) setCart(corregido)
+          })
         } else {
           // Cart expirado o convertido en pedido — limpiar
           localStorage.removeItem(STORAGE_KEY)
@@ -176,6 +182,26 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     }
   }, [])
 
+  /**
+   * Guarda el carrito y, enseguida, deja que el servidor ponga o quite el
+   * código del cinto a mitad (ver lib/cinto-mitad). Se usa después de CADA
+   * movimiento: agregar, quitar, cambiar cantidad o talla, y al cargar un
+   * carrito guardado. Si el servidor no cambia nada —el caso normal— devuelve
+   * null y no se vuelve a pintar.
+   *
+   * El segundo guardado usa `persist` a secas, no esta función: así no se
+   * llama a sí misma.
+   */
+  const persistYSincronizar = useCallback(
+    (c: Cart) => {
+      persist(c)
+      sincronizarCintoEnServidor(c.id).then((corregido) => {
+        if (corregido) persist(corregido)
+      })
+    },
+    [persist]
+  )
+
   // Al cambiar de idioma (o al cargar), alinea el mercado/moneda del carrito
   // existente con el idioma actual. Sin esto, un carrito creado en español (MXN)
   // seguiría cobrando pesos aunque el usuario cambie a inglés.
@@ -184,9 +210,9 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     const id = cartIdRef.current
     if (!id) return
     clientUpdateBuyerIdentity(id, countryCode)
-      .then((c) => persist(c))
+      .then((c) => persistYSincronizar(c))
       .catch((e) => console.warn("[cart] buyerIdentity update falló:", e))
-  }, [countryCode, ready, persist])
+  }, [countryCode, ready, persistYSincronizar])
 
   const openCart = useCallback(() => setIsOpen(true), [])
   const closeCart = useCallback(() => { setIsOpen(false); setLastAdded(null) }, [])
@@ -225,7 +251,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
           const updated = id
             ? await clientAddLines(id, [line])
             : await clientCreateCart([line], countryRef.current)
-          persist(updated)
+          persistYSincronizar(updated)
           const lastLine = updated.lines[updated.lines.length - 1]
           setLastAdded(lastLine?.merchandise.product.title ?? null)
           setIsOpen(true)
@@ -272,7 +298,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
           if (cartIdRef.current && /does not exist|not found/i.test(msg)) {
             try {
               const fresh = await clientCreateCart([line], countryRef.current)
-              persist(fresh)
+              persistYSincronizar(fresh)
               setIsOpen(true)
               return
             } catch (e2) {
@@ -284,7 +310,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         }
       })
     },
-    [persist, showToast]
+    [persistYSincronizar, showToast]
   )
 
   /**
@@ -331,7 +357,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
               throw e
             }
           }
-          persist(updated)
+          persistYSincronizar(updated)
           const ultimas = updated.lines.slice(-limpias.length)
           setLastAdded(ultimas[0]?.merchandise.product.title ?? null)
           setIsOpen(true)
@@ -375,7 +401,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         }
       })
     },
-    [persist, showToast]
+    [persistYSincronizar, showToast]
   )
 
   /**
@@ -509,13 +535,13 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       startTransition(async () => {
         try {
           const updated = await clientUpdateLines(id, [{ id: lineId, quantity }])
-          persist(updated)
+          persistYSincronizar(updated)
         } catch (e) {
           console.error("[cart] updateLine falló:", e)
         }
       })
     },
-    [persist]
+    [persistYSincronizar]
   )
 
   const setLineSize = useCallback(
@@ -527,13 +553,13 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
           const updated = await clientUpdateLines(id, [
             { id: lineId, attributes: [{ key: SIZE_ATTR, value: size }] },
           ])
-          persist(updated)
+          persistYSincronizar(updated)
         } catch (e) {
           console.error("[cart] setLineSize falló:", e)
         }
       })
     },
-    [persist]
+    [persistYSincronizar]
   )
 
   const removeLine = useCallback(
@@ -543,13 +569,13 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       startTransition(async () => {
         try {
           const updated = await clientRemoveLines(id, [lineId])
-          persist(updated)
+          persistYSincronizar(updated)
         } catch (e) {
           console.error("[cart] removeLine falló:", e)
         }
       })
     },
-    [persist]
+    [persistYSincronizar]
   )
 
   const updateAttributes = useCallback(
@@ -559,13 +585,13 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       startTransition(async () => {
         try {
           const updated = await clientUpdateAttributes(id, attributes)
-          persist(updated)
+          persistYSincronizar(updated)
         } catch (e) {
           console.error("[cart] updateAttributes falló:", e)
         }
       })
     },
-    [persist]
+    [persistYSincronizar]
   )
 
   // Modelo de UN código a la vez (lo estándar para un promo). Reemplaza los
@@ -584,10 +610,12 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         )
         if (!applied || !applied.applicable) {
           const cleared = await clientUpdateDiscountCodes(id, [])
-          persist(cleared)
+          // Vaciar la lista también se llevó el código del cinto: que el
+          // servidor lo reponga si sigue correspondiendo.
+          persistYSincronizar(cleared)
           return { ok: false, message: "Código no válido o no aplica a tu carrito." }
         }
-        persist(updated)
+        persistYSincronizar(updated)
         clearPendingDiscount() // ya vive en el carrito; no necesitamos el pendiente
         return { ok: true }
       } catch (e) {
@@ -597,7 +625,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         }
       }
     },
-    [persist]
+    [persistYSincronizar]
   )
 
   const removeDiscount = useCallback(() => {
@@ -606,13 +634,13 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     startTransition(async () => {
       try {
         const updated = await clientUpdateDiscountCodes(id, [])
-        persist(updated)
+        persistYSincronizar(updated)
         clearPendingDiscount()
       } catch (e) {
         console.error("[cart] removeDiscount falló:", e)
       }
     })
-  }, [persist])
+  }, [persistYSincronizar])
 
   const itemCount = ready ? (cart?.totalQuantity ?? 0) : 0
 

@@ -537,6 +537,12 @@ export const DICTIONARY: Record<string, Entry> = {
     en: "Ships across the USA",
   },
   // El ahorro y lo que se paga, en el pie del carrito (ResumenPago.tsx).
+  // El nombre con el que se enseña NUESTRO código en el resumen: el de la
+  // promoción, no el código (que no le dice nada a nadie).
+  "cart.cintoMitad": {
+    es: "Tu cinto al 50% con tus botas",
+    en: "Your belt at 50% with your boots",
+  },
   "cart.ahorroHoy": { es: "Hoy te ahorras", en: "You save today" },
   // Solo la .mx: ahí el precio lleva IVA y el envío es gratis sin condición
   // (lib/shipping-policy.ts). En la .com el envío lo cotiza el checkout.

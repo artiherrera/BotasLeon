@@ -20,6 +20,11 @@ import { ResumenPago } from "@/components/ResumenPago"
 import { RecentlyViewed } from "@/components/RecentlyViewed"
 import { SugerenciaCinto } from "@/components/SugerenciaCinto"
 import { checkoutHref } from "@/lib/checkout"
+import {
+  esCodigoDelSitio,
+  faltaCodigoCinto,
+  sincronizarCintoEnServidor,
+} from "@/lib/cinto-mitad/cliente"
 import { isMX } from "@/lib/market"
 import { CartLineSize } from "@/components/CartLineSize"
 import { SIZE_ATTR, isDefaultOption, missingSizeLines } from "@/lib/cart/line-size"
@@ -71,7 +76,11 @@ export function CartDrawer() {
   const [mostrarCupon, setMostrarCupon] = useState(false)
 
   // Código(s) de descuento válidos ya aplicados en el carrito.
-  const appliedCodes = (cart?.discountCodes ?? []).filter((d) => d.applicable)
+  // Solo los que escribió el cliente. El del cinto lo pone el sitio y se
+  // enseña en el resumen, no como cupón (ver lib/cinto-mitad/cliente.ts).
+  const appliedCodes = (cart?.discountCodes ?? []).filter(
+    (d) => d.applicable && !esCodigoDelSitio(d.code)
+  )
 
   // Auto-aplica un código pendiente (llegó por link mágico /discount?code=CODE)
   // al abrir el carrito, para que también se valide y muestre aquí. Un intento
@@ -132,6 +141,28 @@ export function CartDrawer() {
   // (después). Pre-checkout no hay envío/impuesto, así que la diferencia es el
   // descuento de un código de orden.
   const discountTotal = Math.max(0, subtotalNum - totalNum)
+
+  /**
+   * Último seguro antes de salir al checkout de Shopify.
+   *
+   * Cada movimiento del carrito ya sincroniza, así que lo normal es que el
+   * código ya esté puesto y este clic no espere nada. Pero un carrito abierto
+   * en otra pestaña, o restaurado de ayer, puede llegar aquí sin él: en ese
+   * caso se frena la navegación el tiempo que tarde la llamada —menos de un
+   * segundo— y se sale con el descuento puesto. Salir sin él significaría
+   * cobrarle al cliente el cinto entero.
+   */
+  const alPagar = async (e: React.MouseEvent<HTMLAnchorElement>) => {
+    const url = e.currentTarget.href
+    if (cart && faltaCodigoCinto(cart)) {
+      e.preventDefault()
+      await sincronizarCintoEnServidor(cart.id)
+      handleCheckoutClick()
+      window.location.href = url
+      return
+    }
+    handleCheckoutClick()
+  }
 
   const handleCheckoutClick = () => {
     if (!cart) return
@@ -568,7 +599,7 @@ export function CartDrawer() {
                 ) : (
                   <a
                     href={withDiscount(checkoutHref(cart.checkoutUrl))}
-                    onClick={handleCheckoutClick}
+                    onClick={alPagar}
                     className="btn h-14 w-full text-[1.0625rem]"
                   >
                     {t("cart.checkout")}
