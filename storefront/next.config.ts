@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import { redireccionesShopify } from "./src/lib/redirecciones-shopify";
 
 // CSP en Report-Only: NO bloquea, solo reporta violaciones a la consola del
 // navegador para poder afinarla antes de hacerla obligatoria. Cubre las
@@ -70,6 +71,11 @@ const nextConfig: NextConfig = {
   // Si en producción no aparecen, replicarlos como customHeaders en Amplify.
   async headers() {
     return [{ source: "/:path*", headers: SECURITY_HEADERS }];
+  },
+  // Links viejos de productos (fichas que se juntaron por color, handles que
+  // cambiaron) → su ficha nueva. Ver src/lib/redirecciones-shopify.ts.
+  async redirects() {
+    return redireccionesShopify(["es", "en"]);
   },
   // Sin redirect /ninos → /nino: la sección Niños no existe (páginas sin
   // publicar), así que redirigir ahí solo mandaba a un 404.

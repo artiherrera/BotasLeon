@@ -1,6 +1,6 @@
 "use client"
 
-import { createContext, useContext, useMemo, useState } from "react"
+import { createContext, useContext, useEffect, useMemo, useState } from "react"
 import {
   filterImagesByColor,
   findVariantBySelection,
@@ -71,6 +71,21 @@ export function PDPVariantProvider({
   children: React.ReactNode
 }) {
   const [selection, setSelection] = useState<Selection>(() => getInitialSelection(product))
+
+  // Un link con ?variant=… (p. ej. una ficha vieja de un solo color que ahora
+  // redirige a la ficha que junta los colores) abre con ESE color elegido.
+  // Va en efecto y no en el estado inicial porque la página es estática.
+  useEffect(() => {
+    const id = new URLSearchParams(window.location.search).get("variant")
+    if (!id) return
+    const v = product.variants.find((x) => x.id === id || x.id.endsWith(`/${id}`))
+    if (!v) return
+    setSelection(
+      Object.fromEntries(
+        v.selectedOptions.filter((o) => !isSizeName(o.name)).map((o) => [o.name, o.value])
+      )
+    )
+  }, [product])
 
   const setOption = (name: string, value: string) => {
     setSelection((prev) => ({ ...prev, [name]: value }))

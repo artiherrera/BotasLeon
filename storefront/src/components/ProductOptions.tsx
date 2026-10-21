@@ -111,7 +111,12 @@ export function ProductOptions({
 
   // Variante a comprar: si la talla es variante → la que resuelve la selección;
   // si no → la única variante del producto (la talla va como atributo).
-  const purchaseVariant = sizeOption ? activeVariant : product.variants[0] ?? null
+  // Sin talla-variante, la variante la decide el COLOR elegido (fichas que juntan
+  // varios colores en una). Antes era siempre variants[0]: elegir Negro metía
+  // Café al carrito.
+  const purchaseVariant = sizeOption
+    ? activeVariant
+    : activeVariant ?? product.variants[0] ?? null
   const isAvailable = purchaseVariant?.availableForSale ?? false
   // "Combinación no disponible": aplica solo a productos con talla-variante,
   // cuando ya se eligió talla pero esa combinación no existe.
@@ -180,7 +185,7 @@ export function ProductOptions({
       return activeVariant?.availableForSale ? { merchandiseId: activeVariant.id } : null
     }
     if (metaSizes.length > 0 && metaSize) {
-      const v = product.variants[0]
+      const v = purchaseVariant
       return v ? { merchandiseId: v.id, attributes: [{ key: "Talla", value: metaSize }] } : null
     }
     return purchaseVariant?.availableForSale ? { merchandiseId: purchaseVariant.id } : null
