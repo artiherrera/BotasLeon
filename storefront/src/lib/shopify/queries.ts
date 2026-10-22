@@ -58,12 +58,26 @@ export const PRODUCT_CARD_FRAGMENT = /* GraphQL */ `
       minVariantPrice { ...MoneyFields }
     }
     options { id name values }
-    # Variante única del producto: TODO el catálogo es de una sola variante (la
-    # talla vive en el metacampo shoe-size, no como opción), así que con first:1
-    # la tarjeta ya tiene lo necesario para agregar al carrito sin abrir el PDP.
-    variants(first: 1) {
-      edges { node { id title availableForSale } }
+    # LAS VARIANTES DE COLOR, para que la tarjeta pinte sus cuadritos y cambie
+    # de foto sin abrir la ficha. Eran first:1 cuando cada color era un
+    # producto aparte; desde que se juntaron (2026-10-21) hay fichas de hasta
+    # cuatro colores y con una sola variante la tarjeta enseñaba un color y
+    # callaba los otros tres. Diez cubre de sobra el máximo real, que es
+    # cuatro. La talla no vive aquí: sigue en el metacampo shoe-size.
+    variants(first: 10) {
+      edges {
+        node {
+          id
+          title
+          availableForSale
+          image { ...ImageFields }
+          selectedOptions { name value }
+        }
+      }
     }
+    # Tono exacto de cada color de ESTA ficha: {"Coñac": "#994A23"}. Un mismo
+    # nombre es otro tono en caimán que en bisonte. Si falta, manda colorLut.
+    colores: metafield(namespace: "custom", key: "colores") { value }
     color: metafield(namespace: "shopify", key: "color-pattern") {
       references(first: 5) {
         edges { node { ... on Metaobject { handle fields { key value } } } }

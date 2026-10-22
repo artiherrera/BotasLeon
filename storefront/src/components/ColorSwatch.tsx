@@ -26,6 +26,12 @@ type Props = {
   onClick: () => void
   /** Tono propio de esta ficha (custom.colores). Gana sobre el LUT. */
   hex?: string
+  /**
+   * "ficha" son los 44px del selector, que se tocan con el pulgar. "tarjeta"
+   * son 20px: ahí el cuadrito no es el control principal —la tarjeta entera
+   * lleva a la ficha— y cuatro cuadros de 44px taparían el nombre de la bota.
+   */
+  tamano?: "ficha" | "tarjeta"
 }
 
 /** Claro = necesita borde extra sobre el fondo crema. */
@@ -35,7 +41,15 @@ function esClaro(hex: string): boolean {
   return (0.299 * r + 0.587 * g + 0.114 * b) / 255 > 0.78
 }
 
-export function ColorSwatch({ value, isActive, isAvailable, onClick, hex: propio }: Props) {
+export function ColorSwatch({
+  value,
+  isActive,
+  isAvailable,
+  onClick,
+  hex: propio,
+  tamano = "ficha",
+}: Props) {
+  const chico = tamano === "tarjeta"
   const colorEntry = propio ? null : lookupColor(value)
   const hex = propio ?? colorEntry?.hex ?? "#B0B0B0"
   const isLight = propio ? esClaro(propio) : (colorEntry?.isLight ?? false)
@@ -60,14 +74,18 @@ export function ColorSwatch({ value, isActive, isAvailable, onClick, hex: propio
       <span
         aria-hidden
         className={`absolute inset-0 transition-colors duration-[180ms] ${
-          isActive ? "ring-2 ring-text ring-offset-2 ring-offset-bg" : ""
+          isActive
+            ? chico
+              ? "ring-1 ring-text ring-offset-2 ring-offset-bg"
+              : "ring-2 ring-text ring-offset-2 ring-offset-bg"
+            : ""
         }`}
       />
 
       {/* Cuadro de color */}
       <span
         aria-hidden
-        className={`block w-11 h-11 border ${
+        className={`block ${chico ? "w-5 h-5" : "w-11 h-11"} border ${
           isLight ? "border-border-strong/40" : "border-black/20"
         } ${isLight && !isActive ? "shadow-inner" : ""}`}
         style={{ backgroundColor: hex }}
@@ -80,7 +98,7 @@ export function ColorSwatch({ value, isActive, isAvailable, onClick, hex: propio
           className="absolute inset-0 flex items-center justify-center pointer-events-none"
         >
           <span
-            className="block w-12 h-[2px] bg-text/60 -rotate-45"
+            className={`block ${chico ? "w-6" : "w-12"} h-[2px] bg-text/60 -rotate-45`}
             style={{ transformOrigin: "center" }}
           />
         </span>

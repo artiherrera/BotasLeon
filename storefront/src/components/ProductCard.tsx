@@ -8,6 +8,8 @@ import { JudgemeStars } from "./JudgemeStars"
 import { LocalizedPrice, useProductTranslation } from "./LocalizedProductContent"
 import { useLocale, useT } from "@/lib/i18n/context"
 import { atributosDeTarjeta, generoDeTarjeta } from "@/lib/shopify/facets"
+import { coloresDeTarjeta, paramVariante } from "@/lib/colores-tarjeta"
+import { ColorSwatch } from "./ColorSwatch"
 import { facetLabel } from "@/lib/facets-i18n"
 import { enPromoPar } from "@/lib/promocion"
 import { saleInfo } from "@/lib/utils"
@@ -87,7 +89,7 @@ export function ProductCard({
     .slice(0, 6)
   // Con `empezarEnSegunda`, la segunda pasa al frente y la portada queda de
   // segunda: así el hover —que salta a la posición 1— sigue enseñando "la otra".
-  const gallery =
+  const galeriaBase =
     empezarEnSegunda && ordenada.length > 1
       ? [ordenada[1], ordenada[0], ...ordenada.slice(2)]
       : ordenada
@@ -113,12 +115,39 @@ export function ProductCard({
   // de abajo, no solo la foto.
   const [encima, setEncima] = useState(false)
 
+  /* LOS COLORES DE LA BOTA, cambiables sin abrir la ficha.
+     Vacío cuando la bota es de un solo color: un control que no decide nada
+     no se pinta. Elegido uno, la foto de la tarjeta pasa a ser la de ESE
+     color y el enlace lleva `?variant=`, que la ficha ya sabe leer. */
+  const colores = coloresDeTarjeta(product)
+  const [colorElegido, setColorElegido] = useState<string | null>(null)
+  const color = colores.find((c) => c.nombre === colorElegido) ?? null
+
+  const href = color
+    ? `/products/${handle}?variant=${paramVariante(color.variantId)}`
+    : `/products/${handle}`
+
+  /* UNA FOTO POR COLOR, no el revoltijo de antes. Con los colores juntos en
+     una ficha, el carrusel de la tarjeta mezclaba el negro y el miel de la
+     misma bota: pasabas el ratón y la bota cambiaba de color sin que nadie lo
+     hubiera pedido. Cuando hay colores, la tarjeta enseña la foto del color
+     elegido —la primera, mientras no se elija— y se apaga el carrusel. */
+  const gallery =
+    colores.length > 1
+      ? [
+          (color ?? colores[0]).foto
+            ? ({ url: (color ?? colores[0]).foto } as ShopifyImage)
+            : galeriaBase[0],
+        ].filter(Boolean)
+      : galeriaBase
+
   return (
+    <div className="flex h-full flex-col">
     <Link
-      href={`/products/${handle}`}
+      href={href}
       onMouseEnter={() => setEncima(true)}
       onMouseLeave={() => setEncima(false)}
-      className="group flex h-full flex-col"
+      className="group flex flex-1 flex-col"
       aria-label={
         product.availableForSale
           ? `${t("card.view")} ${displayTitle}`
@@ -135,7 +164,7 @@ export function ProductCard({
       >
         {gallery.length === 0 ? (
           <PlaceholderImage />
-        ) : singleImage ? (
+        ) : singleImage || colores.length > 1 ? (
           <Image src={gallery[0].url} alt={gallery[0].altText || title} fill sizes={SIZES} />
         ) : (
           <CardGallery images={gallery} alt={title} encima={encima} />
@@ -219,6 +248,27 @@ export function ProductCard({
         </div>
       </div>
     </Link>
+
+    {/* LOS CUADRITOS VAN FUERA DEL ENLACE, y no es un capricho: un <button>
+        dentro de un <a> no es HTML válido y el clic acabaría navegando en vez
+        de cambiar el color. Por eso la tarjeta es un <div> con el enlace
+        dentro, y no un enlace con todo dentro. */}
+    {colores.length > 1 && (
+      <div className="mt-2 flex flex-wrap items-center gap-1.5 px-1">
+        {colores.map((c) => (
+          <ColorSwatch
+            key={c.nombre}
+            value={c.nombre}
+            hex={c.hex ?? undefined}
+            isActive={c.nombre === (colorElegido ?? colores[0].nombre)}
+            isAvailable={c.disponible}
+            tamano="tarjeta"
+            onClick={() => setColorElegido(c.nombre)}
+          />
+        ))}
+      </div>
+    )}
+    </div>
   )
 }
 
