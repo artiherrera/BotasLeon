@@ -142,18 +142,19 @@ export function ProductCard({
       : galeriaBase
 
   return (
-    <div className="flex h-full flex-col">
-    <Link
-      href={href}
+    /* El `group` y el hover viven en la RAÍZ, no en el enlace: la tarjeta se
+       partió en dos enlaces —foto y texto— para poder meter los cuadritos de
+       color entre ellos, y el subrayado del nombre y el "Elegir talla" tienen
+       que seguir respondiendo al ratón esté donde esté dentro de la tarjeta. */
+    <div
+      className="group flex h-full flex-col"
       onMouseEnter={() => setEncima(true)}
       onMouseLeave={() => setEncima(false)}
-      className="group flex flex-1 flex-col"
-      aria-label={
-        product.availableForSale
-          ? `${t("card.view")} ${displayTitle}`
-          : `${t("card.view")} ${displayTitle} ${t("card.soldOutParen")}`
-      }
     >
+    {/* El enlace de la FOTO. Invisible para el lector de pantalla y fuera del
+        recorrido del teclado: lleva al mismo sitio que el del nombre, y
+        anunciar dos veces la misma bota es ruido. */}
+    <Link href={href} aria-hidden tabIndex={-1} className="block">
       {/* La primera foto manda: si es de ambiente, el plato se porta distinto
           (llena el cuadro y no multiplica). En la tarjeta solo se ve una a la
           vez y el carrusel cambia entre ellas, así que la clase la fija la
@@ -203,7 +204,37 @@ export function ProductCard({
           )}
         </div>
       </div>
+    </Link>
 
+    {/* LOS CUADRITOS, PEGADOS A LA FOTO: es lo que cambian. Al final de la
+        tarjeta, debajo de los meses sin intereses, colgaban como un apéndice y
+        nadie los relacionaba con la imagen de arriba. El margen negativo los
+        sube contra la foto; el `mb-3` del plato queda para ellos. */}
+    {colores.length > 1 && (
+      <div className="-mt-1 mb-3 flex flex-wrap items-center gap-1.5 px-1">
+        {colores.map((c) => (
+          <ColorSwatch
+            key={c.nombre}
+            value={c.nombre}
+            hex={c.hex ?? undefined}
+            isActive={c.nombre === (colorElegido ?? colores[0].nombre)}
+            isAvailable={c.disponible}
+            tamano="tarjeta"
+            onClick={() => setColorElegido(c.nombre)}
+          />
+        ))}
+      </div>
+    )}
+
+    <Link
+      href={href}
+      className="flex flex-1 flex-col"
+      aria-label={
+        product.availableForSale
+          ? `${t("card.view")} ${displayTitle}`
+          : `${t("card.view")} ${displayTitle} ${t("card.soldOutParen")}`
+      }
+    >
       <div className="flex flex-1 flex-col px-1">
         {/* El renglón de marca se pinta SIEMPRE, con un espacio duro cuando el
             producto no la trae: si desaparece, esa tarjeta sube todo lo de
@@ -248,26 +279,6 @@ export function ProductCard({
         </div>
       </div>
     </Link>
-
-    {/* LOS CUADRITOS VAN FUERA DEL ENLACE, y no es un capricho: un <button>
-        dentro de un <a> no es HTML válido y el clic acabaría navegando en vez
-        de cambiar el color. Por eso la tarjeta es un <div> con el enlace
-        dentro, y no un enlace con todo dentro. */}
-    {colores.length > 1 && (
-      <div className="mt-2 flex flex-wrap items-center gap-1.5 px-1">
-        {colores.map((c) => (
-          <ColorSwatch
-            key={c.nombre}
-            value={c.nombre}
-            hex={c.hex ?? undefined}
-            isActive={c.nombre === (colorElegido ?? colores[0].nombre)}
-            isAvailable={c.disponible}
-            tamano="tarjeta"
-            onClick={() => setColorElegido(c.nombre)}
-          />
-        ))}
-      </div>
-    )}
     </div>
   )
 }
