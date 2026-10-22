@@ -835,6 +835,9 @@ export const DICTIONARY: Record<string, Entry> = {
     es: "Asesoría de talla por WhatsApp antes de pagar",
     en: "Sizing help on WhatsApp before you pay",
   },
+  // Pedido del dueño (2026-10-21). Es verdad sin matices: el cobro lo hace el
+  // checkout de Shopify, que es quien guarda la tarjeta, no este sitio.
+  "aviso.pagoSeguro": { es: "Pago seguro", en: "Secure checkout" },
   "aviso.usEnvio": {
     es: "Envío gratis en todos los pedidos",
     en: "Free shipping on every order",

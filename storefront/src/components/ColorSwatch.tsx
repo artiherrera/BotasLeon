@@ -70,10 +70,15 @@ export function ColorSwatch({
         isAvailable || isActive ? "cursor-pointer" : "opacity-40 cursor-not-allowed"
       }`}
     >
+      {/* REDONDO, por pedido del dueño (2026-10-21). Es la segunda esquina
+          curva del sistema —la primera son los 6px de los botones—: el resto
+          del sitio es cuadrado a propósito (--radius: 0). Un círculo de color
+          se lee como muestra de pintura y se distingue de los cuadros de
+          talla, que siguen siendo cuadrados. */}
       {/* Outer ring — visible solo en estado activo */}
       <span
         aria-hidden
-        className={`absolute inset-0 transition-colors duration-[180ms] ${
+        className={`absolute inset-0 rounded-full transition-colors duration-[180ms] ${
           isActive
             ? chico
               ? "ring-1 ring-text ring-offset-2 ring-offset-bg"
@@ -85,7 +90,7 @@ export function ColorSwatch({
       {/* Cuadro de color */}
       <span
         aria-hidden
-        className={`block ${chico ? "w-5 h-5" : "w-11 h-11"} border ${
+        className={`block rounded-full ${chico ? "w-5 h-5" : "w-11 h-11"} border ${
           isLight ? "border-border-strong/40" : "border-black/20"
         } ${isLight && !isActive ? "shadow-inner" : ""}`}
         style={{ backgroundColor: hex }}

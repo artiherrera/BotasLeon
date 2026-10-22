@@ -83,10 +83,11 @@ export const PAGO_EN_4 = false
 /**
  * Las tres promesas de la barra de avisos, por MERCADO.
  *
- * Tres y no cuatro, y quietas: antes fue una marquesina de cuatro mensajes en
- * bucle y ninguno se leía entero —la línea que te interesaba ya se había ido—.
- * Tres caben de un vistazo en escritorio y envuelven en dos renglones en un
- * teléfono.
+ * Cuatro desde el 2026-10-21: el dueño pidió que el cintillo dijera "Pago
+ * seguro". Eran tres por una razón que sigue valiendo a medias —antes fue una
+ * marquesina de cuatro mensajes en bucle y ninguno se leía entero—, pero lo
+ * que mata la lectura es el movimiento, no el número: estas están quietas.
+ * Medido con la cuarta puesta, para que no empuje la página.
  *
  * No son la misma lista traducida: en México el argumento es el envío gratis y
  * los meses; en Estados Unidos, el envío gratis y el hecho a mano. Los meses no
@@ -94,9 +95,10 @@ export const PAGO_EN_4 = false
  * dólares no los ofrece (ver lib/msi.ts).
  */
 export const PROMESAS_BARRA: readonly string[] = isMX
-  ? ["aviso.mxEnvio", "aviso.mxMeses", "aviso.mxTalla"]
+  ? ["aviso.mxEnvio", "aviso.mxMeses", "aviso.mxTalla", "aviso.pagoSeguro"]
   : [
       "aviso.usEnvio",
       "aviso.usHecho",
       PAGO_EN_4 ? "aviso.usPago4" : "aviso.usTalla",
+      "aviso.pagoSeguro",
     ]
