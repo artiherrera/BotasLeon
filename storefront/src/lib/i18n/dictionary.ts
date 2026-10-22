@@ -543,6 +543,7 @@ export const DICTIONARY: Record<string, Entry> = {
     es: "Tu cinto al 50% con tus botas",
     en: "Your belt at 50% with your boots",
   },
+  "cart.ahorroTotal": { es: "Te ahorras en total", en: "You save in total" },
   "cart.ahorroHoy": { es: "Hoy te ahorras", en: "You save today" },
   // Solo la .mx: ahí el precio lleva IVA y el envío es gratis sin condición
   // (lib/shipping-policy.ts). En la .com el envío lo cotiza el checkout.

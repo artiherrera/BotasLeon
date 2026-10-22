@@ -86,7 +86,13 @@ function descuentosDelCarrito(
     if (!etiqueta) continue
     porEtiqueta.set(etiqueta, (porEtiqueta.get(etiqueta) ?? 0) + monto)
   }
-  return [...porEtiqueta.entries()].map(([etiqueta, monto]) => ({ etiqueta, monto }))
+  // DE MAYOR A MENOR. El orden natural era el de las líneas del carrito, que
+  // no significa nada: en un carrito de bota + cinto el descuento del cinto
+  // puede valer $499.50 y el de la bota $190, y quedaba abajo o arriba según
+  // en qué orden se hubieran agregado. El que más ahorra se lee primero.
+  return [...porEtiqueta.entries()]
+    .map(([etiqueta, monto]) => ({ etiqueta, monto }))
+    .sort((a, b) => b.monto - a.monto)
 }
 
 /**
@@ -132,6 +138,20 @@ export function ResumenPago({
               </span>
             </div>
           ))}
+          {/* CON DOS O MÁS, LA SUMA. Dos renglones sueltos obligan al cliente
+              a hacer la cuenta para saber cuánto se está ahorrando de verdad,
+              y en un carrito de bota + cinto esa suma es el argumento. Es lo
+              mismo que enseña el checkout de Shopify ("AHORRO TOTAL"). */}
+          {desglose.length > 1 && (
+            <div className="flex items-baseline justify-between gap-3 border-t border-leather/30 pt-2">
+              <span className="cuerpo min-w-0 font-medium text-text">
+                {t("cart.ahorroTotal")}
+              </span>
+              <span className="precio whitespace-nowrap text-[1.375rem] text-leather">
+                −{formatMoney(String(ahorro), moneda)}
+              </span>
+            </div>
+          )}
         </div>
       )}
 
