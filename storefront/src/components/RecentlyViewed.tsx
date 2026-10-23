@@ -206,6 +206,7 @@ export function RecentlyViewed({
                 key={p.id}
                 product={conDescuento(p, descuentos[p.handle])}
                 conGenero
+                empezarEnSegunda
               />
             ))
           : aPedir.map((item) => <EsqueletoGuardado key={item.handle} item={item} />)}
@@ -220,6 +221,9 @@ export function RecentlyViewed({
  * al llegar los precios nada salte de sitio.
  */
 function EsqueletoGuardado({ item }: { item: ViewedItem }) {
+  // Solo hay una foto guardada (la portada), así que aquí no se puede empezar
+  // en la segunda: en cuanto llegan los datos de Shopify, la tarjeta de verdad
+  // la sustituye y ya entra la segunda.
   const loc = useProductTranslation(item.handle)
   const title = loc?.title?.trim() || item.title
   return (
