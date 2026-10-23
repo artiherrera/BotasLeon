@@ -79,6 +79,34 @@ export function coloresDeTarjeta(product: Product): ColorDeTarjeta[] {
   return lista.filter((c): c is ColorDeTarjeta => !!c)
 }
 
+const sinAcentos = (s: string) =>
+  s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim().toLowerCase()
+
+/**
+ * LAS FOTOS DE UN COLOR.
+ *
+ * Shopify no agrupa las imágenes por variante —solo deja colgar UNA de cada
+ * una—, pero en esta tienda el texto alternativo de cada foto termina con el
+ * nombre del color: "El Meridiano en Piel de Avestruz Coñac". Medido el
+ * 2026-10-22 en las fichas de varios colores: las ocho del coñac y las cuatro
+ * del miel, todas etiquetadas.
+ *
+ * Se compara por el FINAL y no por "contiene", porque "Miel" está dentro de
+ * "Miel Difuminado" y con `includes` las fotos del difuminado se colarían
+ * entre las del miel.
+ *
+ * Si una ficha no trae esa etiqueta, devuelve vacío y la tarjeta se queda con
+ * su galería de siempre: nunca peor que antes.
+ */
+export function fotosDeColor<T extends { url: string; altText?: string | null }>(
+  imagenes: readonly T[],
+  nombreColor: string
+): T[] {
+  const color = sinAcentos(nombreColor)
+  if (!color) return []
+  return imagenes.filter((im) => sinAcentos(im.altText ?? "").endsWith(color))
+}
+
 /** El id numérico de la variante, que es lo que espera la ficha en ?variant=. */
 export function paramVariante(variantId: string): string {
   return variantId.split("/").pop() ?? variantId

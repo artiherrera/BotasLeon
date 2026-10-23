@@ -48,8 +48,11 @@ export const PRODUCT_CARD_FRAGMENT = /* GraphQL */ `
     availableForSale
     createdAt
     featuredImage { ...ImageFields }
-    # Galería en la tarjeta (swipe/flechas). first:6 = suficiente, payload chico.
-    images(first: 6) { edges { node { ...ImageFields } } }
+    # Galería en la tarjeta (swipe/flechas). Eran 6 cuando cada color era un
+    # producto aparte; con los colores juntos, una ficha de dos colores tiene
+    # doce fotos y con 6 solo entraban las del primero: al cambiar de color en
+    # la tarjeta no quedaba ninguna que enseñar. Doce cubre lo medido (8+4).
+    images(first: 12) { edges { node { ...ImageFields } } }
     priceRange {
       minVariantPrice { ...MoneyFields }
       maxVariantPrice { ...MoneyFields }

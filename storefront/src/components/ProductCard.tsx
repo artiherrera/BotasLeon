@@ -8,7 +8,7 @@ import { JudgemeStars } from "./JudgemeStars"
 import { LocalizedPrice, useProductTranslation } from "./LocalizedProductContent"
 import { useLocale, useT } from "@/lib/i18n/context"
 import { atributosDeTarjeta, generoDeTarjeta } from "@/lib/shopify/facets"
-import { coloresDeTarjeta, paramVariante } from "@/lib/colores-tarjeta"
+import { coloresDeTarjeta, fotosDeColor, paramVariante } from "@/lib/colores-tarjeta"
 import { ColorSwatch } from "./ColorSwatch"
 import { facetLabel } from "@/lib/facets-i18n"
 import { enPromoPar } from "@/lib/promocion"
@@ -86,13 +86,11 @@ export function ProductCard({
   const ordenada = [featuredImage, ...(product.images ?? [])]
     .filter((im): im is ShopifyImage => !!im?.url)
     .filter((im) => (seen.has(im.url) ? false : (seen.add(im.url), true)))
-    .slice(0, 6)
-  // Con `empezarEnSegunda`, la segunda pasa al frente y la portada queda de
-  // segunda: así el hover —que salta a la posición 1— sigue enseñando "la otra".
-  const galeriaBase =
-    empezarEnSegunda && ordenada.length > 1
-      ? [ordenada[1], ordenada[0], ...ordenada.slice(2)]
-      : ordenada
+  // SIN RECORTAR TODAVÍA. El tope de seis se aplicaba aquí, y en una ficha de
+  // dos colores las seis primeras son todas del primero: al elegir el segundo
+  // no quedaba ni una foto suya que enseñar y la tarjeta se quedaba igual.
+  // Ahora se filtra por color primero y se recorta después.
+  const galeriaBase = ordenada
 
   /* "Horma · Piel": los dos únicos atributos que existen en los 103 productos
      (la suela no está capturada en ninguno). Vienen de Shopify en español, así
@@ -127,19 +125,22 @@ export function ProductCard({
     ? `/products/${handle}?variant=${paramVariante(color.variantId)}`
     : `/products/${handle}`
 
-  /* UNA FOTO POR COLOR, no el revoltijo de antes. Con los colores juntos en
-     una ficha, el carrusel de la tarjeta mezclaba el negro y el miel de la
-     misma bota: pasabas el ratón y la bota cambiaba de color sin que nadie lo
-     hubiera pedido. Cuando hay colores, la tarjeta enseña la foto del color
-     elegido —la primera, mientras no se elija— y se apaga el carrusel. */
-  const gallery =
+  /* LAS FOTOS DEL COLOR ELEGIDO, no una sola y no el revoltijo.
+     Con los colores juntos en una ficha, la galería de la tarjeta mezclaba el
+     coñac y el miel de la misma bota: pasabas el ratón y la bota cambiaba de
+     color sin que nadie lo pidiera. El primer arreglo fue dejar UNA foto por
+     color, y se llevó por delante el carrusel y el "empieza en la segunda"
+     que el dueño había pedido para la portada — ocho botas de la portada se
+     quedaron quietas. Ahora se filtra por el texto alternativo, que termina
+     con el nombre del color, y el carrusel vuelve con las fotos de ESE color.
+     Si una ficha no trae esa etiqueta, se queda con su galería de siempre. */
+  const delColor =
     colores.length > 1
-      ? [
-          (color ?? colores[0]).foto
-            ? ({ url: (color ?? colores[0]).foto } as ShopifyImage)
-            : galeriaBase[0],
-        ].filter(Boolean)
-      : galeriaBase
+      ? fotosDeColor(galeriaBase, (color ?? colores[0]).nombre).slice(0, 6)
+      : []
+  const base = delColor.length > 0 ? delColor : galeriaBase.slice(0, 6)
+  const gallery =
+    empezarEnSegunda && base.length > 1 ? [base[1], base[0], ...base.slice(2)] : base
 
   return (
     /* El `group` y el hover viven en la RAÍZ, no en el enlace: la tarjeta se
@@ -165,10 +166,15 @@ export function ProductCard({
       >
         {gallery.length === 0 ? (
           <PlaceholderImage />
-        ) : singleImage || colores.length > 1 ? (
+        ) : singleImage ? (
           <Image src={gallery[0].url} alt={gallery[0].altText || title} fill sizes={SIZES} />
         ) : (
-          <CardGallery images={gallery} alt={title} encima={encima} />
+          <CardGallery
+            key={color?.nombre ?? "base"}
+            images={gallery}
+            alt={title}
+            encima={encima}
+          />
         )}
         {/* Las insignias se apilan arriba a la izquierda. El agotado es el único
             en tinta sólida: es un estado que impide comprar, no un adorno.
