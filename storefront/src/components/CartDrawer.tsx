@@ -358,11 +358,31 @@ export function CartDrawer() {
                         <CartLineSize line={line} compact />
                       </div>
 
-                      {/* Con la promoción del par, Shopify parte la cantidad en
-                          dos líneas y una llega a mitad de precio. Sin el
+                      {/* EL PRECIO DE LA LÍNEA ES EL DE LA LÍNEA, NO EL DE UNA
+                          BOTA. Con dos pares, Shopify devuelve $5,998 y aquí
+                          se pintaba ese número a secas, pegado al nombre de la
+                          bota: el dueño leyó "$5,998" y entendió que esa bota
+                          costaba eso. Con cantidad mayor que uno se dice la
+                          cuenta entera —"2 × $2,999"— encima del total.
+
+                          Con la promoción del par, Shopify parte la cantidad
+                          en dos líneas y una llega a mitad de precio. Sin el
                           precio anterior tachado, esa línea parece un error de
                           la tienda. */}
-                      <p className="precio mt-2 text-[1.1875rem] text-text">
+                      {line.quantity > 1 && (
+                        <p className="nota mt-2">
+                          {line.quantity} ×{" "}
+                          {formatMoney(
+                            line.merchandise.price.amount,
+                            line.merchandise.price.currencyCode
+                          )}
+                        </p>
+                      )}
+                      <p
+                        className={`precio text-[1.1875rem] text-text ${
+                          line.quantity > 1 ? "mt-0.5" : "mt-2"
+                        }`}
+                      >
                         {descuentoLinea > 0 && (
                           <span className="mr-2 text-sm font-normal text-text-muted line-through">
                             {formatMoney(
