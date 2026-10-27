@@ -197,23 +197,37 @@ export function ProductsListing({
   // (/mujer?horma=cuadrado&marca=cabrera) y no hay estado que se desincronice.
   // initialStyle (sub-ruta /hombre/vaqueras) fuerza el estilo sobre el query.
   const filters = useMemo<FilterState>(() => {
+    /* EL ESTILO DE LA RUTA ES UN VALOR POR DEFECTO, NO UNA IMPOSICIÓN.
+     *
+     * Antes esto era `if (initialStyle) … else <leer ?estilo=>`: en
+     * /hombre/botines la URL ni se miraba. El clic sí escribía
+     * `?estilo=Exóticas` —la barra de direcciones cambiaba— pero el estado
+     * derivado lo descartaba y volvía a poner el de la ruta, así que la
+     * casilla no se marcaba y el listado no se movía. En /hombre, sin estilo
+     * en la ruta, siempre funcionó: por eso parecía cosa de las exóticas.
+     *
+     * Ahora manda la URL en cuanto el parámetro EXISTE, aunque venga vacío.
+     * Que exista vacío es lo que distingue "entré por /hombre/botines y no he
+     * tocado nada" de "desmarqué botines y quiero verlas todas": sin esa
+     * diferencia, al quitar el último estilo la ruta lo repondría y el filtro
+     * se sentiría trabado. */
+    const crudos: Set<string> = searchParams.has("estilo")
+      ? paramSet(searchParams, "estilo")
+      : initialStyle
+        ? new Set([initialStyle])
+        : new Set<string>()
+
+    // El query guarda etiquetas ("Vaqueras"); los enlaces viejos y las rutas
+    // guardan el slug ("vaqueras"). Se resuelven ambos contra las etiquetas
+    // reales del catálogo, comparando sin acentos ni mayúsculas.
     let types: Set<string>
-    if (initialStyle) {
-      const target = normalize(initialStyle)
-      const matching = products.flatMap(styleLabelsOf).filter((l) => normalize(l) === target)
-      types = matching.length > 0 ? new Set(matching) : new Set([initialStyle])
+    if (crudos.size === 0) {
+      types = new Set()
     } else {
-      const raw = paramSet(searchParams, "estilo")
-      if (raw.size === 0) {
-        types = new Set()
-      } else {
-        // El query guarda labels ("Vaqueras"); links viejos guardan slug
-        // ("vaqueras"). Resolvemos ambos por comparación normalizada.
-        const allLabels = Array.from(new Set(products.flatMap(styleLabelsOf)))
-        types = new Set(
-          Array.from(raw).map((r) => allLabels.find((l) => normalize(l) === normalize(r)) ?? r)
-        )
-      }
+      const allLabels = Array.from(new Set(products.flatMap(styleLabelsOf)))
+      types = new Set(
+        Array.from(crudos).map((r) => allLabels.find((l) => normalize(l) === normalize(r)) ?? r)
+      )
     }
     return {
       vendors: paramSet(searchParams, "marca"),
@@ -433,9 +447,9 @@ export function ProductsListing({
   // nada, porque el siguiente render volvía a imponer initialStyle. Es la misma
   // razón por la que ese estilo tampoco genera chip. activeCount sigue siendo
   // el total (lo usan el "de N" del conteo y la puerta de "Cargar más").
-  const clearableCount = initialStyle
-    ? activeCount - filters.types.size
-    : activeCount
+  // Todo lo marcado se puede limpiar, el estilo de la ruta incluido: desde que
+  // la URL manda, quitarlo deja ver la sección entera en vez de no hacer nada.
+  const clearableCount = activeCount
 
   // Filtros activos, uno por chip, con la etiqueta ya resuelta. Los sets no
   // guardan lo mismo: vendors y sizes traen el valor crudo, types la etiqueta
@@ -447,18 +461,16 @@ export function ProductsListing({
     const out: Chip[] = []
     for (const v of filters.vendors) out.push({ key: "vendors", value: v, label: v })
     for (const v of filters.sizes) out.push({ key: "sizes", value: v, label: v })
-    // El estilo que llega por sub-ruta (/hombre/vaqueras) NO lleva chip: al
-    // quitarlo, initialStyle lo volvería a imponer en el siguiente render y el
-    // chip parecería no responder al clic.
-    if (!initialStyle) {
-      for (const v of filters.types) out.push({ key: "types", value: v, label: facetLabel(v, locale) })
-    }
+    // El estilo de la sub-ruta YA lleva chip: desde que la URL manda, quitarlo
+    // funciona igual que cualquier otro filtro. Antes no se pintaba porque
+    // initialStyle lo habría repuesto y el chip no habría respondido al clic.
+    for (const v of filters.types) out.push({ key: "types", value: v, label: facetLabel(v, locale) })
     for (const v of filters.colors) out.push({ key: "colors", value: v, label: nombreDe(facets.colors, v) })
     for (const v of filters.materials) out.push({ key: "materials", value: v, label: nombreDe(facets.materials, v) })
     for (const v of filters.hormas) out.push({ key: "hormas", value: v, label: nombreDe(facets.hormas, v) })
     if (filters.onlyAvailable) out.push({ key: "stock", value: "1", label: t("filters.inStock") })
     return out
-  }, [filters, facets, locale, initialStyle, t])
+  }, [filters, facets, locale, t])
 
   // Conteo con su unidad. Un listado de cintos no se cuenta en pares.
   const unidadDe = (n: number) =>
@@ -508,6 +520,9 @@ export function ProductsListing({
     updateParams((params) => {
       for (const k of Object.values(PARAM)) params.delete(k)
       params.delete("stock")
+      // En /hombre/botines, "Limpiar" quita también el estilo de la ruta, y
+      // para que no vuelva hay que decirlo con el vacío explícito.
+      if (initialStyle) params.set("estilo", "")
     })
 
   // Facets de UNA sola opción a la vez: elegir una sustituye a la anterior,
@@ -520,14 +535,24 @@ export function ProductsListing({
   const toggle = (key: FacetKey, value: string) => {
     updateParams((params) => {
       const pk = PARAM[key]
-      const current = paramSet(params, pk)
+      /* SE PARTE DEL ESTADO RESUELTO, no del parámetro crudo. En
+         /hombre/botines el estilo de la ruta no está escrito en la URL: si se
+         leyera solo el parámetro, marcar "Exóticas" escribiría `estilo=Exóticas`
+         y los botines desaparecerían sin que nadie los hubiera desmarcado.
+         Partiendo del estado, la URL acaba con los dos, que es lo que se ve en
+         pantalla y lo que se comparte. */
+      const current = new Set(filters[key])
       if (current.has(value)) current.delete(value)
       else if (UNICOS.has(key)) {
         current.clear()
         current.add(value)
       } else current.add(value)
       if (current.size > 0) params.set(pk, Array.from(current).join(","))
-      else params.delete(pk)
+      else if (key === "types" && initialStyle) {
+        // Vacío EXPLÍCITO: en una ruta con estilo, borrar el parámetro haría
+        // que la ruta lo repusiera en el siguiente render.
+        params.set(pk, "")
+      } else params.delete(pk)
     })
   }
 
