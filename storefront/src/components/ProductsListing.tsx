@@ -8,6 +8,7 @@ import { PrintSelectionButton } from "./PrintSelectionButton"
 import { EmptyProductsState } from "./EmptyState"
 import { loadMoreProducts } from "@/lib/search/client"
 import type { Product, PageInfo } from "@/lib/shopify/types"
+import { useMarcarCajonAbierto } from "@/lib/cajones"
 import { useFocusTrap } from "@/lib/useFocusTrap"
 import { lookupColor } from "@/lib/pdp/colorLut"
 import { bootStyleLabel } from "@/lib/shopify/taxonomy"
@@ -244,6 +245,30 @@ export function ProductsListing({
   // restaura el foco al botón "Filtros". En desktop mobileOpen es false, así
   // que el hook queda inactivo y el aside es un sidebar normal.
   const filtersRef = useFocusTrap<HTMLElement>(mobileOpen, () => setMobileOpen(false))
+
+  /* EL CAJÓN DE FILTROS ES UN CAJÓN, y hasta hoy no se comportaba como tal.
+     Le faltaban las dos cosas que el del carrito y el del menú sí hacen, y por
+     eso en un teléfono "los filtros no funcionaban":
+
+     1. No apartaba la barra de cookies. Medido en botasleon.mx el 2026-10-27,
+        en un teléfono de 390×844 y en la PRIMERA visita: la barra se planta a
+        661px y el botón "Ver 48" está a 780 — encima justo del único botón que
+        aplica los filtros. Quien entra por primera vez desde el celular ve la
+        lista y, donde debería tocar, está "Aceptar".
+
+     2. No bloqueaba el desplazamiento de la página de atrás. El cajón mide
+        2 480px de alto en una pantalla de 844: hay que arrastrarlo para llegar
+        a casi todo. Sin bloquear el cuerpo, en iOS el arrastre se lo lleva la
+        página de abajo y el cajón parece congelado. */
+  useMarcarCajonAbierto(mobileOpen)
+  useEffect(() => {
+    if (!mobileOpen) return
+    const antes = document.body.style.overflow
+    document.body.style.overflow = "hidden"
+    return () => {
+      document.body.style.overflow = antes
+    }
+  }, [mobileOpen])
 
   // === Facetas — qué opciones mostrar en sidebar ===
 
@@ -544,7 +569,7 @@ export function ProductsListing({
         aria-modal={mobileOpen ? true : undefined}
         aria-label={mobileOpen ? t("filters.title") : undefined}
         className={`
-          ${mobileOpen ? "fixed inset-0 z-50 bg-bg overflow-y-auto" : "hidden"}
+          ${mobileOpen ? "fixed inset-0 z-50 bg-bg overflow-y-auto overscroll-contain" : "hidden"}
           lg:block lg:static lg:bg-transparent lg:overflow-visible lg:z-auto
         `}
       >
