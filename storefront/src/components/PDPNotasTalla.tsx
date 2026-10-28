@@ -1,6 +1,7 @@
 "use client"
 
 import { useT } from "@/lib/i18n/context"
+import { GuiaMedidaCinto } from "./GuiaMedidaCinto"
 
 /**
  * La nota de ajuste que va bajo el selector de talla.
@@ -40,13 +41,7 @@ export function NotaAjuste() {
  * media talla" se pintaba también en los cinco cintos, que no tienen empeine.
  */
 export function NotaCinto() {
-  const t = useT()
-  return (
-    <p className="mt-3 text-sm leading-snug text-text-muted">
-      <span className="text-text">{t("talla.cintoTitulo")}</span>{" "}
-      {t("talla.cinto")}
-    </p>
-  )
+  return <GuiaMedidaCinto className="mt-3" />
 }
 
 /* FUERA LA NOTA DEL MODELO DE LA FOTO (2026-10-08).

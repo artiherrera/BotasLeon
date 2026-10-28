@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react"
 import Image from "next/image"
 import { useCart } from "./CartProvider"
+import { GuiaMedidaCinto } from "./GuiaMedidaCinto"
 import { useT } from "@/lib/i18n/context"
 import { loadProductsByQuery, loadProductsByHandles } from "@/lib/search/client"
 import { PROMO_CINTO } from "@/lib/promocion"
@@ -190,10 +191,7 @@ export function SugerenciaCinto({ cart }: { cart: Cart | null }) {
           {tallas.length > 0 && (
             <>
               <p className="nota mb-1.5">{t("sugerencia.medida")}</p>
-              <p className="nota mb-2">
-                <span className="text-text">{t("talla.cintoTitulo")}</span>{" "}
-                {t("talla.cinto")}
-              </p>
+              <GuiaMedidaCinto className="mb-2.5" />
               <div className="flex flex-wrap gap-1.5">
                 {tallas.map((s) => (
                   <button

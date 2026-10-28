@@ -3,6 +3,7 @@
 import Image from "next/image"
 import { useLocale } from "@/lib/i18n/context"
 import { tallasDe, nombreCorto, type Pieza } from "@/lib/combos"
+import { GuiaMedidaCinto } from "./GuiaMedidaCinto"
 import { formatMoney } from "@/lib/utils"
 
 /**
@@ -212,12 +213,7 @@ export function OpcionesCompra({
                 ))}
               </div>
               {/* La guía del cinto, donde se elige la medida del cinto. */}
-              {g.id === "cinto" && (
-                <p className="nota mt-1.5">
-                  <span className="text-text">{t("talla.cintoTitulo")}</span>{" "}
-                  {t("talla.cinto")}
-                </p>
-              )}
+              {g.id === "cinto" && <GuiaMedidaCinto className="mt-2.5" />}
               {faltaTalla && (
                 <p className="nota mt-1.5 font-medium text-text">{t("tira.eligeTalla")}</p>
               )}
