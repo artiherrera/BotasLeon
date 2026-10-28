@@ -8,7 +8,7 @@ import { JudgemeStars } from "./JudgemeStars"
 import { LocalizedPrice, useProductTranslation } from "./LocalizedProductContent"
 import { useLocale, useT } from "@/lib/i18n/context"
 import { atributosDeTarjeta, generoDeTarjeta } from "@/lib/shopify/facets"
-import { coloresDeTarjeta, fotosDeColor, paramVariante } from "@/lib/colores-tarjeta"
+import { coloresDeTarjeta, fotosDelColor, paramVariante } from "@/lib/colores-tarjeta"
 import { ColorSwatch } from "./ColorSwatch"
 import { facetLabel } from "@/lib/facets-i18n"
 import { enPromoPar } from "@/lib/promocion"
@@ -134,10 +134,8 @@ export function ProductCard({
      quedaron quietas. Ahora se filtra por el texto alternativo, que termina
      con el nombre del color, y el carrusel vuelve con las fotos de ESE color.
      Si una ficha no trae esa etiqueta, se queda con su galería de siempre. */
-  const delColor =
-    colores.length > 1
-      ? fotosDeColor(galeriaBase, (color ?? colores[0]).nombre).slice(0, 6)
-      : []
+  const activo = colores.length > 1 ? (color ?? colores[0]) : null
+  const delColor = (fotosDelColor(galeriaBase, activo) ?? []).slice(0, 6)
   const base = delColor.length > 0 ? delColor : galeriaBase.slice(0, 6)
   const gallery =
     empezarEnSegunda && base.length > 1 ? [base[1], base[0], ...base.slice(2)] : base

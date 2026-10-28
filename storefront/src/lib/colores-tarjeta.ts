@@ -1,4 +1,4 @@
-import type { Product, ProductVariant } from "@/lib/shopify/types"
+import type { Image, Product, ProductVariant } from "@/lib/shopify/types"
 
 /**
  * LOS COLORES DE UNA BOTA, listos para la tarjeta.
@@ -105,6 +105,56 @@ export function fotosDeColor<T extends { url: string; altText?: string | null }>
   const color = sinAcentos(nombreColor)
   if (!color) return []
   return imagenes.filter((im) => sinAcentos(im.altText ?? "").endsWith(color))
+}
+
+/**
+ * LAS FOTOS DEL COLOR ELEGIDO, CON REPUESTO.
+ *
+ * Lo primero que se intenta es el texto alternativo (fotosDeColor): es lo que
+ * devuelve el carrusel entero de ese color y por eso sigue mandando.
+ *
+ * Pero el nombre de la opción y el del texto alternativo los escribe una
+ * persona y no siempre coinciden. Medido el 2026-10-28 en las 15 botas de
+ * varios colores: a CUATRO les falla algún color. En La Liberty y La Armonía
+ * la opción dice "Habano" y las fotos dicen "Tabaco"; El Elegante en negro y
+ * El Pasajero en miel no tienen ninguna foto etiquetada con ese color. En esos
+ * casos la tarjeta se quedaba con su galería de siempre y el clic en el
+ * cuadrito NO cambiaba la imagen —el cuadrito se marcaba, el enlace cambiaba,
+ * la foto no—, que es lo que el dueño reportó como "las tarjetas no funcionan".
+ *
+ * EL REPUESTO es la foto que Shopify cuelga de la variante. Existe en las
+ * cuatro y es distinta en cada color (comprobado el mismo día), así que con
+ * ella el cambio de color SIEMPRE se ve. Y si esa foto está en la galería, se
+ * aprovecha su etiqueta para recuperar a sus hermanas: así el carrusel sigue
+ * siendo carrusel en vez de quedarse en una sola foto.
+ *
+ * Devuelve null cuando no hay color que atender; entonces la tarjeta usa su
+ * galería normal, igual que antes.
+ */
+export function fotosDelColor(
+  imagenes: readonly Image[],
+  color: ColorDeTarjeta | null
+): Image[] | null {
+  if (!color) return null
+
+  const porNombre = fotosDeColor(imagenes, color.nombre)
+  if (porNombre.length > 0) return porNombre
+
+  if (!color.foto) return null
+
+  // La foto de la variante puede no estar en la galería: la tarjeta pide solo
+  // las primeras doce imágenes y una bota de cuatro colores las pasa. En ese
+  // caso se usa suelta, que es peor que un carrusel pero mucho mejor que no
+  // cambiar nada.
+  const suya = imagenes.find((im) => im.url === color.foto)
+  if (!suya) {
+    return [{ url: color.foto, altText: color.nombre, width: null, height: null }]
+  }
+
+  const alt = (suya.altText ?? "").trim()
+  if (!alt) return [suya]
+  const hermanas = imagenes.filter((im) => (im.altText ?? "").trim() === alt)
+  return hermanas.length > 0 ? hermanas : [suya]
 }
 
 /** El id numérico de la variante, que es lo que espera la ficha en ?variant=. */
