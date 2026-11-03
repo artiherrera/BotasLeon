@@ -132,6 +132,14 @@ export function ProductOptions({
   // cuando ya se eligió talla pero esa combinación no existe.
   const isUnknownCombo = !!sizeOption && sizeSelected && !activeVariant
 
+  // AGOTADO SIN ESPERAR A LA TALLA. Cuando la talla es atributo (metacampo
+  // shoe-size) o la ficha entera está sin existencias, la disponibilidad no
+  // depende de qué talla se elija: la dice la variante que se compraría (o el
+  // color elegido). Antes todo colgaba de `!needsSize && !isAvailable`, así que
+  // una bota agotada en Shopify abría con selector de talla y "Comprar ahora"
+  // y solo confesaba el agotado después de tocar una talla (2026-11-03).
+  const agotado = !product.availableForSale || (!sizeOption && !isAvailable)
+
   // Opciones de variante que NO son talla (color, etc.) ni la "Title" default.
   const variantOptions = product.options.filter(
     (o) => o !== sizeOption && normalize(o.name) !== "title"
@@ -196,13 +204,15 @@ export function ProductOptions({
     }
     if (metaSizes.length > 0 && metaSize) {
       const v = purchaseVariant
-      return v ? { merchandiseId: v.id, attributes: [{ key: "Talla", value: metaSize }] } : null
+      return v?.availableForSale
+        ? { merchandiseId: v.id, attributes: [{ key: "Talla", value: metaSize }] }
+        : null
     }
     return purchaseVariant?.availableForSale ? { merchandiseId: purchaseVariant.id } : null
   }
 
   const handleAdd = () => {
-    if (isPending) return
+    if (isPending || agotado) return
     if (needsSize) { pedirTalla(); return }
     if (faltaTallaDeOferta) return
     const marcar = () => {
@@ -222,7 +232,7 @@ export function ProductOptions({
   // Comprar ahora — mismo guardia de talla y misma resolución de línea que
   // handleAdd; lo único distinto es a dónde va el par (checkout, no carrito).
   const handleBuyNow = () => {
-    if (isPending) return
+    if (isPending || agotado) return
     if (needsSize) { pedirTalla(); return }
     if (faltaTallaDeOferta) return
     const linea = lineaPrincipal()
@@ -280,7 +290,9 @@ export function ProductOptions({
   /* EL BOTÓN LLEVA EL TOTAL cuando hay ofertas marcadas: es la única señal de
      que lo de arriba entra en la compra, ahora que las tiras no tienen botón
      propio. Sin esto, marcar un cinto no cambiaría nada a la vista. */
-  const buyLabel = sizeNudge
+  const buyLabel = agotado
+    ? t("card.soldOut")
+    : sizeNudge
     ? t("pdp.selectSize")
     : faltaTallaDeOferta
     ? t("tira.eligeTalla")
@@ -294,7 +306,9 @@ export function ProductOptions({
         ? t("card.soldOut")
         : t("pdp.buyNow")
 
-  const ctaLabel = sizeNudge
+  const ctaLabel = agotado
+    ? t("card.soldOut")
+    : sizeNudge
     ? t("pdp.selectSize")
     : faltaTallaDeOferta
     ? t("tira.eligeTalla")
@@ -308,7 +322,9 @@ export function ProductOptions({
         ? t("card.soldOut")
         : t("pdp.addToCart")
 
-  const stickyCtaLabel = sizeNudge
+  const stickyCtaLabel = agotado
+    ? t("card.soldOut")
+    : sizeNudge
     ? t("pdp.selectSize")
     : isPending
     ? "…"
@@ -324,7 +340,7 @@ export function ProductOptions({
   // comprar (agotado / combinación inexistente). Si falta talla lo dejamos
   // habilitado para poder avisar al hacer clic.
   const ctaDisabled =
-    isPending || (!needsSize && (!isAvailable || isUnknownCombo))
+    isPending || agotado || (!needsSize && (!isAvailable || isUnknownCombo))
 
   // Botón de talla reusable (variante o metacampo comparten estilo).
   //
@@ -506,7 +522,7 @@ export function ProductOptions({
                   })
                 })
               : metaSizes.map((value) =>
-                  sizeButton(value, metaSize === value, true, () =>
+                  sizeButton(value, metaSize === value, !agotado, () =>
                     selectMetaSize(value)
                   )
                 )}
@@ -537,8 +553,8 @@ export function ProductOptions({
       {/* El verde esmeralda venía de otra paleta; el punto ya dice "disponible"
           sin necesidad de un quinto color. */}
       <div className="cuerpo empty:hidden" role="status" aria-live="polite">
-        {(sizeSelected || isDefaultOnly) &&
-          (isAvailable ? (
+        {(agotado || sizeSelected || isDefaultOnly) &&
+          (isAvailable && !agotado ? (
             <span className="text-text inline-flex items-center gap-2">
               <span className="w-2 h-2 bg-text rounded-full inline-block" />
               {t("pdp.available")}
@@ -569,13 +585,15 @@ export function ProductOptions({
       {/* UNA SOLA DECISIÓN: qué se lleva. Antes cada promoción tenía su caja y
           cada caja repetía "Solo la bota"; se podían marcar cosas que se
           contradecían. "Creo que esto es muy confuso", y lo era. */}
-      <OpcionesCompra
-        precioBase={parseFloat(price.amount)}
-        moneda={price.currencyCode}
-        grupos={grupos}
-        eleccion={ofertaPar}
-        onEleccion={setOfertaPar}
-      />
+      {!agotado && (
+        <OpcionesCompra
+          precioBase={parseFloat(price.amount)}
+          moneda={price.currencyCode}
+          grupos={grupos}
+          eleccion={ofertaPar}
+          onEleccion={setOfertaPar}
+        />
+      )}
 
       {/* COMPRAR AHORA MANDA, agregar al carrito acompaña. Lo pidió el dueño
           (2026-09-28) y es coherente con esta tienda: aquí no se hace la compra

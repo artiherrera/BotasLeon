@@ -278,7 +278,7 @@ export function ProductCard({
             aria-hidden
             className="btn-ter hidden md:inline-block mt-2 text-sm opacity-0 transition duration-[180ms] group-hover:opacity-100"
           >
-            {t("card.chooseSize")}
+            {product.availableForSale ? t("card.chooseSize") : t("card.soldOut")}
           </span>
         </div>
       </div>
