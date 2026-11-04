@@ -86,10 +86,59 @@ type FilterState = {
   colors: Set<string>
   materials: Set<string>
   hormas: Set<string>
+  generos: Set<string>
   onlyAvailable: boolean
 }
 
-type FacetKey = "vendors" | "sizes" | "types" | "colors" | "materials" | "hormas"
+type FacetKey =
+  | "vendors"
+  | "sizes"
+  | "types"
+  | "colors"
+  | "materials"
+  | "hormas"
+  | "generos"
+
+/**
+ * HOMBRE O MUJER, dentro del filtro. Lo pidió el dueño el 2026-11-03: "que el
+ * filtro tenga, por favor, hombre y mujer".
+ *
+ * El dato ya estaba —shopify.target-gender, el mismo metacampo con el que se
+ * convierte la talla mexicana a US y con el que la tarjeta rotula "Hombre"—,
+ * pero no había manera de filtrar por él: en el catálogo completo, 110 botas
+ * mezcladas, la única forma de ver solo las de mujer era salir del listado y
+ * entrar por /mujer, perdiendo de paso el color, la horma y la talla ya
+ * marcados.
+ *
+ * Medido hoy contra la Storefront API: 56 masculino, 49 femenino, un solo
+ * valor por producto y ninguno con los dos. Los 5 sin dato son los cinturones,
+ * así que marcar un sexo los deja fuera — que es lo correcto mientras Shopify
+ * no diga de quién son: inventarlo sería meter cinto de hombre en un listado
+ * de mujer.
+ *
+ * Solo se pinta cuando el listado MEZCLA (ver `facets.generos.length > 1`): en
+ * /hombre y /mujer sobra, y en /accesorios no hay ni un producto con el dato.
+ */
+const GENERO_ETIQUETA: Record<string, string> = {
+  masculino: "nav.men",
+  femenino: "nav.women",
+}
+
+// Hombre y luego Mujer, el orden del menú del sitio — NO alfabético, que
+// pondría "femenino" primero y dejaría el filtro en otro orden que la barra de
+// navegación de arriba.
+const ORDEN_GENERO = ["masculino", "femenino"]
+
+/** Los handles de shopify.target-gender de un producto. Vacío en los cintos. */
+function generosDe(p: Product): string[] {
+  return (p.targetGender?.references?.edges ?? []).map((e) => e.node.handle)
+}
+
+/** El nombre de un sexo, traducido. Un handle nuevo en Shopify sale tal cual. */
+function etiquetaGenero(handle: string, t: (k: string) => string): string {
+  const clave = GENERO_ETIQUETA[handle]
+  return clave ? t(clave) : handle.charAt(0).toUpperCase() + handle.slice(1)
+}
 
 // Un filtro activo, tal como se pinta en la fila de chips: la llave y el valor
 // para poder quitarlo, y la etiqueta ya traducida para poder leerlo.
@@ -104,6 +153,7 @@ const PARAM: Record<FacetKey, string> = {
   colors: "color",
   materials: "material",
   hormas: "horma",
+  generos: "genero",
 }
 
 // Lee un parámetro multi-valor (coma-separado) de la URL como Set.
@@ -236,6 +286,7 @@ export function ProductsListing({
       colors: paramSet(searchParams, "color"),
       materials: paramSet(searchParams, "material"),
       hormas: paramSet(searchParams, "horma"),
+      generos: paramSet(searchParams, "genero"),
       onlyAvailable: searchParams.get("stock") === "1",
     }
   }, [searchParams, initialStyle, products])
@@ -290,6 +341,7 @@ export function ProductsListing({
     const vendors = new Set<string>()
     const sizes = new Set<string>()
     const types = new Set<string>()
+    const generos = new Set<string>()
     // Mapas handle → {label, hex} para mostrar nombres legibles ("Negro" en vez
     // de "negro") y el swatch con el HEX nativo de Shopify cuando está.
     const colorMap = new Map<string, { label: string; hex: string | null }>()
@@ -299,6 +351,7 @@ export function ProductsListing({
     for (const p of allProducts) {
       if (p.vendor) vendors.add(p.vendor)
       for (const label of styleLabelsOf(p)) types.add(label)
+      for (const g of generosDe(p)) generos.add(g)
       for (const v of tallasDe(p)) sizes.add(v)
 
       for (const c of extractTaxonomyValues(p.color)) {
@@ -333,6 +386,15 @@ export function ProductsListing({
       hormas: Array.from(hormaMap.entries())
         .map(([handle, label]) => ({ handle, label }))
         .sort((a, b) => a.label.localeCompare(b.label)),
+      generos: Array.from(generos).sort((a, b) => {
+        const ia = ORDEN_GENERO.indexOf(a)
+        const ib = ORDEN_GENERO.indexOf(b)
+        // Lo que no esté en el orden conocido va al final, alfabético.
+        if (ia === -1 && ib === -1) return a.localeCompare(b)
+        if (ia === -1) return 1
+        if (ib === -1) return -1
+        return ia - ib
+      }),
     }
   }, [allProducts])
 
@@ -343,6 +405,11 @@ export function ProductsListing({
       if (filters.onlyAvailable && !p.availableForSale) return false
 
       if (filters.vendors.size > 0 && !filters.vendors.has(p.vendor)) return false
+
+      // Sin el metacampo (los 5 cintos), un sexo marcado deja el producto
+      // fuera: no se adivina de quién es.
+      if (filters.generos.size > 0 && !generosDe(p).some((g) => filters.generos.has(g)))
+        return false
 
       if (
         filters.types.size > 0 &&
@@ -439,6 +506,7 @@ export function ProductsListing({
     filters.colors.size +
     filters.materials.size +
     filters.hormas.size +
+    filters.generos.size +
     (filters.onlyAvailable ? 1 : 0)
 
   // Lo que el usuario PUEDE quitar. En /hombre/vaqueras el estilo lo impone la
@@ -459,6 +527,8 @@ export function ProductsListing({
     const nombreDe = (arr: { handle: string; label: string }[], h: string) =>
       facetLabel(arr.find((f) => f.handle === h)?.label || h, locale)
     const out: Chip[] = []
+    for (const v of filters.generos)
+      out.push({ key: "generos", value: v, label: etiquetaGenero(v, t) })
     for (const v of filters.vendors) out.push({ key: "vendors", value: v, label: v })
     for (const v of filters.sizes) out.push({ key: "sizes", value: v, label: v })
     // El estilo de la sub-ruta YA lleva chip: desde que la URL manda, quitarlo
@@ -503,6 +573,8 @@ export function ProductsListing({
     else if (base === "accesorios") parts.push(en ? "Accessories" : "Accesorios")
     else parts.push(en ? "Catalog" : "Catálogo")
 
+    if (filters.generos.size)
+      parts.push([...filters.generos].map((g) => etiquetaGenero(g, t)).join(", "))
     if (filters.vendors.size) parts.push(`${en ? "Brand" : "Marca"}: ${[...filters.vendors].join(", ")}`)
     if (filters.types.size) parts.push([...filters.types].map((tp) => facetLabel(tp, locale)).join(", "))
     if (filters.sizes.size) parts.push(`${en ? "Size" : "Talla"}: ${[...filters.sizes].join(", ")}`)
@@ -512,7 +584,7 @@ export function ProductsListing({
     if (filters.onlyAvailable) parts.push(en ? "In stock" : "En stock")
 
     return parts.join("  ·  ")
-  }, [pathname, locale, filters, facets])
+  }, [pathname, locale, filters, facets, t])
 
   // Limpia TODOS los filtros de la URL (conserva la ruta, ej. /hombre/vaqueras
   // mantiene su estilo por la sub-ruta).
@@ -530,7 +602,10 @@ export function ProductsListing({
   // (2026-09-16): una bota tiene una horma, y comparar "fina o redonda" no es
   // una búsqueda que nadie haga; en cambio saltar de una a otra sí, y con
   // casillas había que desmarcar la anterior a mano cada vez.
-  const UNICOS: ReadonlySet<FacetKey> = new Set<FacetKey>(["hormas"])
+  // El sexo también: "Hombre" y "Mujer" marcados a la vez es el catálogo
+  // entero, o sea el filtro apagado con dos casillas puestas. Tocar el que ya
+  // está puesto lo quita, igual que la horma.
+  const UNICOS: ReadonlySet<FacetKey> = new Set<FacetKey>(["hormas", "generos"])
 
   const toggle = (key: FacetKey, value: string) => {
     updateParams((params) => {
@@ -642,6 +717,63 @@ export function ProductsListing({
               </button>
             )}
           </div>
+
+          {/* Hombre / Mujer — metacampo shopify.target-gender.
+              VA PRIMERO, antes que el estilo: es el corte más grueso del
+              catálogo y lo primero que alguien decide. El orden que fijó el
+              dueño para los demás (Estilo, Material, Color, Horma, y al final
+              Talla, Marca, Disponibilidad) se queda igual debajo.
+
+              SOLO SI EL LISTADO MEZCLA. En /mujer las 49 tarjetas son de
+              mujer: un filtro con una sola opción no filtra nada, y marcado
+              diría lo que la página ya dice. En /accesorios ningún cinto
+              tiene el dato, así que tampoco sale.
+
+              Fichas como las de la talla, no casillas: es una sola opción a la
+              vez (ver UNICOS) y tocar la puesta la quita, que es la única
+              forma de volver a ver las dos. */}
+          {facets.generos.length > 1 && (
+            <FilterSection title={t("filters.gender")}>
+              <div
+                role="radiogroup"
+                aria-label={t("filters.gender")}
+                className="flex flex-wrap gap-2"
+              >
+                {facets.generos.map((handle) => {
+                  const puesto = filters.generos.has(handle)
+                  const cuantas = allProducts.filter((p) =>
+                    generosDe(p).includes(handle)
+                  ).length
+                  return (
+                    <button
+                      key={handle}
+                      type="button"
+                      role="radio"
+                      aria-checked={puesto}
+                      onClick={() => toggle("generos", handle)}
+                      className={`inline-flex h-11 cursor-pointer items-center gap-1.5 rounded-boton border px-3 cuerpo transition-colors duration-[180ms] ${
+                        puesto
+                          ? "border-text bg-text text-bg"
+                          : "border-border text-text hover:border-text"
+                      }`}
+                    >
+                      {etiquetaGenero(handle, t)}
+                      {/* El conteo, al tamaño de .nota pero SIN su color: esa
+                          clase pinta gris apagado, y sobre el fondo de tinta
+                          del botón elegido no se leería. */}
+                      <span
+                        className={`text-[0.78125rem] tabular-nums ${
+                          puesto ? "text-bg/70" : "text-text-muted"
+                        }`}
+                      >
+                        {cuantas}
+                      </span>
+                    </button>
+                  )
+                })}
+              </div>
+            </FilterSection>
+          )}
 
           {/* ORDEN POR DECISIÓN DEL DUEÑO (2026-09-16): Estilo, Material, Color,
               Horma, y después todo lo demás (Talla, Marca, Disponibilidad).

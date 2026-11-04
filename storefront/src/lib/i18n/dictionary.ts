@@ -295,6 +295,7 @@ export const DICTIONARY: Record<string, Entry> = {
   "filters.close": { es: "Cerrar filtros", en: "Close filters" },
   "filters.clear": { es: "Limpiar", en: "Clear" },
   "filters.clearAll": { es: "Limpiar todo", en: "Clear all" },
+  "filters.gender": { es: "Género", en: "Gender" },
   "filters.size": { es: "Talla", en: "Size" },
   "filters.brand": { es: "Marca", en: "Brand" },
   "filters.style": { es: "Estilo", en: "Style" },
