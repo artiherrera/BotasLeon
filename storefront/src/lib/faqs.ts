@@ -11,6 +11,7 @@
  */
 
 import { isMX } from "@/lib/market"
+import { PLAZO_ENTREGA } from "@/lib/entrega"
 
 /**
  * BILINGÜE (aditivo): question/answer se mantienen EN ESPAÑOL — los consume
@@ -52,14 +53,18 @@ export const FAQS: FAQ[] = [
   },
   {
     question: "¿Cuánto tarda mi pedido?",
-    // El plazo mexicano sale de /envios ("entre 3 y 7 días hábiles según el
-    // destino"), no de aquí: si cambia allá, hay que cambiarlo aquí.
+    // La CIFRA sale de lib/entrega.ts, que es de donde la toman también el
+    // carrito, la ficha y la página de envíos. Esto es lo que Google indexa
+    // (FAQJsonLd), así que tiene que decir lo mismo que el resto del sitio.
     answer: isMX
-      ? "Envío gratis a toda la República: una vez despachado, tu pedido llega normalmente entre 3 y 7 días hábiles según el destino. Las piezas bajo pedido toman más tiempo; lo indicamos claramente en la página del producto."
-      : "Envíos a Estados Unidos: 2–3 días hábiles. Algunas piezas hechas a la medida pueden tomar 2-3 semanas adicionales; lo indicamos claramente en la página del producto.",
+      ? `Envío gratis a toda la República: una vez despachado, tu pedido llega normalmente en ${PLAZO_ENTREGA.es} según el destino. El plazo empieza a contar desde que el paquete sale, no desde que confirmas la compra. Las piezas bajo pedido toman más tiempo; lo indicamos claramente en la página del producto.`
+      : `Envíos a Estados Unidos: la entrega toma de ${PLAZO_ENTREGA.es} una vez despachado el pedido. El plazo empieza a contar desde que el paquete sale, no desde que confirmas la compra. Algunas piezas hechas a la medida pueden tomar 2-3 semanas adicionales; lo indicamos claramente en la página del producto.`,
     questionEn: "How long will my order take?",
-    answerEn:
-      "Orders to the United States typically arrive within 2–3 business days. Some made-to-order pieces can take an additional 2-3 weeks, which we note clearly on the product page.",
+    // También por mercado: en inglés este texto decía "Orders to the United
+    // States" incluso en botasleon.mx/en, que vende dentro de México.
+    answerEn: isMX
+      ? `Free shipping anywhere in Mexico: once dispatched, your order normally arrives in ${PLAZO_ENTREGA.en} depending on the destination. Transit time starts when the package leaves, not when you place the order. Made-to-order pieces take longer, which we note clearly on the product page.`
+      : `Orders to the United States arrive in ${PLAZO_ENTREGA.en} once dispatched. Transit time starts when the package leaves, not when you place the order. Some made-to-order pieces can take an additional 2-3 weeks, which we note clearly on the product page.`,
   },
   {
     question: "¿Aceptan cambios o devoluciones?",

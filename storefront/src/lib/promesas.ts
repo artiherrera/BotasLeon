@@ -52,8 +52,14 @@ export function promesasDeFicha(tags?: readonly string[] | null): Promesa[] {
   // Envío: gratis de verdad en México; en Estados Unidos lo que se promete es
   // la rapidez, porque el envío cuesta más de 100 dólares y prometerlo gratis
   // fue exactamente el error que hubo que barrer del sitio entero.
+  // El PLAZO va de letra chica bajo esa línea, en los dos mercados: el dueño
+  // lo pidió el 2026-11-05 y hasta hoy la ficha mexicana no decía cuándo
+  // llega —solo que el envío es gratis— y la americana prometía 2–3 días
+  // hábiles, que es plazo de paquetería nacional, no de un paquete que cruza
+  // la frontera. La cifra sale de lib/entrega.ts.
   lista.push({
     llave: ENVIO_GRATIS_SIEMPRE ? "promesa.envioMx" : "promesa.envioUs",
+    nota: "envio.estimada",
     icono: "envio",
   })
 

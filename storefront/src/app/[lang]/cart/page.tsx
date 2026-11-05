@@ -326,7 +326,7 @@ export default function CartPage() {
                 </div>
                 <div className="flex justify-between cuerpo text-text-muted">
                   <span>{t("cart.deliveryLabel")}</span>
-                  <span className="text-text">{t(isMX ? "cart.deliveryMx" : "cart.deliveryUs")}</span>
+                  <span className="text-text">{t("envio.plazoCorto")}</span>
                 </div>
               </div>
 

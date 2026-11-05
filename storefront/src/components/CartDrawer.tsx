@@ -25,7 +25,6 @@ import {
   faltaCodigoCinto,
   sincronizarCintoEnServidor,
 } from "@/lib/cinto-mitad/cliente"
-import { isMX } from "@/lib/market"
 import { CartLineSize } from "@/components/CartLineSize"
 import { SIZE_ATTR, isDefaultOption, missingSizeLines } from "@/lib/cart/line-size"
 
@@ -543,9 +542,9 @@ export function CartDrawer() {
               )}
 
               {/* Entrega estimada: no saber cuándo llega es motivo de abandono
-                  (Baymard). Cifras de /envios de cada mercado. */}
+                  (Baymard). La cifra sale de lib/entrega.ts, por mercado. */}
               <p className="nota mt-1 mb-4">
-                {t("cart.deliveryLabel")}: {t(isMX ? "cart.deliveryMx" : "cart.deliveryUs")}
+                {t("cart.deliveryLabel")}: {t("envio.plazoCorto")}
               </p>
 
               {/* Solo renderiza en el despliegue de México; en el de EE.UU. no

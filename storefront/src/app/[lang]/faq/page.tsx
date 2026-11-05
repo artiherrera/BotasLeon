@@ -3,6 +3,8 @@ import { LocalizedLink as Link } from "@/components/LocalizedLink"
 import { Localized } from "@/components/Localized"
 import { pageMetadata } from "@/lib/seo"
 import { DIAS_CAMBIO_TALLA } from "@/lib/exchange"
+import { isMX } from "@/lib/market"
+import { PLAZO_ENTREGA } from "@/lib/entrega"
 
 export default function FaqPage() {
   return (
@@ -31,13 +33,31 @@ export default function FaqPage() {
               producto especifica el material exacto.
             </p>
 
+            {/* POR MERCADO. Esta respuesta decía "Envíos a Estados Unidos"
+                también en botasleon.mx, que vende dentro de México: la página
+                no se enteraba del despliegue en el que estaba. La cifra sale
+                de lib/entrega.ts, igual que en el carrito y en la ficha. */}
             <h2>¿Cuánto tarda mi pedido?</h2>
-            <p>
-              Envíos a Estados Unidos: 2–3 días hábiles. Algunas piezas hechas a la
-              medida pueden tomar 2-3 semanas adicionales; lo indicamos
-              claramente en la página del producto. Más detalles en la página de{" "}
-              <Link href="/envios">Envíos</Link>.
-            </p>
+            {isMX ? (
+              <p>
+                Envío gratis a toda la República: una vez despachado, tu pedido
+                llega normalmente en <strong>{PLAZO_ENTREGA.es}</strong> según el
+                destino. El plazo empieza a contar desde que el paquete sale, no
+                desde que confirmas la compra. Las piezas bajo pedido toman más
+                tiempo; lo indicamos claramente en la página del producto. Más
+                detalles en la página de <Link href="/envios">Envíos</Link>.
+              </p>
+            ) : (
+              <p>
+                Envíos a Estados Unidos: la entrega toma de{" "}
+                <strong>{PLAZO_ENTREGA.es}</strong> una vez despachado el pedido.
+                El plazo empieza a contar desde que el paquete sale, no desde que
+                confirmas la compra. Algunas piezas hechas a la medida pueden
+                tomar 2-3 semanas adicionales; lo indicamos claramente en la
+                página del producto. Más detalles en la página de{" "}
+                <Link href="/envios">Envíos</Link>.
+              </p>
+            )}
 
             <h2>¿Aceptan cambios o devoluciones?</h2>
               <p>
@@ -110,12 +130,25 @@ export default function FaqPage() {
             </p>
 
             <h2>How long will my order take?</h2>
-            <p>
-              Orders to the United States typically arrive within 2–3 business
-              days. Some made-to-order pieces can take an additional 2-3 weeks,
-              which we note clearly on the product page. See our{" "}
-              <Link href="/envios">Shipping</Link> page for more details.
-            </p>
+            {isMX ? (
+              <p>
+                Free shipping anywhere in Mexico: once dispatched, your order
+                normally arrives in <strong>{PLAZO_ENTREGA.en}</strong> depending
+                on the destination. Transit time starts when the package leaves,
+                not when you place the order. Made-to-order pieces take longer,
+                which we note clearly on the product page. See our{" "}
+                <Link href="/envios">Shipping</Link> page for more details.
+              </p>
+            ) : (
+              <p>
+                Orders to the United States arrive in{" "}
+                <strong>{PLAZO_ENTREGA.en}</strong> once dispatched. Transit time
+                starts when the package leaves, not when you place the order. Some
+                made-to-order pieces can take an additional 2-3 weeks, which we
+                note clearly on the product page. See our{" "}
+                <Link href="/envios">Shipping</Link> page for more details.
+              </p>
+            )}
 
             <h2>Can I return or exchange my order?</h2>
             <p>

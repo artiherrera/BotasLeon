@@ -1,4 +1,5 @@
 import type { Locale } from "./config"
+import { PLAZO_ENTREGA, PLAZO_ENTREGA_CORTO } from "@/lib/entrega"
 
 /**
  * Diccionario de la interfaz (ES/EN). Una entrada por cadena visible del "chrome"
@@ -206,6 +207,19 @@ export const DICTIONARY: Record<string, Entry> = {
   "hero.slide3.title": { es: "Cuero auténtico.", en: "Genuine leather." },
   "hero.goToSlide": { es: "Ir al slide {n}", en: "Go to slide {n}" },
 
+  // ── Plazo de entrega ─────────────────────────────────────────────────
+  // UNA sola cifra para todo el sitio, definida en lib/entrega.ts y elegida
+  // por mercado en el build. Aquí solo se expone para quien pinta con t();
+  // quien necesita la cadena suelta (las preguntas frecuentes, las páginas de
+  // contenido) importa la constante.
+  "envio.plazo": PLAZO_ENTREGA,
+  "envio.plazoCorto": PLAZO_ENTREGA_CORTO,
+  // El renglón de la ficha y del acordeón. {plazo} lo sustituye quien pinta.
+  "envio.estimada": {
+    es: "Entrega estimada: {plazo}",
+    en: "Estimated delivery: {plazo}",
+  },
+
   // ── Trust badges (home) ──────────────────────────────────────────────
   "trust.curated.title": { es: "Curado y verificado", en: "Curated & verified" },
   "trust.curated.sub": {
@@ -213,7 +227,10 @@ export const DICTIONARY: Record<string, Entry> = {
     en: "Every brand meets our standard",
   },
   "trust.shipping.title": { es: "Envío a Estados Unidos", en: "Ships across the USA" },
-  "trust.shipping.sub": { es: "Entrega en 2–3 días hábiles", en: "Delivery in 2–3 business days" },
+  "trust.shipping.sub": {
+    es: `Entrega en ${PLAZO_ENTREGA_CORTO.es}`,
+    en: `Delivery in ${PLAZO_ENTREGA_CORTO.en}`,
+  },
   "trust.shipping.titleMx": { es: "Envío gratis a toda la República", en: "Free shipping across Mexico" },
   "trust.shipping.subMx": { es: "Sin monto mínimo", en: "No minimum order" },
   "trust.exchange.title": { es: "Garantía", en: "Built to last" },
@@ -515,10 +532,9 @@ export const DICTIONARY: Record<string, Entry> = {
   // El campo va escondido tras este enlace: mostrarlo por defecto sube el
   // abandono — quien no trae código se va a buscar uno y no vuelve (Baymard).
   "cart.promoToggle": { es: "¿Tienes un código de descuento?", en: "Have a discount code?" },
-  // Entrega estimada — cifras de /envios de cada mercado, no de aquí.
+  // Entrega estimada. La CIFRA sale de lib/entrega.ts (una sola para todo el
+  // sitio y por mercado); aquí solo va el rótulo.
   "cart.deliveryLabel": { es: "Entrega estimada", en: "Estimated delivery" },
-  "cart.deliveryMx": { es: "3–7 días hábiles", en: "3–7 business days" },
-  "cart.deliveryUs": { es: "2–3 días hábiles", en: "2–3 business days" },
   "cart.total": { es: "Total", en: "Total" },
   "cart.summary": { es: "Resumen", en: "Summary" },
   "cart.apply": { es: "Aplicar", en: "Apply" },
@@ -976,8 +992,8 @@ export const DICTIONARY: Record<string, Entry> = {
     en: "Free shipping anywhere in Mexico",
   },
   "promesa.envioUs": {
-    es: "Entrega en Estados Unidos en 2–3 días hábiles",
-    en: "Delivered in the USA in 2–3 business days",
+    es: "Envío a todo Estados Unidos continental",
+    en: "Ships anywhere in the continental USA",
   },
   // Quinta promesa, APAGADA por defecto (PROMESA_VIDEO en lib/promesas.ts).
   // El informe la propone, pero no consta en ninguna parte del repo ni de las

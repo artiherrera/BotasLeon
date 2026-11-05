@@ -52,7 +52,15 @@ export function PDPTrustBlock({ product }: Props) {
             ) : (
               t(p.llave)
             )}
-            {p.nota && <span className="nota block">{t(p.nota)}</span>}
+            {/* {plazo} lo pone lib/entrega.ts a través del diccionario: la
+                nota del envío dice "Entrega estimada: 3–7 días hábiles" sin
+                que la cifra esté escrita aquí. En una nota sin el hueco, el
+                replace no hace nada. */}
+            {p.nota && (
+              <span className="nota block">
+                {t(p.nota).replace("{plazo}", t("envio.plazoCorto"))}
+              </span>
+            )}
           </span>
         </li>
       ))}

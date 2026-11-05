@@ -2,6 +2,7 @@ import { ContentPage } from "@/components/ContentPage"
 import { Localized } from "@/components/Localized"
 import { pageMetadata } from "@/lib/seo"
 import { isMX } from "@/lib/market"
+import { PLAZO_ENTREGA, PLAZO_ENTREGA_CORTO } from "@/lib/entrega"
 
 /**
  * Una página, dos mercados. `isMX` es constante de build (lib/market.ts), así
@@ -38,9 +39,10 @@ function EnviosMexico() {
 
           <h2>Tiempos de entrega</h2>
           <p>
-            Una vez despachado tu pedido, la entrega toma normalmente entre 3 y 7
-            días hábiles según el destino. Los tiempos empiezan a contar desde que
-            el paquete sale, no desde que confirmas la compra.
+            Una vez despachado tu pedido, la entrega toma normalmente de{" "}
+            <strong>{PLAZO_ENTREGA.es}</strong> según el destino. Los tiempos
+            empiezan a contar desde que el paquete sale, no desde que confirmas
+            la compra.
           </p>
 
           <h2>Rastreo</h2>
@@ -79,9 +81,10 @@ function EnviosMexico() {
 
           <h2>Delivery times</h2>
           <p>
-            Once your order ships, delivery normally takes 3 to 7 business days
-            depending on the destination. Transit times start counting when the
-            package leaves, not when you place the order.
+            Once your order ships, delivery normally takes{" "}
+            <strong>{PLAZO_ENTREGA.en}</strong> depending on the destination.
+            Transit times start counting when the package leaves, not when you
+            place the order.
           </p>
 
           <h2>Tracking</h2>
@@ -116,7 +119,7 @@ function EnviosEstadosUnidos() {
 
           <h2>Tiempos de entrega</h2>
           <ul>
-            <li><strong>Estados Unidos:</strong> 2–3 días hábiles</li>
+            <li><strong>Estados Unidos:</strong> {PLAZO_ENTREGA_CORTO.es}</li>
           </ul>
           <p>
             Los tiempos comienzan a contar desde que tu pedido es enviado (no desde
@@ -166,7 +169,7 @@ function EnviosEstadosUnidos() {
 
           <h2>Delivery times</h2>
           <ul>
-            <li><strong>United States:</strong> 2–3 business days</li>
+            <li><strong>United States:</strong> {PLAZO_ENTREGA_CORTO.en}</li>
           </ul>
           <p>
             Transit times start counting once your order ships (not when you place

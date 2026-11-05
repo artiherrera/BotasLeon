@@ -141,6 +141,10 @@ export function PDPAcordeones({
           {/* Por MERCADO, nunca por idioma: botasleon.com/es vende a Estados
               Unidos y ahí el envío gratis sería una promesa falsa. */}
           <li>{t(ENVIO_GRATIS_SIEMPRE ? "promesa.envioMx" : "promesa.envioUs")}</li>
+          {/* Cuánto tarda, donde se despliega "Envíos y devoluciones": quien
+              abre este acordeón viene justo a eso. La cifra es la de
+              lib/entrega.ts, la misma del carrito y de la página de envíos. */}
+          <li>{t("envio.estimada").replace("{plazo}", t("envio.plazoCorto"))}</li>
         </ul>
         <div className="cuerpo mt-3 flex flex-wrap gap-x-6 gap-y-1">
           <Link
