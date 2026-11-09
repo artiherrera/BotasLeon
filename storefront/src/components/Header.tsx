@@ -26,15 +26,27 @@ import { useLocale } from "@/lib/i18n/context"
  * cada página (15 archivos bajo src/app), no el layout: metida aquí sale en
  * las quince y no hay que tocarlas una por una.
  *
- * ANCHOS, medidos con la fuente real (Instrument Sans Medium 13px, tracking
- * .08em) y no estimados a ojo:
- *   menú ES en mayúsculas 564 · logo (h-8, 800×220) 116 · conmutador de idioma
- *   117 · botón de 44px ×3 132 · gaps 32+16 · buscador 240.
- * Sin buscador la fila pide 977px y el .contenedor solo deja ancho−80 (2,5rem
- * de aire por lado desde 768px, no 1,5): por eso el menú no aparece hasta
- * 1100px y no a 1024, donde se salía 33px y se montaba sobre el idioma.
- * Con buscador pide 1173 y aparece en xl (1280), que deja 1200. Si se añade
- * un ítem al menú o se ensancha el campo, rehacer esta cuenta.
+ * ANCHOS, medidos en el navegador con la fuente real (Instrument Sans Medium
+ * 13px, tracking .08em) y no estimados a ojo. Última medición: 2026-11-09, al
+ * añadir Josepha al menú.
+ *
+ *   logo 116 · menú ES en mayúsculas 728 (Hombre 95 · Mujer 80 · Accesorios
+ *   127 · Marcas 94 · Josepha 83 · Combos 81 · Outlet 74 · Visítanos 94) ·
+ *   grupo derecho 140 sin buscador, 340 con él · dos gaps de 16.
+ *
+ * El .contenedor deja ancho−80 (2,5rem de aire por lado desde 768px). Sin
+ * buscador la fila pide 1016, así que a 1100 sobran 4px: demasiado poco para
+ * un ítem más o para una fuente que cargue distinta. El menú entra en 1150,
+ * donde sobran 54. Con buscador pide 1216 y a 1280 sobran CERO, así que el
+ * campo escrito espera hasta 1340 (sobran 44); por debajo queda la lupa, que
+ * abre el mismo buscador.
+ *
+ * ES es el caso peor: en inglés el menú mide unos 30px menos ("Men" contra
+ * "Hombre" se come lo que crece "Accessories").
+ *
+ * Si se añade un ítem al menú o se ensancha el campo, REHACER ESTA CUENTA:
+ * los dos números de arriba (1150 y 1340) salen de ella y viven, además de
+ * aquí, en MegaMenu, MobileNav, BarraInferior y globals.css.
  */
 export function Header() {
   const { itemCount, openCart } = useCart()
@@ -83,8 +95,8 @@ export function Header() {
           aquí solo quedan el logo y el buscador: 72 era alto de cabecera con
           seis controles, no con dos. Se recuperan 16px de bota a la vista. */}
       <div className="contenedor flex h-14 md:h-[72px] items-center gap-1.5 px-3 sm:px-4 md:gap-2 md:px-10 lg:gap-4">
-        {/* Hamburguesa — cubre hasta 1100px. Ver la cuenta de anchos en el
-            comentario de arriba: a 1024 la fila no cabe. */}
+        {/* Hamburguesa — cubre hasta 1150px. Ver la cuenta de anchos en el
+            comentario de arriba. */}
         <MobileNav />
 
         <Link
@@ -106,14 +118,15 @@ export function Header() {
             grid de tres columnas gastaba en la columna izquierda el mismo
             ancho que en la derecha, y con eso el buscador visible no cabía en
             ninguna pantalla. */}
-        <div className="hidden min-[1100px]:flex min-w-0">
+        <div className="hidden min-[1150px]:flex min-w-0">
           <MegaMenu />
         </div>
 
         <div className="ml-auto flex items-center gap-0.5 md:gap-1">
-          {/* Buscador visible. Solo desde xl (1280px): a 1100 la fila ya va
-              con 43px de holgura y no caben 240 más. Por debajo de xl se
-              vuelve a la lupa, que abre el mismo overlay.
+          {/* Buscador visible. Solo desde 1340px: con Josepha en el menú, a
+              1280 la fila queda exactamente a cero y el campo empujaría la
+              bolsa fuera de la pantalla. Por debajo se vuelve a la lupa, que
+              abre el mismo overlay.
               La predicción se queda en el overlay: searchProducts descarga el
               catálogo completo en la primera tecla, y un campo siempre visible
               invitaría a esa descarga en cualquier página. */}
@@ -121,7 +134,7 @@ export function Header() {
             role="search"
             action={`/${locale}/search`}
             method="get"
-            className="relative mr-1 hidden xl:block"
+            className="relative mr-1 hidden min-[1340px]:block"
           >
             <input
               ref={searchFieldRef}
@@ -158,7 +171,7 @@ export function Header() {
               origen.current = "boton"
               setSearchOpen(true)
             }}
-            className="xl:hidden p-3 hover:bg-plate transition-colors duration-[180ms] cursor-pointer"
+            className="min-[1340px]:hidden p-3 hover:bg-plate transition-colors duration-[180ms] cursor-pointer"
           >
             <SearchIcon />
           </button>
@@ -168,7 +181,7 @@ export function Header() {
           <Link
             href="/cuenta"
             aria-label={t("a11y.account")}
-            className="hidden min-[1100px]:block p-3 hover:bg-plate transition-colors duration-[180ms]"
+            className="hidden min-[1150px]:block p-3 hover:bg-plate transition-colors duration-[180ms]"
           >
             <UserIcon />
           </Link>
@@ -176,7 +189,7 @@ export function Header() {
             type="button"
             onClick={openCart}
             aria-label={itemCount > 0 ? `${t("a11y.cart")}: ${itemCount}` : t("a11y.cart")}
-            className="hidden min-[1100px]:flex p-3 hover:bg-plate transition-colors duration-[180ms] relative cursor-pointer"
+            className="hidden min-[1150px]:flex p-3 hover:bg-plate transition-colors duration-[180ms] relative cursor-pointer"
           >
             <BagIcon />
             {itemCount > 0 && (

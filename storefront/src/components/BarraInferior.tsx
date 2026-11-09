@@ -35,8 +35,9 @@ import { whatsappHref, genericWhatsappMessage } from "@/lib/whatsapp"
  * globals.css), y esta a su vez se levanta sobre el teaser de Klaviyo, que es
  * lo único que no controlamos.
  *
- * Hasta 1100px, igual que la hamburguesa a la que sustituye: a ese ancho la
- * fila del menú de escritorio ya cabe.
+ * Hasta 1150px, igual que la hamburguesa a la que sustituye: a ese ancho la
+ * fila del menú de escritorio ya cabe. El número se movió de 1100 a 1150 al
+ * entrar Josepha en el menú; la cuenta está en Header.tsx.
  */
 
 /**
@@ -138,7 +139,7 @@ export function BarraInferior() {
   return (
     <nav
       aria-label={t("a11y.nav")}
-      className="min-[1100px]:hidden fixed inset-x-0 bottom-[var(--kl-teaser,0px)] z-40 border-t border-border bg-bg pb-[env(safe-area-inset-bottom)]"
+      className="min-[1150px]:hidden fixed inset-x-0 bottom-[var(--kl-teaser,0px)] z-40 border-t border-border bg-bg pb-[env(safe-area-inset-bottom)]"
       style={
         altoTeaser
           ? ({ "--kl-teaser": `${altoTeaser}px` } as React.CSSProperties)

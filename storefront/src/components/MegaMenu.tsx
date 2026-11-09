@@ -11,14 +11,15 @@ import { useLocale } from "@/lib/i18n/context"
  * header. ESC cierra. Mouse leave del panel cierra (con pequeño delay
  * para no cerrarse al cruzar el gap).
  *
- * Hasta 1100px el nav se oculta y manda MobileNav. El número está medido, no
- * elegido: con Instrument Sans Medium a 13px y tracking .08em las seis
- * etiquetas en mayúsculas miden 564px (ES, que es el caso peor) con el padding
- * px-2 y los cuatro chevrones. Sumando logo (116), los dos gap-4 (32) y el
- * grupo derecho de la cabecera —conmutador de idioma 117, tres botones de 44 y
- * sus gaps: 265— la fila pide 977px, y el .contenedor solo deja 944 a 1024px.
- * Por eso el padding se queda en px-2 también en xl: con px-3 la fila pedía
- * 1225 y a 1280 solo hay 1200.
+ * Hasta 1150px el nav se oculta y manda MobileNav. El número está medido, no
+ * elegido: con Instrument Sans Medium a 13px y tracking .08em las OCHO
+ * etiquetas en mayúsculas miden 728px en español, que es el caso peor, con el
+ * padding px-2 y los chevrones. La cuenta entera —logo, gaps y grupo derecho,
+ * y por qué el buscador escrito espera hasta 1340— está en Header.tsx, y hay
+ * que rehacerla si se añade otro ítem.
+ *
+ * El padding se queda en px-2 y no px-3: con px-3 la fila pedía 1225 y a 1280
+ * solo hay 1200.
  *
  * Las sub-categorías (Vaqueras, Clásicas, etc.) viven en sub-rutas
  * estáticas /hombre/[estilo], /mujer/[estilo], /nino/[estilo] —
@@ -72,6 +73,9 @@ const MENU: MenuItem[] = [
           { label: "style.classic", href: "/mujer/clasicas", description: "style.classic.desc" },
           { label: "style.tall", href: "/mujer/largas", description: "style.tall.desc" },
           { label: "style.exotic", href: "/mujer/exoticas", description: "style.exotic.desc" },
+          // Josepha no es un estilo, es una casa, y va aquí porque sus tres
+          // piezas son de mujer: quien abre este menú es a quien le sirve.
+          { label: "nav.josepha", href: "/josepha", description: "nav.josepha.desc" },
         ],
       },
     ],
@@ -107,9 +111,26 @@ const MENU: MenuItem[] = [
             href: "/marcas",
             description: "nav.brands.desc",
           },
+          // La única casa con página propia. Desde aquí se llega a ella y no
+          // a /marcas/josepha, que enseña las mismas tres botas con la
+          // plantilla de siempre.
+          {
+            label: "nav.josepha",
+            href: "/josepha",
+            description: "nav.josepha.desc",
+          },
         ],
       },
     ],
+  },
+  // JOSEPHA, PESTAÑA PROPIA. Lo pidió el dueño el 2026-11-09 —"integra
+  // Josepha en la navbar, con la landing que hicimos"— y eligió que además
+  // de los dos enlaces de arriba tuviera su propio lugar en la barra. Cuesta
+  // ancho: ver la cuenta en el comentario de arriba, que se rehízo al
+  // añadirla. Va después de Marcas porque es una casa, no una categoría.
+  {
+    label: "nav.josepha",
+    href: "/josepha",
   },
   {
     label: "nav.combos",
@@ -163,7 +184,7 @@ export function MegaMenu() {
   return (
     <>
       <nav
-        className="hidden min-[1100px]:flex items-center"
+        className="hidden min-[1150px]:flex items-center"
         onMouseLeave={scheduleClose}
       >
         {MENU.map((item, idx) => (

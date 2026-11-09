@@ -13,10 +13,10 @@ import { isMX } from "@/lib/market"
 /**
  * MobileNav — hamburger + drawer lateral para navegación mobile.
  *
- * Se ve hasta 1100px: de ahí para arriba manda MegaMenu. El corte estaba en
- * md (768px) y luego en lg (1024px), pero medido con la fuente real la fila
- * de la cabecera pide ~977px y a 1024 solo hay 944 (el .contenedor come 40px
- * de aire por lado, no 24). El número exacto y su cuenta están en Header.tsx.
+ * Se ve hasta 1150px: de ahí para arriba manda MegaMenu. El corte estaba en
+ * md (768px), luego en lg (1024px) y luego en 1100px; subió a 1150 cuando
+ * Josepha entró en el menú y la fila de escritorio dejó de caber con holgura.
+ * Medido con la fuente real, no estimado: la cuenta está en Header.tsx.
  *
  * Estructura: TODO desplegado, sin acordeón. Cada categoría grande
  * (HOMBRE / MUJER / NIÑOS) actúa como header de sección, con sus
@@ -68,6 +68,8 @@ const CATEGORIES: Category[] = [
       { label: "style.classic", href: "/mujer/clasicas", description: "style.classic.desc" },
       { label: "style.tall", href: "/mujer/largas", description: "style.tall.desc" },
       { label: "style.exotic", href: "/mujer/exoticas", description: "style.exotic.desc" },
+      // La casa con página propia, dentro de Mujer: sus tres piezas lo son.
+      { label: "nav.josepha", href: "/josepha", description: "nav.josepha.desc" },
     ],
     ctaLabel: "nav.cta.women",
   },
@@ -83,6 +85,9 @@ const CATEGORIES: Category[] = [
 ]
 
 const QUICK_LINKS: Array<{ label: string; href: string }> = [
+  // Josepha PRIMERO y suelta, no escondida dentro de Mujer: en el teléfono
+  // es la pestaña propia que en escritorio tiene en la barra.
+  { label: "nav.josepha", href: "/josepha" },
   { label: "nav.brands", href: "/marcas" },
   { label: "nav.combos", href: "/combos" },
   { label: "nav.outlet", href: "/outlet" },
@@ -225,7 +230,7 @@ export function MobileNav() {
       <div
         onClick={close}
         aria-hidden={!open}
-        className={`min-[1100px]:hidden fixed inset-0 bg-black/50 z-50 transition-opacity duration-[180ms] ${
+        className={`min-[1150px]:hidden fixed inset-0 bg-black/50 z-50 transition-opacity duration-[180ms] ${
           open ? "opacity-100" : "opacity-0 pointer-events-none"
         }`}
       />
@@ -246,7 +251,7 @@ export function MobileNav() {
            abierto otra cosa —y de paso la mano tapa lo que acaba de aparecer.
            Mientras el botón vivía arriba a la izquierda (la hamburguesa), lo
            correcto era lo contrario. */
-        className={`min-[1100px]:hidden fixed inset-y-0 right-0 w-[90%] max-w-sm bg-bg
+        className={`min-[1150px]:hidden fixed inset-y-0 right-0 w-[90%] max-w-sm bg-bg
           border-l border-border touch-pan-y
           z-50 flex flex-col transition-transform duration-[180ms] ${
             open ? "translate-x-0" : "translate-x-full"

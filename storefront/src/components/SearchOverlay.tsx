@@ -172,8 +172,11 @@ export function SearchOverlay({ open, onClose }: Props) {
 
   const overlay = (
     <div
-      // inert no acepta boolean false en React DOM — solo lo pasamos cuando aplica.
-      {...(!open ? { inert: "" as unknown as boolean } : {})}
+      // React 19 ya entiende `inert` como booleano, y pasarlo como cadena
+      // vacía —el truco que hacía falta antes— ahora avisa en consola en cada
+      // página: "Received an empty string for a boolean attribute inert".
+      // Así es como lo pasan el cajón del menú y el del carrito.
+      inert={!open}
       aria-hidden={!open}
       className={`fixed inset-0 z-50 ${open ? "" : "pointer-events-none opacity-0"}`}
     >

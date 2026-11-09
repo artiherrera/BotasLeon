@@ -130,6 +130,14 @@ export const DICTIONARY: Record<string, Entry> = {
   "nav.men": { es: "Hombre", en: "Men" },
   "nav.women": { es: "Mujer", en: "Women" },
   "nav.accessories": { es: "Accesorios", en: "Accessories" },
+  // Josepha es una CASA, no una categoría: su nombre no se traduce. La
+  // descripción es la que sale bajo el enlace en los desplegables de Mujer y
+  // de Marcas; dice qué hay detrás, porque el nombre solo no lo dice.
+  "nav.josepha": { es: "Josepha", en: "Josepha" },
+  "nav.josepha.desc": {
+    es: "Tres botines de una casa de León",
+    en: "Three ankle boots from a house in León",
+  },
   "nav.belts": { es: "Cinturones", en: "Belts" },
   "nav.belts.desc": {
     es: "Piel de res labrada, hebilla de latón. Tallas en pulgadas.",

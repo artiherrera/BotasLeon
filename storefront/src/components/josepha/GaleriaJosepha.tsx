@@ -1,6 +1,7 @@
 "use client"
 
 import { useCallback, useEffect, useRef, useState } from "react"
+import { createPortal } from "react-dom"
 import Image from "next/image"
 import { useT } from "@/lib/i18n/context"
 import type { Image as ImagenShopify } from "@/lib/shopify/types"
@@ -27,6 +28,16 @@ import type { Image as ImagenShopify } from "@/lib/shopify/types"
  * NO usa la clase .plato —tiene su propio plato, calculado para el fondo de
  * esta página— así que el cambio de allá no llegaba aquí y Josepha se quedaba
  * en cuadrado mientras el catálogo entero iba en vertical.
+ *
+ * EL VISOR SE PINTA EN EL <body>, POR PORTAL, y eso tampoco es gusto. Es
+ * `fixed inset-0`, que debería cubrir la pantalla, pero un antepasado con
+ * `transform`, `filter` o `will-change` se vuelve su bloque contenedor y lo
+ * encoge a su propio tamaño. Pasaba: la franja la envuelve <Revelar>, que
+ * llevaba `will-change: transform`, y el visor salía de 418×698 dentro de la
+ * columna de la foto en una ventana de 1440×900 — con el aspa y las flechas
+ * encima de la bota y la página entera a la vista alrededor. Ese
+ * `will-change` ya se quitó; el portal es para que no vuelva a ocurrir si
+ * mañana alguien anima la franja.
  *
  * EL FONDO DEL VISOR ES CLARO, y eso no es gusto: las fotos van con
  * `mix-blend-mode: multiply` porque así el fondo de estudio se funde con el
@@ -161,7 +172,11 @@ export function GaleriaJosepha({
         </div>
       )}
 
-      {abierta !== null && (
+      {/* Sin bandera de "ya montó": el portal solo se construye con una foto
+          abierta, y eso solo pasa tras un clic, o sea en el navegador y
+          después de hidratar. En el servidor `abierta` es null y nadie toca
+          document. */}
+      {abierta !== null && createPortal(
         <div
           role="dialog"
           aria-modal="true"
@@ -226,7 +241,8 @@ export function GaleriaJosepha({
           >
             {abierta + 1} / {imagenes.length}
           </p>
-        </div>
+        </div>,
+        document.body
       )}
     </>
   )

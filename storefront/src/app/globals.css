@@ -99,13 +99,13 @@
 /* ALTO DE LA BARRA DE NAVEGACIÓN DEL TELÉFONO.
    Vive en una variable porque hay tres cosas que tienen que apilarse encima:
    la barra de compra de la ficha, el mini resumen del carrito y el aviso de
-   cookies. Desde 1100px la barra no se pinta (ahí está el menú de escritorio)
+   cookies. Desde 1150px la barra no se pinta (ahí está el menú de escritorio)
    y la variable vale cero, así que esas reglas no tienen que saber nada del
    tamaño de pantalla. 57px = 56 de alto mínimo del botón + el borde. */
 :root {
   --barra-inferior: 0px;
 }
-@media (max-width: 1099px) {
+@media (max-width: 1149px) {
   :root {
     --barra-inferior: calc(57px + env(safe-area-inset-bottom));
   }
@@ -729,10 +729,23 @@ input[type="search"]:focus-visible {
 [data-revelar] {
   opacity: 0;
   transform: translateY(26px);
+  /* 560ms, no 900. A 900 la foto de la bota tardaba casi un segundo en
+     terminar de aparecer después de entrar en pantalla, y el dueño lo leyó
+     como lo que parecía: "las imágenes no cargan bien". La foto ya está
+     descargada; lo que se veía era la animación. */
   transition:
-    opacity 900ms cubic-bezier(0.16, 1, 0.3, 1),
-    transform 900ms cubic-bezier(0.16, 1, 0.3, 1);
-  will-change: opacity, transform;
+    opacity 560ms cubic-bezier(0.16, 1, 0.3, 1),
+    transform 560ms cubic-bezier(0.16, 1, 0.3, 1);
+  /* SIN will-change. Parecía gratis y costaba caro: `will-change: transform`
+     convierte al elemento en BLOQUE CONTENEDOR de sus descendientes
+     `position: fixed` (CSS Containment/Transforms: lo mismo que haría un
+     transform de verdad). El visor de fotos de Josepha es `fixed inset-0`, y
+     como vive dentro de una franja revelada, en vez de cubrir la pantalla se
+     encogía a la columna de la foto: 418×698 en una ventana de 1440×900,
+     medido. De ahí que al tocar una foto "se viera raro" — el aspa y las
+     flechas caían encima de la bota y el resto de la página seguía a la
+     vista. El visor además va por portal (ver GaleriaJosepha), así que hoy
+     hay dos cosas impidiéndolo; esta es la que lo causaba. */
 }
 [data-revelar][data-visible] {
   opacity: 1;
