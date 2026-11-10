@@ -1,7 +1,6 @@
 "use client"
 
 import { useT } from "@/lib/i18n/context"
-import { MESES_MSI } from "@/lib/msi"
 import { DESCUENTO_MAXIMO, dosCifras, type CuentaBuenFin } from "@/lib/buenfin"
 
 /**
@@ -111,17 +110,15 @@ export function BuenFinCintillo({ cuenta }: { cuenta: CuentaBuenFin }) {
           barra pasaba de 91 a 147px: un sexto de la pantalla gastado antes de
           que se viera una bota, que es justo la queja que ya costó rehacer la
           cabecera (ver BarraInferior.tsx). Así el logo se queda a la
-          izquierda y lo demás se apila a su derecha —medido: 90px—. Desde
-          `md` vuelve a ser una sola fila.
+          izquierda y lo demás se apila a su derecha —medido: 89px, dos menos
+          que antes de que el logo existiera—. Desde `md` vuelve a ser una
+          sola fila.
 
-          Lo que se ofrece: los meses salen de MESES_MSI y no escritos a mano. Los meses salen de MESES_MSI y no escritos a mano:
-          si mañana la banca da seis y el dueño cambia ese número, esto cambia
-          con él en vez de quedarse prometiendo tres. */}
+          Lo que se ofrece. Los meses van SIN CIFRA, y eso es a propósito:
+          ver "buenfin.oferta" en el diccionario. */}
       <div className="flex flex-col items-start gap-1.5 md:flex-row md:items-center md:gap-4">
       <p className="text-left text-[13px] font-medium uppercase leading-tight tracking-[0.04em] md:text-center md:text-[14px]">
-        {t("buenfin.oferta")
-          .replace("{pct}", String(DESCUENTO_MAXIMO))
-          .replace("{meses}", String(MESES_MSI))}
+        {t("buenfin.oferta").replace("{pct}", String(DESCUENTO_MAXIMO))}
       </p>
 
       <p className="flex items-center gap-2">

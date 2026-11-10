@@ -886,9 +886,14 @@ export const DICTIONARY: Record<string, Entry> = {
   // dólares). El inglés existe porque botasleon.mx también se lee en inglés.
   // "El Buen Fin" es nombre propio y no se traduce.
   "buenfin.nombre": { es: "El Buen Fin", en: "El Buen Fin" },
+  // SIN LA CIFRA DE MESES, por decisión del dueño (2026-11-10): "que diga
+  // solo meses sin intereses". Tres meses es poco para anunciarlo en una
+  // campaña donde la banca da nueve o doce, y la promesa sin número sigue
+  // siendo cierta con cualquier plazo que ofrezca el checkout. El número
+  // exacto lo sigue diciendo la ficha, que es donde se decide la compra.
   "buenfin.oferta": {
-    es: "Hasta {pct}% de descuento · {meses} meses sin intereses",
-    en: "Up to {pct}% off · {meses} months interest-free",
+    es: "Hasta {pct}% de descuento · Meses sin intereses",
+    en: "Up to {pct}% off · Interest-free months",
   },
   "buenfin.empiezaEn": { es: "Empieza en", en: "Starts in" },
   "buenfin.terminaEn": { es: "Termina en", en: "Ends in" },
