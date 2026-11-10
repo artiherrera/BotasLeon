@@ -790,6 +790,9 @@ export const DICTIONARY: Record<string, Entry> = {
     es: "Negro, pitón o plata. Ninguna de las tres es la discreta.",
     en: "Black, python or silver. Not one of the three is the quiet one.",
   },
+  // El botón de la banda de la portada (BandaJosepha). "Verlo completo" es de
+  // un botín suelto; esta lleva a la colección entera.
+  "josepha.verColeccion": { es: "Ver la colección", en: "See the collection" },
   "josepha.allBrands": { es: "Ver las catorce casas", en: "See all fourteen houses" },
   "josepha.oneOf": {
     es: "Josepha es una de las catorce casas de León que trabajan con nosotros.",

@@ -1,12 +1,12 @@
 import { notFound } from "next/navigation"
 import Image from "next/image"
-import localFont from "next/font/local"
 import { T } from "@/components/T"
 import { getProductByHandle, getProductsByVendor } from "@/lib/shopify"
 import { formatMoney } from "@/lib/utils"
 import { MESES_MSI, mensualidadMsi } from "@/lib/msi"
 import { pageMetadata } from "@/lib/seo"
 import { isLocale, type Locale } from "@/lib/i18n/config"
+import { fuenteJosepha } from "@/lib/fuente-josepha"
 import { CompraJosepha } from "@/components/josepha/CompraJosepha"
 import { GaleriaJosepha } from "@/components/josepha/GaleriaJosepha"
 import { DescripcionJosepha } from "@/components/josepha/DescripcionJosepha"
@@ -47,23 +47,13 @@ export const revalidate = 60
 const TALLER = "Josepha"
 
 /**
- * Montserrat, la que pidió el dueño para esta página.
- *
- * Archivo LOCAL, no next/font/google: el proyecto dejó de bajar fuentes de
- * Google en el build porque un deploy real falló cuando fonts.gstatic.com
- * devolvió 404 a media compilación. Es el archivo variable de 400 a 700, así
- * que la negrita es un grosor de verdad y no una falsificación del navegador
- * —globals.css pone font-synthesis-weight: none justamente para eso.
+ * Montserrat, la que pidió el dueño para esta página. Vive en
+ * lib/fuente-josepha.ts porque la comparte con la banda de la portada.
  *
  * Reemplaza a la Josefin que la marca tiene puesta en su metaobjeto de Shopify
  * (campo title_font). Si algún día se quiere volver a la fuente que elige la
  * marca, la función es brandTitleFontClass.
  */
-const montserrat = localFont({
-  src: "../../../fonts/montserrat.woff2",
-  weight: "400 700",
-  display: "swap",
-})
 
 /* ── Los tres campos de color ──────────────────────────────────────────────
  *
@@ -196,7 +186,7 @@ export default async function JosephaPage({ params }: Props) {
   // nombre de una casa que sí existe.
   if (productos.length === 0) notFound()
 
-  const fuente = montserrat.className
+  const fuente = fuenteJosepha.className
 
   return (
     <div className={`${fuente} min-h-screen`} style={{ backgroundColor: HUESO, color: TINTA }}>

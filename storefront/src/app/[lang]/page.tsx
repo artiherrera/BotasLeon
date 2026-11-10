@@ -16,6 +16,7 @@ import { getHeroSlides, getProductsByStyle, getProductsByTaxonomy, isBoot } from
 import { BandaCatalogo } from "@/components/BandaCatalogo"
 import { BotasExoticas } from "@/components/BotasExoticas"
 import { RecentlyViewed } from "@/components/RecentlyViewed"
+import { BandaJosepha } from "@/components/BandaJosepha"
 
 // Canonical + hreflang del home POR IDIOMA (las hijas lo hacen vía pageMetadata).
 // El title/description los hereda del layout (ya localizados) — no los reescribimos.
@@ -55,6 +56,10 @@ export const revalidate = 60
  *       visitante YA vio botas (localStorage); para quien llega por primera
  *       vez no existe, así que no desplaza nada de lo de abajo.
  *   3. LoMasNuevo — cuatro botas reales en el segundo golpe de vista (×2: hombre, mujer)
+ *   3b. BandaJosepha — el acceso directo a la colección Josepha, justo
+ *       después de las novedades de mujer (son botines de mujer). Es la
+ *       única franja de la portada con colores que no son los del sitio:
+ *       lleva los de su propia página.
  *   4. BotasExoticas — ocho exóticas al azar, sin mirar el sexo
  *   5. Cinturones — los cintos como tarjetas (antes era un banner con una foto)
  *   6. CategoryShowcase — el trío Hombre / Mujer / Outlet
@@ -130,6 +135,13 @@ export default async function HomePage() {
           href="/mujer"
           pareja={nuevosHombre.length > 0 ? "abajo" : null}
         />
+
+        {/* EL ACCESO DIRECTO A JOSEPHA, pedido del dueño el 2026-11-10. Va
+            pegado a las novedades de mujer porque son botines de mujer, y
+            antes de las exóticas —que son de hombre— para no partir la
+            lectura. Llega a los dos bordes y trae los colores de su página:
+            ver BandaJosepha. */}
+        <BandaJosepha />
 
         {/* Ocho exóticas al azar, sin mirar el sexo: pedido del dueño, justo
             después de las novedades por género. */}
