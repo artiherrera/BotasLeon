@@ -5,6 +5,8 @@ import { useT } from "@/lib/i18n/context"
 import { LocalizedLink as Link } from "@/components/LocalizedLink"
 import { PROMESAS_BARRA } from "@/lib/promesas"
 import { formatoCuentaRegresiva, restante, type Restante, PROMO_PAR } from "@/lib/promocion"
+import { cuentaBuenFin } from "@/lib/buenfin"
+import { BuenFinCintillo, ROJO_BUEN_FIN } from "./BuenFinCintillo"
 
 /**
  * Barra de avisos: la promoción con su cuenta regresiva, y tres promesas.
@@ -19,6 +21,13 @@ import { formatoCuentaRegresiva, restante, type Restante, PROMO_PAR } from "@/li
  * Unidos, y "3 meses sin intereses" ahí sería una promesa que el checkout en
  * dólares no puede cumplir. La promoción del 10%, en cambio, va en los dos
  * mercados: el registro no depende de la moneda.
+ *
+ * EN ROJO MIENTRAS DURA EL BUEN FIN, y solo entonces. Es el mismo cintillo
+ * —misma altura, mismo sitio, mismas promesas a la derecha— pintado del color
+ * de la campaña y con el bloque del Buen Fin en el hueco donde va la
+ * promoción: logo, lo que se ofrece y el cronómetro. Cuando la campaña
+ * termina, el reloj se acaba, cuentaBuenFin devuelve null y la barra vuelve
+ * sola a su tinta sin que nadie despliegue nada. Ver lib/buenfin.ts.
  *
  * TINTA DE FONDO Y LA PROMOCIÓN EN NEGATIVO. En un sitio entero de crema lo que
  * llama la atención es lo oscuro, y dentro de lo oscuro, lo claro: la promoción
@@ -41,6 +50,12 @@ export function BarraAvisos() {
     () => null
   )
   const queda: Restante | null = ahora === null ? null : restante(ahora * 1000)
+
+  // El Buen Fin manda sobre lo demás mientras dura: es el único mensaje de la
+  // barra, porque apilarle encima el segundo par y el 10% convierte el aviso
+  // en una lista que nadie lee. Las otras promociones siguen anunciándose
+  // donde deciden la venta: la tarjeta y la ficha.
+  const buenFin = ahora === null ? null : cuentaBuenFin(ahora * 1000)
 
   // Cuando vence, la promoción desaparece sola. Es la mitad del trabajo de una
   // promoción con fecha: un sitio que sigue prometiendo un descuento terminado
@@ -65,17 +80,28 @@ export function BarraAvisos() {
 
   // Sin promoción y sin promesas no hay barra: una franja de tinta vacía es
   // justo lo que se está arreglando.
-  if (!hayPromo && !PROMO_PAR.activa && PROMESAS_BARRA.length === 0) return null
+  if (!buenFin && !hayPromo && !PROMO_PAR.activa && PROMESAS_BARRA.length === 0) return null
+
+  // Mientras dura la campaña, los meses sin intereses ya los dice el bloque
+  // del Buen Fin: repetirlos en la lista de promesas sería decirlo dos veces
+  // en el mismo renglón.
+  const promesas = buenFin
+    ? PROMESAS_BARRA.filter((llave) => llave !== "aviso.mxMeses")
+    : PROMESAS_BARRA
 
   return (
-    <div className="bg-text text-bg">
+    <div
+      className={buenFin ? "text-bg" : "bg-text text-bg"}
+      style={buenFin ? { backgroundColor: ROJO_BUEN_FIN } : undefined}>
       <div className="contenedor flex min-h-12 flex-wrap items-center justify-center gap-x-4 gap-y-1.5 py-2.5 text-center">
         {/* LA PROMOCIÓN DEL PAR, sin reloj: el dueño la puso sin fecha de
             término (2026-09-24). Va en el mismo bloque de crema sobre tinta
             que usaba la del 10% —el contraste más alto de la paleta— y lleva
             enlace, porque un aviso que no se puede tocar obliga a buscar.
             Para apagarlo: PROMO_PAR.activa = false en lib/promocion.ts. */}
-        {PROMO_PAR.activa && (
+        {buenFin && <BuenFinCintillo cuenta={buenFin} />}
+
+        {!buenFin && PROMO_PAR.activa && (
           <p className="flex flex-wrap items-center justify-center gap-x-2.5 gap-y-1 bg-bg px-4 py-1.5 text-text">
             <span className="text-[13px] font-bold uppercase tracking-[0.06em] leading-tight">
               {t("promoPar.barra")}
@@ -89,7 +115,7 @@ export function BarraAvisos() {
           </p>
         )}
 
-        {hayPromo && (
+        {!buenFin && hayPromo && (
           <p className="flex flex-wrap items-center justify-center gap-x-2.5 gap-y-1 bg-bg px-4 py-1.5 text-text">
             <span className="text-[13px] font-bold uppercase tracking-[0.06em] leading-tight">
               {t("promo.texto")}
@@ -118,22 +144,22 @@ export function BarraAvisos() {
             (el <p> de abajo) y la lista completa solo desde `sm`. Las
             promesas siguen estando bajo el botón de compra en cada ficha, que
             es donde de verdad deciden la venta. */}
-        {PROMESAS_BARRA.length > 0 && (
+        {promesas.length > 0 && (
           <p
             className={`text-[13.5px] leading-snug sm:hidden ${
-              PROMO_PAR.activa || hayPromo ? "hidden" : ""
+              buenFin || PROMO_PAR.activa || hayPromo ? "hidden" : ""
             }`}
             aria-live="off"
           >
             {/* La `key` cambia con la promesa: React vuelve a montar el span y
                 la animación de entrada corre otra vez. */}
             <span key={cual} className="relevo inline-block">
-              {t(PROMESAS_BARRA[cual])}
+              {t(promesas[cual % promesas.length])}
             </span>
           </p>
         )}
         <ul className="hidden flex-wrap items-center justify-center gap-x-3 gap-y-0.5 sm:flex">
-          {PROMESAS_BARRA.map((llave, i) => (
+          {promesas.map((llave, i) => (
             <li key={llave} className="flex items-center gap-x-3">
               {i > 0 && (
                 <span aria-hidden className="opacity-40">

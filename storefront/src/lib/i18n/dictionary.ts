@@ -881,6 +881,27 @@ export const DICTIONARY: Record<string, Entry> = {
   // Redactada y lista, pero APAGADA. Ver PAGO_EN_4 en lib/promesas.ts.
   "aviso.usPago4": { es: "Paga en 4 con Shop Pay", en: "Pay in 4 with Shop Pay" },
 
+  // ── El Buen Fin ───────────────────────────────────────────────────────
+  // Campaña MEXICANA (ver lib/buenfin.ts: no se pinta en el despliegue en
+  // dólares). El inglés existe porque botasleon.mx también se lee en inglés.
+  // "El Buen Fin" es nombre propio y no se traduce.
+  "buenfin.nombre": { es: "El Buen Fin", en: "El Buen Fin" },
+  "buenfin.oferta": {
+    es: "Hasta {pct}% de descuento · {meses} meses sin intereses",
+    en: "Up to {pct}% off · {meses} months interest-free",
+  },
+  "buenfin.empiezaEn": { es: "Empieza en", en: "Starts in" },
+  "buenfin.terminaEn": { es: "Termina en", en: "Ends in" },
+  "buenfin.dias": { es: "días", en: "days" },
+  "buenfin.horas": { es: "hrs", en: "hrs" },
+  "buenfin.minutos": { es: "min", en: "min" },
+  "buenfin.segundos": { es: "seg", en: "sec" },
+  // Para el lector de pantalla: las fechas, que el reloj cuenta pero no dice.
+  "buenfin.aria": {
+    es: "El Buen Fin: del 13 al 17 de noviembre",
+    en: "El Buen Fin: November 13 to 17",
+  },
+
   // ── Promoción con cuenta regresiva ────────────────────────────────────
   // Va en los DOS mercados: el descuento por registro no depende de la moneda,
   // al revés que el envío o los meses. La fecha de fin vive en lib/promocion.ts.
