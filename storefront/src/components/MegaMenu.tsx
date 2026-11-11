@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react"
 import { LocalizedLink as Link } from "@/components/LocalizedLink"
 import { useLocale } from "@/lib/i18n/context"
+import { ROJO_OFERTA, RUTA_OFERTAS, llaveVitrina } from "@/lib/ofertas/config"
 
 /**
  * MegaMenu — navegación principal con dropdowns full-width.
@@ -34,6 +35,8 @@ type Section = {
 
 type MenuItem = {
   label: string
+  /** Se pinta en el rojo de la temporada y el nombre lo decide la fecha. */
+  temporada?: boolean
   href: string
   sections?: Section[]
   ctaHref?: string
@@ -136,9 +139,23 @@ const MENU: MenuItem[] = [
     label: "nav.combos",
     href: "/combos",
   },
+  /**
+   * LA PESTAÑA DE TEMPORADA, EN ROJO, EN EL SITIO QUE OCUPABA OUTLET.
+   *
+   * El dueño lo pidió así (2026-11-10): "en la nav bar quita outlet y ponlo
+   * como Buen Fin, incluye el color rojo que ya usamos". Y Outlet no se echa
+   * de menos: filtra por precio de comparación, que está vacío en los 110
+   * productos, así que llevaba meses enseñando "sin ofertas por ahora". La
+   * página sigue existiendo; lo que se va es el enlace que no llevaba a nada.
+   *
+   * El nombre lo pone llaveVitrina(): "El Buen Fin" hasta que cierre la
+   * campaña y después el de la temporada que toque, para que la pestaña no se
+   * quede anunciando en enero algo de noviembre.
+   */
   {
     label: "nav.outlet",
-    href: "/outlet",
+    href: RUTA_OFERTAS,
+    temporada: true,
   },
   {
     label: "nav.visit",
@@ -196,13 +213,16 @@ export function MegaMenu() {
             <Link
               href={item.href}
               onClick={() => setOpenIdx(null)}
-              className={`nav-label relative flex items-center gap-1 whitespace-nowrap px-2 py-2 text-text after:pointer-events-none after:absolute after:inset-x-2 after:bottom-1 after:h-px after:origin-left after:scale-x-0 after:bg-text after:transition-transform after:duration-[180ms] hover:after:scale-x-100 ${
-                openIdx === idx ? "after:scale-x-100" : ""
-              }`}
+              className={`nav-label relative flex items-center gap-1 whitespace-nowrap px-2 py-2 after:pointer-events-none after:absolute after:inset-x-2 after:bottom-1 after:h-px after:origin-left after:scale-x-0 after:transition-transform after:duration-[180ms] hover:after:scale-x-100 ${
+                item.temporada ? "font-bold after:bg-current" : "text-text after:bg-text"
+              } ${openIdx === idx ? "after:scale-x-100" : ""}`}
+              /* El subrayado usa bg-current, así hereda el rojo del propio
+                 enlace en vez de llevarlo escrito dos veces. */
+              style={item.temporada ? { color: ROJO_OFERTA } : undefined}
               aria-expanded={openIdx === idx && !!item.sections}
               aria-haspopup={item.sections ? "true" : undefined}
             >
-              {t(item.label)}
+              {t(item.temporada ? llaveVitrina() : item.label)}
               {item.sections && (
                 <svg
                   width="12"

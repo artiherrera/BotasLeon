@@ -29,23 +29,76 @@ import { ROJO_OFERTA } from "@/lib/ofertas/config"
  * del SVG se calcula con el largo del texto en vez de fijarse: con un viewBox
  * fijo y preserveAspectRatio, la punta se deformaría en los números largos.
  *
+ * EL TEXTO VA CENTRADO ENTRE EL OJAL Y LA PUNTA, que es el hueco que de
+ * verdad le queda —no la etiqueta entera—. El dueño lo cazó dos veces, y la
+ * segunda tenía razón otra vez: no bastaba con anclar el texto por el medio,
+ * porque el ancho se fijaba aparte y dejaba más aire de un lado que del otro.
+ * Ahora el aire se declara UNA vez y se usa a los dos lados, y el ancho de la
+ * etiqueta sale de ahí.
+ *
  * Blanco sobre este rojo da 5.89:1, holgado para la AA.
  */
 
-/** Alto de la etiqueta en px. El resto de medidas salen de este. */
-const ALTO = 34
-/** Lo que mide la punta. */
-const PUNTA = 11
-/** Centro y radio del ojal. */
-const OJAL_X = 11
-const OJAL_R = 3.2
+/**
+ * Alto de referencia. TODO lo demás se calcula a partir del alto que reciba la
+ * etiqueta, así que subirlo la escala entera sin deformar nada.
+ */
+const ALTO_BASE = 34
 
-export function InsigniaDescuento({ pct }: { pct: number }) {
+export function InsigniaDescuento({
+  pct,
+  color = ROJO_OFERTA,
+  alto = ALTO_BASE,
+}: {
+  pct: number
+  /**
+   * El rojo de la temporada por defecto. Josepha le pasa SU rosa: esa landing
+   * existe para no parecerse al resto del sitio y meterle el rojo de la
+   * campaña sería justo lo que no debe pasar.
+   */
+  color?: string
+  /**
+   * Alto en px. En la tarjeta del catálogo manda el tamaño de la tarjeta; en
+   * Josepha, que es una página de franjas a pantalla completa con el precio a
+   * 32px o más, una etiqueta de 34px se vería de juguete — y además sobre el
+   * rosa de esa página NADA puede bajar de 20px en negrita (blanco sobre
+   * #E72B5E da 4.28:1, que solo cumple como texto grande), así que allá se
+   * escala hasta que también los signos lo cumplan.
+   */
+  alto?: number
+}) {
+  const k = alto / ALTO_BASE
+  const PUNTA = 11 * k
+  const OJAL_X = 11 * k
+  const OJAL_R = 3.2 * k
+  const CUERPO_CIFRA = 19 * k
+  const CUERPO_SIGNO = 12 * k
+  const ALTO = alto
+
   const texto = String(pct)
-  // Ancho medido a ojo de letra: el número a 19px en negrita ocupa ~11.5px por
-  // cifra, más el "−" y el "%" chicos, más el aire del ojal y de la punta.
-  const ancho = Math.round(OJAL_X + 10 + texto.length * 11.5 + 13 + PUNTA)
+  // Ancho del texto a ojo de letra: el "−" chico, cada cifra en negrita, y el
+  // "%" chico. Medido en pantalla: para "30" sale 38.8 contra los 39 que
+  // estima esta cuenta, así que afina de sobra.
+  const anchoTexto = (7 + texto.length * 11 + 10) * k
+
+  /**
+   * EL AIRE A LOS DOS LADOS DEL TEXTO, IGUAL, y de ahí sale el ancho.
+   *
+   * La primera versión hacía lo contrario —fijaba el ancho con una suma de
+   * constantes y luego colocaba el texto dentro—, y eso dejaba 4.8px entre el
+   * ojal y la cifra contra 7 entre la cifra y la punta: medido en pantalla,
+   * 7px de diferencia. Se veía descentrado porque lo estaba.
+   *
+   * Ahora el hueco del texto se define por sus dos bordes —el canto derecho
+   * del ojal y el arranque de la punta— con el mismo aire en los dos, y el
+   * ancho de la etiqueta es la consecuencia. Así queda centrado por
+   * construcción, no por una cuenta que haya que acertar.
+   */
+  const AIRE = 6 * k
+  const INICIO_TEXTO = OJAL_X + OJAL_R + AIRE
+  const ancho = Math.round(INICIO_TEXTO + anchoTexto + AIRE + PUNTA)
   const mitad = ALTO / 2
+  const centroTexto = INICIO_TEXTO + anchoTexto / 2
 
   // Pentágono con la punta a la derecha + el ojal como segundo contorno. Con
   // fill-rule evenodd, el segundo contorno agujerea el primero.
@@ -61,21 +114,33 @@ export function InsigniaDescuento({ pct }: { pct: number }) {
       aria-label={`${pct}% de descuento`}
       className="block shrink-0"
     >
-      <path d={`${contorno} ${ojal}`} fill={ROJO_OFERTA} fillRule="evenodd" />
+      <path d={`${contorno} ${ojal}`} fill={color} fillRule="evenodd" />
+      {/* El tamaño del <text> es el de la CIFRA, no el del "%": con
+          dominant-baseline central, el centrado vertical se calcula con las
+          métricas de la fuente al tamaño del elemento, y lo que tiene que
+          quedar a media altura es el número, que es lo que se lee.
+
+          Sin `dy` en los tspan: en SVG el dy de un tspan desplaza también a
+          todo lo que viene detrás, así que los dos medios píxeles de la
+          versión anterior se sumaban y subían el "%" un píxel entero. El "−",
+          la cifra y el "%" comparten línea base, que es como se escribe un
+          porcentaje. */}
       <text
-        x={OJAL_X + 9}
+        x={centroTexto}
         y={mitad}
+        textAnchor="middle"
         dominantBaseline="central"
         fill="#FFFFFF"
+        fontSize={CUERPO_CIFRA}
         fontFamily="var(--font-body), system-ui, sans-serif"
       >
-        <tspan fontSize="12" fontWeight="600" dy="-0.5">
+        <tspan fontSize={CUERPO_SIGNO} fontWeight="600">
           −
         </tspan>
-        <tspan fontSize="19" fontWeight="700" style={{ fontVariantNumeric: "tabular-nums" }}>
+        <tspan fontWeight="700" style={{ fontVariantNumeric: "tabular-nums" }}>
           {texto}
         </tspan>
-        <tspan fontSize="12" fontWeight="600" dy="-0.5">
+        <tspan fontSize={CUERPO_SIGNO} fontWeight="600">
           %
         </tspan>
       </text>

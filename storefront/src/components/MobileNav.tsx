@@ -9,6 +9,7 @@ import Image from "next/image"
 import { SocialIcons } from "./SocialIcons"
 import { useLocale } from "@/lib/i18n/context"
 import { isMX } from "@/lib/market"
+import { ROJO_OFERTA, RUTA_OFERTAS, llaveVitrina } from "@/lib/ofertas/config"
 
 /**
  * MobileNav — hamburger + drawer lateral para navegación mobile.
@@ -84,13 +85,16 @@ const CATEGORIES: Category[] = [
   },
 ]
 
-const QUICK_LINKS: Array<{ label: string; href: string }> = [
+const QUICK_LINKS: Array<{ label: string; href: string; temporada?: boolean }> = [
   // Josepha PRIMERO y suelta, no escondida dentro de Mujer: en el teléfono
   // es la pestaña propia que en escritorio tiene en la barra.
   { label: "nav.josepha", href: "/josepha" },
   { label: "nav.brands", href: "/marcas" },
   { label: "nav.combos", href: "/combos" },
-  { label: "nav.outlet", href: "/outlet" },
+  // La pestaña de temporada sustituye a Outlet, igual que en el escritorio
+  // (ver MegaMenu). Va en el rojo de la campaña y el nombre lo decide la
+  // fecha, no una cadena fija.
+  { label: "nav.outlet", href: RUTA_OFERTAS, temporada: true },
   { label: "nav.visit", href: "/visitanos" },
 ]
 
@@ -352,9 +356,12 @@ export function MobileNav() {
                 key={link.href}
                 href={link.href}
                 onClick={close}
-                className="block py-3.5 text-base font-medium uppercase tracking-[0.08em] text-text border-b border-border underline-offset-4 hover:underline"
+                className={`block py-3.5 text-base uppercase tracking-[0.08em] border-b border-border underline-offset-4 hover:underline ${
+                  link.temporada ? "font-bold" : "font-medium text-text"
+                }`}
+                style={link.temporada ? { color: ROJO_OFERTA } : undefined}
               >
-                {t(link.label)}
+                {t(link.temporada ? llaveVitrina() : link.label)}
               </Link>
             ))}
             {/* Catálogo — visor HTML (abre en todos los navegadores, no descarga) */}

@@ -186,6 +186,20 @@ export function llaveNombreEvento(evento: Evento): string {
 }
 
 /**
+ * El nombre que lleva la pestaña de la barra de navegación.
+ *
+ * El dueño la pidió como "Buen Fin" (2026-11-10), y mientras la campaña esté
+ * por llegar o en curso eso es lo correcto. Pero una pestaña que siguiera
+ * diciendo "Buen Fin" en enero sería una mentira fija en todas las páginas,
+ * así que en cuanto pasa el martes 17 vuelve a llamarse por la temporada que
+ * toque: Black Friday o, el resto del año, Ofertas.
+ */
+export function llaveVitrina(ahoraMs: number = Date.now()): string {
+  if (isMX && ahoraMs <= Date.parse(BUEN_FIN_FIN)) return "oferta.nombre.buenfin"
+  return llaveNombreEvento(eventoActual(ahoraMs))
+}
+
+/**
  * LA RUTA DE LA PÁGINA NO CAMBIA CON LA TEMPORADA, aunque el título sí.
  *
  * Se llama /buen-fin porque así la nombró el dueño ("la página de ofertas se

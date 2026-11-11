@@ -11,6 +11,7 @@ import { CompraJosepha } from "@/components/josepha/CompraJosepha"
 import { GaleriaJosepha } from "@/components/josepha/GaleriaJosepha"
 import { DescripcionJosepha } from "@/components/josepha/DescripcionJosepha"
 import { Revelar } from "@/components/josepha/Revelar"
+import { InsigniaDescuento } from "@/components/InsigniaDescuento"
 import type { Product } from "@/lib/shopify/types"
 
 /**
@@ -312,7 +313,21 @@ export default async function JosephaPage({ params }: Props) {
                     se le pone de tope 58vh de alto, el ancho tope es 58vh×0.8.
                     Así la galería se encoge en pantallas bajas en vez de
                     desbordar, y en las altas la limita el 36rem de siempre. */}
-                <Revelar className="w-full max-w-[min(36rem,calc(58vh*0.8))]">
+                <Revelar className="relative w-full max-w-[min(36rem,calc(58vh*0.8))]">
+                  {/* LA ETIQUETA, TAMBIÉN AQUÍ. La pidió el dueño para esta
+                      página. Va sobre la foto, como en el catálogo, pero con
+                      EL ROSA DE JOSEPHA y no con el rojo de la campaña.
+
+                      Y más grande: 52px en vez de 34. No es capricho de
+                      escala — sobre este rosa el blanco da 4.28:1, que solo
+                      cumple como TEXTO GRANDE, así que la etiqueta tiene que
+                      crecer hasta que también el "−" y el "%" pasen de 18.66px
+                      en negrita. A 52 salen a 18.4… y por eso va a 56. */}
+                  {oferta && (
+                    <span className="absolute left-0 top-0 z-10">
+                      <InsigniaDescuento pct={oferta.pct} color={ROSA} alto={56} />
+                    </span>
+                  )}
                   <GaleriaJosepha
                     imagenes={fotos}
                     titulo={p.title}
