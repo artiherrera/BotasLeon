@@ -194,6 +194,25 @@ export function llaveNombreEvento(evento: Evento): string {
  * así que en cuanto pasa el martes 17 vuelve a llamarse por la temporada que
  * toque: Black Friday o, el resto del año, Ofertas.
  */
+/**
+ * ¿Tiene sentido la pestaña de temporada en la barra?
+ *
+ * En botasleon.com NO: medido el 2026-11-10, cero de 94 productos tienen
+ * descuento allá —todos los automáticos de Shopify están limitados al mercado
+ * México—, así que la pestaña llevaba a una página que solo dice "sin ofertas
+ * por ahora". Una pestaña fija, en todas las páginas, que termina en un
+ * callejón sin salida.
+ *
+ * Se decide con el número que el prebuild deja escrito (DESCUENTO_MAXIMO_REAL)
+ * y no con una condición por mercado: el día que Shopify tenga descuentos para
+ * Estados Unidos —en Black Friday, por ejemplo— la pestaña aparece sola allá
+ * también, sin tocar nada.
+ */
+export function hayVitrina(maximoReal: number, ahoraMs: number = Date.now()): boolean {
+  if (enAntesala(ahoraMs)) return true
+  return descuentoVisible(ahoraMs) && maximoReal > 0
+}
+
 export function llaveVitrina(ahoraMs: number = Date.now()): string {
   if (isMX && ahoraMs <= Date.parse(BUEN_FIN_FIN)) return "oferta.nombre.buenfin"
   return llaveNombreEvento(eventoActual(ahoraMs))

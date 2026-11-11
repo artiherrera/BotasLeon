@@ -9,7 +9,8 @@ import Image from "next/image"
 import { SocialIcons } from "./SocialIcons"
 import { useLocale } from "@/lib/i18n/context"
 import { isMX } from "@/lib/market"
-import { ROJO_OFERTA, RUTA_OFERTAS, llaveVitrina } from "@/lib/ofertas/config"
+import { ROJO_OFERTA, RUTA_OFERTAS, llaveVitrina, hayVitrina } from "@/lib/ofertas/config"
+import { DESCUENTO_MAXIMO_REAL } from "@/lib/ofertas/maximo"
 
 /**
  * MobileNav — hamburger + drawer lateral para navegación mobile.
@@ -351,7 +352,9 @@ export function MobileNav() {
 
           {/* Quick links: Marcas + Outlet */}
           <div className="px-5 pt-6 pb-2 border-t border-border mt-2">
-            {QUICK_LINKS.map((link) => (
+            {QUICK_LINKS.filter(
+              (link) => !link.temporada || hayVitrina(DESCUENTO_MAXIMO_REAL)
+            ).map((link) => (
               <Link
                 key={link.href}
                 href={link.href}

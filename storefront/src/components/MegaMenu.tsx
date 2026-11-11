@@ -3,7 +3,8 @@
 import { useEffect, useRef, useState } from "react"
 import { LocalizedLink as Link } from "@/components/LocalizedLink"
 import { useLocale } from "@/lib/i18n/context"
-import { ROJO_OFERTA, RUTA_OFERTAS, llaveVitrina } from "@/lib/ofertas/config"
+import { ROJO_OFERTA, RUTA_OFERTAS, llaveVitrina, hayVitrina } from "@/lib/ofertas/config"
+import { DESCUENTO_MAXIMO_REAL } from "@/lib/ofertas/maximo"
 
 /**
  * MegaMenu — navegación principal con dropdowns full-width.
@@ -204,7 +205,7 @@ export function MegaMenu() {
         className="hidden min-[1150px]:flex items-center"
         onMouseLeave={scheduleClose}
       >
-        {MENU.map((item, idx) => (
+        {MENU.filter((item) => !item.temporada || hayVitrina(DESCUENTO_MAXIMO_REAL)).map((item, idx) => (
           <div
             key={item.label}
             onMouseEnter={() => open(idx)}
