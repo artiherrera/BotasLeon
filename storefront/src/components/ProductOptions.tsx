@@ -244,7 +244,26 @@ export function ProductOptions({
   // Rótulos fijos aunque falte talla: con dos botones, repetir "Selecciona tu
   // talla" en ambos no distingue nada, y el clic ya avisa y hace scroll. El
   // aviso como rótulo se conserva solo en la barra pegajosa (un solo botón).
-  const price = product.priceRange.minVariantPrice
+  /**
+   * EL PRECIO DE ESTA BOTA, EL QUE COBRA LA CAJA.
+   *
+   * De aquí salen cuatro cosas: el "Solo la bota $X", el total del conjunto
+   * bota+cinto, el rótulo de "Comprar ahora · $X" y el precio base de las
+   * tiras de oferta. Las cuatro tienen que decir lo mismo que el precio de
+   * arriba de la ficha y que el carrito.
+   *
+   * Lo destapó una prueba del 2026-11-10: con el descuento ya visible, la
+   * ficha de La Bandida decía $3,709.30 arriba y "Solo la bota $5,299" tres
+   * centímetros más abajo. Dos precios para la misma bota en la misma
+   * pantalla, y el bueno era el de arriba.
+   */
+  const oferta = product.availableForSale ? (product.oferta ?? null) : null
+  const price = oferta
+    ? {
+        amount: String(oferta.paga),
+        currencyCode: product.priceRange.minVariantPrice.currencyCode,
+      }
+    : product.priceRange.minVariantPrice
 
   /**
    * Esta bota, como la ve el conjunto "bota + cinto" de las tiras de oferta.
