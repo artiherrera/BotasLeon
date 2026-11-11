@@ -266,7 +266,25 @@ export default async function JosephaPage({ params }: Props) {
           ...(p.images ?? []).filter((im) => im.url && im.url !== portada?.url),
         ]
         const moneda = p.priceRange.minVariantPrice.currencyCode
-        const porMes = mensualidadMsi(p.priceRange.minVariantPrice.amount, moneda)
+        /**
+         * EL DESCUENTO TAMBIÉN AQUÍ. Esta página pinta sus precios a mano —no
+         * usa PriceMSI, para no meterle la tipografía del resto del sitio—, y
+         * por eso se quedó fuera cuando el catálogo entero empezó a enseñar
+         * los descuentos (el dueño lo cazó el 2026-11-10: "en la landing de
+         * Josepha no se ven los descuentos"). Los tres botines están al 5%.
+         *
+         * CON LA PALETA DE JOSEPHA, NO CON EL ROJO DE LA CAMPAÑA. Esta página
+         * existe para no parecerse al resto del sitio; meterle el #C8102E del
+         * Buen Fin sería justo lo que no debe pasar. El precio que se paga
+         * sigue en su bloque de rosa y lo que se añade —el tachado y el
+         * ahorro— va en tinta sobre el salmón, donde sí puede haber letra
+         * normal.
+         *
+         * La mensualidad se calcula sobre lo que SE PAGA, no sobre la lista.
+         */
+        const oferta = p.availableForSale ? (p.oferta ?? null) : null
+        const importe = oferta ? String(oferta.paga) : p.priceRange.minVariantPrice.amount
+        const porMes = mensualidadMsi(importe, moneda)
         const alDerecho = i % 2 === 0
         return (
           <section key={p.id}>
@@ -385,8 +403,28 @@ export default async function JosephaPage({ params }: Props) {
                     padding: "0.22em 0.42em 0.3em",
                   }}
                 >
-                  {formatMoney(p.priceRange.minVariantPrice.amount, moneda)}
+                  {formatMoney(importe, moneda)}
                 </p>
+
+                {/* El de lista, tachado, y cuánto se baja. Van DEBAJO del
+                    bloque y en tinta sobre el salmón: ahí sí puede haber letra
+                    normal —la regla de "nada chico" es solo para lo que se
+                    posa sobre el rosa—. */}
+                {oferta && (
+                  <p
+                    className={`mt-3 leading-snug ${
+                      alDerecho ? "self-center md:self-start" : "self-center md:self-end"
+                    }`}
+                    style={{ color: TINTA, fontSize: ESCALA.apoyo }}
+                  >
+                    <span style={{ textDecoration: "line-through", opacity: 0.55 }}>
+                      {formatMoney(String(oferta.lista), moneda)}
+                    </span>{" "}
+                    <span style={{ fontWeight: 700 }}>
+                      <T k="oferta.ahorras" /> {formatMoney(String(oferta.ahorro), moneda)}
+                    </span>
+                  </p>
+                )}
 
                 {/* Los meses sin intereses solo existen en México, y lo decide
                     mensualidadMsi por MERCADO y por moneda, nunca por idioma:

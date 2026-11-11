@@ -799,9 +799,6 @@ export const DICTIONARY: Record<string, Entry> = {
   // 2026-11-10 además se ENSEÑA en tarjeta y ficha. Ver lib/ofertas/.
   "oferta.ahorras": { es: "Ahorras", en: "You save" },
   "oferta.ahorraste": { es: "Ahorraste en este pedido", en: "You saved on this order" },
-  // Sustituye a "el descuento se aplica en tu carrito": si el precio ya se ve
-  // con el descuento puesto, lo que hay que decir es que no hay que hacer nada.
-  "oferta.yaAplicado": { es: "Descuento ya aplicado, sin código", en: "Discount already applied, no code needed" },
   "oferta.nombre.buenfin": { es: "El Buen Fin", en: "El Buen Fin" },
   "oferta.nombre.blackfriday": { es: "Black Friday", en: "Black Friday" },
   "oferta.nombre.ofertas": { es: "Ofertas", en: "Deals" },

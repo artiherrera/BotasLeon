@@ -16,7 +16,6 @@ import {
   DESCUENTO_ANUNCIADO,
   DIA_INICIO,
   DIA_FIN,
-  ROJO_OFERTA,
 } from "@/lib/ofertas/config"
 import { whatsappHref, genericWhatsappMessage } from "@/lib/whatsapp"
 
@@ -115,18 +114,11 @@ export default async function BuenFinPage({
             </div>
           )}
 
-          {!antesala && conOferta.length > 0 && (
-            /* "Descuento ya aplicado, sin código": es la frase que sustituye a
-               "el descuento se aplica en tu carrito". Si el precio que se ve
-               YA trae el descuento puesto, lo que hay que decirle al cliente no
-               es dónde se aplica, sino que no tiene que hacer nada. */
-            <p
-              className="mb-8 inline-block px-3 py-1.5 text-[13px] font-bold uppercase leading-none tracking-[0.06em] text-bg"
-              style={{ backgroundColor: ROJO_OFERTA }}
-            >
-              <T k="oferta.yaAplicado" />
-            </p>
-          )}
+          {/* SIN "DESCUENTO YA APLICADO, SIN CÓDIGO". Lo quitó el dueño
+              (2026-11-10) y tiene razón: cada tarjeta de abajo enseña el
+              precio tachado al lado del que se paga, así que la frase explica
+              algo que la página ya demuestra. Un letrero que repite lo que se
+              ve es ruido. */}
 
           {antesala ? null : conOferta.length === 0 ? (
             <div className="max-w-2xl border border-border bg-bg-alt p-10">

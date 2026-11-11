@@ -13,7 +13,7 @@ import { ColorSwatch } from "./ColorSwatch"
 import { facetLabel } from "@/lib/facets-i18n"
 import { enPromoPar } from "@/lib/promocion"
 import { saleInfo } from "@/lib/utils"
-import { ROJO_OFERTA } from "@/lib/ofertas/config"
+import { InsigniaDescuento } from "./InsigniaDescuento"
 import { clasePlato } from "@/lib/fotos"
 
 /**
@@ -222,12 +222,7 @@ export function ProductCard({
               rojo da 5.89:1. El rojo es el mismo del cintillo de temporada:
               ver lib/ofertas/config.ts. */}
           {onSale && !promoPar && discountPct >= 10 && (
-            <span
-              className="text-bg px-3 py-1.5 text-[15px] font-bold leading-none tracking-[0.02em] tabular-nums"
-              style={{ backgroundColor: ROJO_OFERTA }}
-            >
-              −{discountPct}%
-            </span>
+            <InsigniaDescuento pct={discountPct} />
           )}
           {nueva && product.availableForSale && !onSale && !promoPar && (
             <span className="bg-bg text-text border border-border eyebrow text-xs px-2 py-1">
