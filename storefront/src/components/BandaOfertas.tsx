@@ -1,7 +1,16 @@
 import { LocalizedLink as Link } from "@/components/LocalizedLink"
 import { T } from "@/components/T"
 import { descuentoMaximo, cuantasConOferta } from "@/lib/ofertas/datos"
-import { eventoActual, llaveNombreEvento, ROJO_OFERTA, RUTA_OFERTAS } from "@/lib/ofertas/config"
+import {
+  eventoActual,
+  llaveNombreEvento,
+  enAntesala,
+  DESCUENTO_ANUNCIADO,
+  DIA_INICIO,
+  DIA_FIN,
+  ROJO_OFERTA,
+  RUTA_OFERTAS,
+} from "@/lib/ofertas/config"
 
 /**
  * La banda de temporada de la portada: cuánto se baja y a dónde ir a verlo.
@@ -24,10 +33,12 @@ import { eventoActual, llaveNombreEvento, ROJO_OFERTA, RUTA_OFERTAS } from "@/li
  * sobre #C8102E da 5.89:1, holgado para la AA incluso en texto normal.
  */
 export function BandaOfertas() {
-  const maximo = descuentoMaximo()
+  const antesala = enAntesala()
+  const maximo = antesala ? DESCUENTO_ANUNCIADO : descuentoMaximo()
+  // Ni campaña anunciada ni descuentos vivos: la portada empieza por la foto.
   if (maximo <= 0) return null
 
-  const cuantas = cuantasConOferta()
+  const cuantas = antesala ? 0 : cuantasConOferta()
   const evento = eventoActual()
 
   return (
@@ -38,7 +49,10 @@ export function BandaOfertas() {
       >
         <div className="flex flex-wrap items-baseline justify-center gap-x-4 gap-y-1 md:justify-start">
           <p className="text-[13px] font-bold uppercase leading-none tracking-[0.14em]">
-            <T k={llaveNombreEvento(evento)} />
+            {/* ANTES DE QUE EMPIECE se anuncia la campaña con su nombre y sus
+                fechas; ya empezada, el nombre de la temporada basta porque el
+                reloj del cintillo de arriba ya dice cuánto queda. */}
+            {antesala ? <T k="oferta.antesalaTitulo" /> : <T k={llaveNombreEvento(evento)} />}
           </p>
           <p
             className="font-bold uppercase leading-none tracking-[0.01em] tabular-nums"
@@ -46,10 +60,18 @@ export function BandaOfertas() {
           >
             <T k="oferta.hasta" vars={{ pct: String(maximo) }} />
           </p>
-          {/* Cuántas botas: convierte una promesa en un hecho comprobable, y
-              de paso dice que hay de dónde escoger. */}
+          {/* Ya empezada: cuántas botas, que convierte una promesa en un
+              hecho comprobable. En antesala no hay ninguna todavía, así que
+              lo que se dice son las FECHAS — que es el dato que falta. */}
           <p className="text-[14px] leading-none opacity-90">
-            <T k="oferta.cuantas" vars={{ n: String(cuantas) }} />
+            {antesala ? (
+              <T
+                k="oferta.antesalaFechas"
+                vars={{ ini: String(DIA_INICIO), fin: String(DIA_FIN) }}
+              />
+            ) : (
+              <T k="oferta.cuantas" vars={{ n: String(cuantas) }} />
+            )}
           </p>
         </div>
 

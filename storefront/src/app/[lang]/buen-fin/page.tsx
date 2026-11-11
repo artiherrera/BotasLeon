@@ -9,7 +9,16 @@ import { getProducts } from "@/lib/shopify"
 import { pageMetadata } from "@/lib/seo"
 import { isLocale } from "@/lib/i18n/config"
 import { descuentoMaximo } from "@/lib/ofertas/datos"
-import { eventoActual, llaveNombreEvento, ROJO_OFERTA } from "@/lib/ofertas/config"
+import {
+  eventoActual,
+  llaveNombreEvento,
+  enAntesala,
+  DESCUENTO_ANUNCIADO,
+  DIA_INICIO,
+  DIA_FIN,
+  ROJO_OFERTA,
+} from "@/lib/ofertas/config"
+import { whatsappHref, genericWhatsappMessage } from "@/lib/whatsapp"
 
 /**
  * /buen-fin — las botas que traen descuento, con el descuento a la vista.
@@ -56,7 +65,8 @@ export default async function BuenFinPage({
   // comprar no pinta nada en una página de ofertas.
   const conOferta = (res?.products ?? []).filter((p) => p.oferta && p.availableForSale)
 
-  const maximo = descuentoMaximo()
+  const antesala = enAntesala()
+  const maximo = antesala ? DESCUENTO_ANUNCIADO : descuentoMaximo()
   const evento = eventoActual()
 
   return (
@@ -65,7 +75,7 @@ export default async function BuenFinPage({
       <main id="contenido" tabIndex={-1} className="flex-1">
         <div className="contenedor seccion">
           <CategoryHeader
-            eyebrow={llaveNombreEvento(evento)}
+            eyebrow={antesala ? "oferta.antesalaTitulo" : llaveNombreEvento(evento)}
             title={
               maximo > 0
                 ? `${locale === "en" ? "Up to" : "Hasta"} ${maximo}%${locale === "en" ? " off" : " menos"}`
@@ -76,7 +86,36 @@ export default async function BuenFinPage({
             description=""
           />
 
-          {conOferta.length > 0 && (
+          {/* ── ANTESALA: el aviso, no una rejilla vacía ──────────────────
+              Antes del 13 no hay un solo descuento en Shopify, así que no hay
+              nada que listar. Una rejilla vacía con "sin ofertas por ahora" en
+              la página a la que apuntan el cintillo y los anuncios sería un
+              callejón sin salida; el aviso con las fechas y el WhatsApp, no:
+              quien llegó interesado puede apartar su bota hoy mismo. */}
+          {antesala && (
+            <div className="max-w-2xl border border-border bg-bg-alt p-8 md:p-10">
+              <p className="display-s text-text mb-2">
+                <T
+                  k="oferta.antesalaFechas"
+                  vars={{ ini: String(DIA_INICIO), fin: String(DIA_FIN) }}
+                />
+              </p>
+              <p className="cuerpo medida-lectura text-text-muted mb-6">
+                <T k="oferta.antesalaAviso" vars={{ ini: String(DIA_INICIO) }} />
+              </p>
+              {/* Sale del sitio: <a> con rel de seguridad, no el Link interno. */}
+              <a
+                href={whatsappHref(locale, genericWhatsappMessage(locale))}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn btn-pri"
+              >
+                <T k="oferta.antesalaWhatsapp" />
+              </a>
+            </div>
+          )}
+
+          {!antesala && conOferta.length > 0 && (
             /* "Descuento ya aplicado, sin código": es la frase que sustituye a
                "el descuento se aplica en tu carrito". Si el precio que se ve
                YA trae el descuento puesto, lo que hay que decirle al cliente no
@@ -89,7 +128,7 @@ export default async function BuenFinPage({
             </p>
           )}
 
-          {conOferta.length === 0 ? (
+          {antesala ? null : conOferta.length === 0 ? (
             <div className="max-w-2xl border border-border bg-bg-alt p-10">
               <p className="display-s text-text mb-2">
                 <T k="oferta.vacia" />
@@ -117,9 +156,13 @@ export default async function BuenFinPage({
 export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }) {
   const { lang } = await params
   const es = lang !== "en"
-  const maximo = descuentoMaximo()
+  const antesala = enAntesala()
+  const maximo = antesala ? DESCUENTO_ANUNCIADO : descuentoMaximo()
   const evento = eventoActual()
   const nombre =
+    antesala
+      ? "El Buen Fin"
+      :
     evento === "buenfin"
       ? "El Buen Fin"
       : evento === "blackfriday"
@@ -127,9 +170,22 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
         : es
           ? "Ofertas"
           : "Deals"
+  /**
+   * SIN NADA QUE ENSEÑAR, QUE NO SE INDEXE.
+   *
+   * En botasleon.com esta página está vacía y lo estará mientras Shopify no
+   * tenga descuentos para el mercado de Estados Unidos (medido el 2026-11-10:
+   * cero de 94 productos — todos los descuentos automáticos están limitados a
+   * México). Una página indexada que solo dice "sin ofertas por ahora" es una
+   * mala puerta de entrada desde Google. En cuanto haya una oferta —o empiece
+   * la antesala de una campaña— vuelve a indexarse sola.
+   */
+  const vacia = !antesala && maximo <= 0
+
   return pageMetadata({
     locale: lang,
     path: "/buen-fin",
+    noindex: vacia,
     title: maximo > 0 ? `${nombre} — ${es ? "hasta" : "up to"} ${maximo}%` : nombre,
     description: es
       ? `Botas con descuento ya aplicado, sin código. ${maximo > 0 ? `Hasta ${maximo}% menos.` : ""}`.trim()

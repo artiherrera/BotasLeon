@@ -815,6 +815,22 @@ export const DICTIONARY: Record<string, Entry> = {
   },
   "oferta.verCatalogo": { es: "Ver catálogo completo", en: "See the full catalog" },
   "oferta.cuantas": { es: "en {n} pares", en: "on {n} pairs" },
+
+  // LA ANTESALA: la campaña está anunciada y todavía no empieza, así que no
+  // hay descuentos que simular. Ver enAntesala() en lib/ofertas/config.ts.
+  "oferta.antesalaTitulo": {
+    es: "Buen Fin en Botas León",
+    en: "El Buen Fin at Botas León",
+  },
+  "oferta.antesalaFechas": {
+    es: "Del {ini} al {fin} de noviembre",
+    en: "November {ini}–{fin}",
+  },
+  "oferta.antesalaAviso": {
+    es: "Las ofertas arrancan el viernes {ini} a las 00:00. Si ya sabes cuál quieres, escríbenos y te la apartamos.",
+    en: "Deals start Friday the {ini} at midnight. If you already know which pair you want, message us and we'll hold it.",
+  },
+  "oferta.antesalaWhatsapp": { es: "Apártala por WhatsApp", en: "Hold it on WhatsApp" },
   "josepha.allBrands": { es: "Ver las catorce casas", en: "See all fourteen houses" },
   "josepha.oneOf": {
     es: "Josepha es una de las catorce casas de León que trabajan con nosotros.",
@@ -919,6 +935,14 @@ export const DICTIONARY: Record<string, Entry> = {
   "buenfin.oferta": {
     es: "Hasta {pct}% de descuento · Meses sin intereses",
     en: "Up to {pct}% off · Interest-free months",
+  },
+  // En antesala el cintillo dice las FECHAS además del porcentaje: el reloj
+  // dice cuánto falta, pero no cuándo. Y el porcentaje de aquí es el
+  // anunciado a mano (DESCUENTO_ANUNCIADO), no el simulado: todavía no hay
+  // ningún descuento puesto en Shopify que simular.
+  "buenfin.antesala": {
+    es: "Del {ini} al {fin} de noviembre · Hasta {pct}% menos · Meses sin intereses",
+    en: "November {ini}–{fin} · Up to {pct}% off · Interest-free months",
   },
   "buenfin.empiezaEn": { es: "Empieza en", en: "Starts in" },
   "buenfin.terminaEn": { es: "Termina en", en: "Ends in" },

@@ -9,7 +9,24 @@ import { SITE_URL } from "@/lib/seo"
  * aportan SEO y pueden inflar el crawl budget.
  */
 
+/**
+ * RAMAS DE PRUEBA: fuera del índice, enteras.
+ *
+ * Un preview de Amplify sirve el sitio completo en una dirección pública
+ * (aunque lleve contraseña) y con precios que todavía no están aprobados. Si
+ * Google lo alcanza, acaba indexando una copia del catálogo con otros precios
+ * y compitiendo con la tienda de verdad.
+ *
+ * Se enciende con la variable de entorno NEXT_PUBLIC_NOINDEX=true, que se pone
+ * SOLO en la rama de preview desde la consola de Amplify. En main y mx no
+ * existe, así que esto no cambia nada ahí.
+ */
+const SIN_INDEXAR = process.env.NEXT_PUBLIC_NOINDEX === "true"
+
 export default function robots(): MetadataRoute.Robots {
+  if (SIN_INDEXAR) {
+    return { rules: [{ userAgent: "*", disallow: "/" }] }
+  }
   return {
     rules: [
       {

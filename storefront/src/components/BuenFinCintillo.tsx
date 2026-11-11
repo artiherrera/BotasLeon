@@ -3,7 +3,15 @@
 import { useT } from "@/lib/i18n/context"
 import { LocalizedLink as Link } from "@/components/LocalizedLink"
 import { dosCifras, type CuentaBuenFin } from "@/lib/buenfin"
-import { ROJO_OFERTA, RUTA_OFERTAS, descuentoVisible } from "@/lib/ofertas/config"
+import {
+  ROJO_OFERTA,
+  RUTA_OFERTAS,
+  descuentoVisible,
+  enAntesala,
+  DESCUENTO_ANUNCIADO,
+  DIA_INICIO,
+  DIA_FIN,
+} from "@/lib/ofertas/config"
 import { DESCUENTO_MAXIMO_REAL } from "@/lib/ofertas/maximo"
 
 /**
@@ -87,7 +95,21 @@ export function BuenFinCintillo({ cuenta }: { cuenta: CuentaBuenFin }) {
    * El texto NO cambia: "hasta 30% de descuento" sigue siendo verdad con el
    * interruptor apagado; lo único que cambia es dónde se ve el descuento.
    */
-  const llevaAOfertas = descuentoVisible()
+  const llevaAOfertas = descuentoVisible() || enAntesala()
+
+  /**
+   * ANTES DEL 13 NO HAY NADA QUE SIMULAR, así que el porcentaje sale del
+   * número anunciado a mano y el cintillo dice además LAS FECHAS: el reloj
+   * cuenta cuánto falta, pero no dice cuándo. En cuanto arranca la campaña
+   * manda otra vez lo que la caja cobra de verdad.
+   */
+  const antesala = enAntesala()
+  const anuncio = antesala
+    ? t("buenfin.antesala")
+        .replace("{ini}", String(DIA_INICIO))
+        .replace("{fin}", String(DIA_FIN))
+        .replace("{pct}", String(DESCUENTO_ANUNCIADO))
+    : t("buenfin.oferta").replace("{pct}", String(DESCUENTO_MAXIMO_REAL))
 
   const casillas = [
     { n: cuenta.dias, u: t("buenfin.dias") },
@@ -141,7 +163,7 @@ export function BuenFinCintillo({ cuenta }: { cuenta: CuentaBuenFin }) {
           promesa que el catálogo tarde o temprano deja de cumplir. */}
       <div className="flex flex-col items-start gap-1.5 md:flex-row md:items-center md:gap-4">
       <p className="text-left text-[13px] font-medium uppercase leading-tight tracking-[0.04em] md:text-center md:text-[14px]">
-        {t("buenfin.oferta").replace("{pct}", String(DESCUENTO_MAXIMO_REAL))}
+        {anuncio}
       </p>
 
       <p className="flex items-center gap-2">

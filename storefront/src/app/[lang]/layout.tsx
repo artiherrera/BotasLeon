@@ -111,16 +111,27 @@ export async function generateMetadata({
       : `${SITE_NAME} · Botas hechas en León`,
     description: SITE_DESCRIPTION,
   },
-  robots: {
-    index: true,
-    follow: true,
-    googleBot: {
-      index: true,
-      follow: true,
-      "max-image-preview": "large",
-      "max-snippet": -1,
-    },
-  },
+  /**
+   * En una rama de preview, TODO va fuera del índice (ver app/robots.ts). El
+   * robots.txt ya lo dice, pero la meta de cada página es el cinturón: un
+   * enlace directo a una página del preview no pasa por robots.txt.
+   *
+   * Se enciende con NEXT_PUBLIC_NOINDEX=true, que solo existe en la rama de
+   * preview. En main y mx esto es idéntico a lo de siempre.
+   */
+  robots:
+    process.env.NEXT_PUBLIC_NOINDEX === "true"
+      ? { index: false, follow: false, googleBot: { index: false, follow: false } }
+      : {
+          index: true,
+          follow: true,
+          googleBot: {
+            index: true,
+            follow: true,
+            "max-image-preview": "large",
+            "max-snippet": -1,
+          },
+        },
   // NO declarar `alternates.canonical` aquí — se hereda a todas las páginas
   // hijas y rompe la indexación (Google trata toda la taxonomía como duplicado
   // del home). Cada page.tsx declara su propio canonical vía pageMetadata().

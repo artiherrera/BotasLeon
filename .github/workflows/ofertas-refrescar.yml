@@ -1,0 +1,55 @@
+# Refresca los precios con descuento mientras dura una campaña.
+#
+# POR QUÉ HACE FALTA. Los descuentos de esta tienda son automáticos de Shopify
+# y solo existen dentro de un carrito, así que el sitio los averigua en el
+# build (storefront/scripts/generate-descuentos.mjs) y los hornea. Si el dueño
+# cambia un descuento a media campaña, el sitio no se entera hasta el
+# siguiente despliegue — y los despliegues los disparan los cambios de
+# PRODUCTO, no los de descuento.
+#
+# LO QUE ESTO NO TIENE QUE GARANTIZAR. Que el sitio deje de enseñar un precio
+# rebajado al terminar la campaña NO depende de este workflow: de eso se
+# encarga la ventana dura de storefront/src/lib/ofertas/config.ts, que apaga
+# los tachados en menos de 60 segundos sin compilar nada (todas las páginas con
+# precio revalidan cada minuto). Esto solo refresca CUÁNTO descuenta cada bota.
+#
+# Corre cada hora, pero solo dispara si estamos dentro de una campaña: el
+# script en-campana.mjs lee las fechas del propio código del sitio.
+name: Ofertas — refrescar precios
+
+on:
+  schedule:
+    # Cada hora, en punto (UTC). El guardia de abajo decide si toca.
+    - cron: "0 * * * *"
+    # Y a los cinco minutos del inicio y del fin de cada campaña, que es
+    # cuando de verdad importa. 06:05 UTC = 00:05 en la Ciudad de México.
+    - cron: "5 6 13,18 11 *"
+    - cron: "5 6 27 11 *"
+    - cron: "5 6 1 12 *"
+  workflow_dispatch:
+
+jobs:
+  refrescar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: ¿Estamos dentro de una campaña?
+        id: ventana
+        run: node .github/scripts/en-campana.mjs
+
+      - name: Disparar el rebuild de las dos tiendas
+        if: steps.ventana.outputs.dentro == 'true'
+        env:
+          MX: ${{ secrets.AMPLIFY_WEBHOOK_MX }}
+          MAIN: ${{ secrets.AMPLIFY_WEBHOOK_MAIN }}
+        run: |
+          set -e
+          if [ -z "$MX" ] || [ -z "$MAIN" ]; then
+            echo "::error::Faltan los secretos AMPLIFY_WEBHOOK_MX / AMPLIFY_WEBHOOK_MAIN"
+            exit 1
+          fi
+          curl -sS -X POST -H "Content-Type: application/json" -d '{}' "$MX" \
+            -o /dev/null -w "botasleon.mx → %{http_code}\n"
+          curl -sS -X POST -H "Content-Type: application/json" -d '{}' "$MAIN" \
+            -o /dev/null -w "botasleon.com → %{http_code}\n"

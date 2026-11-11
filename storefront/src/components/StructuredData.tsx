@@ -1,6 +1,7 @@
 import { SITE_URL, SITE_NAME, SITE_DESCRIPTION, absoluteUrl } from "@/lib/seo"
 import { getSameAsUrls } from "@/lib/social"
 import type { Product } from "@/lib/shopify/types"
+import { finDeTemporada } from "@/lib/ofertas/config"
 
 /**
  * Componentes que emiten JSON-LD Schema.org para rich snippets en Google.
@@ -126,11 +127,34 @@ export function ProductJsonLd({
           ? { "@type": "Brand", name: product.vendor }
           : undefined,
         aggregateRating,
+        /**
+         * EL PRECIO QUE SE PUBLICA ES EL QUE VE EL CLIENTE.
+         *
+         * La regla era al revés —datos estructurados siempre a precio de
+         * lista— y el dueño la cambió el 2026-11-10, con razón: Google compara
+         * el precio del JSON-LD con el que ve en la página y marca
+         * discrepancia cuando no coinciden. Con el descuento a la vista,
+         * publicar la lista era pedir ese aviso.
+         *
+         * `priceValidUntil` dice hasta cuándo vale ese precio —el último día
+         * de la temporada vigente—, que es justo lo que evita que Google
+         * marque otra discrepancia cuando el precio vuelva a subir al
+         * terminar la campaña.
+         *
+         * Con el interruptor apagado, `product.oferta` llega null y aquí se
+         * publica el precio de lista, como antes, sin fecha de caducidad: un
+         * precio de lista no caduca.
+         */
         offers: {
           "@type": "AggregateOffer",
           priceCurrency: product.priceRange.minVariantPrice.currencyCode,
-          lowPrice: product.priceRange.minVariantPrice.amount,
-          highPrice: product.priceRange.maxVariantPrice.amount,
+          lowPrice: product.oferta
+            ? String(product.oferta.paga)
+            : product.priceRange.minVariantPrice.amount,
+          highPrice: product.oferta
+            ? String(product.oferta.paga)
+            : product.priceRange.maxVariantPrice.amount,
+          priceValidUntil: product.oferta ? (finDeTemporada() ?? undefined) : undefined,
           offerCount: product.variants?.length ?? 1,
           availability: product.availableForSale
             ? "https://schema.org/InStock"
