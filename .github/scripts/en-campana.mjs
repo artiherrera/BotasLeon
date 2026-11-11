@@ -30,6 +30,32 @@ const [bvIni, bvFin] = await fechas("ofertas/config.ts", [
 ])
 
 /**
+ * LA VENTANA REAL DEL DESCUENTO, que no tiene por qué coincidir con la
+ * campaña. Desde el 2026-11-10 los descuentos se ven ANTES de que arranque el
+ * Buen Fin (el dueño lo pidió así), y mientras se vean hay que mantenerlos
+ * frescos: si cambia un descuento en Shopify hoy, el sitio tiene que recogerlo
+ * hoy, no el viernes.
+ *
+ * Se lee del mismo config.ts: INICIO_DESCUENTO/FIN_DESCUENTO pueden ser null
+ * ("sin límite por ese lado") o apuntar a una constante como BUEN_FIN_FIN, que
+ * aquí se resuelve con las fechas que ya tenemos.
+ */
+const config = await readFile(new URL("ofertas/config.ts", RAIZ), "utf8")
+const encendido = /MOSTRAR_DESCUENTO_EN_SITIO\s*=\s*true/.test(config)
+const leeLimite = (nombre, fallback) => {
+  const m = config.match(new RegExp(`${nombre}:\\s*string\\s*\\|\\s*null\\s*=\\s*([^\n]+)`))
+  if (!m) return fallback
+  const v = m[1].trim().replace(/[;,]$/, "")
+  if (v === "null") return fallback
+  if (v === "BUEN_FIN_INICIO") return bfIni
+  if (v === "BUEN_FIN_FIN") return bfFin
+  if (v === "BLACK_FRIDAY_INICIO") return bvIni
+  if (v === "BLACK_FRIDAY_FIN") return bvFin
+  const lit = v.match(/"([^"]+)"/)
+  return lit ? Date.parse(lit[1]) : fallback
+}
+
+/**
  * Margen de una hora a cada lado. El de DESPUÉS es el que importa: garantiza
  * que haya al menos un build una vez terminada la campaña, que es el que
  * vacía el archivo de precios cuando el dueño apaga los descuentos en Shopify.
@@ -37,13 +63,26 @@ const [bvIni, bvFin] = await fechas("ofertas/config.ts", [
 const MARGEN = 60 * 60 * 1000
 /** AHORA existe para poder probar esto sin esperar a noviembre. */
 const ahora = process.env.AHORA ? Date.parse(process.env.AHORA) : Date.now()
-const dentro = [
-  [bfIni, bfFin],
-  [bvIni, bvFin],
-].some(([i, f]) => ahora >= i - MARGEN && ahora <= f + MARGEN)
+const ventanaIni = leeLimite("INICIO_DESCUENTO", -Infinity)
+const ventanaFin = leeLimite("FIN_DESCUENTO", Infinity)
+const conDescuentosVivos =
+  encendido && ahora >= ventanaIni - MARGEN && ahora <= ventanaFin + MARGEN
 
-const cual = dentro ? (ahora <= bfFin + MARGEN ? "Buen Fin" : "Black Friday") : "ninguna"
-console.log(`ahora: ${new Date(ahora).toISOString()} · campaña: ${cual} · refrescar: ${dentro}`)
+const dentro =
+  conDescuentosVivos ||
+  [
+    [bfIni, bfFin],
+    [bvIni, bvFin],
+  ].some(([i, f]) => ahora >= i - MARGEN && ahora <= f + MARGEN)
+
+const motivo = !dentro
+  ? "nada que refrescar"
+  : conDescuentosVivos
+    ? "descuentos a la vista"
+    : ahora <= bfFin + MARGEN
+      ? "Buen Fin"
+      : "Black Friday"
+console.log(`ahora: ${new Date(ahora).toISOString()} · motivo: ${motivo} · refrescar: ${dentro}`)
 
 if (process.env.GITHUB_OUTPUT) {
   await appendFile(process.env.GITHUB_OUTPUT, `dentro=${dentro}\n`)
