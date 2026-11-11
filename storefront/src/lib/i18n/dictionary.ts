@@ -944,7 +944,11 @@ export const DICTIONARY: Record<string, Entry> = {
     es: "Del {ini} al {fin} de noviembre · Hasta {pct}% menos · Meses sin intereses",
     en: "November {ini}–{fin} · Up to {pct}% off · Interest-free months",
   },
-  "buenfin.empiezaEn": { es: "Empieza en", en: "Starts in" },
+  // DICE QUÉ EMPIEZA, no solo "empieza". Desde que los descuentos se ven
+  // antes de que arranque la campaña (2026-11-10), un "empieza en 2 días" a
+  // secas junto a precios ya rebajados invita a esperar a una rebaja que ya
+  // está puesta. Lo que empieza el viernes es EL BUEN FIN, no el descuento.
+  "buenfin.empiezaEn": { es: "El Buen Fin empieza en", en: "El Buen Fin starts in" },
   "buenfin.terminaEn": { es: "Termina en", en: "Ends in" },
   "buenfin.dias": { es: "días", en: "days" },
   "buenfin.horas": { es: "hrs", en: "hrs" },

@@ -75,7 +75,19 @@ export const ROJO_OFERTA = "#C8102E"
  * En hora de México, como el resto del sitio: una promoción que terminara a la
  * medianoche de cada quien seguiría viva dos horas más en Tijuana que en León.
  */
-export const INICIO_DESCUENTO: string | null = BUEN_FIN_INICIO
+/**
+ * SIN FECHA DE INICIO: los descuentos se ven DESDE YA.
+ *
+ * Lo pidió el dueño el 2026-11-10 —"quiero que los descuentos sean visibles
+ * ya"— tres días antes de que arranque el Buen Fin. Y es defendible: los
+ * descuentos ya están puestos en Shopify y la caja ya los cobra, así que
+ * esconderlos hasta el viernes era esconder un precio que ya es verdad.
+ *
+ * LA FECHA DE FIN SÍ SE QUEDA, que es la que importa: es la que garantiza que
+ * el sitio deje de enseñar tachados en cuanto cierre la campaña, aunque nadie
+ * despliegue nada.
+ */
+export const INICIO_DESCUENTO: string | null = null
 export const FIN_DESCUENTO: string | null = BUEN_FIN_FIN
 
 /**
@@ -196,6 +208,11 @@ export const RUTA_OFERTAS = "/buen-fin"
  */
 export function enAntesala(ahoraMs: number = Date.now()): boolean {
   if (!isMX) return false
+  // SI YA HAY DESCUENTOS A LA VISTA, NO HAY ANTESALA QUE ANUNCIAR. Anunciar
+  // "hasta un 30%" como promesa futura mientras las tarjetas ya enseñan el
+  // 30% tachado sería contarle al cliente dos historias distintas en la misma
+  // pantalla. La antesala es para cuando NO hay nada que enseñar.
+  if (descuentoVisible(ahoraMs)) return false
   return ahoraMs < Date.parse(BUEN_FIN_INICIO)
 }
 
