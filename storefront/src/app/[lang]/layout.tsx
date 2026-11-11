@@ -14,6 +14,8 @@ import { PopupPromo } from "@/components/PopupPromo"
 import { getPopup } from "@/lib/shopify"
 import { notFound } from "next/navigation"
 import { LocaleProvider } from "@/lib/i18n/context"
+import { OfertasProvider } from "@/lib/ofertas/contexto"
+import { descuentoMaximo } from "@/lib/ofertas/datos"
 import { LOCALES, isLocale, type Locale } from "@/lib/i18n/config"
 import { SITE_URL, SITE_NAME, SITE_DESCRIPTION } from "@/lib/seo"
 import "../globals.css"
@@ -215,10 +217,16 @@ export default async function RootLayout({
         <RedireccionMercado />
 
         <CartProvider>
+          {/* El mayor descuento vivo, leído aquí —en el servidor— y repartido
+              a la barra y al cintillo, que son de cliente. Ver el porqué en
+              lib/ofertas/contexto.tsx: un dato que cambia en cada build no
+              puede viajar como código generado. */}
+          <OfertasProvider maximo={descuentoMaximo()}>
           {children}
           <CartDrawer />
           <Toast />
           <MiniCarrito />
+          </OfertasProvider>
         </CartProvider>
         <CookiesBanner />
 

@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react"
 import { LocalizedLink as Link } from "@/components/LocalizedLink"
 import { useLocale } from "@/lib/i18n/context"
 import { ROJO_OFERTA, RUTA_OFERTAS, llaveVitrina, hayVitrina } from "@/lib/ofertas/config"
-import { DESCUENTO_MAXIMO_REAL } from "@/lib/ofertas/maximo"
+import { useDescuentoMaximo } from "@/lib/ofertas/contexto"
 
 /**
  * MegaMenu — navegación principal con dropdowns full-width.
@@ -168,6 +168,7 @@ const CLOSE_DELAY_MS = 200
 
 export function MegaMenu() {
   const { t } = useLocale()
+  const maximoOferta = useDescuentoMaximo()
   const [openIdx, setOpenIdx] = useState<number | null>(null)
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
@@ -205,7 +206,7 @@ export function MegaMenu() {
         className="hidden min-[1150px]:flex items-center"
         onMouseLeave={scheduleClose}
       >
-        {MENU.filter((item) => !item.temporada || hayVitrina(DESCUENTO_MAXIMO_REAL)).map((item, idx) => (
+        {MENU.filter((item) => !item.temporada || hayVitrina(maximoOferta)).map((item, idx) => (
           <div
             key={item.label}
             onMouseEnter={() => open(idx)}

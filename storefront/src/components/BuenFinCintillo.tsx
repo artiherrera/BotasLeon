@@ -12,7 +12,7 @@ import {
   DIA_INICIO,
   DIA_FIN,
 } from "@/lib/ofertas/config"
-import { DESCUENTO_MAXIMO_REAL } from "@/lib/ofertas/maximo"
+import { useDescuentoMaximo } from "@/lib/ofertas/contexto"
 
 /**
  * EL BLOQUE DEL BUEN FIN: logo oficial, lo que se ofrece y el cronómetro.
@@ -82,6 +82,7 @@ const LOGO_ALTO = 256
 
 export function BuenFinCintillo({ cuenta }: { cuenta: CuentaBuenFin }) {
   const t = useT()
+  const maximoOferta = useDescuentoMaximo()
 
   /**
    * ¿Lleva a las ofertas o no lleva a ninguna parte?
@@ -109,7 +110,7 @@ export function BuenFinCintillo({ cuenta }: { cuenta: CuentaBuenFin }) {
         .replace("{ini}", String(DIA_INICIO))
         .replace("{fin}", String(DIA_FIN))
         .replace("{pct}", String(DESCUENTO_ANUNCIADO))
-    : t("buenfin.oferta").replace("{pct}", String(DESCUENTO_MAXIMO_REAL))
+    : t("buenfin.oferta").replace("{pct}", String(maximoOferta))
 
   const casillas = [
     { n: cuenta.dias, u: t("buenfin.dias") },
@@ -156,11 +157,13 @@ export function BuenFinCintillo({ cuenta }: { cuenta: CuentaBuenFin }) {
           Lo que se ofrece. Los meses van SIN CIFRA, y eso es a propósito:
           ver "buenfin.oferta" en el diccionario.
 
-          EL PORCENTAJE NO ESTÁ ESCRITO A MANO. Sale de lib/ofertas/maximo.ts,
-          que el prebuild genera con lo que Shopify cobró al meter cada bota a
-          un carrito. Si el 30% desaparece de la tienda, este número baja solo
-          en el siguiente despliegue; un número a mano en la barra es una
-          promesa que el catálogo tarde o temprano deja de cumplir. */}
+          EL PORCENTAJE NO ESTÁ ESCRITO A MANO. Llega por contexto desde el
+          layout, que lo lee en el servidor del mapa de precios que el
+          prebuild saca preguntándole al carrito de Shopify. Si el 30%
+          desaparece de la tienda, este número baja solo; un número a mano en
+          la barra es una promesa que el catálogo tarde o temprano deja de
+          cumplir. (Antes venía de un módulo generado, y eso se rompió: ver
+          lib/ofertas/contexto.tsx.) */}
       <div className="flex flex-col items-start gap-1.5 md:flex-row md:items-center md:gap-4">
       <p className="text-left text-[13px] font-medium uppercase leading-tight tracking-[0.04em] md:text-center md:text-[14px]">
         {anuncio}

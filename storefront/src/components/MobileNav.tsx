@@ -10,7 +10,7 @@ import { SocialIcons } from "./SocialIcons"
 import { useLocale } from "@/lib/i18n/context"
 import { isMX } from "@/lib/market"
 import { ROJO_OFERTA, RUTA_OFERTAS, llaveVitrina, hayVitrina } from "@/lib/ofertas/config"
-import { DESCUENTO_MAXIMO_REAL } from "@/lib/ofertas/maximo"
+import { useDescuentoMaximo } from "@/lib/ofertas/contexto"
 
 /**
  * MobileNav — hamburger + drawer lateral para navegación mobile.
@@ -114,6 +114,7 @@ const COMPANY_LINKS = [
 
 export function MobileNav() {
   const { t } = useLocale()
+  const maximoOferta = useDescuentoMaximo()
   const [open, setOpen] = useState(false)
   const [mounted, setMounted] = useState(false)
   const hamburgerRef = useRef<HTMLButtonElement>(null)
@@ -353,7 +354,7 @@ export function MobileNav() {
           {/* Quick links: Marcas + Outlet */}
           <div className="px-5 pt-6 pb-2 border-t border-border mt-2">
             {QUICK_LINKS.filter(
-              (link) => !link.temporada || hayVitrina(DESCUENTO_MAXIMO_REAL)
+              (link) => !link.temporada || hayVitrina(maximoOferta)
             ).map((link) => (
               <Link
                 key={link.href}
