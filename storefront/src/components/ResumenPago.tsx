@@ -3,6 +3,7 @@
 import { useT } from "@/lib/i18n/context"
 import { isMX } from "@/lib/market"
 import { formatMoney } from "@/lib/utils"
+import { eventoActual, llaveNombreEvento } from "@/lib/ofertas/config"
 import type { Cart } from "@/lib/shopify/types"
 
 /**
@@ -67,7 +68,8 @@ type Asignacion = {
  */
 function descuentosDelCarrito(
   cart: Cart | null,
-  etiquetaCinto: string
+  etiquetaCinto: string,
+  nombreTemporada: string
 ): Array<{ etiqueta: string; monto: number }> {
   if (!cart) return []
   const todas: Asignacion[] = [
@@ -79,7 +81,7 @@ function descuentosDelCarrito(
     const monto = parseFloat(a.discountedAmount?.amount || "0")
     if (!(monto > 0)) continue
     const etiqueta = a.title
-      ? limpiaTitulo(a.title)
+      ? limpiaTitulo(a.title, nombreTemporada)
       : a.code?.startsWith(PREFIJO_CINTO)
         ? etiquetaCinto
         : (a.code ?? "")
@@ -98,11 +100,21 @@ function descuentosDelCarrito(
 /**
  * Los descuentos de esta tienda se llaman "🔥 Hoy te ahorras $580": el título
  * YA trae el monto. Puesto al lado de su propia cifra se leería "Hoy te
- * ahorras $580 −$580". Se recorta el monto del final y se respeta el resto,
- * emoji incluido: es como el dueño los nombró.
+ * ahorras $580 −$580". Se recorta el monto del final.
+ *
+ * Y SE LE CAMBIA EL NOMBRE, desde el 2026-11-10. "Hoy te ahorras" era un buen
+ * nombre cuando el descuento solo aparecía aquí, en el carrito, como una
+ * sorpresa al final. Ahora el precio ya viene rebajado desde la tarjeta y la
+ * ficha, así que al llegar al carrito lo que hay que decir no es "hoy te
+ * ahorras" otra vez, sino DE DÓNDE sale el descuento: El Buen Fin, Black
+ * Friday u Ofertas, según la fecha (ver lib/ofertas/config.ts).
+ *
+ * El del cinto y los códigos escritos por el cliente NO se tocan: esos tienen
+ * nombre propio y el cliente los reconoce.
  */
-function limpiaTitulo(titulo: string): string {
-  return titulo.replace(/\s*[-−]?\s*\$\s?[\d.,]+\s*$/, "").trim()
+function limpiaTitulo(titulo: string, nombreTemporada: string): string {
+  const sinMonto = titulo.replace(/\s*[-−]?\s*\$\s?[\d.,]+\s*$/, "").trim()
+  return /hoy te ahorras|you save today/i.test(sinMonto) ? nombreTemporada : sinMonto
 }
 
 export function ResumenPago({
@@ -122,7 +134,11 @@ export function ResumenPago({
   const subtotal = parseFloat(cart.cost.subtotalAmount.amount)
   const total = parseFloat(cart.cost.totalAmount.amount)
   // Descuento de orden (código): Shopify lo aplica DESPUÉS del subtotal.
-  const desglose = descuentosDelCarrito(cart, t("cart.cintoMitad"))
+  const desglose = descuentosDelCarrito(
+    cart,
+    t("cart.cintoMitad"),
+    t(llaveNombreEvento(eventoActual()))
+  )
   const ahorro = desglose.reduce((a, d) => a + d.monto, 0)
   const lista = total + ahorro
 
@@ -170,6 +186,16 @@ export function ResumenPago({
           </span>
         </span>
       </div>
+
+      {/* CUÁNTO SE AHORRÓ EN ESTE PEDIDO, dicho con todas las letras. El
+          tachado de arriba ya lo insinúa y el desglose dice de dónde sale
+          cada peso, pero ninguno de los dos pone la cifra del ahorro junto al
+          total. Es el número que el cliente repite cuando cuenta la compra. */}
+      {ahorro > 0 && (
+        <p className="nota mt-1.5 text-right font-medium">
+          {t("oferta.ahorraste")} {formatMoney(String(ahorro), moneda)}
+        </p>
+      )}
 
       {conNota && (
         <p className="nota mt-1.5 text-right">

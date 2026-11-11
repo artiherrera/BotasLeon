@@ -13,6 +13,7 @@ import { ColorSwatch } from "./ColorSwatch"
 import { facetLabel } from "@/lib/facets-i18n"
 import { enPromoPar } from "@/lib/promocion"
 import { saleInfo } from "@/lib/utils"
+import { ROJO_OFERTA } from "@/lib/ofertas/config"
 import { clasePlato } from "@/lib/fotos"
 
 /**
@@ -104,7 +105,25 @@ export function ProductCard({
     ...atributosDeTarjeta(product).map((label) => facetLabel(label, locale)),
   ].join(" · ")
 
-  const { onSale, discountPct } = saleInfo(minPrice.amount, compareAt?.amount)
+  /**
+   * EL PRECIO QUE SE ENSEÑA ES EL QUE COBRA LA CAJA.
+   *
+   * `product.oferta` lo pega la capa de datos leyendo lo que Shopify cobró al
+   * meter esa bota a un carrito (ver lib/ofertas/datos.ts). Hasta el
+   * 2026-11-10 la tarjeta enseñaba el precio de lista y el descuento no
+   * aparecía hasta el carrito: el cliente decidía si le alcanzaba con el
+   * número equivocado.
+   *
+   * Si la bota NO trae oferta, todo sigue igual que siempre: manda el precio
+   * de Shopify con su precio de comparación, si es que lo tiene. Y si el
+   * interruptor está apagado, `oferta` llega null y esto es la tarjeta de
+   * antes, línea por línea.
+   */
+  const oferta = product.availableForSale ? (product.oferta ?? null) : null
+  const precioMostrado = oferta ? String(oferta.paga) : minPrice.amount
+  const tachado = oferta ? String(oferta.lista) : (compareAt?.amount ?? null)
+
+  const { onSale, discountPct } = saleInfo(precioMostrado, tachado)
   const promoPar = enPromoPar(product)
   const nueva = esNueva(product.createdAt)
 
@@ -193,11 +212,20 @@ export function ProductCard({
               {t("promoPar.insignia")}
             </span>
           )}
-          {/* CUÁNTO, no "Outlet": "-20%" dice algo y una etiqueta genérica no.
+          {/* CUÁNTO, no "Outlet": "−20%" dice algo y una etiqueta genérica no.
               Desde 10% para arriba; por debajo basta con el precio tachado,
-              porque un "-2%" encima de la foto es ruido con pretensiones. */}
+              porque un "−2%" encima de la foto es ruido con pretensiones.
+
+              EN ROJO Y MÁS GRANDE que las demás insignias, por encargo del
+              dueño: es la única que tiene que leerse de un vistazo en un
+              teléfono, donde la tarjeta mide 171px de ancho. Blanco sobre este
+              rojo da 5.89:1. El rojo es el mismo del cintillo de temporada:
+              ver lib/ofertas/config.ts. */}
           {onSale && !promoPar && discountPct >= 10 && (
-            <span className="bg-bg text-text border border-text eyebrow text-xs px-2 py-1">
+            <span
+              className="text-bg px-2.5 py-1 text-[13px] font-bold leading-none tracking-[0.02em] tabular-nums"
+              style={{ backgroundColor: ROJO_OFERTA }}
+            >
               −{discountPct}%
             </span>
           )}
@@ -265,9 +293,10 @@ export function ProductCard({
             a la misma altura aunque una tarjeta traiga estrellas y otra no. */}
         <div className="mt-auto">
           <LocalizedPrice
-            amount={minPrice.amount}
+            amount={precioMostrado}
             currency={minPrice.currencyCode}
-            compareAt={compareAt?.amount}
+            compareAt={tachado}
+            ahorro={oferta?.ahorro}
             size="card"
           />
           {/* Invitación que aparece al pasar el cursor. aria-hidden porque el

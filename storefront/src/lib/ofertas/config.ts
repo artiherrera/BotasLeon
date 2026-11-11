@@ -33,6 +33,19 @@ import { BUEN_FIN_INICIO, BUEN_FIN_FIN } from "@/lib/buenfin"
 export const MOSTRAR_DESCUENTO_EN_SITIO = true
 
 /**
+ * EL ROJO DE LA OFERTA. El mismo del cintillo del Buen Fin, y vive aquí
+ * porque ahora lo usan los dos: la barra de arriba y la insignia de cada
+ * tarjeta. Dos constantes con el mismo color se separan en cuanto alguien
+ * retoca una.
+ *
+ * No sale del sistema visual del sitio —que es crema y tinta— porque no es del
+ * sitio: es de la temporada. Con texto blanco encima da 5.89:1, holgado para
+ * la AA. El Pantone oficial del Buen Fin (#ED1C24) se queda en 4.38:1 y no
+ * pasa, por eso este va un punto más hondo.
+ */
+export const ROJO_OFERTA = "#C8102E"
+
+/**
  * Ventana opcional del interruptor. Con las dos en null, manda solo el
  * booleano de arriba. Con fechas, el descuento se ve únicamente dentro del
  * rango y el sitio vuelve solo a precio de lista al terminar — sin despliegue.
@@ -110,7 +123,7 @@ export function eventoActual(ahoraMs: number = Date.now()): Evento {
  * "Black Friday" u "Ofertas".
  */
 export function llaveNombreEvento(evento: Evento): string {
-  return `ofertas.nombre.${evento}`
+  return `oferta.nombre.${evento}`
 }
 
 /**

@@ -187,7 +187,14 @@ function isLightHex(hex: string): boolean {
   return (0.299 * r + 0.587 * g + 0.114 * b) / 255 > 0.7
 }
 
-type SortKey = "default" | "recientes" | "precio-asc" | "precio-desc" | "titulo"
+type SortKey =
+  | "default"
+  | "recientes"
+  | "precio-asc"
+  | "precio-desc"
+  | "titulo"
+  /** Mayor descuento primero. Solo se ofrece si hay algo con descuento. */
+  | "descuento"
 
 // Valores = LLAVES del diccionario i18n (se traducen con t() al render).
 //
@@ -210,12 +217,20 @@ const SORT_LABELS: Partial<Record<SortKey, string>> = {
   titulo: "sort.nameAz",
 }
 
+/**
+ * "Mayor descuento" va aparte porque NO siempre existe: en una lista donde
+ * ninguna bota tiene oferta —o con el interruptor apagado— sería una opción
+ * que no cambia nada, y un control que no hace nada es peor que no estar.
+ */
+const ORDEN_DESCUENTO: SortKey = "descuento"
+
 export function ProductsListing({
   products,
   initialStyle,
   initialPageInfo,
   unidad = "pares",
-}: Props) {
+  ordenInicial = "default",
+}: Props & { ordenInicial?: SortKey }) {
   const t = useT()
   const { locale } = useLocale()
   // Dos fuentes de "estilo activo":
@@ -304,7 +319,10 @@ export function ProductsListing({
     [router, pathname, searchParams]
   )
 
-  const [sortKey, setSortKey] = useState<SortKey>("default")
+  const [sortKey, setSortKey] = useState<SortKey>(ordenInicial)
+
+  /** ¿Hay algo con descuento en esta lista? Decide si se ofrece ese orden. */
+  const hayOfertas = useMemo(() => products.some((p) => p.oferta), [products])
   const [mobileOpen, setMobileOpen] = useState(false)
   // En mobile el <aside> es un drawer modal: atrapa el foco, cierra con ESC y
   // restaura el foco al botón "Filtros". En desktop mobileOpen es false, así
@@ -479,6 +497,12 @@ export function ProductsListing({
         )
       case "titulo":
         return porExistencia(arr.sort((a, b) => a.title.localeCompare(b.title)))
+      // MAYOR DESCUENTO PRIMERO. Lo de siempre al final, sin inventarle un
+      // 0% a lo que no tiene oferta: `?? -1` deja las botas sin descuento
+      // detrás incluso de un 0%, que no debería existir pero no cuesta nada
+      // prever.
+      case "descuento":
+        return porExistencia(arr.sort((a, b) => (b.oferta?.pct ?? -1) - (a.oferta?.pct ?? -1)))
       default:
         return arr
     }
@@ -1030,6 +1054,9 @@ export function ProductsListing({
               aria-label={t("listing.sortBy")}
               className="h-11 md:h-10 px-3 cuerpo bg-bg border border-border hover:border-text focus:outline-none focus:border-text cursor-pointer"
             >
+              {hayOfertas && (
+                <option value={ORDEN_DESCUENTO}>{t("oferta.ordenDescuento")}</option>
+              )}
               {(Object.keys(SORT_LABELS) as SortKey[]).map((key) => (
                 <option key={key} value={key}>
                   {t(SORT_LABELS[key] ?? "")}

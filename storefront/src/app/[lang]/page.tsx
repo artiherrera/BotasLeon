@@ -17,6 +17,7 @@ import { BandaCatalogo } from "@/components/BandaCatalogo"
 import { BotasExoticas } from "@/components/BotasExoticas"
 import { RecentlyViewed } from "@/components/RecentlyViewed"
 import { BandaJosepha } from "@/components/BandaJosepha"
+import { BandaOfertas } from "@/components/BandaOfertas"
 
 // Canonical + hreflang del home POR IDIOMA (las hijas lo hacen vía pageMetadata).
 // El title/description los hereda del layout (ya localizados) — no los reescribimos.
@@ -106,6 +107,13 @@ export default async function HomePage() {
           Botas mexicanas hechas en León — vaqueras, clásicas, exóticas y de
           rancho
         </h1>
+
+        {/* LA BANDA DE TEMPORADA, ANTES DE LA FOTO. Durante la campaña es lo
+            primero que se ve: cuánto se baja, en cuántos pares y la puerta
+            para ir a verlos. Fuera de campaña —o con el interruptor apagado—
+            no se pinta y la portada vuelve a empezar por la foto, sin hueco.
+            Ver BandaOfertas. */}
+        <BandaOfertas />
 
         <HeroPortada slides={heroSlides} />
 

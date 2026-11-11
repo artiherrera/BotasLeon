@@ -793,6 +793,28 @@ export const DICTIONARY: Record<string, Entry> = {
   // El botón de la banda de la portada (BandaJosepha). "Verlo completo" es de
   // un botín suelto; esta lleva a la colección entera.
   "josepha.verColeccion": { es: "Ver la colección", en: "See the collection" },
+
+  // ── Ofertas visibles en todo el sitio ────────────────────────────────
+  // El descuento vive en Shopify y se aplica en el carrito; desde el
+  // 2026-11-10 además se ENSEÑA en tarjeta y ficha. Ver lib/ofertas/.
+  "oferta.ahorras": { es: "Ahorras", en: "You save" },
+  "oferta.ahorraste": { es: "Ahorraste en este pedido", en: "You saved on this order" },
+  // Sustituye a "el descuento se aplica en tu carrito": si el precio ya se ve
+  // con el descuento puesto, lo que hay que decir es que no hay que hacer nada.
+  "oferta.yaAplicado": { es: "Descuento ya aplicado, sin código", en: "Discount already applied, no code needed" },
+  "oferta.nombre.buenfin": { es: "El Buen Fin", en: "El Buen Fin" },
+  "oferta.nombre.blackfriday": { es: "Black Friday", en: "Black Friday" },
+  "oferta.nombre.ofertas": { es: "Ofertas", en: "Deals" },
+  "oferta.hasta": { es: "Hasta {pct}% menos", en: "Up to {pct}% off" },
+  "oferta.verOfertas": { es: "Ver las ofertas", en: "See the deals" },
+  "oferta.ordenDescuento": { es: "Mayor descuento", en: "Biggest discount" },
+  "oferta.vacia": { es: "Sin ofertas por ahora", en: "No deals right now" },
+  "oferta.vaciaSub": {
+    es: "Cuando haya botas con descuento aparecerán aquí.",
+    en: "Boots with a discount will show up here.",
+  },
+  "oferta.verCatalogo": { es: "Ver catálogo completo", en: "See the full catalog" },
+  "oferta.cuantas": { es: "en {n} pares", en: "on {n} pairs" },
   "josepha.allBrands": { es: "Ver las catorce casas", en: "See all fourteen houses" },
   "josepha.oneOf": {
     es: "Josepha es una de las catorce casas de León que trabajan con nosotros.",

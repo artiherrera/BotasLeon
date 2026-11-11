@@ -144,8 +144,31 @@ export default async function ProductPage({ params }: Props) {
   // identidades compitiendo dentro de la columna de compra era justo lo que
   // hacía que ninguna se leyera. La identidad de la marca vive en su página.
 
-  const price = product.priceRange.minVariantPrice
-  const compareAt = product.compareAtPriceRange?.minVariantPrice
+  /**
+   * EL PRECIO DE LA FICHA ES EL QUE COBRA LA CAJA.
+   *
+   * `product.oferta` lo pega la capa de datos con lo que Shopify cobró al
+   * meter esta bota a un carrito (ver lib/ofertas/datos.ts). Antes la ficha
+   * enseñaba el precio de lista y el descuento no asomaba hasta el carrito.
+   *
+   * NO CAMBIA AL ELEGIR COLOR O TALLA, y hoy no hace falta: medido sobre el
+   * catálogo entero (110 productos, 2026-11-10), CERO tienen variantes a
+   * precios distintos — los colores de una misma bota valen lo mismo y la
+   * talla ni siquiera es variante, es un atributo de línea. Si algún día las
+   * hay, el mapa de precios ya guarda una entrada por precio distinto
+   * (`precios` en descuentos.json) y aquí habría que colgarse del contexto de
+   * variante.
+   *
+   * priceRange se queda intacto: de ahí leen los datos estructurados, que
+   * siguen publicando el precio de lista.
+   */
+  const oferta = product.availableForSale ? (product.oferta ?? null) : null
+  const price = oferta
+    ? { amount: String(oferta.paga), currencyCode: product.priceRange.minVariantPrice.currencyCode }
+    : product.priceRange.minVariantPrice
+  const compareAt = oferta
+    ? { amount: String(oferta.lista) }
+    : product.compareAtPriceRange?.minVariantPrice
 
   return (
     <>
@@ -239,6 +262,7 @@ export default async function ProductPage({ params }: Props) {
                     amount={price.amount}
                     currency={price.currencyCode}
                     compareAt={compareAt?.amount}
+                    ahorro={oferta?.ahorro}
                     size="pdp"
                   />
                   <PDPCalificacion product={product} />
@@ -294,6 +318,7 @@ export default async function ProductPage({ params }: Props) {
                     amount={price.amount}
                     currency={price.currencyCode}
                     compareAt={compareAt?.amount}
+                    ahorro={oferta?.ahorro}
                     size="pdp"
                   />
                   <PDPCalificacion product={product} />

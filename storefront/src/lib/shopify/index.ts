@@ -1,3 +1,4 @@
+import { ofertaDe, type Oferta } from "@/lib/ofertas/datos"
 /**
  * Capa de acceso a datos sobre Shopify Storefront API.
  *
@@ -95,7 +96,18 @@ function parseJudgemeCount(mf: RawMetafield): number | null {
   }
 }
 
-function applyJudgeme<T extends JudgemeMetafields>(node: T): T & { images: Image[]; judgemeRating: number | null; judgemeReviewCount: number | null } {
+/**
+ * Normaliza un producto recién salido de Shopify: aplana las conexiones,
+ * traduce los metacampos de Judge.me y —desde el 2026-11-10— le pega su OFERTA.
+ *
+ * La oferta se pega AQUÍ, en el único sitio por el que pasan todos los
+ * productos del sitio, y no en cada página: hay tarjetas en la portada, en los
+ * listados, en las marcas, en los combos, en el buscador y en los recomendados,
+ * y un precio que apareciera en unas y no en otras sería peor que no enseñarlo.
+ * Si el interruptor está apagado, `ofertaDe` devuelve null y todo sigue como
+ * antes sin tocar una línea más.
+ */
+function applyJudgeme<T extends JudgemeMetafields>(node: T): T & { images: Image[]; judgemeRating: number | null; judgemeReviewCount: number | null; oferta: Oferta | null } {
   // Aplana images.edges → Image[] si viene como conexión (fragment de tarjeta).
   // Si ya es arreglo (PDP, que aplana antes) o no viene, lo respeta.
   const raw = node as unknown as {
@@ -111,12 +123,14 @@ function applyJudgeme<T extends JudgemeMetafields>(node: T): T & { images: Image
   const variants: Product["variants"] = Array.isArray(raw.variants)
     ? raw.variants
     : raw.variants?.edges?.map((e) => e.node) ?? []
+  const handle = (node as unknown as { handle?: string }).handle
   return {
     ...node,
     images,
     variants,
     judgemeRating: parseJudgemeRating(node.reviewsRating ?? null),
     judgemeReviewCount: parseJudgemeCount(node.reviewsRatingCount ?? null),
+    oferta: handle ? ofertaDe(handle) : null,
   }
 }
 

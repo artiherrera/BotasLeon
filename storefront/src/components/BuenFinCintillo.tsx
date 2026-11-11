@@ -1,7 +1,10 @@
 "use client"
 
 import { useT } from "@/lib/i18n/context"
-import { DESCUENTO_MAXIMO, dosCifras, type CuentaBuenFin } from "@/lib/buenfin"
+import { LocalizedLink as Link } from "@/components/LocalizedLink"
+import { dosCifras, type CuentaBuenFin } from "@/lib/buenfin"
+import { ROJO_OFERTA, RUTA_OFERTAS, descuentoVisible } from "@/lib/ofertas/config"
+import { DESCUENTO_MAXIMO_REAL } from "@/lib/ofertas/maximo"
 
 /**
  * EL BLOQUE DEL BUEN FIN: logo oficial, lo que se ofrece y el cronómetro.
@@ -17,20 +20,18 @@ import { DESCUENTO_MAXIMO, dosCifras, type CuentaBuenFin } from "@/lib/buenfin"
  */
 
 /**
- * El rojo. No sale del sistema visual del sitio (que es crema y tinta) porque
- * no es del sitio: es de la campaña, y el dueño lo pidió rojo.
+ * El rojo de la campaña. Vive en lib/ofertas/config.ts porque lo comparte con
+ * las insignias de descuento de las tarjetas.
  *
  * NO ES EL ROJO EXACTO DEL MANUAL, y es a sabiendas. El oficial es Pantone
  * 1797 C = #ED1C24, que con texto blanco encima da 4.38:1 y se queda corto
  * del 4.5:1 que pide la AA para texto normal —y todo lo que lleva este
- * cintillo es texto chico—. #C8102E es el mismo rojo un punto más hondo y
+ * cintillo es texto chico—. El de aquí es el mismo rojo un punto más hondo y
  * sube a 5.89:1. El logotipo NO se toca: va con sus colores oficiales, y lo
  * que cambia es la pleca sobre la que se posa, que el manual admite en rojo,
- * blanco o negro justamente "para garantizar su visibilidad". Si algún día
- * hace falta el Pantone exacto, se cambia esta línea y hay que subir el
- * tamaño del texto para no perder la AA.
+ * blanco o negro justamente "para garantizar su visibilidad".
  */
-export const ROJO_BUEN_FIN = "#C8102E"
+export const ROJO_BUEN_FIN = ROJO_OFERTA
 
 /**
  * EL LOGO OFICIAL.
@@ -74,6 +75,20 @@ const LOGO_ALTO = 256
 export function BuenFinCintillo({ cuenta }: { cuenta: CuentaBuenFin }) {
   const t = useT()
 
+  /**
+   * ¿Lleva a las ofertas o no lleva a ninguna parte?
+   *
+   * Con el interruptor de lib/ofertas/config.ts apagado, la página de ofertas
+   * no tiene nada que enseñar —el descuento sigue existiendo en Shopify, pero
+   * solo se aplica en el carrito— y mandar ahí a quien toca el cintillo es
+   * mandarlo a un "sin ofertas por ahora". Entonces el cintillo se queda como
+   * estaba: un aviso que se lee, no un enlace.
+   *
+   * El texto NO cambia: "hasta 30% de descuento" sigue siendo verdad con el
+   * interruptor apagado; lo único que cambia es dónde se ve el descuento.
+   */
+  const llevaAOfertas = descuentoVisible()
+
   const casillas = [
     { n: cuenta.dias, u: t("buenfin.dias") },
     { n: cuenta.horas, u: t("buenfin.horas") },
@@ -81,8 +96,10 @@ export function BuenFinCintillo({ cuenta }: { cuenta: CuentaBuenFin }) {
     { n: cuenta.segundos, u: t("buenfin.segundos") },
   ]
 
-  return (
-    <div className="flex items-center justify-center gap-3 md:gap-4">
+  const clases = "flex items-center justify-center gap-3 md:gap-4"
+
+  const contenido = (
+    <>
       {/* Etiqueta <img> y no next/image a propósito: es un logo fijo y pequeño
           que vive en /public, y pasarlo por el optimizador solo añadiría una
           petición y una variante que nadie necesita. Lleva `width` y `height`
@@ -115,10 +132,16 @@ export function BuenFinCintillo({ cuenta }: { cuenta: CuentaBuenFin }) {
           sola fila.
 
           Lo que se ofrece. Los meses van SIN CIFRA, y eso es a propósito:
-          ver "buenfin.oferta" en el diccionario. */}
+          ver "buenfin.oferta" en el diccionario.
+
+          EL PORCENTAJE NO ESTÁ ESCRITO A MANO. Sale de lib/ofertas/maximo.ts,
+          que el prebuild genera con lo que Shopify cobró al meter cada bota a
+          un carrito. Si el 30% desaparece de la tienda, este número baja solo
+          en el siguiente despliegue; un número a mano en la barra es una
+          promesa que el catálogo tarde o temprano deja de cumplir. */}
       <div className="flex flex-col items-start gap-1.5 md:flex-row md:items-center md:gap-4">
       <p className="text-left text-[13px] font-medium uppercase leading-tight tracking-[0.04em] md:text-center md:text-[14px]">
-        {t("buenfin.oferta").replace("{pct}", String(DESCUENTO_MAXIMO))}
+        {t("buenfin.oferta").replace("{pct}", String(DESCUENTO_MAXIMO_REAL))}
       </p>
 
       <p className="flex items-center gap-2">
@@ -147,6 +170,22 @@ export function BuenFinCintillo({ cuenta }: { cuenta: CuentaBuenFin }) {
         </span>
       </p>
       </div>
-    </div>
+    </>
+  )
+
+  /* EL CINTILLO LLEVA A LAS OFERTAS. Hasta ahora anunciaba un descuento y no
+     se podía tocar: quien lo leía tenía que ir a buscar las botas rebajadas
+     por su cuenta, y no hay forma de encontrarlas en un catálogo de 110. Toda
+     la franja es el enlace, no un botón escondido al final.
+
+     Se envuelve aquí y no con un componente declarado dentro del render:
+     React lo volvería a crear en cada pintada y perdería su estado (y el
+     lint del proyecto lo marca como error, con razón). */
+  return llevaAOfertas ? (
+    <Link href={RUTA_OFERTAS} className={clases}>
+      {contenido}
+    </Link>
+  ) : (
+    <div className={clases}>{contenido}</div>
   )
 }

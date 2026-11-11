@@ -6,6 +6,8 @@
  * si lo necesitamos en Sprint 2).
  */
 
+import type { Oferta } from "@/lib/ofertas/datos"
+
 export type Money = {
   amount: string // GraphQL Decimal como string — convertir a number con cuidado
   currencyCode: "MXN" | "USD" | string
@@ -76,6 +78,19 @@ export type Product = {
   compareAtPriceRange?: {
     minVariantPrice: Money
   }
+  /**
+   * LO QUE LA CAJA COBRA DE VERDAD, cuando hay un descuento automático vivo.
+   *
+   * NO sale de Shopify en esta consulta —los descuentos automáticos no existen
+   * en el producto, solo dentro de un carrito—: lo pega la capa de datos
+   * leyendo el mapa que el prebuild generó metiendo cada bota a un carrito.
+   * Ver lib/ofertas/datos.ts.
+   *
+   * priceRange y compareAtPriceRange NO se tocan: siguen siendo el precio de
+   * lista de Shopify. Eso es deliberado — los datos estructurados, el sitemap
+   * y los feeds los leen de ahí y deben seguir publicando el precio de lista.
+   */
+  oferta?: Oferta | null
   options: ProductOption[]
   variants: ProductVariant[]
   color?: TaxonomyMetafield

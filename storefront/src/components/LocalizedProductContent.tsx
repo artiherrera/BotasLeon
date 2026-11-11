@@ -229,12 +229,22 @@ export function LocalizedPrice({
   amount,
   currency,
   compareAt,
+  ahorro,
   size = "card",
 }: {
   amount: string
   currency: string
   compareAt?: string | null
+  ahorro?: number | null
   size?: "card" | "pdp"
 }) {
-  return <PriceMSI amount={amount} currency={currency} compareAt={compareAt ?? undefined} size={size} />
+  return (
+    <PriceMSI
+      amount={amount}
+      currency={currency}
+      compareAt={compareAt ?? undefined}
+      ahorro={ahorro}
+      size={size}
+    />
+  )
 }
