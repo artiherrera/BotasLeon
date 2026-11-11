@@ -43,23 +43,53 @@ export function PriceMSI({
 
   return (
     <div className={isPdp ? "leading-none" : ""}>
+      {/* LA JERARQUÍA DEL PRECIO EN OFERTA.
+          *
+          * Hasta el 2026-11-10 el precio rebajado y el tachado medían LO MISMO
+          * —los dos a 16px con la clase .precio— y el rebajado iba en marrón.
+          * Con eso, una bota de $5,299 a $3,709.30 no se leía como una oferta:
+          * se leía como dos números juntos. El dueño lo pidió "más vistoso" y
+          * tenía razón.
+          *
+          * Ahora el número que SE PAGA manda: más grande, en negrita y en el
+          * rojo de la temporada; el de lista se encoge y se apaga, que es todo
+          * el papel que le queda. Fuera de oferta no cambia NADA: el precio de
+          * siempre, en tinta y a su tamaño de siempre.
+          *
+          * El rojo sobre la crema da 5.50:1 —medido contra #FBF8F1—, holgado
+          * para la AA incluso en texto normal, así que no depende del tamaño. */}
       <div
         // .precio = Instrument Sans 600 con tabular-nums; .precio-ficha lo
         // sube a 24px. La serif está prohibida en precios, y sin tabular-nums
         // una columna de precios queda dentada: el "1" mide menos que el "8".
         className={isPdp ? "precio precio-ficha text-text" : "precio text-text"}
       >
-        <span className={sale.onSale ? "text-leather" : "text-text"}>
+        <span
+          className={
+            sale.onSale
+              ? isPdp
+                ? "text-[2.25rem] font-bold leading-none"
+                : "text-[1.375rem] font-bold leading-none"
+              : "text-text"
+          }
+          style={sale.onSale ? { color: ROJO_OFERTA } : undefined}
+        >
           {formatMoney(amount, currency)}
         </span>
         {sale.onSale && compareAt && (
-          <span className="ml-1.5 text-text-subtle line-through">
+          /* El tachado, un escalón por debajo: su trabajo es dar la medida de
+             lo que se baja, no competir con la cifra que se paga. */
+          <span
+            className={`ml-2 font-normal text-text-subtle line-through ${
+              isPdp ? "text-[1.0625rem]" : "text-[0.875rem]"
+            }`}
+          >
             {formatMoney(compareAt, currency)}
           </span>
         )}
         {isPdp && sale.onSale && (
           <span
-            className="eyebrow ml-2 inline-block px-2 py-0.5 align-middle text-bg"
+            className="ml-2.5 inline-block px-2.5 py-1 align-middle text-[0.9375rem] font-bold uppercase leading-none tracking-[0.04em] text-bg"
             style={{ backgroundColor: ROJO_OFERTA }}
           >
             −{sale.discountPct}%
@@ -69,8 +99,17 @@ export function PriceMSI({
       {/* CUÁNTO TE AHORRAS, en dinero. En la ficha lleva además el porcentaje
           entre paréntesis; en la tarjeta no, porque ahí el porcentaje ya está
           en la insignia de la foto y repetirlo a dos centímetros es ruido. */}
+      {/* EL AHORRO, EN EL ROJO Y EN NEGRITA. Iba en gris de nota al pie, del
+          tamaño de los meses sin intereses, compitiendo de tú a tú con un dato
+          de financiación. "Ahorras $1,589.70" es el argumento, no una
+          aclaración. */}
       {sale.onSale && ahorro != null && ahorro > 0 && (
-        <p className={isPdp ? "nota mt-2 font-medium" : "nota mt-1 font-medium"}>
+        <p
+          className={`font-bold tabular-nums ${
+            isPdp ? "mt-2.5 text-[1.0625rem]" : "mt-1.5 text-[0.9375rem]"
+          }`}
+          style={{ color: ROJO_OFERTA }}
+        >
           {t("oferta.ahorras")} {formatMoney(ahorro, currency)}
           {isPdp ? ` (${sale.discountPct}%)` : ""}
         </p>

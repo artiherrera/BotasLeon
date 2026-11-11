@@ -223,7 +223,7 @@ export function ProductCard({
               ver lib/ofertas/config.ts. */}
           {onSale && !promoPar && discountPct >= 10 && (
             <span
-              className="text-bg px-2.5 py-1 text-[13px] font-bold leading-none tracking-[0.02em] tabular-nums"
+              className="text-bg px-3 py-1.5 text-[15px] font-bold leading-none tracking-[0.02em] tabular-nums"
               style={{ backgroundColor: ROJO_OFERTA }}
             >
               −{discountPct}%
