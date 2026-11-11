@@ -213,15 +213,19 @@ export function ProductCard({
             </span>
           )}
           {/* CUÁNTO, no "Outlet": "−20%" dice algo y una etiqueta genérica no.
-              Desde 10% para arriba; por debajo basta con el precio tachado,
-              porque un "−2%" encima de la foto es ruido con pretensiones.
+              Es la única insignia que tiene que leerse de un vistazo en un
+              teléfono, donde la tarjeta mide 171px de ancho.
 
-              EN ROJO Y MÁS GRANDE que las demás insignias, por encargo del
-              dueño: es la única que tiene que leerse de un vistazo en un
-              teléfono, donde la tarjeta mide 171px de ancho. Blanco sobre este
-              rojo da 5.89:1. El rojo es el mismo del cintillo de temporada:
-              ver lib/ofertas/config.ts. */}
-          {onSale && !promoPar && discountPct >= 10 && (
+              SIN UMBRAL, desde el 2026-11-10. Había uno de 10% —"por debajo
+              basta con el precio tachado, un −2% encima de la foto es ruido"—
+              y el dueño preguntó por qué no todas las rebajadas llevaban
+              etiqueta. Con razón: ese umbral dejaba sin marcar DOCE de las
+              cuarenta y una con descuento, todas al 5%. El argumento era
+              bueno contra un 2% teórico; contra un 5% real, en campaña y con
+              el precio ya tachado al lado, lo único que hacía era esconder
+              doce ofertas. Si algún día Shopify saca un 1%, vuelve la
+              discusión y vuelve el umbral. */}
+          {onSale && !promoPar && (
             <InsigniaDescuento pct={discountPct} />
           )}
           {nueva && product.availableForSale && !onSale && !promoPar && (

@@ -215,12 +215,27 @@ export function MegaMenu() {
             <Link
               href={item.href}
               onClick={() => setOpenIdx(null)}
-              className={`nav-label relative flex items-center gap-1 whitespace-nowrap px-2 py-2 after:pointer-events-none after:absolute after:inset-x-2 after:bottom-1 after:h-px after:origin-left after:scale-x-0 after:transition-transform after:duration-[180ms] hover:after:scale-x-100 ${
-                item.temporada ? "font-bold after:bg-current" : "text-text after:bg-text"
-              } ${openIdx === idx ? "after:scale-x-100" : ""}`}
-              /* El subrayado usa bg-current, así hereda el rojo del propio
-                 enlace en vez de llevarlo escrito dos veces. */
-              style={item.temporada ? { color: ROJO_OFERTA } : undefined}
+              /* LA PESTAÑA DE TEMPORADA ES UN BOTÓN, no un rótulo en rojo.
+                 Lo corrigió el dueño: "que ese botón solo sea rojo y letras
+                 blancas". Con razón — en una fila de ocho rótulos en tinta,
+                 uno en rojo se lee como un enlace distinto; un bloque sólido
+                 se lee como la puerta a la que hay que entrar.
+
+                 Y se queda sin el subrayado de las demás: un botón relleno no
+                 necesita que le subrayen el texto, y encima a media altura del
+                 bloque quedaba cortado. En su lugar, al pasar el ratón se
+                 oscurece un punto (brightness-95), que es lo único que admite
+                 un sistema visual sin sombras ni degradados.
+
+                 El blanco sobre este rojo da 5.89:1. */
+              className={`nav-label relative flex items-center gap-1 whitespace-nowrap ${
+                item.temporada
+                  ? "text-bg px-3 py-1.5 font-bold transition-[filter] duration-[180ms] hover:brightness-95"
+                  : `px-2 py-2 text-text after:pointer-events-none after:absolute after:inset-x-2 after:bottom-1 after:h-px after:origin-left after:scale-x-0 after:bg-text after:transition-transform after:duration-[180ms] hover:after:scale-x-100 ${
+                      openIdx === idx ? "after:scale-x-100" : ""
+                    }`
+              }`}
+              style={item.temporada ? { backgroundColor: ROJO_OFERTA } : undefined}
               aria-expanded={openIdx === idx && !!item.sections}
               aria-haspopup={item.sections ? "true" : undefined}
             >

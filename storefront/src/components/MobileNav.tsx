@@ -360,10 +360,17 @@ export function MobileNav() {
                 key={link.href}
                 href={link.href}
                 onClick={close}
-                className={`block py-3.5 text-base uppercase tracking-[0.08em] border-b border-border underline-offset-4 hover:underline ${
-                  link.temporada ? "font-bold" : "font-medium text-text"
+                /* Mismo criterio que en el escritorio: bloque rojo con la
+                   letra en blanco, no un renglón de texto rojo entre otros
+                   siete. Aquí el bloque no llega a los bordes del cajón —lleva
+                   su propio ancho— para que se lea como un botón y no como una
+                   franja de sección. */
+                className={`text-base uppercase tracking-[0.08em] ${
+                  link.temporada
+                    ? "my-2 inline-block px-4 py-3 font-bold text-bg"
+                    : "block border-b border-border py-3.5 font-medium text-text underline-offset-4 hover:underline"
                 }`}
-                style={link.temporada ? { color: ROJO_OFERTA } : undefined}
+                style={link.temporada ? { backgroundColor: ROJO_OFERTA } : undefined}
               >
                 {t(link.temporada ? llaveVitrina() : link.label)}
               </Link>

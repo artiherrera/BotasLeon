@@ -45,6 +45,13 @@ import { ROJO_OFERTA } from "@/lib/ofertas/config"
  */
 const ALTO_BASE = 34
 
+/**
+ * Media altura de caja de la tipografía, en fracción del cuerpo. Es lo que hay
+ * que bajar la línea base para que el número quede centrado. Se afina
+ * midiendo el recuadro del texto contra el alto de la etiqueta.
+ */
+const MITAD_CAJA = 0.342
+
 export function InsigniaDescuento({
   pct,
   color = ROJO_OFERTA,
@@ -115,21 +122,30 @@ export function InsigniaDescuento({
       className="block shrink-0"
     >
       <path d={`${contorno} ${ojal}`} fill={color} fillRule="evenodd" />
-      {/* El tamaño del <text> es el de la CIFRA, no el del "%": con
-          dominant-baseline central, el centrado vertical se calcula con las
-          métricas de la fuente al tamaño del elemento, y lo que tiene que
-          quedar a media altura es el número, que es lo que se lee.
-
-          Sin `dy` en los tspan: en SVG el dy de un tspan desplaza también a
-          todo lo que viene detrás, así que los dos medios píxeles de la
-          versión anterior se sumaban y subían el "%" un píxel entero. El "−",
-          la cifra y el "%" comparten línea base, que es como se escribe un
-          porcentaje. */}
+      {/* EL CENTRADO VERTICAL VA POR LÍNEA BASE, no con dominant-baseline.
+          *
+          * `dominant-baseline="central"` centra la CAJA DE LA LETRA —de la
+          * altura del ascendente a la del descendente—, y las cifras no tienen
+          * rasgo descendente: todo ese hueco de abajo se lo queda la caja y el
+          * número sube. Se veía, y el dueño lo dijo con las palabras exactas:
+          * "están muy arriba, y mucho aire abajo".
+          *
+          * Lo que hay que centrar es la ALTURA DE LA CIFRA. Como las mayúsculas
+          * y los números van de la línea base hacia arriba una altura de caja
+          * (≈0.71 del cuerpo en esta tipografía), su centro óptico está a media
+          * altura de caja por encima de la línea base. Así que la línea base se
+          * baja esa mitad desde el centro de la etiqueta y el número queda
+          * centrado de verdad. Comprobado midiendo el recuadro del texto en
+          * pantalla, no a ojo.
+          *
+          * Sin `dy` en los tspan: en SVG el dy de un tspan desplaza también a
+          * todo lo que viene detrás, así que se iban sumando. El "−", la cifra
+          * y el "%" comparten línea base, que es como se escribe un
+          * porcentaje. */}
       <text
         x={centroTexto}
-        y={mitad}
+        y={mitad + MITAD_CAJA * CUERPO_CIFRA}
         textAnchor="middle"
-        dominantBaseline="central"
         fill="#FFFFFF"
         fontSize={CUERPO_CIFRA}
         fontFamily="var(--font-body), system-ui, sans-serif"
