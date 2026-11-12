@@ -41,7 +41,9 @@ export function PDPTrustBlock({ product }: Props) {
       {promesas.map((p) => (
         <li key={p.llave} className="flex items-start gap-3">
           <Icono nombre={p.icono} />
-          <span className="cuerpo text-text">
+          <span
+            className={`cuerpo text-text ${p.destacada ? "font-bold" : ""}`}
+          >
             {p.icono === "whatsapp" ? (
               <a
                 href={wa}

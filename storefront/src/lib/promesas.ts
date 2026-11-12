@@ -21,6 +21,14 @@ export type Promesa = {
   nota?: string
   /** Ícono de trazo, del set único (Lucide, 20px, 1.5). */
   icono: "whatsapp" | "envio" | "cambio" | "video"
+  /**
+   * En negritas, para que resalte entre las demás.
+   *
+   * Solo UNA de las cuatro la lleva. Si se destacan dos deja de haber
+   * jerarquía: cuatro renglones en negritas se leen igual que cuatro en
+   * redonda, y el ojo ya no sabe dónde posarse.
+   */
+  destacada?: boolean
 }
 
 /**
@@ -78,6 +86,11 @@ export function promesasDeFicha(product?: Pick<Product, "cambioTalla"> | null): 
       llave: "promesa.cambio",
       nota: "promesa.cambioNota",
       icono: "cambio",
+      // La única en negritas de las cuatro, por encargo del dueño
+      // (2026-11-12): es la que quita el miedo a equivocarse de talla
+      // comprando una bota que no te puedes probar, y es lo más nuevo que
+      // tiene la tienda que decir.
+      destacada: true,
     })
   }
 
