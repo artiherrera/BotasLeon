@@ -34,11 +34,14 @@ export type Promesa = {
 /**
  * "Te mandamos video del par exacto antes de enviarlo".
  *
- * Estuvo apagada porque prometerlo en 103 fichas lo decide el dueño, no el
- * código. El 2026-09-30 lo decidió: su encargo enumera las promesas vigentes y
- * esta es la primera de las cuatro. Encendida.
+ * APAGADA otra vez, por encargo del dueño del 2026-11-12. Estuvo encendida
+ * desde el 30 de septiembre. Prometerlo en 103 fichas lo decide él y no el
+ * código, en los dos sentidos: encenderla y apagarla.
+ *
+ * Se deja la constante en vez de borrar el renglón: el texto sigue en el
+ * diccionario y volver a prenderla es cambiar este `false`.
  */
-export const PROMESA_VIDEO = true
+export const PROMESA_VIDEO = false
 
 /**
  * Las promesas de esta ficha, en el orden en que se leen.

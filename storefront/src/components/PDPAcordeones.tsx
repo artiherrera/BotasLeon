@@ -6,13 +6,14 @@ import { useLocale } from "@/lib/i18n/context"
 import { facetLabel } from "@/lib/facets-i18n"
 import { primerValor } from "@/lib/shopify/facets"
 import { ENVIO_GRATIS_SIEMPRE } from "@/lib/shipping-policy"
+import { admiteCambioDeTalla, DIAS_AVISO_CAMBIO } from "@/lib/exchange"
 import { ProductDescriptionBody } from "./LocalizedProductContent"
 import type { Brand, Product } from "@/lib/shopify/types"
 import { logoNecesitaInvertirse } from "@/lib/logos-talleres"
 
 /**
  * Los cuatro acordeones de la ficha: Descripción, Detalles, El taller y
- * Envíos y cambios.
+ * Envíos y cambios —que desde el 2026-11-12 sí habla de cambios—.
  *
  * Van con <details>/<summary> nativos, no con estado de React: abrir y cerrar
  * lo hace el navegador, funciona antes de que hidrate, lo entiende el teclado
@@ -145,6 +146,27 @@ export function PDPAcordeones({
               abre este acordeón viene justo a eso. La cifra es la de
               lib/entrega.ts, la misma del carrito y de la página de envíos. */}
           <li>{t("envio.estimada").replace("{plazo}", t("envio.plazoCorto"))}</li>
+          {/* CAMBIOS. Este acordeón se llama "Envíos y cambios" y hasta hoy
+              no decía una palabra de cambios: el título prometía algo que el
+              cuerpo no cumplía, y quien lo abría buscando eso no lo
+              encontraba.
+
+              Van las MISMAS LLAVES que la promesa de arriba del botón, no un
+              texto paralelo: el dueño pidió que apareciera en los dos sitios,
+              y dos copias del mismo texto se separan en cuanto alguien
+              retoca una. Quien no admite cambio de talla no ve nada, igual
+              que arriba. */}
+          {admiteCambioDeTalla(product.cambioTalla) && (
+            <li className="pt-1">
+              <span className="font-bold text-text">{t("promesa.cambio")}</span>
+              <span className="nota block">
+                {t("promesa.cambioNota").replace(
+                  "{dias}",
+                  String(DIAS_AVISO_CAMBIO)
+                )}
+              </span>
+            </li>
+          )}
         </ul>
         <div className="cuerpo mt-3 flex flex-wrap gap-x-6 gap-y-1">
           <Link
