@@ -21,9 +21,12 @@ import { ROJO_OFERTA } from "@/lib/ofertas/config"
  *      fill-rule="evenodd": con CSS habría que taparlo con un círculo de color
  *      fijo, y sobre una foto cualquiera eso se nota.
  *
- *   2. LA TIPOGRAFÍA DE DENTRO. El número grande y el "−" y el "%" chicos. En
- *      el cuadrado todo iba al mismo tamaño y el ojo no tenía dónde posarse;
- *      aquí la cifra manda y los signos la acompañan.
+ *   2. LA TIPOGRAFÍA DE DENTRO. La cifra manda y el "−" y el "%" la
+ *      acompañan, pero ACOMPAÑAR NO ES DESAPARECER: a 0.63 del cuerpo de la
+ *      cifra los signos se leían como una nota al pie y el dueño lo dijo —"se
+ *      ven muy pequeños, no están acorde al número"—. Van a 0.79, que es
+ *      donde un porcentaje se lee como una sola pieza sin que el número deje
+ *      de mandar.
  *
  * SE ESTIRA CON EL NÚMERO. "−5%" y "−30%" no miden lo mismo, así que el ancho
  * del SVG se calcula con el largo del texto en vez de fijarse: con un viewBox
@@ -52,6 +55,22 @@ const ALTO_BASE = 34
  */
 const MITAD_CAJA = 0.342
 
+/**
+ * Cuerpo del "−" y del "%" en fracción del cuerpo de la cifra. Manda la cifra,
+ * pero los signos tienen que leerse con ella: por debajo de ~0.75 el
+ * porcentaje se parte en dos y la etiqueta parece tener una errata.
+ */
+const RAZON_SIGNO = 0.79
+
+/**
+ * Anchos de letra, en fracción del cuerpo de CADA parte. Medidos en pantalla
+ * con la tipografía del sitio, no estimados: con ellos el recuadro del texto
+ * cae a menos de medio píxel del ancho que reserva la etiqueta.
+ */
+const ANCHO_MENOS = 0.58
+const ANCHO_CIFRA = 0.58
+const ANCHO_PORCIENTO = 0.83
+
 export function InsigniaDescuento({
   pct,
   color = ROJO_OFERTA,
@@ -79,14 +98,19 @@ export function InsigniaDescuento({
   const OJAL_X = 11 * k
   const OJAL_R = 3.2 * k
   const CUERPO_CIFRA = 19 * k
-  const CUERPO_SIGNO = 12 * k
+  const CUERPO_SIGNO = CUERPO_CIFRA * RAZON_SIGNO
   const ALTO = alto
 
   const texto = String(pct)
-  // Ancho del texto a ojo de letra: el "−" chico, cada cifra en negrita, y el
-  // "%" chico. Medido en pantalla: para "30" sale 38.8 contra los 39 que
-  // estima esta cuenta, así que afina de sobra.
-  const anchoTexto = (7 + texto.length * 11 + 10) * k
+  /**
+   * Ancho del texto, en anchos de letra. Cada parte se estima SOBRE SU PROPIO
+   * CUERPO —no sobre el de la etiqueta— porque los signos y la cifra no van al
+   * mismo tamaño: con los anchos escritos a mano, subir el cuerpo de los
+   * signos dejaba la cuenta corta y el texto se descentraba otra vez.
+   */
+  const anchoTexto =
+    (ANCHO_MENOS + ANCHO_PORCIENTO) * CUERPO_SIGNO +
+    texto.length * ANCHO_CIFRA * CUERPO_CIFRA
 
   /**
    * EL AIRE A LOS DOS LADOS DEL TEXTO, IGUAL, y de ahí sale el ancho.
