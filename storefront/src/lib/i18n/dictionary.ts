@@ -1087,6 +1087,22 @@ export const DICTIONARY: Record<string, Entry> = {
     es: "Te mandamos video del par exacto antes de enviarlo",
     en: "We send you a video of your exact pair before it ships",
   },
+  // Cambio de talla. SOLO sale en México y solo en los modelos donde el dueño
+  // lo prendió en Shopify, así que el inglés de aquí es para botasleon.mx/en
+  // —no para la .com, donde el pedido es venta final—. {dias} lo rellena
+  // PDPTrustBlock con DIAS_AVISO_CAMBIO: la cifra se escribe en exchange.ts.
+  //
+  // La nota dice quién paga el envío de regreso. Es la condición que más
+  // enoja cuando se descubre después, así que va donde el cliente todavía no
+  // ha pagado, no enterrada en /devoluciones.
+  "promesa.cambio": {
+    es: "Cambio de talla si no te queda",
+    en: "Size exchange if it doesn't fit",
+  },
+  "promesa.cambioNota": {
+    es: "Avísanos dentro de {dias} días · sin estrenar · tú pagas el envío de regreso",
+    en: "Tell us within {dias} days · unworn · you pay return shipping",
+  },
 
   // ── Ficha: complemento con cinto ─────────────────────────────────────
   "cintos.eyebrow": { es: "Va bien con", en: "Goes well with" },

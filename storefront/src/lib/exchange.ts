@@ -1,38 +1,70 @@
 /**
  * Cambio de talla en modelos seleccionados.
  *
- * La regla: en MÉXICO, los modelos marcados admiten cambio por otra talla del
- * mismo modelo sin costo — BotasLeón cubre los dos envíos, el de regreso y el
- * de la talla nueva. En Estados Unidos NO aplica y el pedido sigue siendo
- * venta final: cruzaría la aduana dos veces y el comprador ya pagó aranceles
- * a la entrada.
+ * LA REGLA (encargo del 2026-11-12). En MÉXICO, los modelos marcados admiten
+ * cambio por otra talla del mismo modelo. El cliente paga el envío de regreso
+ * y BotasLeón manda la talla nueva. Para pedirlo hay que AVISAR dentro de los
+ * dos días naturales siguientes a la entrega.
  *
- * Se decide por MERCADO, nunca por idioma. botasleon.com también se lee en
+ * LO QUE VENCE A LOS DOS DÍAS ES EL AVISO, NO EL CAMBIO. Es la diferencia
+ * entre una política que se puede cumplir y una que no: el paquete tarda días
+ * en volver a León, así que exigir que el cambio esté HECHO en dos días sería
+ * prometer algo imposible. El cliente avisa; el cambio ocurre cuando ocurra.
+ *
+ * EN ESTADOS UNIDOS NO APLICA y el pedido sigue siendo venta final: cruzaría
+ * la aduana dos veces y el comprador ya pagó aranceles a la entrada, que no se
+ * recuperan.
+ *
+ * SE DECIDE POR MERCADO, NUNCA POR IDIOMA. botasleon.com también se lee en
  * español —la diáspora— y ahí el pedido es estadounidense: anunciarle un
- * cambio gratis por leer en español sería prometer algo que no se cumple.
+ * cambio por leer en español sería prometer algo que no se cumple. Y al revés,
+ * botasleon.mx en inglés SÍ lo lleva. Por eso manda `isMX` y no el locale.
  *
- * El marcado vive en Shopify como ETIQUETA de producto, no en el código, para
- * poder prenderlo y apagarlo modelo por modelo desde el admin sin desplegar.
+ * EL INTERRUPTOR VIVE EN SHOPIFY, no en el código, para poder prenderlo y
+ * apagarlo modelo por modelo —o marca por marca— desde el admin sin desplegar.
+ *
+ * Antes era una ETIQUETA de producto y ahora es un METACAMPO, por encargo del
+ * dueño: el catálogo no usa etiquetas para nada más y una etiqueta suelta no
+ * se ve en la ficha del admin a menos que la busques, mientras que el
+ * metacampo sale como una casilla con su nombre y su explicación. La etiqueta
+ * nunca llegó a usarse en ningún producto, así que no hay nada que migrar.
  */
 import { isMX } from "@/lib/market"
 
 /**
- * Etiqueta que hay que escribir en Shopify → Productos → (producto) →
- * Etiquetas. Se compara en minúsculas y sin espacios alrededor, así que
- * "Cambio-de-talla" también sirve.
+ * Metacampo de producto que lo prende. Hay que crearlo en Shopify →
+ * Configuración → Datos personalizados → Productos, de tipo verdadero/falso y
+ * con acceso de lectura para el Storefront, o el sitio no lo verá nunca.
+ *
+ * Para prenderlo en una marca entera: Productos → filtrar por proveedor →
+ * seleccionar todos → editar en bloque.
  */
-export const ETIQUETA_CAMBIO_TALLA = "cambio-de-talla"
+export const METACAMPO_CAMBIO_TALLA = {
+  namespace: "custom",
+  key: "cambio_de_talla",
+} as const
 
-/** Días naturales, contados desde la entrega, para pedir el cambio. */
-export const DIAS_CAMBIO_TALLA = 7
+/**
+ * Días NATURALES, contados desde la entrega, para AVISAR que se quiere el
+ * cambio. Esta cifra se pinta en la ficha, en /devoluciones, en /faq y en el
+ * JSON-LD de preguntas frecuentes: se escribe UNA vez y aquí.
+ */
+export const DIAS_AVISO_CAMBIO = 2
 
 /** ¿Este despliegue ofrece cambio de talla? Decide qué política se publica. */
 export const HAY_CAMBIO_DE_TALLA = isMX
 
-/** ¿Este producto en concreto admite cambio de talla gratis? */
-export function admiteCambioDeTalla(tags?: readonly string[] | null): boolean {
+/**
+ * Forma en que la Storefront API devuelve un metacampo booleano: el valor
+ * viaja como la CADENA "true" o "false", no como booleano. Si el metacampo no
+ * existe todavía —o no se le dio acceso de lectura al Storefront— llega
+ * `null`, y entonces no se promete nada. Ese es el lado seguro del fallo:
+ * callar de más, nunca prometer de más.
+ */
+export type MetacampoCambio = { value: string } | null | undefined
+
+/** ¿Este producto en concreto admite cambio de talla? */
+export function admiteCambioDeTalla(metacampo: MetacampoCambio): boolean {
   if (!HAY_CAMBIO_DE_TALLA) return false
-  return (tags ?? []).some(
-    (t) => (t || "").trim().toLowerCase() === ETIQUETA_CAMBIO_TALLA
-  )
+  return metacampo?.value === "true"
 }

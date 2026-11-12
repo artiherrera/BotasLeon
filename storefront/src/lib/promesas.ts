@@ -1,5 +1,7 @@
 import { isMX } from "@/lib/market"
 import { ENVIO_GRATIS_SIEMPRE } from "@/lib/shipping-policy"
+import { admiteCambioDeTalla } from "@/lib/exchange"
+import type { Product } from "@/lib/shopify/types"
 
 /**
  * Las promesas de venta que van bajo el botón de compra en la ficha.
@@ -31,16 +33,20 @@ export type Promesa = {
 export const PROMESA_VIDEO = true
 
 /**
- * Las promesas vigentes, y solo esas cuatro (encargo del 2026-09-30): video del
- * par exacto, asesoría de talla por WhatsApp, pago protegido y envío gratis. El
- * cambio de talla sin costo se retiró del sitio entero ese mismo día.
+ * Las promesas de esta ficha, en el orden en que se leen.
  *
- * `tags` ya no decide nada aquí —lo usaba la promesa de cambio— pero se
- * conserva la firma: la llaman con el producto y mañana puede volver a haber
- * una promesa por modelo.
+ * El cambio de talla VOLVIÓ el 2026-11-12, después de haberse retirado del
+ * sitio entero el 30 de septiembre, pero ya no es la misma promesa: entonces
+ * era “sin costo” en todos los modelos etiquetados y ahora el cliente paga el
+ * envió de regreso y solo aplica donde el dueño lo prenda en Shopify. Por eso
+ * el texto es nuevo y no el que se borró: prometer “sin costo” otra vez sería
+ * resucitar justo la frase que hubo que barrer.
+ *
+ * Va la ÚLTIMA de la lista a propósito. Las otras tres explican por qué
+ * comprar aquí; esta quita el miedo a equivocarse de talla, que es la última
+ * duda que queda antes de pagar una bota que no te puedes probar.
  */
-export function promesasDeFicha(tags?: readonly string[] | null): Promesa[] {
-  void tags
+export function promesasDeFicha(product?: Pick<Product, "cambioTalla"> | null): Promesa[] {
   const lista: Promesa[] = []
 
   if (PROMESA_VIDEO) lista.push({ llave: "promesa.video", icono: "video" })
@@ -62,6 +68,18 @@ export function promesasDeFicha(tags?: readonly string[] | null): Promesa[] {
     nota: "envio.estimada",
     icono: "envio",
   })
+
+  // Cambio de talla: solo en México y solo donde esté prendido en Shopify.
+  // La NOTA dice quién paga el regreso, y no es letra chica por casualidad:
+  // es el término que convierte una sorpresa desagradable en una condición
+  // que el cliente aceptó antes de pagar.
+  if (admiteCambioDeTalla(product?.cambioTalla)) {
+    lista.push({
+      llave: "promesa.cambio",
+      nota: "promesa.cambioNota",
+      icono: "cambio",
+    })
+  }
 
   return lista
 }

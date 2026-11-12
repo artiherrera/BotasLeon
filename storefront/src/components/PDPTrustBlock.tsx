@@ -3,6 +3,7 @@
 import type { Product } from "@/lib/shopify/types"
 import { useLocale, useT } from "@/lib/i18n/context"
 import { promesasDeFicha, type Promesa } from "@/lib/promesas"
+import { DIAS_AVISO_CAMBIO } from "@/lib/exchange"
 import { whatsappHref } from "@/lib/whatsapp"
 
 /**
@@ -16,7 +17,8 @@ import { whatsappHref } from "@/lib/whatsapp"
  *
  * Lo que va aquí son razones para comprar HOY, y cada una la decide
  * promesasDeFicha() por mercado y por producto: el envío gratis solo es cierto
- * en México y el cambio de talla solo en los modelos etiquetados en Shopify.
+ * en México, y el cambio de talla solo en México y solo en los modelos donde
+ * el dueño lo prendió con el metacampo custom.cambio_de_talla.
  */
 
 type Props = {
@@ -26,7 +28,7 @@ type Props = {
 export function PDPTrustBlock({ product }: Props) {
   const t = useT()
   const { locale } = useLocale()
-  const promesas = promesasDeFicha(product.tags)
+  const promesas = promesasDeFicha(product)
 
   // Mensaje GENÉRICO, el que ya vive en lib/whatsapp.ts en los dos idiomas.
   // Lo suyo sería precargar el modelo ("me interesa la {bota}, ¿qué talla?"),
@@ -52,13 +54,16 @@ export function PDPTrustBlock({ product }: Props) {
             ) : (
               t(p.llave)
             )}
-            {/* {plazo} lo pone lib/entrega.ts a través del diccionario: la
-                nota del envío dice "Entrega estimada: 3–7 días hábiles" sin
-                que la cifra esté escrita aquí. En una nota sin el hueco, el
-                replace no hace nada. */}
+            {/* Los huecos los rellenan lib/entrega.ts y lib/exchange.ts a
+                través del diccionario: la nota del envío dice "Entrega
+                estimada: 3–7 días hábiles" y la del cambio "Avísanos dentro de
+                2 días" sin que ninguna cifra esté escrita aquí. En una nota
+                sin el hueco, el replace no hace nada. */}
             {p.nota && (
               <span className="nota block">
-                {t(p.nota).replace("{plazo}", t("envio.plazoCorto"))}
+                {t(p.nota)
+                  .replace("{plazo}", t("envio.plazoCorto"))
+                  .replace("{dias}", String(DIAS_AVISO_CAMBIO))}
               </span>
             )}
           </span>

@@ -108,6 +108,13 @@ export type Product = {
   shoeSizes?: TaxonomyMetafield
   /** custom.colores: {"Nombre del color": "#HEX"} — tono del cuadrito por ficha. */
   colores?: { value: string } | null
+  /**
+   * custom.cambio_de_talla: casilla verdadero/falso. Llega como la CADENA
+   * "true" o "false", y `null` si el metacampo todavía no existe. Quien lo
+   * interpreta es admiteCambioDeTalla() en lib/exchange.ts — no se compara
+   * con "true" a mano en ningún otro sitio.
+   */
+  cambioTalla?: { value: string } | null
   // Sexo objetivo (Shopify target-gender). Solo el handle del metaobject,
   // sin fields — usamos handle directo para mapear MX→US sizes
   targetGender?: {

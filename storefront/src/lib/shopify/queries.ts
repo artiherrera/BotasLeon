@@ -171,6 +171,12 @@ export const PRODUCT_DETAIL_FRAGMENT = /* GraphQL */ `
     # {"Coñac": "#994A23"}. Va por ficha porque un mismo nombre ("Miel") es
     # un tono distinto en caimán que en bisonte. Si falta, se usa colorLut.
     colores: metafield(namespace: "custom", key: "colores") { value }
+    # ¿Esta bota admite cambio de talla? Casilla verdadero/falso que el dueño
+    # prende en Shopify marca por marca (lib/exchange.ts). Null mientras el
+    # metacampo no exista o no tenga lectura de Storefront, y entonces la
+    # ficha no promete nada. Va SOLO en este fragmento: la promesa vive bajo
+    # el botón de compra, y el fragmento de tarjeta se pide de 100 en 100.
+    cambioTalla: metafield(namespace: "custom", key: "cambio_de_talla") { value }
     targetGender: metafield(namespace: "shopify", key: "target-gender") {
       references(first: 5) {
         edges { node { ... on Metaobject { handle } } }

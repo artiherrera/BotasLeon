@@ -2,7 +2,7 @@ import { ContentPage } from "@/components/ContentPage"
 import { LocalizedLink as Link } from "@/components/LocalizedLink"
 import { Localized } from "@/components/Localized"
 import { pageMetadata } from "@/lib/seo"
-import { DIAS_CAMBIO_TALLA } from "@/lib/exchange"
+import { DIAS_AVISO_CAMBIO, HAY_CAMBIO_DE_TALLA } from "@/lib/exchange"
 
 export default function DevolucionesPage() {
   return (
@@ -78,12 +78,22 @@ export default function DevolucionesPage() {
             <ul>
               <li>Defecto de fabricación.</li>
               <li>Error en el producto enviado.</li>
+              {HAY_CAMBIO_DE_TALLA && (
+                <li>
+                  <strong>Que la talla no te quede</strong>, en los modelos que
+                  admiten cambio de talla. Lo dice la página de cada bota, antes
+                  de pagar: si no lo dice ahí, ese modelo no admite cambio por
+                  talla.
+                </li>
+              )}
             </ul>
             <p><strong>No se realizan reembolsos por:</strong></p>
             <ul>
               <li>
-                Talla incorrecta elegida por el cliente
-                .
+                Talla incorrecta elegida por el cliente.
+                {HAY_CAMBIO_DE_TALLA
+                  ? " En los modelos que lo admiten se cambia por otra talla; no se devuelve el dinero."
+                  : " Los pedidos con envío a Estados Unidos son venta final: el paquete cruzaría la aduana dos veces y los aranceles que ya pagaste a la entrada no se recuperan."}
               </li>
               <li>Color o modelo seleccionado por el cliente.</li>
               <li>Preferencias personales.</li>
@@ -92,32 +102,70 @@ export default function DevolucionesPage() {
             <h2>7. Condiciones de cambio</h2>
             <ul>
               <li>1 cambio por pedido.</li>
-              <li>Dentro de {DIAS_CAMBIO_TALLA} días naturales.</li>
-              <li>Producto sin uso exterior.</li>
-              <li>En su empaque original.</li>
+              {HAY_CAMBIO_DE_TALLA && (
+                <li>
+                  <strong>
+                    Avísanos dentro de {DIAS_AVISO_CAMBIO} días naturales
+                  </strong>{" "}
+                contados desde que la paquetería marca el paquete como
+                  entregado. Lo que vence en ese plazo es el <em>aviso</em>,
+                  no el cambio: una vez que nos escribiste, lo que tarde el
+                  paquete en volver a León no corre en tu contra.
+                </li>
+              )}
+              <li>Producto sin estrenar y sin uso exterior.</li>
+              <li>En su empaque original, con todo lo que venía dentro.</li>
+              {HAY_CAMBIO_DE_TALLA && (
+                <li>
+                  El envío de regreso corre por cuenta del cliente. Nosotros
+                  pagamos el envío de la talla nueva.
+                </li>
+              )}
+              <li>
+                Sujeto a que haya existencia de la talla que pides. Si no la
+                hay, te ofrecemos otro modelo o un saldo a favor para una
+                compra futura.
+              </li>
             </ul>
-
 
             <h2>8. Restricciones</h2>
-            <p>No hay cambios ni devoluciones en:</p>
+            <p>No hay cambio de talla en:</p>
             <ul>
-              <li>Liquidación</li>
-              <li>Promociones</li>
-              <li>Hot Sale / Buen Fin</li>
-              <li>Productos personalizados</li>
+              <li>Productos personalizados o hechos a la medida.</li>
+              {HAY_CAMBIO_DE_TALLA ? (
+                <li>
+                  Modelos cuya página no indique que admiten cambio de talla.
+                </li>
+              ) : (
+                <li>Pedidos con envío a Estados Unidos, que son venta final.</li>
+              )}
             </ul>
+            {HAY_CAMBIO_DE_TALLA && (
+              <p>
+                <strong>
+                  Las botas en oferta, liquidación, Hot Sale y Buen Fin sí
+                  admiten cambio de talla
+                </strong>{" "}
+                si su página lo indica. La rebaja no quita el derecho al cambio.
+              </p>
+            )}
 
             <h2>9. Proceso</h2>
             <p>
               Envía tu solicitud por correo a <strong>contacto@botasleon.com</strong>{" "}
-              o por WhatsApp al <strong>479 303 2457</strong>, con evidencia
-              obligatoria:
+              o por WhatsApp al <strong>479 303 2457</strong>. Para un cambio de
+              talla basta con tu número de pedido y la talla que necesitas; para
+              un defecto o un error en el envío, la evidencia es obligatoria:
             </p>
             <ul>
               <li>Fotos</li>
               <li>Video (si aplica)</li>
               <li>Número de pedido</li>
             </ul>
+            <p>
+              No mandes el paquete de regreso sin avisar antes: sin solicitud
+              previa no podemos recibirlo.
+            </p>
 
             <h2>10. Garantías</h2>
             <ul>
@@ -181,6 +229,6 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
   path: "/devoluciones",
   title: "Cambios, devoluciones y garantías",
   description:
-    "Política de envíos, cambios, devoluciones y garantías de Botas León. Cambios solo por defecto de fabricación o error en el envío.",
+    "Política de envíos, cambios, devoluciones y garantías de Botas León. Cambio de talla en los modelos que lo indican, avisando dentro de 2 días naturales tras la entrega.",
   })
 }

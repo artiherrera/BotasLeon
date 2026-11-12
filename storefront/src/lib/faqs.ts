@@ -12,6 +12,7 @@
 
 import { isMX } from "@/lib/market"
 import { PLAZO_ENTREGA } from "@/lib/entrega"
+import { DIAS_AVISO_CAMBIO } from "@/lib/exchange"
 
 /**
  * BILINGÜE (aditivo): question/answer se mantienen EN ESPAÑOL — los consume
@@ -68,14 +69,19 @@ export const FAQS: FAQ[] = [
   },
   {
     question: "¿Aceptan cambios o devoluciones?",
-    // Sin la promesa de cambio de talla gratis (2026-09-30, encargo del
-    // dueño): los dos mercados publican la misma política, que es la que ya
-    // regía en Estados Unidos.
-    answer:
-      "Solo aceptamos cambios por defecto de fabricación o error en el envío: 1 cambio por pedido, dentro de 7 días naturales, con el producto sin uso y en su empaque original. No hacemos reembolsos por talla, color o modelo mal elegidos, así que te recomendamos revisar la guía de tallas y escribirnos por WhatsApp si tienes dudas antes de comprar. Contamos con garantía de 15 días por defecto de fabricación confirmado.",
+    // POR MERCADO, NO POR IDIOMA, y aquí importa más que en ninguna otra
+    // pregunta. El cambio de talla volvió el 2026-11-12 pero SOLO en México:
+    // publicar la respuesta mexicana en el español de botasleon.com le
+    // prometería a la diáspora un cambio que cruza la aduana dos veces y que
+    // no vamos a hacer. Antes las dos respuestas eran la misma —la de venta
+    // final— y por eso daba igual; ahora ya no da igual.
+    answer: isMX
+      ? `Aceptamos cambio de talla en los modelos que lo indican en su página, además de los cambios por defecto de fabricación o error en el envío. Avísanos dentro de ${DIAS_AVISO_CAMBIO} días naturales desde que te entregan el paquete: lo que vence en ese plazo es el aviso, no el cambio. Va 1 cambio por pedido, con la bota sin estrenar y en su empaque original; el envío de regreso lo paga el cliente y nosotros pagamos el de la talla nueva. No hacemos reembolsos de dinero por talla, color o modelo mal elegidos. Contamos con garantía de 15 días por defecto de fabricación confirmado.`
+      : `Los pedidos con envío a Estados Unidos son venta final: no aceptamos devoluciones ni cambios de talla, porque el paquete cruzaría la aduana dos veces y los aranceles que ya pagaste a la entrada no se recuperan. Revisa la guía de tallas (mexicana en cm, estadounidense y europea) antes de comprar y escríbenos a contacto@botasleon.com si tienes dudas con tu talla. Si algo llega defectuoso o equivocado, escríbenos dentro de los 7 días siguientes a la entrega con fotos.`,
     questionEn: "Can I return or exchange my order?",
-    answerEn:
-      "Orders shipped to the United States are final sale — we don't offer returns or size exchanges. Please check our size guide (Mexican cm, U.S., and EU) before ordering, and message us at contacto@botasleon.com if you're unsure about your size.",
+    answerEn: isMX
+      ? `We accept size exchanges on the models that say so on their page, plus exchanges for manufacturing defects or a wrong item shipped. Tell us within ${DIAS_AVISO_CAMBIO} calendar days of delivery: what expires in that window is the notice, not the exchange. One exchange per order, unworn and in its original box; you cover return shipping and we cover shipping the new size. We don't refund money for the wrong size, color or model. Manufacturing defects are covered for 15 days.`
+      : `Orders shipped to the United States are final sale — we don't offer returns or size exchanges, because the package would clear customs twice and the duties you already paid on the way in aren't refundable. Please check our size guide (Mexican cm, U.S., and EU) before ordering, and message us at contacto@botasleon.com if you're unsure about your size. If something arrives defective or incorrect, email us within 7 days of delivery with photos.`,
   },
   {
     question: "¿Qué métodos de pago aceptan?",

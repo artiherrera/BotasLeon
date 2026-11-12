@@ -2,7 +2,7 @@ import { ContentPage } from "@/components/ContentPage"
 import { LocalizedLink as Link } from "@/components/LocalizedLink"
 import { Localized } from "@/components/Localized"
 import { pageMetadata } from "@/lib/seo"
-import { DIAS_CAMBIO_TALLA } from "@/lib/exchange"
+import { DIAS_AVISO_CAMBIO } from "@/lib/exchange"
 import { isMX } from "@/lib/market"
 import { PLAZO_ENTREGA } from "@/lib/entrega"
 
@@ -60,16 +60,38 @@ export default function FaqPage() {
             )}
 
             <h2>¿Aceptan cambios o devoluciones?</h2>
+            {/* POR MERCADO. En botasleon.com el pedido es estadounidense
+                aunque el cliente lea en español, y ahí sigue siendo venta
+                final: el paquete cruzaría la aduana dos veces. */}
+            {isMX ? (
               <p>
-                Solo aceptamos cambios por defecto de fabricación o error en el
-                envío (1 cambio por pedido, dentro de {DIAS_CAMBIO_TALLA} días
-                naturales, con el producto sin uso y en su empaque original). No
-                hacemos reembolsos por talla, color o modelo mal elegidos, así que
-                te recomendamos revisar la{" "}
+                Aceptamos cambio de talla en los modelos que lo indican en su
+                página, además de los cambios por defecto de fabricación o
+                error en el envío. Para pedirlo,{" "}
+                <strong>avísanos dentro de {DIAS_AVISO_CAMBIO} días naturales</strong>{" "}
+                desde que te entregan el paquete: lo que vence en ese plazo es
+                el aviso, no el cambio. Va 1 cambio por pedido, con la bota sin
+                estrenar y en su empaque original; el envío de regreso lo paga
+                el cliente y nosotros pagamos el de la talla nueva. No hacemos
+                reembolsos de dinero por talla, color o modelo mal elegidos, así
+                que conviene revisar la{" "}
                 <Link href="/guia-tallas">guía de tallas</Link> y escribirnos si
                 tienes dudas antes de comprar. Política completa en{" "}
                 <Link href="/devoluciones">Devoluciones</Link>.
               </p>
+            ) : (
+              <p>
+                Los pedidos con envío a Estados Unidos son venta final: no
+                aceptamos devoluciones ni cambios de talla, porque el paquete
+                cruzaría la aduana dos veces y los aranceles que ya pagaste a la
+                entrada no se recuperan. Revisa la{" "}
+                <Link href="/guia-tallas">guía de tallas</Link> antes de comprar y
+                escríbenos si tienes dudas con tu talla. Si algo llega
+                defectuoso o equivocado, escríbenos con fotos dentro de los 7
+                días siguientes a la entrega. Política completa en{" "}
+                <Link href="/devoluciones">Devoluciones</Link>.
+              </p>
+            )}
 
             <h2>¿Qué métodos de pago aceptan?</h2>
             <p>
@@ -151,13 +173,35 @@ export default function FaqPage() {
             )}
 
             <h2>Can I return or exchange my order?</h2>
-            <p>
-              Orders shipped to the United States are final sale — we don&apos;t
-              offer returns or size exchanges. Check our{" "}
-              <Link href="/guia-tallas">size guide</Link> before ordering, and message us
-              if you&apos;re unsure. See our <Link href="/devoluciones">Returns</Link> page
-              for full details.
-            </p>
+            {/* Esta respuesta decía "final sale" también en botasleon.mx/en:
+                a un comprador MEXICANO que lee en inglés se le negaba un
+                cambio al que sí tiene derecho. El mercado manda, no el
+                idioma. */}
+            {isMX ? (
+              <p>
+                We accept size exchanges on the models that say so on their
+                page, plus exchanges for a manufacturing defect or a wrong item
+                shipped. To request one,{" "}
+                <strong>tell us within {DIAS_AVISO_CAMBIO} calendar days</strong> of
+                delivery — what expires in that window is the notice, not the
+                exchange. One exchange per order, unworn and in its original
+                box; you cover return shipping and we cover shipping the new
+                size. We don&apos;t refund money for the wrong size, color or
+                model, so check our <Link href="/guia-tallas">size guide</Link> and
+                message us if you&apos;re unsure. Full policy on{" "}
+                <Link href="/devoluciones">Returns</Link>.
+              </p>
+            ) : (
+              <p>
+                Orders shipped to the United States are final sale — we
+                don&apos;t offer returns or size exchanges, because the package
+                would clear customs twice and the duties you already paid on the
+                way in aren&apos;t refundable. Check our{" "}
+                <Link href="/guia-tallas">size guide</Link> before ordering, and message us
+                if you&apos;re unsure. See our <Link href="/devoluciones">Returns</Link> page
+                for full details.
+              </p>
+            )}
 
             <h2>What payment methods do you accept?</h2>
             <p>
