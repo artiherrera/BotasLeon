@@ -173,10 +173,11 @@ export default function FaqPage() {
             )}
 
             <h2>Can I return or exchange my order?</h2>
-            {/* Esta respuesta decía "final sale" también en botasleon.mx/en:
-                a un comprador MEXICANO que lee en inglés se le negaba un
-                cambio al que sí tiene derecho. El mercado manda, no el
-                idioma. */}
+            {/* El mercado manda, no el idioma. Hoy esta rama mexicana no se
+                pinta —la .mx publica solo español y /en redirige con 308—,
+                pero se escribe igual: si algún día se publica inglés en la
+                .mx, una respuesta fija de "venta final" le negaría a un
+                comprador MEXICANO un cambio al que sí tiene derecho. */}
             {isMX ? (
               <p>
                 We accept size exchanges on the models that say so on their

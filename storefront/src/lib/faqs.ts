@@ -74,7 +74,13 @@ export const FAQS: FAQ[] = [
     // publicar la respuesta mexicana en el español de botasleon.com le
     // prometería a la diáspora un cambio que cruza la aduana dos veces y que
     // no vamos a hacer. Antes las dos respuestas eran la misma —la de venta
-    // final— y por eso daba igual; ahora ya no da igual.
+    // final— y por eso daba igual; ahora ya no da igual. Ese es el caso
+    // real y vivo: botasleon.com/es existe y lo lee la diáspora.
+    //
+    // La rama de INGLÉS mexicano no se pinta hoy —la .mx publica solo
+    // español y /en redirige con 308— y se escribe de todos modos, para que
+    // la regla sea una sola y no haya que acordarse de esta el día que la
+    // .mx publique inglés.
     answer: isMX
       ? `Aceptamos cambio de talla en los modelos que lo indican en su página, además de los cambios por defecto de fabricación o error en el envío. Avísanos dentro de ${DIAS_AVISO_CAMBIO} días naturales desde que te entregan el paquete: lo que vence en ese plazo es el aviso, no el cambio. Va 1 cambio por pedido, con la bota sin estrenar y en su empaque original; el envío de regreso lo paga el cliente y nosotros pagamos el de la talla nueva. No hacemos reembolsos de dinero por talla, color o modelo mal elegidos. Contamos con garantía de 15 días por defecto de fabricación confirmado.`
       : `Los pedidos con envío a Estados Unidos son venta final: no aceptamos devoluciones ni cambios de talla, porque el paquete cruzaría la aduana dos veces y los aranceles que ya pagaste a la entrada no se recuperan. Revisa la guía de tallas (mexicana en cm, estadounidense y europea) antes de comprar y escríbenos a contacto@botasleon.com si tienes dudas con tu talla. Si algo llega defectuoso o equivocado, escríbenos dentro de los 7 días siguientes a la entrega con fotos.`,

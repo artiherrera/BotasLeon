@@ -17,8 +17,15 @@
  *
  * SE DECIDE POR MERCADO, NUNCA POR IDIOMA. botasleon.com también se lee en
  * español —la diáspora— y ahí el pedido es estadounidense: anunciarle un
- * cambio por leer en español sería prometer algo que no se cumple. Y al revés,
- * botasleon.mx en inglés SÍ lo lleva. Por eso manda `isMX` y no el locale.
+ * cambio por leer en español sería prometer algo que no se cumple. Por eso
+ * manda `isMX` y no el locale.
+ *
+ * Hoy botasleon.mx publica SOLO español (lib/i18n/config.ts: LOCALES) y /en
+ * redirige con 308 a /es, así que el inglés mexicano no se pinta en ninguna
+ * parte. Las ramas en inglés de la política existen igual, por si ese día
+ * llega: lo que NO puede pasar es que la regla se escriba por locale y luego
+ * alguien publique inglés en la .mx y se apague el cambio sin que nadie lo
+ * note.
  *
  * EL INTERRUPTOR VIVE EN SHOPIFY, no en el código, para poder prenderlo y
  * apagarlo modelo por modelo —o marca por marca— desde el admin sin desplegar.

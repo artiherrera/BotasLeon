@@ -1088,8 +1088,10 @@ export const DICTIONARY: Record<string, Entry> = {
     en: "We send you a video of your exact pair before it ships",
   },
   // Cambio de talla. SOLO sale en México y solo en los modelos donde el dueño
-  // lo prendió en Shopify, así que el inglés de aquí es para botasleon.mx/en
-  // —no para la .com, donde el pedido es venta final—. {dias} lo rellena
+  // lo prendió en Shopify. El inglés de aquí NO se pinta hoy en ninguna
+  // parte: la .mx publica solo español y la .com es venta final. Se escribe
+  // igual, porque el día que la .mx publique inglés la alternativa sería una
+  // llave sin traducir a la vista del cliente. {dias} lo rellena
   // PDPTrustBlock con DIAS_AVISO_CAMBIO: la cifra se escribe en exchange.ts.
   //
   // QUIÉN PAGA EL ENVÍO DE REGRESO YA NO SALE AQUÍ. Estuvo en esta nota y el
