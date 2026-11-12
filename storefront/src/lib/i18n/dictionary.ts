@@ -1092,16 +1092,22 @@ export const DICTIONARY: Record<string, Entry> = {
   // —no para la .com, donde el pedido es venta final—. {dias} lo rellena
   // PDPTrustBlock con DIAS_AVISO_CAMBIO: la cifra se escribe en exchange.ts.
   //
-  // La nota dice quién paga el envío de regreso. Es la condición que más
-  // enoja cuando se descubre después, así que va donde el cliente todavía no
-  // ha pagado, no enterrada en /devoluciones.
+  // QUIÉN PAGA EL ENVÍO DE REGRESO YA NO SALE AQUÍ. Estuvo en esta nota y el
+  // dueño lo quitó el 2026-11-12: "no hay que ser agresivos, que lo descubran
+  // cuando nos contacten". Sigue publicado en /devoluciones §7 y en la
+  // respuesta del FAQ, que son la política; lo que se quitó es repetirlo en
+  // el momento de la venta. Si alguien lo vuelve a poner aquí, que sea una
+  // decisión, no un descuido.
+  //
+  // Lo que SÍ se queda es el PLAZO: dos días es cortísimo, y un cliente que
+  // no lo sabe antes de comprar lo descubre cuando ya no puede usarlo.
   "promesa.cambio": {
     es: "Cambio de talla si no te queda",
     en: "Size exchange if it doesn't fit",
   },
   "promesa.cambioNota": {
-    es: "Avísanos dentro de {dias} días · sin estrenar · tú pagas el envío de regreso",
-    en: "Tell us within {dias} days · unworn · you pay return shipping",
+    es: "Avísanos dentro de {dias} días · sin estrenar · en su empaque",
+    en: "Tell us within {dias} days · unworn · in its original box",
   },
 
   // ── Ficha: complemento con cinto ─────────────────────────────────────
