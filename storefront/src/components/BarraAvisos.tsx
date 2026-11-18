@@ -5,8 +5,6 @@ import { useT } from "@/lib/i18n/context"
 import { LocalizedLink as Link } from "@/components/LocalizedLink"
 import { PROMESAS_BARRA } from "@/lib/promesas"
 import { formatoCuentaRegresiva, restante, type Restante, PROMO_PAR } from "@/lib/promocion"
-import { cuentaBuenFin } from "@/lib/buenfin"
-import { BuenFinCintillo, ROJO_BUEN_FIN } from "./BuenFinCintillo"
 
 /**
  * Barra de avisos: la promoción con su cuenta regresiva, y tres promesas.
@@ -22,12 +20,13 @@ import { BuenFinCintillo, ROJO_BUEN_FIN } from "./BuenFinCintillo"
  * dólares no puede cumplir. La promoción del 10%, en cambio, va en los dos
  * mercados: el registro no depende de la moneda.
  *
- * EN ROJO MIENTRAS DURA EL BUEN FIN, y solo entonces. Es el mismo cintillo
- * —misma altura, mismo sitio, mismas promesas a la derecha— pintado del color
- * de la campaña y con el bloque del Buen Fin en el hueco donde va la
- * promoción: logo, lo que se ofrece y el cronómetro. Cuando la campaña
- * termina, el reloj se acaba, cuentaBuenFin devuelve null y la barra vuelve
- * sola a su tinta sin que nadie despliegue nada. Ver lib/buenfin.ts.
+ * LA BARRA DE CAMPAÑA SE FUE con el Buen Fin (2026-11-18). Mientras duró,
+ * esta misma barra se pintaba de rojo y llevaba en el hueco de la promoción
+ * el logo, la oferta y un cronómetro. Lo único que sobrevivió a la campaña
+ * sin tocar nada fue justo eso —el cronómetro—, porque miraba el reloj del
+ * NAVEGADOR; lo horneado en el build (los precios, el menú) siguió enseñando
+ * la campaña hasta que alguien desplegó. Si vuelve a montarse una barra de
+ * temporada, que se monte sabiendo eso.
  *
  * TINTA DE FONDO Y LA PROMOCIÓN EN NEGATIVO. En un sitio entero de crema lo que
  * llama la atención es lo oscuro, y dentro de lo oscuro, lo claro: la promoción
@@ -50,12 +49,6 @@ export function BarraAvisos() {
     () => null
   )
   const queda: Restante | null = ahora === null ? null : restante(ahora * 1000)
-
-  // El Buen Fin manda sobre lo demás mientras dura: es el único mensaje de la
-  // barra, porque apilarle encima el segundo par y el 10% convierte el aviso
-  // en una lista que nadie lee. Las otras promociones siguen anunciándose
-  // donde deciden la venta: la tarjeta y la ficha.
-  const buenFin = ahora === null ? null : cuentaBuenFin(ahora * 1000)
 
   // Cuando vence, la promoción desaparece sola. Es la mitad del trabajo de una
   // promoción con fecha: un sitio que sigue prometiendo un descuento terminado
@@ -80,28 +73,19 @@ export function BarraAvisos() {
 
   // Sin promoción y sin promesas no hay barra: una franja de tinta vacía es
   // justo lo que se está arreglando.
-  if (!buenFin && !hayPromo && !PROMO_PAR.activa && PROMESAS_BARRA.length === 0) return null
+  if (!hayPromo && !PROMO_PAR.activa && PROMESAS_BARRA.length === 0) return null
 
-  // Mientras dura la campaña, los meses sin intereses ya los dice el bloque
-  // del Buen Fin: repetirlos en la lista de promesas sería decirlo dos veces
-  // en el mismo renglón.
-  const promesas = buenFin
-    ? PROMESAS_BARRA.filter((llave) => llave !== "aviso.mxMeses")
-    : PROMESAS_BARRA
+  const promesas = PROMESAS_BARRA
 
   return (
-    <div
-      className={buenFin ? "text-bg" : "bg-text text-bg"}
-      style={buenFin ? { backgroundColor: ROJO_BUEN_FIN } : undefined}>
+    <div className="bg-text text-bg">
       <div className="contenedor flex min-h-12 flex-wrap items-center justify-center gap-x-4 gap-y-1.5 py-2.5 text-center">
         {/* LA PROMOCIÓN DEL PAR, sin reloj: el dueño la puso sin fecha de
             término (2026-09-24). Va en el mismo bloque de crema sobre tinta
             que usaba la del 10% —el contraste más alto de la paleta— y lleva
             enlace, porque un aviso que no se puede tocar obliga a buscar.
             Para apagarlo: PROMO_PAR.activa = false en lib/promocion.ts. */}
-        {buenFin && <BuenFinCintillo cuenta={buenFin} />}
-
-        {!buenFin && PROMO_PAR.activa && (
+        {PROMO_PAR.activa && (
           <p className="flex flex-wrap items-center justify-center gap-x-2.5 gap-y-1 bg-bg px-4 py-1.5 text-text">
             <span className="text-[13px] font-bold uppercase tracking-[0.06em] leading-tight">
               {t("promoPar.barra")}
@@ -115,7 +99,7 @@ export function BarraAvisos() {
           </p>
         )}
 
-        {!buenFin && hayPromo && (
+        {hayPromo && (
           <p className="flex flex-wrap items-center justify-center gap-x-2.5 gap-y-1 bg-bg px-4 py-1.5 text-text">
             <span className="text-[13px] font-bold uppercase tracking-[0.06em] leading-tight">
               {t("promo.texto")}
@@ -147,7 +131,7 @@ export function BarraAvisos() {
         {promesas.length > 0 && (
           <p
             className={`text-[13.5px] leading-snug sm:hidden ${
-              buenFin || PROMO_PAR.activa || hayPromo ? "hidden" : ""
+              PROMO_PAR.activa || hayPromo ? "hidden" : ""
             }`}
             aria-live="off"
           >

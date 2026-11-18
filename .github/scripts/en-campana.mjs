@@ -6,8 +6,8 @@
  * de Amplify las 8.700 horas en las que no hay nada que refrescar.
  *
  * LAS FECHAS NO SE ESCRIBEN AQUÍ: se leen del código del sitio. Si alguien
- * corrige el Buen Fin en lib/buenfin.ts, esto lo sigue solo. Dos listas con
- * las mismas fechas se separan en cuanto se toca una.
+ * corrige las de una temporada en lib/ofertas/config.ts, esto lo sigue solo.
+ * Dos listas con las mismas fechas se separan en cuanto se toca una.
  */
 import { readFile } from "node:fs/promises"
 import { appendFile } from "node:fs/promises"
@@ -23,7 +23,9 @@ async function fechas(archivo, nombres) {
   })
 }
 
-const [bfIni, bfFin] = await fechas("buenfin.ts", ["BUEN_FIN_INICIO", "BUEN_FIN_FIN"])
+// El Buen Fin se desmontó el 2026-11-18 y con él lib/buenfin.ts. Este script
+// lo leía al arrancar, así que sin esta línea fuera el workflow reventaba en
+// cada ejecución horaria con "no such file".
 const [bvIni, bvFin] = await fechas("ofertas/config.ts", [
   "BLACK_FRIDAY_INICIO",
   "BLACK_FRIDAY_FIN",
@@ -31,14 +33,15 @@ const [bvIni, bvFin] = await fechas("ofertas/config.ts", [
 
 /**
  * LA VENTANA REAL DEL DESCUENTO, que no tiene por qué coincidir con la
- * campaña. Desde el 2026-11-10 los descuentos se ven ANTES de que arranque el
- * Buen Fin (el dueño lo pidió así), y mientras se vean hay que mantenerlos
+ * campaña: los descuentos pueden verse ANTES de que arranque la temporada
+ * con nombre, como pasó en noviembre de 2026, y mientras se vean hay que
+ * mantenerlos
  * frescos: si cambia un descuento en Shopify hoy, el sitio tiene que recogerlo
  * hoy, no el viernes.
  *
  * Se lee del mismo config.ts: INICIO_DESCUENTO/FIN_DESCUENTO pueden ser null
- * ("sin límite por ese lado") o apuntar a una constante como BUEN_FIN_FIN, que
- * aquí se resuelve con las fechas que ya tenemos.
+ * ("sin límite por ese lado"), una fecha literal, o el nombre de una constante
+ * de temporada, que aquí se resuelve con las fechas que ya tenemos.
  */
 const config = await readFile(new URL("ofertas/config.ts", RAIZ), "utf8")
 const encendido = /MOSTRAR_DESCUENTO_EN_SITIO\s*=\s*true/.test(config)
@@ -47,8 +50,6 @@ const leeLimite = (nombre, fallback) => {
   if (!m) return fallback
   const v = m[1].trim().replace(/[;,]$/, "")
   if (v === "null") return fallback
-  if (v === "BUEN_FIN_INICIO") return bfIni
-  if (v === "BUEN_FIN_FIN") return bfFin
   if (v === "BLACK_FRIDAY_INICIO") return bvIni
   if (v === "BLACK_FRIDAY_FIN") return bvFin
   const lit = v.match(/"([^"]+)"/)
@@ -70,18 +71,13 @@ const conDescuentosVivos =
 
 const dentro =
   conDescuentosVivos ||
-  [
-    [bfIni, bfFin],
-    [bvIni, bvFin],
-  ].some(([i, f]) => ahora >= i - MARGEN && ahora <= f + MARGEN)
+  (ahora >= bvIni - MARGEN && ahora <= bvFin + MARGEN)
 
 const motivo = !dentro
   ? "nada que refrescar"
   : conDescuentosVivos
     ? "descuentos a la vista"
-    : ahora <= bfFin + MARGEN
-      ? "Buen Fin"
-      : "Black Friday"
+    : "Black Friday"
 console.log(`ahora: ${new Date(ahora).toISOString()} · motivo: ${motivo} · refrescar: ${dentro}`)
 
 if (process.env.GITHUB_OUTPUT) {

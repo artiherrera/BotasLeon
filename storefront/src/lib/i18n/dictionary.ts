@@ -799,7 +799,6 @@ export const DICTIONARY: Record<string, Entry> = {
   // 2026-11-10 además se ENSEÑA en tarjeta y ficha. Ver lib/ofertas/.
   "oferta.ahorras": { es: "Ahorras", en: "You save" },
   "oferta.ahorraste": { es: "Ahorraste en este pedido", en: "You saved on this order" },
-  "oferta.nombre.buenfin": { es: "El Buen Fin", en: "El Buen Fin" },
   "oferta.nombre.blackfriday": { es: "Black Friday", en: "Black Friday" },
   "oferta.nombre.ofertas": { es: "Ofertas", en: "Deals" },
   "oferta.hasta": { es: "Hasta {pct}% menos", en: "Up to {pct}% off" },
@@ -815,9 +814,14 @@ export const DICTIONARY: Record<string, Entry> = {
 
   // LA ANTESALA: la campaña está anunciada y todavía no empieza, así que no
   // hay descuentos que simular. Ver enAntesala() en lib/ofertas/config.ts.
+  //
+  // SIN NOMBRE DE CAMPAÑA. Decía "Buen Fin en Botas León", y como la antesala
+  // no se pinta con el interruptor apagado, eso era una bomba callada: al
+  // encender la siguiente campaña habría anunciado el Buen Fin en pleno Black
+  // Friday, y nadie lo habría visto venir porque hoy no sale en pantalla.
   "oferta.antesalaTitulo": {
-    es: "Buen Fin en Botas León",
-    en: "El Buen Fin at Botas León",
+    es: "Pronto en Botas León",
+    en: "Coming soon at Botas León",
   },
   "oferta.antesalaFechas": {
     es: "Del {ini} al {fin} de noviembre",
@@ -918,44 +922,6 @@ export const DICTIONARY: Record<string, Entry> = {
   },
   // Redactada y lista, pero APAGADA. Ver PAGO_EN_4 en lib/promesas.ts.
   "aviso.usPago4": { es: "Paga en 4 con Shop Pay", en: "Pay in 4 with Shop Pay" },
-
-  // ── El Buen Fin ───────────────────────────────────────────────────────
-  // Campaña MEXICANA (ver lib/buenfin.ts: no se pinta en el despliegue en
-  // dólares). El inglés existe porque botasleon.mx también se lee en inglés.
-  // "El Buen Fin" es nombre propio y no se traduce.
-  "buenfin.nombre": { es: "El Buen Fin", en: "El Buen Fin" },
-  // SIN LA CIFRA DE MESES, por decisión del dueño (2026-11-10): "que diga
-  // solo meses sin intereses". Tres meses es poco para anunciarlo en una
-  // campaña donde la banca da nueve o doce, y la promesa sin número sigue
-  // siendo cierta con cualquier plazo que ofrezca el checkout. El número
-  // exacto lo sigue diciendo la ficha, que es donde se decide la compra.
-  "buenfin.oferta": {
-    es: "Hasta {pct}% de descuento · Meses sin intereses",
-    en: "Up to {pct}% off · Interest-free months",
-  },
-  // En antesala el cintillo dice las FECHAS además del porcentaje: el reloj
-  // dice cuánto falta, pero no cuándo. Y el porcentaje de aquí es el
-  // anunciado a mano (DESCUENTO_ANUNCIADO), no el simulado: todavía no hay
-  // ningún descuento puesto en Shopify que simular.
-  "buenfin.antesala": {
-    es: "Del {ini} al {fin} de noviembre · Hasta {pct}% menos · Meses sin intereses",
-    en: "November {ini}–{fin} · Up to {pct}% off · Interest-free months",
-  },
-  // DICE QUÉ EMPIEZA, no solo "empieza". Desde que los descuentos se ven
-  // antes de que arranque la campaña (2026-11-10), un "empieza en 2 días" a
-  // secas junto a precios ya rebajados invita a esperar a una rebaja que ya
-  // está puesta. Lo que empieza el viernes es EL BUEN FIN, no el descuento.
-  "buenfin.empiezaEn": { es: "El Buen Fin empieza en", en: "El Buen Fin starts in" },
-  "buenfin.terminaEn": { es: "Termina en", en: "Ends in" },
-  "buenfin.dias": { es: "días", en: "days" },
-  "buenfin.horas": { es: "hrs", en: "hrs" },
-  "buenfin.minutos": { es: "min", en: "min" },
-  "buenfin.segundos": { es: "seg", en: "sec" },
-  // Para el lector de pantalla: las fechas, que el reloj cuenta pero no dice.
-  "buenfin.aria": {
-    es: "El Buen Fin: del 13 al 17 de noviembre",
-    en: "El Buen Fin: November 13 to 17",
-  },
 
   // ── Promoción con cuenta regresiva ────────────────────────────────────
   // Va en los DOS mercados: el descuento por registro no depende de la moneda,

@@ -276,7 +276,7 @@ export default async function JosephaPage({ params }: Props) {
          *
          * CON LA PALETA DE JOSEPHA, NO CON EL ROJO DE LA CAMPAÑA. Esta página
          * existe para no parecerse al resto del sitio; meterle el #C8102E del
-         * Buen Fin sería justo lo que no debe pasar. El precio que se paga
+         * la temporada sería justo lo que no debe pasar. El precio que se paga
          * sigue en su bloque de rosa y lo que se añade —el tachado y el
          * ahorro— va en tinta sobre el salmón, donde sí puede haber letra
          * normal.

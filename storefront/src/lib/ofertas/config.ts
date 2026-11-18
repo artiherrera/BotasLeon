@@ -1,122 +1,113 @@
 import { isMX } from "@/lib/market"
-import { BUEN_FIN_INICIO, BUEN_FIN_FIN } from "@/lib/buenfin"
 
 /**
  * LAS OFERTAS, VISIBLES DESDE EL PRIMER VISTAZO — el interruptor y las fechas.
  *
- * El encargo del dueño (2026-11-10): "si hay ofertas, están en Shopify, pero
- * se aplican cuando están en el carrito. Ahora las quiero visibles".
- *
- * El diagnóstico es exacto. Los descuentos de esta tienda son DESCUENTOS
- * AUTOMÁTICOS de Shopify, y la Storefront API no los expone en el producto:
- * solo aparecen cuando algo ya está dentro de un carrito. Por eso el sitio
- * enseñaba $5,299, el cliente decidía si le alcanzaba, y el precio de verdad
- * —$3,709.30— no aparecía hasta el carrito. Después de haber decidido.
+ * Los descuentos de esta tienda son DESCUENTOS AUTOMÁTICOS de Shopify, y la
+ * Storefront API no los expone en el producto: solo aparecen cuando algo ya
+ * está dentro de un carrito. Sin esto, el sitio enseñaría $5,299, el cliente
+ * decidiría si le alcanza, y el precio de verdad —$3,709.30— no aparecería
+ * hasta el carrito. Después de haber decidido.
  *
  * Lo que NO cambia: el precio lo sigue diciendo Shopify. Aquí no se calcula
  * ningún descuento a mano (ver lib/ofertas/datos.ts y el script que lo
  * alimenta). Lo único que cambia es DÓNDE se enseña lo que Shopify ya cobra.
+ *
+ * ESTE MÓDULO YA NO SABE NADA DEL BUEN FIN. La campaña de noviembre de 2026 se
+ * desmontó el día 18, y con ella lib/buenfin.ts, el cintillo rojo y la página
+ * con ese nombre. Lo que queda es el motor, que es genérico y sirve para la
+ * siguiente temporada sin tocar más que las fechas.
  */
 
 /**
- * EL INTERRUPTOR. En false, el sitio vuelve exactamente a como estaba: precio
- * de lista en tarjeta y ficha, el descuento asomando solo en el carrito. No
- * hay que tocar ni una línea más.
+ * EL INTERRUPTOR MAESTRO. En false el sitio enseña precio de lista en tarjeta
+ * y ficha, y el descuento solo asoma en el carrito. No hay que tocar ni una
+ * línea más para apagarlo todo.
  *
- * Existe porque el dueño ya tomó la decisión contraria una vez: cuando se
- * generó el mapa de precios reales (2026-10-28) decidió no sacarlo al catálogo
- * entero —"113 de 118 botas tienen descuento, y poner antes/ahora en el
- * catálogo entero lo convertiría en una tienda de ofertas"—. El Buen Fin es
- * justo la temporada en la que esa objeción deja de aplicar. Cuando pase,
- * puede volver con este booleano.
+ * APAGADO desde el 2026-11-18, al cerrar el Buen Fin. Para encenderlo en la
+ * siguiente campaña hacen falta TRES cosas, y las tres: este booleano en true,
+ * las fechas de abajo puestas, y UN DESPLIEGUE (ver justo abajo por qué).
  */
 export const MOSTRAR_DESCUENTO_EN_SITIO = false
 
 /**
- * EL ROJO DE LA OFERTA. El mismo del cintillo del Buen Fin, y vive aquí
- * porque ahora lo usan los dos: la barra de arriba y la insignia de cada
- * tarjeta. Dos constantes con el mismo color se separan en cuanto alguien
- * retoca una.
+ * EL ROJO DE LA OFERTA. Lo usan la insignia de cada tarjeta y la pestaña de
+ * temporada del menú. Dos constantes con el mismo color se separan en cuanto
+ * alguien retoca una.
  *
  * No sale del sistema visual del sitio —que es crema y tinta— porque no es del
  * sitio: es de la temporada. Con texto blanco encima da 5.89:1, holgado para
- * la AA. El Pantone oficial del Buen Fin (#ED1C24) se queda en 4.38:1 y no
- * pasa, por eso este va un punto más hondo.
+ * la AA.
  */
 export const ROJO_OFERTA = "#C8102E"
 
 /**
- * LA VENTANA DURA. Es la garantía de que el sitio nunca enseña un precio
- * rebajado que el carrito ya no cobra, y no depende de ningún despliegue.
+ * LA VENTANA DE FECHAS.
  *
- * El dueño lo puso como condición (2026-11-10): los descuentos de Shopify
- * estarán APAGADOS hasta el 13 de noviembre a las 00:00 y se apagan solos al
- * terminar el evento; el sitio tiene que seguir esos cambios por su cuenta.
+ * NO ES UNA GARANTÍA AUTOMÁTICA, Y AQUÍ SE DIJO QUE LO ERA. La versión
+ * anterior de este comentario afirmaba que la ventana era "instantánea" y que
+ * al minuto de cerrar una campaña el catálogo volvía a precio de lista "sin
+ * compilar nada y sin que nadie tenga que acordarse". Es FALSO en este
+ * despliegue:
  *
- * Hay dos mecanismos y hacen falta los dos:
+ *   Amplify NO regenera las páginas entre despliegues aunque declaren
+ *   `export const revalidate = 60`. Está medido en producción y ya estaba
+ *   escrito en el repo (ver BotasExoticas.tsx) ANTES de que esto se
+ *   escribiera; no se cotejó.
  *
- *   1. ESTA VENTANA, que es instantánea. Todas las páginas con precio
- *      revalidan cada 60 segundos (`export const revalidate = 60`), así que a
- *      los sesenta segundos del minuto de cierre `descuentoVisible` devuelve
- *      false, `ofertaDe` devuelve null y el catálogo entero vuelve a precio de
- *      lista. Sin compilar nada y sin que nadie tenga que acordarse.
+ * Lo que costó: el Buen Fin cerró el 17 de noviembre a las 23:59:59 y el
+ * último build se hizo a las 19:29 de ese mismo día. Durante las 19 horas
+ * siguientes botasleon.mx siguió enseñando 15 tachados y 15 "Ahorras" de
+ * descuentos que Shopify ya tenía apagados. El sitio anunció precios que la
+ * caja no cobraba, que era la única cosa que el dueño puso como condición de
+ * que no pasara.
  *
- *   2. EL REGENERADO PERIÓDICO (ver .github/workflows/), que refresca CUÁNTO
- *      descuenta cada bota. Eso sí necesita un build, y por eso corre cada
- *      hora mientras dura la campaña: si el dueño profundiza un descuento a
- *      media campaña, el sitio lo recoge en menos de una hora.
+ * LA REGLA QUE SÍ VALE: cerrar una campaña EXIGE UN DESPLIEGUE. Las fechas
+ * sirven para que el build salga correcto, no para apagar nada por su cuenta.
+ * Lo único que se apaga solo es lo que mira el reloj EN EL NAVEGADOR (los
+ * cronómetros), porque ahí no hay nada horneado.
  *
- * El mecanismo 1 tapa el agujero del 2: aunque el archivo de precios se quede
- * viejo, fuera de la ventana no se enseña ni un tachado.
- *
- * PARA BLACK FRIDAY: se cambian estas dos fechas por las de BLACK_FRIDAY_*.
- * Son las únicas dos líneas que hay que tocar.
- *
- * En hora de México, como el resto del sitio: una promoción que terminara a la
- * medianoche de cada quien seguiría viva dos horas más en Tijuana que en León.
- */
-/**
- * SIN FECHA DE INICIO: los descuentos se ven DESDE YA.
- *
- * Lo pidió el dueño el 2026-11-10 —"quiero que los descuentos sean visibles
- * ya"— tres días antes de que arranque el Buen Fin. Y es defendible: los
- * descuentos ya están puestos en Shopify y la caja ya los cobra, así que
- * esconderlos hasta el viernes era esconder un precio que ya es verdad.
- *
- * LA FECHA DE FIN SÍ SE QUEDA, que es la que importa: es la que garantiza que
- * el sitio deje de enseñar tachados en cuanto cierre la campaña, aunque nadie
- * despliegue nada.
+ * Ambas en null mientras no haya campaña: manda el interruptor de arriba.
+ * Cuando se pongan, en hora de México como el resto del sitio: una promoción
+ * que terminara a la medianoche de cada quien seguiría viva dos horas más en
+ * Tijuana que en León.
  */
 export const INICIO_DESCUENTO: string | null = null
-export const FIN_DESCUENTO: string | null = BUEN_FIN_FIN
+export const FIN_DESCUENTO: string | null = null
 
 /**
- * EL PORCENTAJE QUE SE ANUNCIA ANTES DE QUE EMPIECE, escrito a mano.
+ * EL PORCENTAJE QUE SE ANUNCIA ANTES DE QUE EMPIECE una campaña, escrito a
+ * mano.
  *
- * Antes del 13 no hay descuentos en Shopify, así que no hay nada que simular y
+ * Antes de que arranquen los descuentos en Shopify no hay nada que simular y
  * el "hasta X%" no puede salir de los datos: sale de aquí. Es una PROMESA, y
  * el único número del sitio que no está respaldado por lo que la caja cobra
- * —en cuanto arranca la campaña manda otra vez la simulación
- * (DESCUENTO_MAXIMO_REAL) y este número deja de usarse—.
+ * —en cuanto arranca la campaña manda otra vez la simulación y este número
+ * deja de usarse—.
  *
- * Si el dueño cambia lo que va a ofrecer, este es el número que hay que mover.
+ * Solo se usa en antesala, así que hoy no se pinta en ninguna parte.
  */
 export const DESCUENTO_ANUNCIADO = 30
 
-/**
- * Los días del Buen Fin, sacados de las fechas de lib/buenfin.ts en vez de
- * volver a escribirlos. Se leen de la cadena ISO y no con `new Date()` a
- * propósito: construir una fecha y pedirle el día la pasa por la zona horaria
- * del visitante, y en Madrid el 13 a las 00:00 de México ya es día 14.
- *
- * El mes va escrito en el diccionario ("de noviembre"): el Buen Fin es de
- * noviembre por definición.
- */
-export const DIA_INICIO = Number(BUEN_FIN_INICIO.slice(8, 10))
-export const DIA_FIN = Number(BUEN_FIN_FIN.slice(8, 10))
-
 const INICIO_MS = INICIO_DESCUENTO ? Date.parse(INICIO_DESCUENTO) : null
 const FIN_MS = FIN_DESCUENTO ? Date.parse(FIN_DESCUENTO) : null
+
+/**
+ * Los días del mes que anuncia la antesala ("del 13 al 17 de noviembre").
+ *
+ * Salen de la VENTANA configurada arriba, no de una campaña concreta: antes
+ * los traía lib/buenfin.ts y eso ataba el motor a una campaña que ya pasó.
+ *
+ * Se leen de la cadena ISO y no con `new Date()` a propósito: construir una
+ * fecha y pedirle el día la pasa por la zona horaria del visitante, y en
+ * Madrid el 13 a las 00:00 de México ya es día 14. El mes va en el
+ * diccionario.
+ *
+ * Sin ventana puesta valen 0 y no se pintan: `enAntesala()` ya devuelve false.
+ */
+const diaDe = (iso: string | null): number => (iso ? Number(iso.slice(8, 10)) : 0)
+export const DIA_INICIO = diaDe(INICIO_DESCUENTO)
+export const DIA_FIN = diaDe(FIN_DESCUENTO)
 
 /**
  * ¿Se enseñan hoy los descuentos en el sitio?
@@ -134,28 +125,21 @@ export function descuentoVisible(ahoraMs: number = Date.now()): boolean {
 
 /* ── Cómo se llama la temporada ────────────────────────────────────────────
  *
- * El mismo descuento se anuncia con nombre distinto según el día. Las fechas
- * del Buen Fin NO se copian aquí: salen de lib/buenfin.ts, que es donde ya
- * viven y de donde las lee el cintillo. Dos listas con las mismas fechas se
- * separan en cuanto alguien corrige una sola.
+ * El mismo descuento se anuncia con nombre distinto según el día. Fuera de una
+ * temporada con nombre, "ofertas" —que es la palabra honesta: el descuento
+ * sigue ahí, lo que se acabó es el nombre de la campaña.
  *
- * EL BUEN FIN ES MEXICANO. Es una campaña de CONCANACO con la banca de aquí:
- * en botasleon.com no significa nada, así que allá esos mismos días se llaman
- * "Ofertas" hasta que llegue el Black Friday, que sí es de allá.
+ * EL BUEN FIN SE FUE DE AQUÍ. Era mexicano (una campaña de CONCANACO con la
+ * banca de aquí) y por eso llevaba `soloMx`. Esa bandera se queda en la tabla
+ * porque la siguiente campaña mexicana la volverá a necesitar.
  */
-export type Evento = "buenfin" | "blackfriday" | "ofertas"
+export type Evento = "blackfriday" | "ofertas"
 
 /** Black Friday 2026: del viernes 27 al lunes 30 de noviembre. */
 export const BLACK_FRIDAY_INICIO = "2026-11-27T00:00:00-06:00"
 export const BLACK_FRIDAY_FIN = "2026-11-30T23:59:59-06:00"
 
 const TEMPORADAS: { clave: Evento; inicio: number; fin: number; soloMx: boolean }[] = [
-  {
-    clave: "buenfin",
-    inicio: Date.parse(BUEN_FIN_INICIO),
-    fin: Date.parse(BUEN_FIN_FIN),
-    soloMx: true,
-  },
   {
     clave: "blackfriday",
     inicio: Date.parse(BLACK_FRIDAY_INICIO),
@@ -165,9 +149,11 @@ const TEMPORADAS: { clave: Evento; inicio: number; fin: number; soloMx: boolean 
 ]
 
 /**
- * Cómo se llama hoy la temporada. Fuera de las fechas marcadas, "ofertas" —que
- * es la palabra honesta: el descuento sigue ahí, lo que se acabó es el nombre
- * de la campaña.
+ * Cómo se llama hoy la temporada.
+ *
+ * OJO: esto solo decide el NOMBRE. Que las fechas de Black Friday estén aquí
+ * no enciende nada —eso lo hace MOSTRAR_DESCUENTO_EN_SITIO— ni se encenderá
+ * solo el día 27: hace falta desplegar.
  */
 export function eventoActual(ahoraMs: number = Date.now()): Evento {
   for (const t of TEMPORADAS) {
@@ -178,35 +164,21 @@ export function eventoActual(ahoraMs: number = Date.now()): Evento {
 }
 
 /**
- * La llave del diccionario con el nombre de la temporada: "El Buen Fin",
- * "Black Friday" u "Ofertas".
+ * La llave del diccionario con el nombre de la temporada: "Black Friday" u
+ * "Ofertas".
  */
 export function llaveNombreEvento(evento: Evento): string {
   return `oferta.nombre.${evento}`
 }
 
 /**
- * El nombre que lleva la pestaña de la barra de navegación.
+ * ¿Tiene sentido la pestaña de temporada en el menú?
  *
- * El dueño la pidió como "Buen Fin" (2026-11-10), y mientras la campaña esté
- * por llegar o en curso eso es lo correcto. Pero una pestaña que siguiera
- * diciendo "Buen Fin" en enero sería una mentira fija en todas las páginas,
- * así que en cuanto pasa el martes 17 vuelve a llamarse por la temporada que
- * toque: Black Friday o, el resto del año, Ofertas.
- */
-/**
- * ¿Tiene sentido la pestaña de temporada en la barra?
- *
- * En botasleon.com NO: medido el 2026-11-10, cero de 94 productos tienen
- * descuento allá —todos los automáticos de Shopify están limitados al mercado
- * México—, así que la pestaña llevaba a una página que solo dice "sin ofertas
- * por ahora". Una pestaña fija, en todas las páginas, que termina en un
- * callejón sin salida.
- *
- * Se decide con el número que el prebuild deja escrito (DESCUENTO_MAXIMO_REAL)
- * y no con una condición por mercado: el día que Shopify tenga descuentos para
- * Estados Unidos —en Black Friday, por ejemplo— la pestaña aparece sola allá
- * también, sin tocar nada.
+ * Se decide con el número que el prebuild deja escrito y no con una condición
+ * por mercado: el día que Shopify tenga descuentos para Estados Unidos —en
+ * Black Friday, por ejemplo— la pestaña aparece sola allá también, sin tocar
+ * nada. Con el interruptor apagado devuelve false siempre, que es lo que hoy
+ * mantiene la pestaña fuera del menú.
  */
 export function hayVitrina(maximoReal: number, ahoraMs: number = Date.now()): boolean {
   if (enAntesala(ahoraMs)) return true
@@ -214,39 +186,41 @@ export function hayVitrina(maximoReal: number, ahoraMs: number = Date.now()): bo
 }
 
 export function llaveVitrina(ahoraMs: number = Date.now()): string {
-  if (isMX && ahoraMs <= Date.parse(BUEN_FIN_FIN)) return "oferta.nombre.buenfin"
   return llaveNombreEvento(eventoActual(ahoraMs))
 }
 
 /**
  * LA RUTA DE LA PÁGINA NO CAMBIA CON LA TEMPORADA, aunque el título sí.
  *
- * Se llama /buen-fin porque así la nombró el dueño ("la página de ofertas se
- * llama buen fin"). Una dirección que cambiara de nombre en diciembre rompería
- * cada enlace compartido, cada anuncio y cada correo que ya salió; el título
- * de la página, en cambio, sí sigue a la fecha.
+ * Se llamó /buen-fin durante la campaña, por encargo del dueño. Al desmontarla
+ * (2026-11-18) pasó a /ofertas, que es el nombre que no caduca: una dirección
+ * con nombre de campaña envejece mal y deja enlaces muertos en cada anuncio y
+ * cada correo que ya salió. Los enlaces viejos a /buen-fin siguen funcionando
+ * con una redirección permanente (ver next.config.ts).
  */
-export const RUTA_OFERTAS = "/buen-fin"
+export const RUTA_OFERTAS = "/ofertas"
 
 /**
  * LA ANTESALA: la campaña está anunciada pero todavía no empieza.
  *
- * Entre hoy y el 13 de noviembre no hay un solo descuento que simular, así que
- * el sitio no puede enseñar tachados — pero sí puede decir lo que viene. En
- * antesala el cintillo y la portada anuncian fechas y el porcentaje de
- * DESCUENTO_ANUNCIADO, y /buen-fin enseña el aviso con el botón de WhatsApp en
- * vez de una rejilla vacía.
+ * Antes de que arranquen los descuentos no hay nada que simular, así que el
+ * sitio no puede enseñar tachados — pero sí puede decir lo que viene: en
+ * antesala la portada anuncia DESCUENTO_ANUNCIADO y /ofertas enseña el aviso
+ * con el botón de WhatsApp en vez de una rejilla vacía.
  *
- * Solo en México: donde no hay Buen Fin no hay antesala que anunciar.
+ * Ya no depende de la fecha del Buen Fin sino de INICIO_DESCUENTO, que es lo
+ * genérico: sin fecha de inicio configurada no hay campaña anunciada y no hay
+ * antesala. Solo en México.
  */
 export function enAntesala(ahoraMs: number = Date.now()): boolean {
   if (!isMX) return false
   // SI YA HAY DESCUENTOS A LA VISTA, NO HAY ANTESALA QUE ANUNCIAR. Anunciar
-  // "hasta un 30%" como promesa futura mientras las tarjetas ya enseñan el
-  // 30% tachado sería contarle al cliente dos historias distintas en la misma
+  // "hasta un 30%" como promesa futura mientras las tarjetas ya enseñan el 30%
+  // tachado sería contarle al cliente dos historias distintas en la misma
   // pantalla. La antesala es para cuando NO hay nada que enseñar.
   if (descuentoVisible(ahoraMs)) return false
-  return ahoraMs < Date.parse(BUEN_FIN_INICIO)
+  if (INICIO_MS === null) return false
+  return ahoraMs < INICIO_MS
 }
 
 /**

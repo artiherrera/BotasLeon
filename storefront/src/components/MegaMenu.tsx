@@ -143,15 +143,18 @@ const MENU: MenuItem[] = [
   /**
    * LA PESTAÑA DE TEMPORADA, EN ROJO, EN EL SITIO QUE OCUPABA OUTLET.
    *
-   * El dueño lo pidió así (2026-11-10): "en la nav bar quita outlet y ponlo
-   * como Buen Fin, incluye el color rojo que ya usamos". Y Outlet no se echa
-   * de menos: filtra por precio de comparación, que está vacío en los 110
-   * productos, así que llevaba meses enseñando "sin ofertas por ahora". La
-   * página sigue existiendo; lo que se va es el enlace que no llevaba a nada.
+   * El dueño la pidió para el Buen Fin (2026-11-10): "en la nav bar quita
+   * outlet y ponlo como Buen Fin, incluye el color rojo que ya usamos". Y
+   * Outlet no se echa de menos: filtra por precio de comparación, que está
+   * vacío en los 110 productos, así que llevaba meses enseñando "sin ofertas
+   * por ahora". La página sigue existiendo; lo que se fue es el enlace que no
+   * llevaba a nada —y por eso, al desmontar la campaña, NO se devolvió—.
    *
-   * El nombre lo pone llaveVitrina(): "El Buen Fin" hasta que cierre la
-   * campaña y después el de la temporada que toque, para que la pestaña no se
-   * quede anunciando en enero algo de noviembre.
+   * HOY NO SE PINTA: hayVitrina() es false con el interruptor de ofertas
+   * apagado, así que el menú tiene un hueco menos y ninguna promesa muerta.
+   * Vuelve sola en cuanto se encienda una campaña, con el nombre que le ponga
+   * llaveVitrina() —"Black Friday" u "Ofertas"—, para que no se quede
+   * anunciando en enero algo de noviembre.
    */
   {
     label: "nav.outlet",

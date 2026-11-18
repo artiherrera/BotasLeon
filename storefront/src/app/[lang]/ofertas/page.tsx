@@ -16,22 +16,26 @@ import {
   DESCUENTO_ANUNCIADO,
   DIA_INICIO,
   DIA_FIN,
+  RUTA_OFERTAS,
 } from "@/lib/ofertas/config"
 import { whatsappHref, genericWhatsappMessage } from "@/lib/whatsapp"
 
 /**
- * /buen-fin — las botas que traen descuento, con el descuento a la vista.
+ * /ofertas — las botas que traen descuento, con el descuento a la vista.
  *
- * El nombre lo puso el dueño: "la página de ofertas se llama buen fin"
- * (2026-11-10). Es el destino del cintillo de arriba, del bloque de la portada
- * y de los anuncios.
+ * Se llamó /buen-fin durante la campaña de noviembre de 2026, por encargo del
+ * dueño. Al desmontarla (2026-11-18) pasó a /ofertas, que es el nombre que no
+ * caduca; los enlaces viejos siguen vivos con una redirección permanente.
+ *
+ * Es el destino del bloque de la portada, de la pestaña del menú y de los
+ * anuncios.
  *
  * LA DIRECCIÓN NO CAMBIA CON LA TEMPORADA, aunque el título sí. Una dirección
  * que se llamara /black-friday en diciembre rompería cada enlace compartido,
  * cada anuncio y cada correo que ya salió. El título, en cambio, sigue a la
- * fecha: "El Buen Fin" del 13 al 17 de noviembre, "Black Friday" del 27 al 30,
- * y "Ofertas" el resto del año, que es la palabra honesta — el descuento sigue
- * ahí, lo que se acabó es el nombre de la campaña. Ver lib/ofertas/config.ts.
+ * fecha: "Black Friday" del 27 al 30 de noviembre, y "Ofertas" el resto del
+ * año, que es la palabra honesta — el descuento sigue ahí, lo que se acabó es
+ * el nombre de la campaña. Ver lib/ofertas/config.ts.
  *
  * QUÉ LISTA: las botas que traen `oferta`, o sea aquellas en las que Shopify
  * cobró menos al meterlas a un carrito. No se filtra por precio de
@@ -152,16 +156,7 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
   const maximo = antesala ? DESCUENTO_ANUNCIADO : descuentoMaximo()
   const evento = eventoActual()
   const nombre =
-    antesala
-      ? "El Buen Fin"
-      :
-    evento === "buenfin"
-      ? "El Buen Fin"
-      : evento === "blackfriday"
-        ? "Black Friday"
-        : es
-          ? "Ofertas"
-          : "Deals"
+    evento === "blackfriday" ? "Black Friday" : es ? "Ofertas" : "Deals"
   /**
    * SIN NADA QUE ENSEÑAR, QUE NO SE INDEXE.
    *
@@ -176,7 +171,7 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
 
   return pageMetadata({
     locale: lang,
-    path: "/buen-fin",
+    path: RUTA_OFERTAS,
     noindex: vacia,
     title: maximo > 0 ? `${nombre} — ${es ? "hasta" : "up to"} ${maximo}%` : nombre,
     description: es

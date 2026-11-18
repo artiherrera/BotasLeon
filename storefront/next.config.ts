@@ -74,8 +74,23 @@ const nextConfig: NextConfig = {
   },
   // Links viejos de productos (fichas que se juntaron por color, handles que
   // cambiaron) → su ficha nueva. Ver src/lib/redirecciones-shopify.ts.
+  //
+  // Y /buen-fin → /ofertas. La página se llamó así durante la campaña de
+  // noviembre de 2026 y esa dirección sigue viva en los anuncios de Meta, en
+  // los correos de Klaviyo y en lo que la gente compartió esa semana: dejarla
+  // en 404 sería tirar ese tráfico a la basura. Permanente (308) porque el
+  // cambio lo es, que es además lo que hace a Google traspasar el valor del
+  // enlace en vez de indexar dos direcciones.
   async redirects() {
-    return redireccionesShopify(["es", "en"]);
+    return [
+      ...(await redireccionesShopify(["es", "en"])),
+      ...["es", "en"].map((l) => ({
+        source: `/${l}/buen-fin`,
+        destination: `/${l}/ofertas`,
+        permanent: true,
+      })),
+      { source: "/buen-fin", destination: "/es/ofertas", permanent: true },
+    ];
   },
   // Sin redirect /ninos → /nino: la sección Niños no existe (páginas sin
   // publicar), así que redirigir ahí solo mandaba a un 404.

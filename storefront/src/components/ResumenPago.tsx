@@ -106,7 +106,7 @@ function descuentosDelCarrito(
  * nombre cuando el descuento solo aparecía aquí, en el carrito, como una
  * sorpresa al final. Ahora el precio ya viene rebajado desde la tarjeta y la
  * ficha, así que al llegar al carrito lo que hay que decir no es "hoy te
- * ahorras" otra vez, sino DE DÓNDE sale el descuento: El Buen Fin, Black
+ * ahorras" otra vez, sino DE DÓNDE sale el descuento: la temporada, Black
  * Friday u Ofertas, según la fecha (ver lib/ofertas/config.ts).
  *
  * El del cinto y los códigos escritos por el cliente NO se tocan: esos tienen

@@ -92,9 +92,10 @@ const QUICK_LINKS: Array<{ label: string; href: string; temporada?: boolean }> =
   { label: "nav.josepha", href: "/josepha" },
   { label: "nav.brands", href: "/marcas" },
   { label: "nav.combos", href: "/combos" },
-  // La pestaña de temporada sustituye a Outlet, igual que en el escritorio
-  // (ver MegaMenu). Va en el rojo de la campaña y el nombre lo decide la
-  // fecha, no una cadena fija.
+  // La pestaña de temporada sustituyó a Outlet, igual que en el escritorio
+  // (ver MegaMenu, que explica por qué Outlet no volvió). Va en el rojo de la
+  // campaña y el nombre lo decide la fecha, no una cadena fija. Con el
+  // interruptor de ofertas apagado no se pinta.
   { label: "nav.outlet", href: RUTA_OFERTAS, temporada: true },
   { label: "nav.visit", href: "/visitanos" },
 ]
