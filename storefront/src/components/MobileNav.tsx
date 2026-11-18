@@ -9,7 +9,15 @@ import Image from "next/image"
 import { SocialIcons } from "./SocialIcons"
 import { useLocale } from "@/lib/i18n/context"
 import { isMX } from "@/lib/market"
-import { ROJO_OFERTA, RUTA_OFERTAS, llaveVitrina, hayVitrina } from "@/lib/ofertas/config"
+import {
+  RUTA_OFERTAS,
+  llaveVitrina,
+  hayVitrina,
+  enAntesala,
+  eventoAnunciado,
+  eventoActual,
+} from "@/lib/ofertas/config"
+import { fondoTemporada } from "@/lib/ofertas/temas"
 import { useDescuentoMaximo } from "@/lib/ofertas/contexto"
 
 /**
@@ -371,7 +379,16 @@ export function MobileNav() {
                     ? "my-2 inline-block px-4 py-3 font-bold text-bg"
                     : "block border-b border-border py-3.5 font-medium text-text underline-offset-4 hover:underline"
                 }`}
-                style={link.temporada ? { backgroundColor: ROJO_OFERTA } : undefined}
+                style={
+                  // El color lo pone la temporada (ver MegaMenu).
+                  link.temporada
+                    ? {
+                        backgroundColor: fondoTemporada(
+                          enAntesala() ? eventoAnunciado() : eventoActual()
+                        ),
+                      }
+                    : undefined
+                }
               >
                 {t(link.temporada ? llaveVitrina() : link.label)}
               </Link>

@@ -24,11 +24,14 @@ import { isMX } from "@/lib/market"
  * y ficha, y el descuento solo asoma en el carrito. No hay que tocar ni una
  * línea más para apagarlo todo.
  *
- * APAGADO desde el 2026-11-18, al cerrar el Buen Fin. Para encenderlo en la
- * siguiente campaña hacen falta TRES cosas, y las tres: este booleano en true,
- * las fechas de abajo puestas, y UN DESPLIEGUE (ver justo abajo por qué).
+ * ENCENDIDO para Black Friday (2026-11-18), con la ventana puesta del 27 al
+ * 30: hasta el 27 no se pinta un solo tachado, porque `descuentoVisible()`
+ * exige las TRES condiciones —interruptor, ventana y build—. Encenderlo con
+ * nueve días de antelación es a propósito: así el workflow horario entra en
+ * su ventana la víspera y dispara el build que hace falta, en vez de depender
+ * de que alguien se acuerde de desplegar el viernes a medianoche.
  */
-export const MOSTRAR_DESCUENTO_EN_SITIO = false
+export const MOSTRAR_DESCUENTO_EN_SITIO = true
 
 /**
  * EL ROJO DE LA OFERTA. Lo usan la insignia de cada tarjeta y la pestaña de
@@ -40,6 +43,16 @@ export const MOSTRAR_DESCUENTO_EN_SITIO = false
  * la AA.
  */
 export const ROJO_OFERTA = "#C8102E"
+
+/**
+ * Black Friday 2026: del viernes 27 al lunes 30 de noviembre.
+ *
+ * Van AQUÍ ARRIBA, antes que la ventana, porque la ventana las usa: un `const`
+ * no existe antes de su propia línea y declararlas después revienta en
+ * arranque con un ReferenceError, no en compilación.
+ */
+export const BLACK_FRIDAY_INICIO = "2026-11-27T00:00:00-06:00"
+export const BLACK_FRIDAY_FIN = "2026-11-30T23:59:59-06:00"
 
 /**
  * LA VENTANA DE FECHAS.
@@ -72,8 +85,8 @@ export const ROJO_OFERTA = "#C8102E"
  * que terminara a la medianoche de cada quien seguiría viva dos horas más en
  * Tijuana que en León.
  */
-export const INICIO_DESCUENTO: string | null = null
-export const FIN_DESCUENTO: string | null = null
+export const INICIO_DESCUENTO: string | null = BLACK_FRIDAY_INICIO
+export const FIN_DESCUENTO: string | null = BLACK_FRIDAY_FIN
 
 /**
  * EL PORCENTAJE QUE SE ANUNCIA ANTES DE QUE EMPIECE una campaña, escrito a
@@ -135,10 +148,6 @@ export function descuentoVisible(ahoraMs: number = Date.now()): boolean {
  */
 export type Evento = "blackfriday" | "ofertas"
 
-/** Black Friday 2026: del viernes 27 al lunes 30 de noviembre. */
-export const BLACK_FRIDAY_INICIO = "2026-11-27T00:00:00-06:00"
-export const BLACK_FRIDAY_FIN = "2026-11-30T23:59:59-06:00"
-
 const TEMPORADAS: { clave: Evento; inicio: number; fin: number; soloMx: boolean }[] = [
   {
     clave: "blackfriday",
@@ -186,7 +195,20 @@ export function hayVitrina(maximoReal: number, ahoraMs: number = Date.now()): bo
 }
 
 export function llaveVitrina(ahoraMs: number = Date.now()): string {
+  if (enAntesala(ahoraMs)) return llaveNombreEvento(eventoAnunciado())
   return llaveNombreEvento(eventoActual(ahoraMs))
+}
+
+/**
+ * EL EVENTO QUE ANUNCIA LA ANTESALA: el que empieza cuando abre la ventana.
+ *
+ * Sin esto, durante la antesala el sitio decía "Pronto en Botas León" y la
+ * pestaña del menú decía "Ofertas", porque `eventoActual()` mira HOY y hoy
+ * todavía no es Black Friday. Anunciar una campaña sin decir cuál es
+ * desperdiciar el único nombre que el cliente ya reconoce.
+ */
+export function eventoAnunciado(): Evento {
+  return INICIO_MS === null ? "ofertas" : eventoActual(INICIO_MS)
 }
 
 /**
@@ -210,10 +232,15 @@ export const RUTA_OFERTAS = "/ofertas"
  *
  * Ya no depende de la fecha del Buen Fin sino de INICIO_DESCUENTO, que es lo
  * genérico: sin fecha de inicio configurada no hay campaña anunciada y no hay
- * antesala. Solo en México.
+ * antesala.
+ *
+ * EN LOS DOS MERCADOS desde el 2026-11-18. Llevaba un `if (!isMX) return
+ * false` de cuando la campaña era el Buen Fin, que es de CONCANACO y la banca
+ * mexicana. Black Friday es de los dos lados y el dueño lo pidió para las dos
+ * tiendas. Qué campaña aplica en qué mercado lo decide la bandera `soloMx` de
+ * TEMPORADAS, que es el único sitio donde debe vivir esa regla.
  */
 export function enAntesala(ahoraMs: number = Date.now()): boolean {
-  if (!isMX) return false
   // SI YA HAY DESCUENTOS A LA VISTA, NO HAY ANTESALA QUE ANUNCIAR. Anunciar
   // "hasta un 30%" como promesa futura mientras las tarjetas ya enseñan el 30%
   // tachado sería contarle al cliente dos historias distintas en la misma

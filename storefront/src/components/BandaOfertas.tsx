@@ -1,7 +1,9 @@
 import { LocalizedLink as Link } from "@/components/LocalizedLink"
 import { T } from "@/components/T"
 import { descuentoMaximo, cuantasConOferta } from "@/lib/ofertas/datos"
+import { fondoTemporada } from "@/lib/ofertas/temas"
 import {
+  eventoAnunciado,
   eventoActual,
   llaveNombreEvento,
   enAntesala,
@@ -40,9 +42,19 @@ export function BandaOfertas() {
 
   const cuantas = antesala ? 0 : cuantasConOferta()
   const evento = eventoActual()
+  /**
+   * EL COLOR LO PONE LA TEMPORADA, no una constante fija.
+   *
+   * Iba siempre en ROJO_OFERTA, que era el rojo del Buen Fin. Con el cintillo
+   * de arriba ya en negro de Black Friday, esta banda roja justo debajo
+   * parecía de otra tienda —comprobado en pantalla antes de cambiarlo—. En
+   * antesala manda el evento ANUNCIADO: hoy aún no es Black Friday, pero la
+   * banda ya habla de él.
+   */
+  const colorTemporada = fondoTemporada(antesala ? eventoAnunciado() : evento)
 
   return (
-    <section style={{ backgroundColor: ROJO_OFERTA }} className="text-bg">
+    <section style={{ backgroundColor: colorTemporada }} className="text-white">
       <Link
         href={RUTA_OFERTAS}
         className="group contenedor flex flex-wrap items-center justify-center gap-x-6 gap-y-3 py-5 text-center md:justify-between md:text-left"
@@ -76,7 +88,7 @@ export function BandaOfertas() {
         </div>
 
         <span className="inline-flex items-center gap-2 bg-bg px-5 py-2.5 text-[14px] font-bold uppercase leading-none tracking-[0.06em] transition-transform duration-[180ms] group-hover:translate-x-1 motion-reduce:transition-none motion-reduce:group-hover:translate-x-0"
-          style={{ color: ROJO_OFERTA }}
+          style={{ color: colorTemporada }}
         >
           <T k="oferta.verOfertas" />
           <span aria-hidden>→</span>

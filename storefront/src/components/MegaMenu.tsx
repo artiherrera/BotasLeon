@@ -3,7 +3,15 @@
 import { useEffect, useRef, useState } from "react"
 import { LocalizedLink as Link } from "@/components/LocalizedLink"
 import { useLocale } from "@/lib/i18n/context"
-import { ROJO_OFERTA, RUTA_OFERTAS, llaveVitrina, hayVitrina } from "@/lib/ofertas/config"
+import {
+  RUTA_OFERTAS,
+  llaveVitrina,
+  hayVitrina,
+  enAntesala,
+  eventoAnunciado,
+  eventoActual,
+} from "@/lib/ofertas/config"
+import { fondoTemporada } from "@/lib/ofertas/temas"
 import { useDescuentoMaximo } from "@/lib/ofertas/contexto"
 
 /**
@@ -238,7 +246,20 @@ export function MegaMenu() {
                       openIdx === idx ? "after:scale-x-100" : ""
                     }`
               }`}
-              style={item.temporada ? { backgroundColor: ROJO_OFERTA } : undefined}
+              style={
+                // EL COLOR LO PONE LA TEMPORADA. Era ROJO_OFERTA fijo —el rojo
+                // del Buen Fin— y con el cintillo de arriba ya en negro de
+                // Black Friday la pestaña roja se leía como de otra tienda. En
+                // antesala manda el evento ANUNCIADO: hoy todavía no es Black
+                // Friday, pero la pestaña ya lo dice.
+                item.temporada
+                  ? {
+                      backgroundColor: fondoTemporada(
+                        enAntesala() ? eventoAnunciado() : eventoActual()
+                      ),
+                    }
+                  : undefined
+              }
               aria-expanded={openIdx === idx && !!item.sections}
               aria-haspopup={item.sections ? "true" : undefined}
             >

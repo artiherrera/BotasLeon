@@ -820,16 +820,20 @@ export const DICTIONARY: Record<string, Entry> = {
   // encender la siguiente campaña habría anunciado el Buen Fin en pleno Black
   // Friday, y nadie lo habría visto venir porque hoy no sale en pantalla.
   "oferta.antesalaTitulo": {
-    es: "Pronto en Botas León",
-    en: "Coming soon at Botas León",
+    es: "Las mayores ofertas del año",
+    en: "The biggest deals of the year",
   },
   "oferta.antesalaFechas": {
     es: "Del {ini} al {fin} de noviembre",
     en: "November {ini}–{fin}",
   },
+  // CONVENCE CON LO QUE ES VERDAD, no con escasez inventada. Lo único que se
+  // afirma aquí está comprobado: la fecha, que son cuatro días, y que las
+  // botas se hacen a mano. Un "quedan pocas" sin saber el inventario por
+  // talla es la clase de frase que se desmiente sola en el carrito.
   "oferta.antesalaAviso": {
-    es: "Las ofertas arrancan el viernes {ini} a las 00:00. Si ya sabes cuál quieres, escríbenos y te la apartamos.",
-    en: "Deals start Friday the {ini} at midnight. If you already know which pair you want, message us and we'll hold it.",
+    es: "Arranca el viernes {ini} a las 00:00 y dura cuatro días. Son botas hechas a mano en León, y estos son los precios más bajos que van a tener en todo el año. Si ya sabes cuál quieres, escríbenos y te la apartamos.",
+    en: "Starts Friday the {ini} at midnight and runs four days. These boots are handmade in León, and this is the lowest they'll be priced all year. If you already know which pair you want, message us and we'll hold it.",
   },
   "oferta.antesalaWhatsapp": { es: "Apártala por WhatsApp", en: "Hold it on WhatsApp" },
   "josepha.allBrands": { es: "Ver las catorce casas", en: "See all fourteen houses" },
@@ -922,6 +926,41 @@ export const DICTIONARY: Record<string, Entry> = {
   },
   // Redactada y lista, pero APAGADA. Ver PAGO_EN_4 en lib/promesas.ts.
   "aviso.usPago4": { es: "Paga en 4 con Shop Pay", en: "Pay in 4 with Shop Pay" },
+
+  // ── Cintillo de temporada (Black Friday 2026) ────────────────────────
+  // EN LOS DOS MERCADOS, por encargo del dueño (2026-11-18). El Buen Fin era
+  // mexicano; Black Friday es de los dos lados, así que aquí el inglés no es
+  // decorativo: es lo que ve botasleon.com.
+  //
+  // El nombre va partido en dos renglones porque así se compone un lockup de
+  // campaña y porque apilado ocupa la mitad de ancho, que es lo que deja
+  // sitio al cronómetro grande en un teléfono.
+  "temporada.bf1": { es: "Black", en: "Black" },
+  "temporada.bf2": { es: "Friday", en: "Friday" },
+  // EL LEMA. Lo eligió el dueño y es lo único que de verdad convence: no
+  // describe un mecanismo (un porcentaje, unas fechas), hace una promesa
+  // comparativa que el cliente puede verificar el resto del año.
+  "temporada.lema": {
+    es: "Las mayores ofertas del año",
+    en: "The biggest deals of the year",
+  },
+  "temporada.fechas": {
+    es: "Del {ini} al {fin} de noviembre",
+    en: "November {ini}\u2013{fin}",
+  },
+  "temporada.hasta": { es: "Hasta {pct}% menos", en: "Up to {pct}% off" },
+  // Solo donde existen: el checkout en dólares no ofrece meses sin intereses,
+  // que son de la banca mexicana. Lo decide HAY_MSI, por mercado.
+  "temporada.msi": { es: "Meses sin intereses", en: "Interest-free months" },
+  // DICE QU\u00c9 EMPIEZA, no solo "empieza": un "empieza en 2 d\u00edas" a secas, junto
+  // a precios que ya pueden estar rebajados, invita a esperar a una rebaja
+  // que quiz\u00e1 ya est\u00e1 puesta.
+  "temporada.empiezaEn": { es: "Black Friday empieza en", en: "Black Friday starts in" },
+  "temporada.terminaEn": { es: "Termina en", en: "Ends in" },
+  "temporada.dias": { es: "días", en: "days" },
+  "temporada.horas": { es: "hrs", en: "hrs" },
+  "temporada.minutos": { es: "min", en: "min" },
+  "temporada.segundos": { es: "seg", en: "sec" },
 
   // ── Promoción con cuenta regresiva ────────────────────────────────────
   // Va en los DOS mercados: el descuento por registro no depende de la moneda,

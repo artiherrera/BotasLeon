@@ -5,6 +5,9 @@ import { useT } from "@/lib/i18n/context"
 import { LocalizedLink as Link } from "@/components/LocalizedLink"
 import { PROMESAS_BARRA } from "@/lib/promesas"
 import { formatoCuentaRegresiva, restante, type Restante, PROMO_PAR } from "@/lib/promocion"
+import { cuentaTemporada } from "@/lib/temporada"
+import { CintilloTemporada } from "./CintilloTemporada"
+import { fondoTemporada } from "@/lib/ofertas/temas"
 
 /**
  * Barra de avisos: la promoción con su cuenta regresiva, y tres promesas.
@@ -20,13 +23,18 @@ import { formatoCuentaRegresiva, restante, type Restante, PROMO_PAR } from "@/li
  * dólares no puede cumplir. La promoción del 10%, en cambio, va en los dos
  * mercados: el registro no depende de la moneda.
  *
- * LA BARRA DE CAMPAÑA SE FUE con el Buen Fin (2026-11-18). Mientras duró,
- * esta misma barra se pintaba de rojo y llevaba en el hueco de la promoción
- * el logo, la oferta y un cronómetro. Lo único que sobrevivió a la campaña
- * sin tocar nada fue justo eso —el cronómetro—, porque miraba el reloj del
- * NAVEGADOR; lo horneado en el build (los precios, el menú) siguió enseñando
- * la campaña hasta que alguien desplegó. Si vuelve a montarse una barra de
- * temporada, que se monte sabiendo eso.
+ * TEMATIZADA MIENTRAS DURA UNA CAMPAÑA, y solo entonces. Es la misma barra
+ * —misma altura, mismo sitio, mismas promesas a la derecha— pintada del color
+ * de la temporada y con su cintillo en el hueco donde va la promoción: el
+ * nombre, lo que ofrece y el cronómetro. Cuando la campaña termina,
+ * cuentaTemporada() devuelve null y la barra vuelve sola a su tinta.
+ *
+ * ⚠️ QUE LA BARRA SE APAGUE SOLA NO SIGNIFICA QUE EL SITIO SE APAGUE SOLO. El
+ * reloj de aquí vive en el navegador; los PRECIOS se hornean en el build y
+ * Amplify no los regenera. Al cerrar el Buen Fin esta barra desapareció sola
+ * a medianoche mientras el catálogo siguió 19 horas con los tachados puestos
+ * —y que la barra ya estuviera limpia fue justo lo que lo disimuló—. Cerrar
+ * una campaña EXIGE desplegar.
  *
  * TINTA DE FONDO Y LA PROMOCIÓN EN NEGATIVO. En un sitio entero de crema lo que
  * llama la atención es lo oscuro, y dentro de lo oscuro, lo claro: la promoción
@@ -55,6 +63,12 @@ export function BarraAvisos() {
   // se gana un cliente enojado en el checkout.
   const hayPromo = queda !== null
 
+  // La campaña manda sobre lo demás mientras dura: es el único mensaje de la
+  // barra, porque apilarle encima el segundo par y el 10% convierte el aviso
+  // en una lista que nadie lee. Las otras promociones siguen anunciándose
+  // donde deciden la venta: la tarjeta y la ficha.
+  const temporada = ahora === null ? null : cuentaTemporada(ahora * 1000)
+
   // EN MÓVIL, UNA PROMESA A LA VEZ. Debajo de `sm` las tres se escondían y
   // quedaba solo la promoción; cuando la promoción venció (15 sep), la barra
   // se quedó como una franja negra de 48px sin nada adentro, y un cliente en
@@ -73,19 +87,29 @@ export function BarraAvisos() {
 
   // Sin promoción y sin promesas no hay barra: una franja de tinta vacía es
   // justo lo que se está arreglando.
-  if (!hayPromo && !PROMO_PAR.activa && PROMESAS_BARRA.length === 0) return null
+  if (!temporada && !hayPromo && !PROMO_PAR.activa && PROMESAS_BARRA.length === 0) return null
 
-  const promesas = PROMESAS_BARRA
+  // Mientras dura la campaña, los meses sin intereses ya los dice el cintillo:
+  // repetirlos en la lista de promesas sería decirlo dos veces en el mismo
+  // renglón.
+  const promesas = temporada
+    ? PROMESAS_BARRA.filter((llave) => llave !== "aviso.mxMeses")
+    : PROMESAS_BARRA
 
   return (
-    <div className="bg-text text-bg">
+    <div
+      className={temporada ? "text-white" : "bg-text text-bg"}
+      style={temporada ? { backgroundColor: fondoTemporada(temporada.evento) } : undefined}
+    >
       <div className="contenedor flex min-h-12 flex-wrap items-center justify-center gap-x-4 gap-y-1.5 py-2.5 text-center">
         {/* LA PROMOCIÓN DEL PAR, sin reloj: el dueño la puso sin fecha de
             término (2026-09-24). Va en el mismo bloque de crema sobre tinta
             que usaba la del 10% —el contraste más alto de la paleta— y lleva
             enlace, porque un aviso que no se puede tocar obliga a buscar.
             Para apagarlo: PROMO_PAR.activa = false en lib/promocion.ts. */}
-        {PROMO_PAR.activa && (
+        {temporada && <CintilloTemporada cuenta={temporada} />}
+
+        {!temporada && PROMO_PAR.activa && (
           <p className="flex flex-wrap items-center justify-center gap-x-2.5 gap-y-1 bg-bg px-4 py-1.5 text-text">
             <span className="text-[13px] font-bold uppercase tracking-[0.06em] leading-tight">
               {t("promoPar.barra")}
@@ -99,7 +123,7 @@ export function BarraAvisos() {
           </p>
         )}
 
-        {hayPromo && (
+        {!temporada && hayPromo && (
           <p className="flex flex-wrap items-center justify-center gap-x-2.5 gap-y-1 bg-bg px-4 py-1.5 text-text">
             <span className="text-[13px] font-bold uppercase tracking-[0.06em] leading-tight">
               {t("promo.texto")}
@@ -131,7 +155,7 @@ export function BarraAvisos() {
         {promesas.length > 0 && (
           <p
             className={`text-[13.5px] leading-snug sm:hidden ${
-              PROMO_PAR.activa || hayPromo ? "hidden" : ""
+              temporada || PROMO_PAR.activa || hayPromo ? "hidden" : ""
             }`}
             aria-live="off"
           >

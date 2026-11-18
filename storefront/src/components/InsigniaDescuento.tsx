@@ -1,4 +1,5 @@
-import { ROJO_OFERTA } from "@/lib/ofertas/config"
+import { eventoActual, enAntesala, eventoAnunciado } from "@/lib/ofertas/config"
+import { fondoTemporada } from "@/lib/ofertas/temas"
 
 /**
  * La marca de descuento: una ETIQUETA, no un cuadrado.
@@ -39,7 +40,8 @@ import { ROJO_OFERTA } from "@/lib/ofertas/config"
  * Ahora el aire se declara UNA vez y se usa a los dos lados, y el ancho de la
  * etiqueta sale de ahí.
  *
- * Blanco sobre este rojo da 5.89:1, holgado para la AA.
+ * Blanco sobre el rojo que usaba el Buen Fin da 5.89:1 y sobre el negro de
+ * Black Friday 21:1; los dos holgados para la AA.
  */
 
 /**
@@ -73,14 +75,18 @@ const ANCHO_PORCIENTO = 0.83
 
 export function InsigniaDescuento({
   pct,
-  color = ROJO_OFERTA,
+  color,
   alto = ALTO_BASE,
 }: {
   pct: number
   /**
-   * El rojo de la temporada por defecto. Josepha le pasa SU rosa: esa landing
-   * existe para no parecerse al resto del sitio y meterle el rojo de la
-   * campaña sería justo lo que no debe pasar.
+   * El color de la TEMPORADA por defecto —hoy el negro de Black Friday, antes
+   * el rojo del Buen Fin—. Era `ROJO_OFERTA` fijo y eso dejaba la etiqueta
+   * roja debajo de un cintillo negro.
+   *
+   * Josepha le pasa SU rosa: esa landing existe para no parecerse al resto
+   * del sitio y meterle el color de la campaña sería justo lo que no debe
+   * pasar.
    */
   color?: string
   /**
@@ -93,6 +99,7 @@ export function InsigniaDescuento({
    */
   alto?: number
 }) {
+  const tinta = color ?? fondoTemporada(enAntesala() ? eventoAnunciado() : eventoActual())
   const k = alto / ALTO_BASE
   const PUNTA = 11 * k
   const OJAL_X = 11 * k
@@ -145,7 +152,7 @@ export function InsigniaDescuento({
       aria-label={`${pct}% de descuento`}
       className="block shrink-0"
     >
-      <path d={`${contorno} ${ojal}`} fill={color} fillRule="evenodd" />
+      <path d={`${contorno} ${ojal}`} fill={tinta} fillRule="evenodd" />
       {/* EL CENTRADO VERTICAL VA POR LÍNEA BASE, no con dominant-baseline.
           *
           * `dominant-baseline="central"` centra la CAJA DE LA LETRA —de la
