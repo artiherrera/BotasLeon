@@ -30,7 +30,7 @@ import { BUEN_FIN_INICIO, BUEN_FIN_FIN } from "@/lib/buenfin"
  * justo la temporada en la que esa objeción deja de aplicar. Cuando pase,
  * puede volver con este booleano.
  */
-export const MOSTRAR_DESCUENTO_EN_SITIO = true
+export const MOSTRAR_DESCUENTO_EN_SITIO = false
 
 /**
  * EL ROJO DE LA OFERTA. El mismo del cintillo del Buen Fin, y vive aquí
