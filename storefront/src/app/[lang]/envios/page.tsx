@@ -10,9 +10,13 @@ import { PLAZO_ENTREGA, PLAZO_ENTREGA_CORTO } from "@/lib/entrega"
  * corra en el navegador.
  *
  * Existe la rama porque el texto de EE.UU. dice "enviamos a todo Estados Unidos
- * continental" y "cualquier cargo de importación corre por cuenta del
- * comprador". En botasleon.mx las dos cosas son falsas: el envío es nacional y
- * no cruza ninguna aduana.
+ * continental" y habla de aduana, aranceles y T-MEC. En botasleon.mx esas cosas
+ * son falsas: el envío es nacional y no cruza ninguna aduana.
+ *
+ * LO ÚNICO QUE COMPARTEN LAS DOS RAMAS ES "ENTREGA SEGURA", y por eso está
+ * escrito dos veces en vez de sacado a un componente: dice lo mismo pero no
+ * promete lo mismo —en México el paquete no cruza frontera— y la próxima vez
+ * que cambie una, lo más probable es que la otra se quede como está.
  */
 
 function EnviosMexico() {
@@ -43,6 +47,14 @@ function EnviosMexico() {
             <strong>{PLAZO_ENTREGA.es}</strong> según el destino. Los tiempos
             empiezan a contar desde que el paquete sale, no desde que confirmas
             la compra.
+          </p>
+
+          <h2>Entrega segura</h2>
+          <p>
+            Todos los envíos van <strong>asegurados contra extravío y daños en
+            tránsito</strong> y con número de guía para que sigas tu paquete
+            desde que sale del taller. Si algo pasa en el camino, te acompañamos
+            en la aclaración con la paquetería hasta resolverlo.
           </p>
 
           <h2>Rastreo</h2>
@@ -85,6 +97,15 @@ function EnviosMexico() {
             <strong>{PLAZO_ENTREGA.en}</strong> depending on the destination.
             Transit times start counting when the package leaves, not when you
             place the order.
+          </p>
+
+          <h2>Secure delivery</h2>
+          <p>
+            Every shipment travels <strong>insured against loss and in-transit
+            damage</strong>, with a tracking number so you can follow your parcel
+            from the moment it leaves the workshop. If anything happens on the
+            way, we walk you through the claim with the carrier until it&rsquo;s
+            resolved.
           </p>
 
           <h2>Tracking</h2>
@@ -132,15 +153,40 @@ function EnviosEstadosUnidos() {
             dirección y el servicio de paquetería. Lo ves antes de confirmar
             el pedido — nunca hay cargos sorpresa después.
           </p>
+
+          <h2>Aduana y aranceles</h2>
           <p>
-            Cualquier trámite o cargo de importación corre por cuenta del comprador
-            y no está incluido en el total.
+            <strong>No pagas aranceles.</strong> Nuestras botas se fabrican en
+            León, Guanajuato, y una mercancía originaria de México entra a
+            Estados Unidos libre de arancel bajo el T-MEC (USMCA).
+          </p>
+          <p>
+            Cada pedido sale con su{" "}
+            <strong>certificado de origen T-MEC</strong>, su factura comercial y
+            la clasificación arancelaria del par: toda la documentación de aduana
+            en orden. Desde que Estados Unidos suspendió la exención de minimis,
+            ningún paquete se salva del trámite por ser pequeño —todos tienen que
+            presentar entrada—, así que esto dejó de ser un detalle: es la
+            diferencia entre una bota que llega y una detenida esperando un
+            papel.
+          </p>
+          <p>
+            El Tax ID que te pedimos en el carrito es justamente para eso. El
+            paquete entra a tu nombre y la aduana no lo libera sin un número de
+            contribuyente; no es un cobro ni un trámite que tengas que hacer tú.
+          </p>
+          <p>
+            Lo que el T-MEC no cubre: la paquetería puede cobrar su propia cuota
+            de gestión aduanal, y hay estados que cobran impuesto sobre la venta.
+            Ninguno de los dos es un arancel y ninguno lo cobramos nosotros.
           </p>
 
-          <h2>Paqueterías</h2>
+          <h2>Entrega segura</h2>
           <p>
-            Trabajamos con DHL y FedEx según el servicio y la urgencia.
-            Todos los envíos van con seguro contra extravío y daños en tránsito.
+            Trabajamos con DHL y FedEx según el servicio y la urgencia. Todos los
+            envíos van <strong>asegurados contra extravío y daños en
+            tránsito</strong>. Si algo pasa en el camino, te acompañamos en la
+            aclaración con la paquetería hasta resolverlo.
           </p>
 
           <h2>Rastreo</h2>
@@ -182,16 +228,42 @@ function EnviosEstadosUnidos() {
             carrier service. You see it before confirming your order — never a
             surprise charge afterwards.
           </p>
+
+          <h2>Customs and tariffs</h2>
           <p>
-            Any import formalities or charges are the buyer&rsquo;s responsibility
-            and are not included in the total.
+            <strong>You pay no tariffs.</strong> Our boots are made in León,
+            Guanajuato, and goods originating in Mexico enter the United States
+            duty-free under the USMCA (T-MEC).
+          </p>
+          <p>
+            Every order ships with its{" "}
+            <strong>USMCA certificate of origin</strong>, its commercial invoice
+            and the tariff classification for the pair — all customs paperwork in
+            order. Since the United States suspended the de minimis exemption, no
+            parcel gets waved through for being small; every one has to be
+            entered. That turned paperwork from a detail into the difference
+            between boots that arrive and boots held at the border waiting on a
+            document.
+          </p>
+          <p>
+            The Tax ID we ask for in the cart is exactly for this. The parcel is
+            entered in your name and customs won&rsquo;t release it without a
+            taxpayer number — it is not a charge, and not a filing you have to
+            make yourself.
+          </p>
+          <p>
+            What the USMCA does not cover: the carrier may bill its own customs
+            brokerage fee, and some states charge sales tax. Neither one is a
+            tariff, and neither is charged by us.
           </p>
 
-          <h2>Carriers</h2>
+          <h2>Secure delivery</h2>
           <p>
-            We ship with carriers such as DHL and FedEx depending on the destination
-            and how quickly you need your order. Every shipment includes insurance
-            against loss and in-transit damage.
+            We ship with carriers such as DHL and FedEx depending on the
+            destination and how quickly you need your order. Every shipment
+            travels <strong>insured against loss and in-transit damage</strong>.
+            If anything happens on the way, we walk you through the claim with
+            the carrier until it&rsquo;s resolved.
           </p>
 
           <h2>Tracking</h2>
@@ -233,6 +305,6 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
     title: "Envíos",
     description: isMX
       ? "Envío gratis a toda la República Mexicana, sin monto mínimo. Tiempos de entrega y rastreo."
-      : "Envío a todo Estados Unidos. Tiempos, costos y rastreo de pedidos.",
+      : "Envío a todo Estados Unidos sin aranceles: entramos por el T-MEC con certificado de origen. Tiempos, costos y rastreo.",
   })
 }

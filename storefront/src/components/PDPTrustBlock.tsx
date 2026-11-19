@@ -111,6 +111,29 @@ function Icono({ nombre }: { nombre: Promesa["icono"] }) {
       </svg>
     )
   }
+  // Escudo con palomita: la entrega asegurada. Es el mismo gesto que el
+  // "Pago seguro" de la barra de avisos, y a propósito: el cliente ya
+  // aprendió que un escudo aquí significa "esto está cubierto".
+  if (nombre === "escudo") {
+    return (
+      <svg {...comun}>
+        <path d="M12 3 5 5.8v5.4c0 4.1 2.9 7.6 7 8.8 4.1-1.2 7-4.7 7-8.8V5.8L12 3Z" />
+        <path d="m9 11.8 2.1 2.1L15 10" />
+      </svg>
+    )
+  }
+  // Documento con palomita: la papelería de aduana en orden. No un escudo
+  // otra vez ni una bandera: lo que la promesa dice es que los papeles están
+  // hechos, y un papel sellado es lo que se reconoce sin leer la frase.
+  if (nombre === "aduana") {
+    return (
+      <svg {...comun}>
+        <path d="M14 3H7a1.6 1.6 0 0 0-1.6 1.6v14.8A1.6 1.6 0 0 0 7 21h10a1.6 1.6 0 0 0 1.6-1.6V7.6L14 3Z" />
+        <path d="M13.8 3.2v4.4h4.6" />
+        <path d="m8.8 14.2 2 2 4-4" />
+      </svg>
+    )
+  }
   if (nombre === "cambio") {
     return (
       <svg {...comun}>

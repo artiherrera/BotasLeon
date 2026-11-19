@@ -9,10 +9,18 @@ import { requiresUsCustoms } from "@/lib/market"
  * TAX ID DE ADUANA — OBLIGATORIO EN LA .COM (2026-10-12, pedido del dueño).
  *
  * Un paquete que cruza a Estados Unidos entra a nombre de alguien, y ese
- * alguien es el comprador: desde que se dejó el DDP, él paga el arancel y él
- * es el importador. La paquetería pide un número de contribuyente para
- * liberarlo. Mientras fue opcional casi nadie lo escribía y el dato había que
- * perseguirlo por WhatsApp con el paquete ya detenido.
+ * alguien es el comprador: desde que se dejó el DDP, él es el importador. La
+ * paquetería pide un número de contribuyente para liberarlo. Mientras fue
+ * opcional casi nadie lo escribía y el dato había que perseguirlo por WhatsApp
+ * con el paquete ya detenido.
+ *
+ * SER EL IMPORTADOR NO SIGNIFICA PAGAR ARANCEL. Esto decía antes que el
+ * comprador "paga el arancel", y es falso: la bota es originaria de México y
+ * entra con arancel 0 por el T-MEC (ver SIN_ARANCELES_TMEC en lib/promesas.ts).
+ * Lo que cambió al dejar el DDP es quién figura como importador y quién
+ * responde de la entrada, no cuánto se cobra — que es cero. Por eso el texto
+ * de ayuda de aquí abajo lo dice: pedir un SSN justo antes de pagar da miedo,
+ * y el miedo concreto es "¿me van a cobrar al recibirla?".
  *
  * Ahora sin Tax ID no se pasa a pagar. Es fricción deliberada: cuesta algún
  * carrito abandonado y ahorra paquetes varados, que cuestan más —y cuestan
@@ -134,7 +142,7 @@ export function CustomsTaxIdField() {
         label: "Tax ID / EIN",
         req: "(required — U.S. customs)",
         ph: "e.g. 12-3456789",
-        help: "Nine digits. Your EIN if you're buying as a business, your SSN or ITIN if it's in your name. U.S. customs will not release the package without it.",
+        help: "Nine digits. Your EIN if you're buying as a business, your SSN or ITIN if it's in your name. U.S. customs will not release the package without it. It's for the USMCA entry declaration — the one that gets your boots in without paying any tariff.",
         vacio: "Enter your Tax ID to continue to payment.",
         malo: "A Tax ID has nine digits (EIN, SSN or ITIN).",
       }
@@ -142,7 +150,7 @@ export function CustomsTaxIdField() {
         label: "Tax ID / EIN",
         req: "(obligatorio — aduana de EE.UU.)",
         ph: "Ej. 12-3456789",
-        help: "Nueve dígitos. Es tu EIN si compras a nombre de una empresa, o tu SSN/ITIN si va a tu nombre. La aduana de EE.UU. no libera el paquete sin él.",
+        help: "Nueve dígitos. Es tu EIN si compras a nombre de una empresa, o tu SSN/ITIN si va a tu nombre. La aduana de EE.UU. no libera el paquete sin él. Es para la declaración de entrada por el T-MEC, la que hace que tu bota pase sin pagar arancel.",
         vacio: "Escribe tu Tax ID para continuar al pago.",
         malo: "Un Tax ID tiene nueve dígitos (EIN, SSN o ITIN).",
       }

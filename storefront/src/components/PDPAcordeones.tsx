@@ -7,6 +7,7 @@ import { facetLabel } from "@/lib/facets-i18n"
 import { primerValor } from "@/lib/shopify/facets"
 import { ENVIO_GRATIS_SIEMPRE } from "@/lib/shipping-policy"
 import { admiteCambioDeTalla, DIAS_AVISO_CAMBIO } from "@/lib/exchange"
+import { SIN_ARANCELES_TMEC } from "@/lib/promesas"
 import { ProductDescriptionBody } from "./LocalizedProductContent"
 import type { Brand, Product } from "@/lib/shopify/types"
 import { logoNecesitaInvertirse } from "@/lib/logos-talleres"
@@ -146,6 +147,21 @@ export function PDPAcordeones({
               abre este acordeón viene justo a eso. La cifra es la de
               lib/entrega.ts, la misma del carrito y de la página de envíos. */}
           <li>{t("envio.estimada").replace("{plazo}", t("envio.plazoCorto"))}</li>
+          {/* ENTREGA SEGURA y ARANCELES, con las MISMAS LLAVES que las
+              promesas de arriba del botón. Es la regla que el dueño fijó el
+              2026-11-12 para el cambio de talla —"que aparezca en los dos"— y
+              vale igual para esto: dos textos paralelos se separan en cuanto
+              alguien retoca uno solo.
+
+              El de aranceles solo existe en el mercado americano, y lo decide
+              la misma constante que la promesa de arriba. */}
+          <li>{t("promesa.entregaSegura")}</li>
+          {SIN_ARANCELES_TMEC && (
+            <li className="pt-1">
+              <span className="font-bold text-text">{t("promesa.aranceles")}</span>
+              <span className="nota block">{t("promesa.arancelesNota")}</span>
+            </li>
+          )}
           {/* CAMBIOS. Este acordeón se llama "Envíos y cambios" y hasta hoy
               no decía una palabra de cambios: el título prometía algo que el
               cuerpo no cumplía, y quien lo abría buscando eso no lo

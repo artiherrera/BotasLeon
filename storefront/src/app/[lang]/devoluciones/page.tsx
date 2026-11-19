@@ -93,7 +93,7 @@ export default function DevolucionesPage() {
                 Talla incorrecta elegida por el cliente.
                 {HAY_CAMBIO_DE_TALLA
                   ? " En los modelos que lo admiten se cambia por otra talla; no se devuelve el dinero."
-                  : " Los pedidos con envío a Estados Unidos son venta final: el paquete cruzaría la aduana dos veces y los aranceles que ya pagaste a la entrada no se recuperan."}
+                  : " Los pedidos con envío a Estados Unidos son venta final: el paquete tendría que cruzar la aduana dos veces y el envío internacional de regreso cuesta más de lo que vale el cambio."}
               </li>
               <li>Color o modelo seleccionado por el cliente.</li>
               <li>Preferencias personales.</li>

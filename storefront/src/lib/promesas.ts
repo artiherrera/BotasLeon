@@ -20,13 +20,18 @@ export type Promesa = {
   /** Llave del diccionario con la letra chica, si la lleva. */
   nota?: string
   /** Ícono de trazo, del set único (Lucide, 20px, 1.5). */
-  icono: "whatsapp" | "envio" | "cambio" | "video"
+  icono: "whatsapp" | "envio" | "escudo" | "aduana" | "cambio" | "video"
   /**
    * En negritas, para que resalte entre las demás.
    *
    * Solo UNA de las cuatro la lleva. Si se destacan dos deja de haber
    * jerarquía: cuatro renglones en negritas se leen igual que cuatro en
    * redonda, y el ojo ya no sabe dónde posarse.
+   *
+   * Hoy la llevan dos promesas, y la invariante aguanta porque NUNCA
+   * coinciden: el cambio de talla es solo de México y los aranceles solo de
+   * Estados Unidos. Quien añada una tercera destacada tiene que comprobar
+   * que tampoco coincida con ninguna de estas dos en el mismo mercado.
    */
   destacada?: boolean
 }
@@ -42,6 +47,40 @@ export type Promesa = {
  * diccionario y volver a prenderla es cambiar este `false`.
  */
 export const PROMESA_VIDEO = false
+
+/**
+ * "No pagas aranceles: tu bota entra por el T-MEC".
+ *
+ * SOLO EN ESTADOS UNIDOS, y por mercado y no por idioma: botasleon.com/es lo
+ * lee la diáspora y es la misma venta de exportación, mientras que en
+ * botasleon.mx no hay aduana que cruzar y la frase no significaría nada.
+ *
+ * POR QUÉ ES VERDAD, para quien tenga que defenderlo o retirarlo:
+ *
+ * 1. La bota se fabrica en León. Una mercancía originaria de México entra a
+ *    Estados Unidos con arancel 0 bajo el T-MEC, y esa exención sobrevivió a
+ *    todos los cambios de régimen de 2025 y 2026 —el arancel general del 25%
+ *    por IEEPA, su caída en la Corte, el recargo que lo sustituyó— porque
+ *    todos ellos excluyen lo que califica como originario. El T-MEC es, hoy,
+ *    el único refugio arancelario que queda.
+ * 2. Estados Unidos suspendió de forma indefinida la exención de minimis (los
+ *    800 dólares del Section 321). Desde entonces TODO paquete necesita
+ *    entrada formal o informal, con su clasificación arancelaria. Es decir:
+ *    el trámite ya no se evita por ser un pedido pequeño, y por eso tener la
+ *    documentación lista dejó de ser un detalle y pasó a ser la diferencia
+ *    entre una bota que llega y una detenida en la aduana.
+ *
+ * LO QUE ESTO NO PROMETE: la paquetería puede cobrar su propia cuota de
+ * gestión aduanal, y hay estados que cobran impuesto sobre la venta. Ninguno
+ * de los dos es un arancel. La letra chica de esa distinción va en /envios y
+ * en el FAQ, no aquí: en la ficha cabe la promesa, no el tratado.
+ *
+ * CUÁNDO HAY QUE APAGAR ESTO: si un pedido dejara de salir con el certificado
+ * de origen, o si el taller cambiara a materiales que no cumplan la regla de
+ * origen del calzado. La exención no la da el país de ensamble, la da el
+ * certificado — y lo que aquí se publica es una promesa de precio final.
+ */
+export const SIN_ARANCELES_TMEC = !isMX
 
 /**
  * Las promesas de esta ficha, en el orden en que se leen.
@@ -79,6 +118,29 @@ export function promesasDeFicha(product?: Pick<Product, "cambioTalla"> | null): 
     nota: "envio.estimada",
     icono: "envio",
   })
+
+  // ENTREGA SEGURA, en los dos mercados (encargo del dueño, 2026-11-19).
+  // Lo que se promete es el paquete ASEGURADO Y RASTREABLE, no que nosotros
+  // respondamos por lo que haga la paquetería: /devoluciones §4 dice que la
+  // resolución depende de la paquetería o de la aseguradora, y una ficha que
+  // prometiera más que la política sería la política la que queda mal.
+  lista.push({ llave: "promesa.entregaSegura", icono: "escudo" })
+
+  // Aranceles: solo en Estados Unidos, donde hay una aduana que cruzar. Ver
+  // la nota larga de SIN_ARANCELES_TMEC arriba para por qué esto es verdad y
+  // cuándo dejaría de serlo.
+  if (SIN_ARANCELES_TMEC) {
+    lista.push({
+      llave: "promesa.aranceles",
+      nota: "promesa.arancelesNota",
+      icono: "aduana",
+      // La destacada del mercado americano. Allá el cambio de talla no se
+      // pinta nunca, así que sigue habiendo una sola en negritas por ficha.
+      // Y es la que corresponde: lo que frena una compra de exportación no es
+      // la talla, es no saber cuánto te van a cobrar al recibirla.
+      destacada: true,
+    })
+  }
 
   // Cambio de talla: solo en México y solo donde esté prendido en Shopify.
   // La NOTA dice quién paga el regreso, y no es letra chica por casualidad:

@@ -62,7 +62,13 @@ export default function FaqPage() {
             <h2>¿Aceptan cambios o devoluciones?</h2>
             {/* POR MERCADO. En botasleon.com el pedido es estadounidense
                 aunque el cliente lea en español, y ahí sigue siendo venta
-                final: el paquete cruzaría la aduana dos veces. */}
+                final: el paquete cruzaría la aduana dos veces.
+                EL MOTIVO CAMBIÓ el 2026-11-19. Decía que los aranceles pagados
+                a la entrada no se recuperan, y eso dejó de ser cierto el día
+                que el sitio empezó a prometer entrada libre por el T-MEC: no
+                hay arancel que no se recupere porque no se paga ninguno. Lo
+                que de verdad hace imposible el cambio es el envío
+                internacional de regreso. */}
             {isMX ? (
               <p>
                 Aceptamos cambio de talla en los modelos que lo indican en su
@@ -83,14 +89,47 @@ export default function FaqPage() {
               <p>
                 Los pedidos con envío a Estados Unidos son venta final: no
                 aceptamos devoluciones ni cambios de talla, porque el paquete
-                cruzaría la aduana dos veces y los aranceles que ya pagaste a la
-                entrada no se recuperan. Revisa la{" "}
+                tendría que cruzar la aduana dos veces y el envío internacional
+                de regreso cuesta más de lo que vale el cambio. Revisa la{" "}
                 <Link href="/guia-tallas">guía de tallas</Link> antes de comprar y
                 escríbenos si tienes dudas con tu talla. Si algo llega
                 defectuoso o equivocado, escríbenos con fotos dentro de los 7
                 días siguientes a la entrega. Política completa en{" "}
                 <Link href="/devoluciones">Devoluciones</Link>.
               </p>
+            )}
+
+            {/* ARANCELES — SOLO EN EL MERCADO AMERICANO. En México la
+                pregunta no existe: no hay aduana que cruzar. Por mercado y no
+                por idioma, porque este mismo español lo lee la diáspora en
+                botasleon.com y ahí sí hay frontera.
+                Aquí va la letra chica que la ficha no lleva: el arancel es
+                cero, pero la cuota de gestión de la paquetería y el impuesto
+                estatal no son aranceles. Quien llega a esta página quiere el
+                detalle; quien está viendo la bota solo quiere saber si le van a
+                cobrar al recibirla. */}
+            {!isMX && (
+              <>
+                <h2>¿Tengo que pagar aranceles o impuestos de importación?</h2>
+                <p>
+                  <strong>No.</strong> Nuestras botas se fabrican en León,
+                  Guanajuato, y una mercancía originaria de México entra a
+                  Estados Unidos <strong>libre de arancel bajo el T-MEC</strong>{" "}
+                  (USMCA). Cada pedido sale con su certificado de origen T-MEC,
+                  su factura comercial y la clasificación arancelaria del par:
+                  toda la documentación de aduana en orden desde que el paquete
+                  deja el taller. El Tax ID que te pedimos en el carrito es para
+                  esa entrada —el paquete se declara a tu nombre y la aduana no
+                  lo libera sin un número de contribuyente—, no es un cobro.
+                </p>
+                <p>
+                  Dos cosas que el T-MEC no cubre: la paquetería puede cobrar su
+                  propia cuota de gestión aduanal, y hay estados que cobran
+                  impuesto sobre la venta. Ninguno de los dos es un arancel y
+                  ninguno lo cobramos nosotros. Detalle completo en{" "}
+                  <Link href="/envios">Envíos</Link>.
+                </p>
+              </>
             )}
 
             <h2>¿Qué métodos de pago aceptan?</h2>
@@ -195,13 +234,36 @@ export default function FaqPage() {
             ) : (
               <p>
                 Orders shipped to the United States are final sale — we
-                don&apos;t offer returns or size exchanges, because the package
-                would clear customs twice and the duties you already paid on the
-                way in aren&apos;t refundable. Check our{" "}
+                don&apos;t offer returns or size exchanges, because the parcel
+                would have to clear customs twice and the international return
+                shipping costs more than the exchange is worth. Check our{" "}
                 <Link href="/guia-tallas">size guide</Link> before ordering, and message us
                 if you&apos;re unsure. See our <Link href="/devoluciones">Returns</Link> page
                 for full details.
               </p>
+            )}
+
+            {!isMX && (
+              <>
+                <h2>Will I have to pay tariffs or import duties?</h2>
+                <p>
+                  <strong>No.</strong> Our boots are made in León, Guanajuato,
+                  and goods originating in Mexico enter the United States{" "}
+                  <strong>duty-free under the USMCA</strong> (T-MEC). Every order
+                  ships with its USMCA certificate of origin, its commercial
+                  invoice and the tariff classification for the pair — all
+                  customs paperwork in order before the parcel leaves the
+                  workshop. The Tax ID we ask for in the cart is for that entry:
+                  the parcel is declared in your name and customs won&apos;t
+                  release it without a taxpayer number. It is not a charge.
+                </p>
+                <p>
+                  Two things the USMCA does not cover: the carrier may bill its
+                  own customs brokerage fee, and some states charge sales tax.
+                  Neither one is a tariff, and neither is charged by us. Full
+                  detail on our <Link href="/envios">Shipping</Link> page.
+                </p>
+              </>
             )}
 
             <h2>What payment methods do you accept?</h2>

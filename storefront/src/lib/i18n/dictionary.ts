@@ -1084,6 +1084,30 @@ export const DICTIONARY: Record<string, Entry> = {
     es: "Envío a todo Estados Unidos continental",
     en: "Ships anywhere in the continental USA",
   },
+  // Entrega segura. EN LOS DOS MERCADOS, por encargo del dueño (2026-11-19).
+  // Dice ASEGURADO Y RASTREABLE y no "garantizamos que llega": /devoluciones
+  // §4 deja la resolución de pérdidas y daños en manos de la paquetería o la
+  // aseguradora, y la ficha no puede prometer por encima de la política.
+  "promesa.entregaSegura": {
+    es: "Entrega segura: paquete asegurado y rastreable",
+    en: "Secure delivery: insured and trackable",
+  },
+  // Aranceles. SOLO EN ESTADOS UNIDOS (SIN_ARANCELES_TMEC en lib/promesas.ts),
+  // por mercado y no por idioma: botasleon.com/es es venta de exportación y
+  // botasleon.mx no cruza ninguna aduana.
+  //
+  // El español dice "T-MEC (USMCA)" con las dos siglas a propósito: el
+  // tratado es el mismo, pero quien recibe la bota en Estados Unidos lo va a
+  // oír de la paquetería como USMCA, y la promesa tiene que ser reconocible
+  // cuando le toquen la puerta, no solo cuando la lea aquí.
+  "promesa.aranceles": {
+    es: "No pagas aranceles: tu bota entra por el T-MEC",
+    en: "You pay no tariffs: your boots enter under the USMCA",
+  },
+  "promesa.arancelesNota": {
+    es: "Con certificado de origen T-MEC (USMCA) y la documentación de aduana en orden",
+    en: "With a USMCA certificate of origin and all customs paperwork in order",
+  },
   // Quinta promesa, APAGADA por defecto (PROMESA_VIDEO en lib/promesas.ts).
   // El informe la propone, pero no consta en ninguna parte del repo ni de las
   // políticas que el video se mande siempre: encenderla es decisión del dueño,
