@@ -192,20 +192,29 @@ export const PAGO_EN_4 = false
  * Medido con la cuarta puesta, para que no empuje la página.
  *
  * No son la misma lista traducida: en México el argumento es el envío gratis y
- * los meses; en Estados Unidos, el envío gratis y el hecho a mano. Los meses no
+ * los meses; en Estados Unidos, los aranceles y el hecho a mano. Los meses no
  * aparecen en la .com porque los MSI son de la banca mexicana y el checkout en
  * dólares no los ofrece (ver lib/msi.ts).
+ *
+ * EN ESTADOS UNIDOS NO SE ANUNCIA ENVÍO GRATIS, y hasta el 2026-11-19 esta
+ * barra lo hacía: decía "Free shipping on every order" en botasleon.com, donde
+ * el envío cuesta más de 100 dólares. Lo cazó el dueño leyendo el cintillo
+ * ("si cobramos envío; el envío es gratis en México"). Era el último resto del
+ * bug que ya se había barrido del resto del sitio: todo lo demás ya colgaba de
+ * ENVIO_GRATIS_SIEMPRE, menos esta lista, que llevaba la llave escrita a mano.
+ *
+ * De ahí la regla: en esta lista no se escribe a mano ninguna promesa que
+ * dependa del mercado sin que la decida una constante de lib/. Una llave
+ * suelta aquí no se cruza con nada y puede sobrevivir años mintiendo.
  */
 export const PROMESAS_BARRA: readonly string[] = isMX
   ? ["aviso.mxEnvio", "aviso.mxMeses", "aviso.mxTalla", "aviso.pagoSeguro"]
   : [
       // LOS ARANCELES, PRIMEROS (pedido del dueño, 2026-11-19: "quiero que sea
-      // parte del cintillo principal"). Delante del envío gratis a sabiendas:
-      // a quien compra desde Estados Unidos no le sirve un envío gratis si
-      // teme que le cobren al recibir el paquete. Se quita esa duda antes de
-      // ofrecer nada más.
+      // parte del cintillo principal"). Es además lo único que esta barra
+      // puede decir hoy sobre el precio final de un pedido americano: aquí no
+      // hay envío gratis que anunciar, y el costo lo cotiza el checkout.
       "aviso.usAranceles",
-      "aviso.usEnvio",
       "aviso.usHecho",
       PAGO_EN_4 ? "aviso.usPago4" : "aviso.usTalla",
       "aviso.pagoSeguro",

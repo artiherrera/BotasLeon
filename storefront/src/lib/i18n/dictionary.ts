@@ -893,10 +893,22 @@ export const DICTIONARY: Record<string, Entry> = {
   //
   // Todas están comprobadas contra Shopify, no copiadas de un informe:
   //   · envío gratis MX  → carrito real a Oaxaca: $0.00
-  //   · envío gratis US  → carritos reales a Dallas de $78, $156, $178 y $399,
-  //                        todos $0.00. NO hay mínimo, por eso no se anuncia uno.
   //   · 3 meses          → MESES_MSI en lib/msi.ts, que es lo que hoy ofrece
   //                        Shopify Payments. Si allá cambia, cambia ahí.
+  //
+  // EN ESTADOS UNIDOS NO HAY ENVÍO GRATIS Y NO SE ANUNCIA (2026-11-19). Aquí
+  // vivió "aviso.usEnvio" = "Free shipping on every order", apoyado en una
+  // medición de carritos a Dallas que salían en $0.00. El dueño lo desmintió
+  // de frente: "¿por qué pusiste eso? si cobramos envío. El envío es gratis en
+  // México". Su palabra sobre lo que cobra su tienda vale más que una medición
+  // de hace semanas, y además lib/shipping-policy.ts siempre dijo lo mismo que
+  // él —"NO hay envío gratis... prometerlo fue el bug que hubo que barrer del
+  // sitio entero"—: el aviso era un resto de ese bug, vivo en la barra.
+  //
+  // SI ALGUIEN LO QUIERE DE VUELTA: primero que cambie ENVIO_GRATIS_SIEMPRE en
+  // lib/shipping-policy.ts, que es la fuente de verdad, y que lo confirme con
+  // la tarifa de Shopify. Una llave suelta en el diccionario no puede volver a
+  // ser la que decide lo que cobra la tienda.
   "aviso.mxEnvio": {
     es: "Envío gratis a toda la República",
     en: "Free shipping anywhere in Mexico",
@@ -909,10 +921,6 @@ export const DICTIONARY: Record<string, Entry> = {
   // Pedido del dueño (2026-10-21). Es verdad sin matices: el cobro lo hace el
   // checkout de Shopify, que es quien guarda la tarjeta, no este sitio.
   "aviso.pagoSeguro": { es: "Pago seguro", en: "Secure checkout" },
-  "aviso.usEnvio": {
-    es: "Envío gratis en todos los pedidos",
-    en: "Free shipping on every order",
-  },
   "aviso.usHecho": {
     es: "Hechas a mano en León, México",
     en: "Handmade in León, Mexico",
