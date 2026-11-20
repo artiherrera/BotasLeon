@@ -199,6 +199,12 @@ export const PAGO_EN_4 = false
 export const PROMESAS_BARRA: readonly string[] = isMX
   ? ["aviso.mxEnvio", "aviso.mxMeses", "aviso.mxTalla", "aviso.pagoSeguro"]
   : [
+      // LOS ARANCELES, PRIMEROS (pedido del dueño, 2026-11-19: "quiero que sea
+      // parte del cintillo principal"). Delante del envío gratis a sabiendas:
+      // a quien compra desde Estados Unidos no le sirve un envío gratis si
+      // teme que le cobren al recibir el paquete. Se quita esa duda antes de
+      // ofrecer nada más.
+      "aviso.usAranceles",
       "aviso.usEnvio",
       "aviso.usHecho",
       PAGO_EN_4 ? "aviso.usPago4" : "aviso.usTalla",

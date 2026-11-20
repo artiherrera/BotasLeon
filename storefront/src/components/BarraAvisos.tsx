@@ -101,7 +101,12 @@ export function BarraAvisos() {
       className={temporada ? "text-white" : "bg-text text-bg"}
       style={temporada ? { backgroundColor: fondoTemporada(temporada.evento) } : undefined}
     >
-      <div className="contenedor flex min-h-12 flex-wrap items-center justify-center gap-x-4 gap-y-1.5 py-2.5 text-center">
+      {/* AIRE APRETADO, y medido. Con gap-y-1.5 y py-2.5 la barra llegaba a
+          143px en un teléfono al sumarle el aviso de aranceles — a un píxel
+          de los 144 que ya hubo que corregir una vez (ver la nota del gap en
+          CintilloTemporada.tsx). Aquí cada unidad se paga en todos los
+          renglones a la vez, que es lo que hace que estos 6px valgan. */}
+      <div className="contenedor flex min-h-12 flex-wrap items-center justify-center gap-x-4 gap-y-1 py-2 text-center">
         {/* LA PROMOCIÓN DEL PAR, sin reloj: el dueño la puso sin fecha de
             término (2026-09-24). Va en el mismo bloque de crema sobre tinta
             que usaba la del 10% —el contraste más alto de la paleta— y lleva
@@ -152,17 +157,33 @@ export function BarraAvisos() {
             (el <p> de abajo) y la lista completa solo desde `sm`. Las
             promesas siguen estando bajo el botón de compra en cada ficha, que
             es donde de verdad deciden la venta. */}
+        {/* DURANTE UNA CAMPAÑA, EN TELÉFONO, SE ENSEÑA UNA SOLA Y QUIETA.
+            Antes la fila entera desaparecía mientras había campaña, y eso
+            dejaba el aviso de aranceles —que el dueño pidió el 2026-11-19
+            justamente para el cintillo— invisible en teléfono hasta que
+            terminara Black Friday. Visible en escritorio y no en el teléfono
+            es no estar: la mayoría entra por ahí.
+
+            QUIETA y no en relevo: al lado de un cronómetro que ya cambia cada
+            segundo, un texto que además se releva cada cuatro convierte la
+            barra en algo que no se puede leer. Y la PRIMERA de la lista, que
+            en cada mercado es la que más pesa —los aranceles en EE.UU., el
+            envío gratis en México—; el orden lo fija PROMESAS_BARRA en
+            lib/promesas.ts, así que cambiar cuál se enseña es moverla ahí.
+
+            La promoción del par y la del 10% siguen tapándola: esas ya ocupan
+            el mismo renglón con su propio bloque de crema sobre tinta. */}
         {promesas.length > 0 && (
           <p
             className={`text-[13.5px] leading-snug sm:hidden ${
-              temporada || PROMO_PAR.activa || hayPromo ? "hidden" : ""
+              PROMO_PAR.activa || hayPromo ? "hidden" : ""
             }`}
             aria-live="off"
           >
             {/* La `key` cambia con la promesa: React vuelve a montar el span y
                 la animación de entrada corre otra vez. */}
-            <span key={cual} className="relevo inline-block">
-              {t(promesas[cual % promesas.length])}
+            <span key={temporada ? "fija" : cual} className="relevo inline-block">
+              {t(temporada ? promesas[0] : promesas[cual % promesas.length])}
             </span>
           </p>
         )}

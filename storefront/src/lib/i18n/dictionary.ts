@@ -924,6 +924,23 @@ export const DICTIONARY: Record<string, Entry> = {
     es: "Asesoría de talla por WhatsApp",
     en: "Sizing help on WhatsApp",
   },
+  // ARANCELES EN EL CINTILLO, pedido del dueño el 2026-11-19: no le bastaba
+  // con la ficha, lo quiere arriba. Va LA PRIMERA de la lista americana
+  // porque es la objeción que de verdad frena una compra de exportación —el
+  // envío gratis y el hecho a mano no sirven de nada si el comprador teme un
+  // cobro al recibir—.
+  //
+  // CORTÍSIMA A PROPÓSITO, como aviso.usTalla: en esta barra cada palabra de
+  // más empuja un renglón entero en un teléfono. Las dos cosas que tienen que
+  // caber son el precio final (sin aranceles) y por qué (el certificado); el
+  // tratado completo está en /envios y en el FAQ.
+  //
+  // No existe gemela mexicana y no debe existir: en la .mx no hay aduana que
+  // cruzar. Por eso vive solo en la lista de PROMESAS_BARRA de EE.UU.
+  "aviso.usAranceles": {
+    es: "Sin aranceles, certificado T-MEC",
+    en: "No tariffs — USMCA certified",
+  },
   // Redactada y lista, pero APAGADA. Ver PAGO_EN_4 en lib/promesas.ts.
   "aviso.usPago4": { es: "Paga en 4 con Shop Pay", en: "Pay in 4 with Shop Pay" },
 
