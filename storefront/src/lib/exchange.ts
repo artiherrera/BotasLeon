@@ -44,6 +44,15 @@ import { isMX } from "@/lib/market"
  * Invertirlo es seguro: los 38 productos que lo tenían en verdadero siguen
  * admitiendo cambio, y los que lo tienen vacío pasan a admitirlo, que es
  * justo lo que se pidió. Solo se apaga donde alguien escriba `false` a mano.
+ *
+ * LO QUE ESTE METACAMPO NO DICE ES SI HAY EXISTENCIAS. Dice que el MODELO
+ * admite cambio, no que la talla que pide el cliente esté en la bodega —el
+ * dueño lo señaló el 2026-11-24: "cambio de talla sujeto a existencias"—. La
+ * condición viaja en el TEXTO (promesa.cambioNotaMx / promesa.cambioNotaUs,
+ * el FAQ y /devoluciones §7), porque desde aquí no se puede saber: el stock
+ * por talla no es una variante en esta tienda, la talla es un atributo de
+ * línea. Si no hay la talla, la salida ya estaba escrita en /devoluciones §7:
+ * otro modelo o un saldo a favor.
  */
 export const METACAMPO_CAMBIO_TALLA = {
   namespace: "custom",
@@ -69,6 +78,32 @@ export const DIAS_AVISO_CAMBIO = 15
  * así. No mezclar con DIAS_AVISO_CAMBIO, que son naturales.
  */
 export const DIAS_RETRACTO = 5
+
+/**
+ * CUÁNTO TARDA EL DINERO EN VERSE, que no es lo mismo que cuánto tardamos
+ * nosotros en emitir el reembolso.
+ *
+ * El cobro de esta tienda lo hace SHOPIFY PAYMENTS —29 de los últimos 30
+ * pedidos; el otro fue un cobro manual—, así que el plazo no es nuestro: es
+ * el de esa pasarela, y Shopify lo documenta en dos tramos.
+ *   · DIAS_REEMBOLSO_SHOPIFY: hasta 2 días hábiles con el reembolso en
+ *     "pendiente", mientras el dinero sale de nuestro siguiente depósito.
+ *   · DIAS_REEMBOLSO_BANCO: hasta 10 días hábiles para que el banco del
+ *     cliente lo abone. Este tramo NO lo controla nadie de este lado: lo
+ *     decide el banco emisor, y en una tarjeta de crédito puede caer hasta
+ *     el siguiente corte.
+ *   help.shopify.com/manual/payments/shopify-payments/payouts/refunds
+ *
+ * SE PUBLICA A PROPÓSITO. Callarlo es garantizar el siguiente "¿dónde está
+ * mi dinero?" diez días después de haber hecho todo bien. Y OJO CON NO
+ * MEZCLAR LOS DOS RELOJES: DIAS_RETRACTO son los días que tiene el cliente
+ * para PEDIRLO (los del artículo 56), estos son los que tarda en VERSE.
+ *
+ * Si algún día el cobro deja de ser Shopify Payments, estas dos cifras
+ * cambian con la pasarela; no son una promesa de la tienda.
+ */
+export const DIAS_REEMBOLSO_SHOPIFY = 2
+export const DIAS_REEMBOLSO_BANCO = 10
 
 /**
  * ¿Este despliegue ofrece cambio de talla? En los dos, desde el 2026-11-24.

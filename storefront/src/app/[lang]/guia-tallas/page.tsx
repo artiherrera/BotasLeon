@@ -91,7 +91,7 @@ export default function GuiaTallasPage() {
             <h2>Ajuste de las botas vaqueras</h2>
             <p>
               Las botas vaqueras tradicionales tienen una entrada estrecha y el
-              empeine ajustado. <strong>El primer uso es siempre apretado</strong>
+              empeine ajustado. <strong>El primer uso es siempre apretado</strong>{" "}
               en el empeine — es normal. La piel cede después de 2-3 usos y el pie
               encuentra su forma.
             </p>
@@ -188,8 +188,8 @@ export default function GuiaTallasPage() {
             <h2>How cowboy boots fit</h2>
             <p>
               Traditional cowboy boots have a narrow opening and a snug instep.{" "}
-              <strong>The first wear is always tight</strong> at the instep — that&apos;s
-              normal. The leather gives after 2&ndash;3 wears and your foot finds its shape.
+              <strong>The first wear is always tight</strong>{" "}
+              at the instep — that&apos;s normal. The leather gives after 2&ndash;3 wears and your foot finds its shape.
             </p>
             <p>
               If you&apos;re between two sizes and want immediate comfort, size up.

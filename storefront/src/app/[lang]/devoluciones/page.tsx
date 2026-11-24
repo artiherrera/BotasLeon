@@ -2,7 +2,13 @@ import { ContentPage } from "@/components/ContentPage"
 import { LocalizedLink as Link } from "@/components/LocalizedLink"
 import { Localized } from "@/components/Localized"
 import { pageMetadata } from "@/lib/seo"
-import { DIAS_AVISO_CAMBIO, DIAS_RETRACTO, HAY_REEMBOLSO } from "@/lib/exchange"
+import {
+  DIAS_AVISO_CAMBIO,
+  DIAS_REEMBOLSO_BANCO,
+  DIAS_REEMBOLSO_SHOPIFY,
+  DIAS_RETRACTO,
+  HAY_REEMBOLSO,
+} from "@/lib/exchange"
 
 export default function DevolucionesPage() {
   return (
@@ -112,6 +118,26 @@ export default function DevolucionesPage() {
                     original.
                   </li>
                 </ul>
+                {/* EL PLAZO DEL DINERO, que hasta el 2026-11-24 el sitio no
+                    decía en ninguna parte. Lo preguntó el dueño —"el reembolso
+                    es según Shopify, ¿cuánto tarda?"— y la respuesta no es un
+                    número nuestro: el cobro lo hace Shopify Payments y el
+                    último tramo lo decide el banco emisor. Se publica porque
+                    callarlo es garantizar el "¿dónde está mi dinero?" del día
+                    diez, con todo hecho bien. Las cifras salen de
+                    lib/exchange.ts. */}
+                <p>
+                  <strong>¿Cuánto tarda en llegarte?</strong> El reembolso sale
+                  al mismo método con el que pagaste, en cuanto la bota vuelve
+                  a León. De ahí lo mueve Shopify —hasta{" "}
+                  {DIAS_REEMBOLSO_SHOPIFY} días hábiles— y lo abona tu banco,
+                  que puede tardar hasta {DIAS_REEMBOLSO_BANCO} días hábiles
+                  más en reflejarlo; si pagaste con tarjeta de crédito, puede
+                  aparecer hasta tu siguiente corte. Ese último tramo no lo
+                  controlamos nosotros, pero si se pasa de ese plazo
+                  escríbenos: podemos darte el número de rastreo del reembolso
+                  para que tu banco lo busque.
+                </p>
                 <p>
                   Pasados esos {DIAS_RETRACTO} días hábiles sigue habiendo{" "}
                   <strong>cambio de talla</strong> durante{" "}
@@ -236,6 +262,16 @@ export default function DevolucionesPage() {
               </p>
             )}
 
+            {/* FUERA DEL TERNARIO: el plazo vale para los dos mercados. En
+                Estados Unidos no hay reembolso por talla, pero sí por defecto
+                de fabricación o error de envío, y ese dinero tarda lo mismo. */}
+            <p>
+              Siempre al método de pago original, y con los tiempos de la
+              pasarela: hasta {DIAS_REEMBOLSO_SHOPIFY} días hábiles en salir y
+              hasta {DIAS_REEMBOLSO_BANCO} días hábiles más en que tu banco lo
+              abone.
+            </p>
+
             <h2>12. Aceptación</h2>
             <p>Toda compra implica la aceptación total de esta política.</p>
 
@@ -307,6 +343,13 @@ export default function DevolucionesPage() {
                   boots must come back unworn and in their box, and return
                   shipping is on you, which is what that same law provides.
                 </p>
+                <p>
+                  The money goes back to whatever you paid with. Shopify sends
+                  it within {DIAS_REEMBOLSO_SHOPIFY} business days, then your
+                  bank posts it — up to {DIAS_REEMBOLSO_BANCO} business days
+                  more, and on a credit card it can land on your next
+                  statement.
+                </p>
               </>
             ) : (
               <>
@@ -326,16 +369,16 @@ export default function DevolucionesPage() {
               Review our <Link href="/guia-tallas">size guide</Link> before
               ordering — our sizes run in Mexican (cm), U.S. and EU scales. If
               you have any doubt about sizing or a specific pair, message us
-              first at <strong>contacto@botasleon.com</strong> and we&apos;ll
-              help you choose the right fit. It&apos;s free, and it beats paying
+              first at <strong>contacto@botasleon.com</strong>{" "}
+              and we&apos;ll help you choose the right fit. It&apos;s free, and it beats paying
               for a return.
             </p>
 
             <h2>A problem with your order?</h2>
             <p>
               If something arrives incorrect or damaged, email us at{" "}
-              <strong>contacto@botasleon.com</strong> within 7 days of delivery with
-              photos, and we&apos;ll do our best to make it right. Confirmed
+              <strong>contacto@botasleon.com</strong>{" "}
+              within 7 days of delivery with photos, and we&apos;ll do our best to make it right. Confirmed
               manufacturing defects are covered for 15 days, and on a validated
               warranty claim we pay the shipping both ways.
             </p>

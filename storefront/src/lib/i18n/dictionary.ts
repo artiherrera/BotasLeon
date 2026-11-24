@@ -1163,21 +1163,33 @@ export const DICTIONARY: Record<string, Entry> = {
   // DIAS_RETRACTO: las dos cifras se escriben UNA vez, en lib/exchange.ts.
   // Ojo con las unidades: {dias} son naturales y {habiles} son hábiles,
   // porque así los cuenta la ley.
+  //
+  // "SUJETO A EXISTENCIAS" VA EN LA NOTA desde el 2026-11-24, por encargo del
+  // dueño. /devoluciones §7 ya lo decía —y ya ofrecía otro modelo o un saldo
+  // a favor si no hay la talla—, pero la ficha prometía el cambio a secas, y
+  // la ficha es la que ve el cliente antes de pagar: ~100 páginas contra una
+  // que casi nadie abre. Una promesa que depende de la bodega tiene que
+  // llevar la condición pegada, no a dos clics.
+  //
+  // DÓNDE SE PONE IMPORTA EN MÉXICO: la condición cuelga del CAMBIO, nunca
+  // del reembolso. El reembolso del artículo 56 no depende de que tengamos
+  // nada en la bodega, así que en la nota mexicana "sujeto a existencias" va
+  // dentro de la frase del cambio y antes del separador.
   "promesa.cambioMx": {
     es: "Cambio de talla o devolución si no te queda",
     en: "Size exchange or refund if it doesn't fit",
   },
   "promesa.cambioNotaMx": {
-    es: "{dias} días para avisar del cambio · {habiles} días hábiles para devolver y recuperar tu dinero",
-    en: "{dias} days to request an exchange · {habiles} business days to return it for a refund",
+    es: "{dias} días para avisar del cambio, sujeto a existencias de tu talla · {habiles} días hábiles para devolver y recuperar tu dinero",
+    en: "{dias} days to request an exchange, subject to stock in your size · {habiles} business days to return it for a refund",
   },
   "promesa.cambioUs": {
     es: "Cambio de talla si no te queda",
     en: "Size exchange if it doesn't fit",
   },
   "promesa.cambioNotaUs": {
-    es: "{dias} días para avisar · sin estrenar · el envío de regreso a México lo pagas tú",
-    en: "{dias} days to tell us · unworn · you cover return shipping to Mexico",
+    es: "{dias} días para avisar, sujeto a existencias de tu talla · sin estrenar · el envío de regreso a México lo pagas tú",
+    en: "{dias} days to tell us, subject to stock in your size · unworn · you cover return shipping to Mexico",
   },
 
   // ── Ficha: complemento con cinto ─────────────────────────────────────

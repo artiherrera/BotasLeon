@@ -2,7 +2,12 @@ import { ContentPage } from "@/components/ContentPage"
 import { LocalizedLink as Link } from "@/components/LocalizedLink"
 import { Localized } from "@/components/Localized"
 import { pageMetadata } from "@/lib/seo"
-import { DIAS_AVISO_CAMBIO, DIAS_RETRACTO, HAY_REEMBOLSO } from "@/lib/exchange"
+import {
+  DIAS_AVISO_CAMBIO,
+  DIAS_REEMBOLSO_BANCO,
+  DIAS_RETRACTO,
+  HAY_REEMBOLSO,
+} from "@/lib/exchange"
 import { isMX } from "@/lib/market"
 import { PLAZO_ENTREGA } from "@/lib/entrega"
 
@@ -75,11 +80,16 @@ export default function FaqPage() {
                 Federal de Protección al Consumidor, y lo respetamos aunque
                 hayas comprado en oferta. Y tienes{" "}
                 <strong>{DIAS_AVISO_CAMBIO} días naturales</strong> para pedir
-                un cambio de talla — lo que vence en ese plazo es el aviso, no
-                el cambio. En los dos casos la bota vuelve sin estrenar y en su
-                empaque, y el envío de regreso corre por tu cuenta; en el
-                cambio, nosotros pagamos el de la talla nueva. Política
-                completa en <Link href="/devoluciones">Devoluciones</Link>.
+                un cambio de talla, <strong>sujeto a existencias</strong> de
+                tu talla en ese modelo: si no la tenemos, te ofrecemos otro
+                modelo o un saldo a favor. Lo que vence en ese plazo es el
+                aviso, no el cambio. En los dos casos la bota vuelve sin
+                estrenar y en su empaque, y el envío de regreso corre por tu
+                cuenta; en el cambio, nosotros pagamos el de la talla nueva. El
+                reembolso sale al método con el que pagaste y puede tardar
+                hasta <strong>{DIAS_REEMBOLSO_BANCO} días hábiles</strong> en
+                reflejarse, según tu banco. Política completa en{" "}
+                <Link href="/devoluciones">Devoluciones</Link>.
               </p>
             ) : (
               <p>
@@ -87,8 +97,11 @@ export default function FaqPage() {
                 Avísanos dentro de{" "}
                 <strong>{DIAS_AVISO_CAMBIO} días naturales</strong> desde la
                 entrega; lo que vence en ese plazo es el aviso, no el cambio.
-                Nosotros pagamos el envío de la talla nueva, pero el regreso
-                desde Estados Unidos es un envío internacional de más de 100
+                Está <strong>sujeto a existencias</strong> de tu talla en ese
+                modelo: si no la tenemos, te ofrecemos otro modelo o un saldo a
+                favor. Nosotros pagamos el envío de la talla nueva, pero el
+                regreso desde Estados Unidos es un envío internacional de más
+                de 100
                 dólares y lo paga el cliente, así que conviene revisar la{" "}
                 <Link href="/guia-tallas">guía de tallas</Link> y escribirnos
                 por WhatsApp antes de comprar. Lo que no hacemos en pedidos a
@@ -225,23 +238,31 @@ export default function FaqPage() {
                 consumer protection law, and it applies even if you bought on
                 sale. You also have{" "}
                 <strong>{DIAS_AVISO_CAMBIO} calendar days</strong> to request a
-                size exchange; what expires in that window is the notice, not
-                the exchange. Either way the boots come back unworn and in
-                their box, and return shipping is on you; on an exchange we pay
-                to ship the new size. Full policy on{" "}
+                size exchange, <strong>subject to stock</strong>{" "}
+                in your size for that model: if we don&apos;t have it, we&apos;ll offer
+                another model or store credit. What expires in that window is
+                the notice, not the exchange. Either way the boots come back
+                unworn and in their box, and return shipping is on you; on an
+                exchange we pay to ship the new size. A refund goes back to
+                whatever you paid with and can take up to{" "}
+                <strong>{DIAS_REEMBOLSO_BANCO} business days</strong> to show,
+                depending on your bank. Full policy on{" "}
                 <Link href="/devoluciones">Returns</Link>.
               </p>
             ) : (
               <p>
                 <strong>Size exchanges, yes — on every model we sell.</strong>{" "}
                 Tell us within{" "}
-                <strong>{DIAS_AVISO_CAMBIO} calendar days</strong> of delivery;
-                what expires in that window is the notice, not the exchange. We
-                pay to ship the new size, but the return from the United States
+                <strong>{DIAS_AVISO_CAMBIO} calendar days</strong>{" "}
+                of delivery; what expires in that window is the notice, not the exchange.
+                It&apos;s <strong>subject to stock</strong>{" "}
+                in your size for that model: if we don&apos;t have it, we&apos;ll offer another
+                model or store credit. We pay to ship the new size, but the
+                return from the United States
                 is an international shipment costing over $100 and the customer
                 covers it — so it is worth checking our{" "}
-                <Link href="/guia-tallas">size guide</Link> and messaging us on
-                WhatsApp before you order. What we don&apos;t do on U.S. orders
+                <Link href="/guia-tallas">size guide</Link>{" "}
+                and messaging us on WhatsApp before you order. What we don&apos;t do on U.S. orders
                 is refund money: the parcel would have to clear customs twice.
                 See our <Link href="/devoluciones">Returns</Link> page for full
                 details.
@@ -254,8 +275,8 @@ export default function FaqPage() {
                 <p>
                   <strong>No.</strong> Our boots are made in León, Guanajuato,
                   and goods originating in Mexico enter the United States{" "}
-                  <strong>duty-free under the USMCA</strong> (T-MEC). Every order
-                  ships with its USMCA certificate of origin, its commercial
+                  <strong>duty-free under the USMCA</strong>{" "}
+                  (T-MEC). Every order ships with its USMCA certificate of origin, its commercial
                   invoice and the tariff classification for the pair — all
                   customs paperwork in order before the parcel leaves the
                   workshop. The Tax ID we ask for in the cart is for that entry:
