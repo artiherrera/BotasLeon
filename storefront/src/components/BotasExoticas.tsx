@@ -52,6 +52,33 @@ import type { Product } from "@/lib/shopify/types"
 
 const CUANTAS = 8
 
+/**
+ * LO AGOTADO NO SE RECOMIENDA (encargo del dueño, 2026-11-24).
+ *
+ * Esta sección no es un catálogo, es una recomendación: ocho botas elegidas
+ * para que alguien se enamore de una. Enseñar ahí una que no se puede
+ * comprar gasta uno de los ocho huecos en una decepción — y encima de las
+ * buenas, porque las exóticas son lo más caro y lo más deseable que hay en
+ * la tienda. En /hombre/exoticas, que es el catálogo, las agotadas siguen
+ * saliendo con su insignia: ahí el cliente fue a ver TODO.
+ *
+ * EL FILTRO VIVE AQUÍ Y NO EN LA PORTADA a propósito. El componente recibe
+ * `pool` y `href`, o sea que está hecho para reusarse; si la regla la
+ * aplicara quien lo llama, el siguiente que lo llame la olvidaría y volvería
+ * a recomendar agotadas sin que nadie lo note.
+ *
+ * ⚠️ LO QUE ESTE FILTRO NO PUEDE HACER: `availableForSale` se hornea en el
+ * build, y Amplify no regenera esta página entre despliegues (está medido,
+ * ver la nota de arriba). Así que esto quita las que YA estaban agotadas
+ * cuando se compiló; una que se agote después seguirá saliendo —y sin su
+ * insignia de agotado, porque el dato también es del build— hasta el
+ * siguiente despliegue. Para que esto se mantenga al día hay que desplegar,
+ * que es la misma regla que rige las ofertas (ver lib/ofertas/config.ts).
+ */
+function disponibles(pool: Product[]): Product[] {
+  return pool.filter((p) => p.availableForSale)
+}
+
 // No hay nada externo que cambie: el "store" es la elección que se hace una
 // vez por carga. subscribe no tiene a qué suscribirse.
 const sinSuscripcion = () => () => {}
@@ -66,26 +93,40 @@ export function BotasExoticas({
 }) {
   const { locale, t } = useLocale()
 
+  // Fuera las agotadas, ANTES de todo lo demás: tanto el HTML del servidor
+  // como el barajado de después trabajan ya sobre esta lista, así que no hay
+  // forma de que una agotada se cuele por uno de los dos caminos.
+  //
+  // Memorizado porque `primeras` depende de esto y getServerSnapshot tiene
+  // que devolver siempre la misma referencia o React entra en bucle.
+  const aLaVenta = useMemo(() => disponibles(pool), [pool])
+
   // Lo que va en el HTML del servidor (y en la hidratación): las ocho
   // primeras, que llegan en orden de más vendidas. Memorizado porque React
   // exige que getServerSnapshot devuelva siempre la misma referencia.
-  const primeras = useMemo(() => pool.slice(0, CUANTAS), [pool])
+  const primeras = useMemo(() => aLaVenta.slice(0, CUANTAS), [aLaVenta])
 
   // La elección al azar, hecha UNA vez por carga y guardada: getSnapshot debe
   // devolver la misma referencia mientras el pool no cambie, si no React
   // entra en bucle.
   const eleccion = useRef<{ pool: Product[]; elegidas: Product[] } | null>(null)
   const getSnapshot = () => {
-    if (!eleccion.current || eleccion.current.pool !== pool) {
-      eleccion.current = { pool, elegidas: barajar(pool).slice(0, CUANTAS) }
+    if (!eleccion.current || eleccion.current.pool !== aLaVenta) {
+      eleccion.current = { pool: aLaVenta, elegidas: barajar(aLaVenta).slice(0, CUANTAS) }
     }
     return eleccion.current.elegidas
   }
   const visibles = useSyncExternalStore(sinSuscripcion, getSnapshot, () => primeras)
 
-  // Sin exóticas no se pinta la sección: un título con la rejilla vacía se
-  // lee como una tienda rota.
-  if (pool.length === 0) return null
+  // Sin exóticas A LA VENTA no se pinta la sección. Antes la condición era
+  // sobre el pool entero; ahora, si todas estuvieran agotadas, la sección se
+  // va en vez de quedar como una rejilla de ocho decepciones. Un título con
+  // la rejilla vacía se lee como una tienda rota, y ocho "Agotado" seguidos
+  // se leen peor.
+  //
+  // Si quedan menos de ocho se enseñan las que haya: media fila de botas que
+  // se pueden comprar vale más que una fila llena a medias de las que no.
+  if (aLaVenta.length === 0) return null
 
   return (
     <section className="contenedor seccion">
