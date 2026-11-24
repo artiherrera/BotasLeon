@@ -2,6 +2,7 @@ import { ContentPage } from "@/components/ContentPage"
 import { LocalizedLink as Link } from "@/components/LocalizedLink"
 import { Localized } from "@/components/Localized"
 import { pageMetadata } from "@/lib/seo"
+import { DIAS_RETRACTO, HAY_REEMBOLSO } from "@/lib/exchange"
 
 export default function TerminosPage() {
   return (
@@ -53,10 +54,26 @@ export default function TerminosPage() {
             </p>
 
             <h2>6. Cambios y devoluciones</h2>
+            {/* HASTA EL 2026-11-24 ESTE PÁRRAFO SE CONTRADECÍA CON
+                /devoluciones: aquí se prometía cumplir la normativa de
+                protección al consumidor y allá se decía "No se realizan
+                reembolsos". El artículo 56 de la LFPC da cinco días hábiles
+                para revocar y obliga a reintegrar el precio pagado, así que
+                una de las dos páginas estaba de más. Ahora el derecho se
+                nombra aquí con su artículo, y /devoluciones lo desarrolla. */}
             <p>
               Tu derecho a cambios y devoluciones está descrito en{" "}
               <Link href="/devoluciones">Devoluciones</Link>. Cumplimos con la PROFECO y
-              normativa mexicana aplicable de protección al consumidor.
+              normativa mexicana aplicable de protección al consumidor
+              {HAY_REEMBOLSO ? (
+                <>
+                  , incluido tu derecho a revocar la compra dentro de los{" "}
+                  <strong>{DIAS_RETRACTO} días hábiles</strong> siguientes a la
+                  entrega, conforme al artículo 56 de la Ley Federal de
+                  Protección al Consumidor
+                </>
+              ) : null}
+              .
             </p>
 
             <h2>7. Propiedad intelectual</h2>

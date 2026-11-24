@@ -2,7 +2,7 @@ import { ContentPage } from "@/components/ContentPage"
 import { LocalizedLink as Link } from "@/components/LocalizedLink"
 import { Localized } from "@/components/Localized"
 import { pageMetadata } from "@/lib/seo"
-import { DIAS_AVISO_CAMBIO } from "@/lib/exchange"
+import { DIAS_AVISO_CAMBIO, DIAS_RETRACTO, HAY_REEMBOLSO } from "@/lib/exchange"
 import { isMX } from "@/lib/market"
 import { PLAZO_ENTREGA } from "@/lib/entrega"
 
@@ -59,42 +59,41 @@ export default function FaqPage() {
               </p>
             )}
 
-            <h2>¿Aceptan cambios o devoluciones?</h2>
-            {/* POR MERCADO. En botasleon.com el pedido es estadounidense
-                aunque el cliente lea en español, y ahí sigue siendo venta
-                final: el paquete cruzaría la aduana dos veces.
-                EL MOTIVO CAMBIÓ el 2026-11-19. Decía que los aranceles pagados
-                a la entrada no se recuperan, y eso dejó de ser cierto el día
-                que el sitio empezó a prometer entrada libre por el T-MEC: no
-                hay arancel que no se recupere porque no se paga ninguno. Lo
-                que de verdad hace imposible el cambio es el envío
-                internacional de regreso. */}
-            {isMX ? (
+            <h2>¿Aceptan cambios de talla o devoluciones?</h2>
+            {/* POR MERCADO, y aquí más que en ninguna otra respuesta: en
+                botasleon.com el pedido es estadounidense aunque el cliente lea
+                en español. Lo que cambia entre los dos no es el cambio de
+                talla —desde el 2026-11-24 existe en los dos y en todos los
+                modelos— sino el REEMBOLSO, que es de la ley mexicana y de una
+                venta mexicana. */}
+            {HAY_REEMBOLSO ? (
               <p>
-                Aceptamos cambio de talla en los modelos que lo indican en su
-                página, además de los cambios por defecto de fabricación o
-                error en el envío. Para pedirlo,{" "}
-                <strong>avísanos dentro de {DIAS_AVISO_CAMBIO} días naturales</strong>{" "}
-                desde que te entregan el paquete: lo que vence en ese plazo es
-                el aviso, no el cambio. Va 1 cambio por pedido, con la bota sin
-                estrenar y en su empaque original; el envío de regreso lo paga
-                el cliente y nosotros pagamos el de la talla nueva. No hacemos
-                reembolsos de dinero por talla, color o modelo mal elegidos, así
-                que conviene revisar la{" "}
-                <Link href="/guia-tallas">guía de tallas</Link> y escribirnos si
-                tienes dudas antes de comprar. Política completa en{" "}
-                <Link href="/devoluciones">Devoluciones</Link>.
+                Sí, y en <strong>todos nuestros modelos</strong>. Tienes{" "}
+                <strong>{DIAS_RETRACTO} días hábiles</strong> desde la entrega
+                para cancelar la compra y recuperar tu dinero, sin darnos
+                ningún motivo: es tu derecho por el artículo 56 de la Ley
+                Federal de Protección al Consumidor, y lo respetamos aunque
+                hayas comprado en oferta. Y tienes{" "}
+                <strong>{DIAS_AVISO_CAMBIO} días naturales</strong> para pedir
+                un cambio de talla — lo que vence en ese plazo es el aviso, no
+                el cambio. En los dos casos la bota vuelve sin estrenar y en su
+                empaque, y el envío de regreso corre por tu cuenta; en el
+                cambio, nosotros pagamos el de la talla nueva. Política
+                completa en <Link href="/devoluciones">Devoluciones</Link>.
               </p>
             ) : (
               <p>
-                Los pedidos con envío a Estados Unidos son venta final: no
-                aceptamos devoluciones ni cambios de talla, porque el paquete
-                tendría que cruzar la aduana dos veces y el envío internacional
-                de regreso cuesta más de lo que vale el cambio. Revisa la{" "}
-                <Link href="/guia-tallas">guía de tallas</Link> antes de comprar y
-                escríbenos si tienes dudas con tu talla. Si algo llega
-                defectuoso o equivocado, escríbenos con fotos dentro de los 7
-                días siguientes a la entrega. Política completa en{" "}
+                <strong>Cambio de talla sí, en todos nuestros modelos.</strong>{" "}
+                Avísanos dentro de{" "}
+                <strong>{DIAS_AVISO_CAMBIO} días naturales</strong> desde la
+                entrega; lo que vence en ese plazo es el aviso, no el cambio.
+                Nosotros pagamos el envío de la talla nueva, pero el regreso
+                desde Estados Unidos es un envío internacional de más de 100
+                dólares y lo paga el cliente, así que conviene revisar la{" "}
+                <Link href="/guia-tallas">guía de tallas</Link> y escribirnos
+                por WhatsApp antes de comprar. Lo que no hacemos en pedidos a
+                Estados Unidos es devolver el dinero: el paquete cruzaría la
+                aduana dos veces. Política completa en{" "}
                 <Link href="/devoluciones">Devoluciones</Link>.
               </p>
             )}
@@ -215,31 +214,37 @@ export default function FaqPage() {
             {/* El mercado manda, no el idioma. Hoy esta rama mexicana no se
                 pinta —la .mx publica solo español y /en redirige con 308—,
                 pero se escribe igual: si algún día se publica inglés en la
-                .mx, una respuesta fija de "venta final" le negaría a un
-                comprador MEXICANO un cambio al que sí tiene derecho. */}
-            {isMX ? (
+                .mx, una respuesta fija le negaría a un comprador MEXICANO el
+                reembolso al que sí tiene derecho por ley. */}
+            {HAY_REEMBOLSO ? (
               <p>
-                We accept size exchanges on the models that say so on their
-                page, plus exchanges for a manufacturing defect or a wrong item
-                shipped. To request one,{" "}
-                <strong>tell us within {DIAS_AVISO_CAMBIO} calendar days</strong> of
-                delivery — what expires in that window is the notice, not the
-                exchange. One exchange per order, unworn and in its original
-                box; you cover return shipping and we cover shipping the new
-                size. We don&apos;t refund money for the wrong size, color or
-                model, so check our <Link href="/guia-tallas">size guide</Link> and
-                message us if you&apos;re unsure. Full policy on{" "}
+                Yes, and on <strong>every model we sell</strong>. You have{" "}
+                <strong>{DIAS_RETRACTO} business days</strong> from delivery to
+                cancel the purchase and get your money back, with no reason
+                needed — that is your right under article 56 of Mexico&apos;s
+                consumer protection law, and it applies even if you bought on
+                sale. You also have{" "}
+                <strong>{DIAS_AVISO_CAMBIO} calendar days</strong> to request a
+                size exchange; what expires in that window is the notice, not
+                the exchange. Either way the boots come back unworn and in
+                their box, and return shipping is on you; on an exchange we pay
+                to ship the new size. Full policy on{" "}
                 <Link href="/devoluciones">Returns</Link>.
               </p>
             ) : (
               <p>
-                Orders shipped to the United States are final sale — we
-                don&apos;t offer returns or size exchanges, because the parcel
-                would have to clear customs twice and the international return
-                shipping costs more than the exchange is worth. Check our{" "}
-                <Link href="/guia-tallas">size guide</Link> before ordering, and message us
-                if you&apos;re unsure. See our <Link href="/devoluciones">Returns</Link> page
-                for full details.
+                <strong>Size exchanges, yes — on every model we sell.</strong>{" "}
+                Tell us within{" "}
+                <strong>{DIAS_AVISO_CAMBIO} calendar days</strong> of delivery;
+                what expires in that window is the notice, not the exchange. We
+                pay to ship the new size, but the return from the United States
+                is an international shipment costing over $100 and the customer
+                covers it — so it is worth checking our{" "}
+                <Link href="/guia-tallas">size guide</Link> and messaging us on
+                WhatsApp before you order. What we don&apos;t do on U.S. orders
+                is refund money: the parcel would have to clear customs twice.
+                See our <Link href="/devoluciones">Returns</Link> page for full
+                details.
               </p>
             )}
 

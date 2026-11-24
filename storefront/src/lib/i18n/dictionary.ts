@@ -1141,29 +1141,43 @@ export const DICTIONARY: Record<string, Entry> = {
     es: "Te mandamos video del par exacto antes de enviarlo",
     en: "We send you a video of your exact pair before it ships",
   },
-  // Cambio de talla. SOLO sale en México y solo en los modelos donde el dueño
-  // lo prendió en Shopify. El inglés de aquí NO se pinta hoy en ninguna
-  // parte: la .mx publica solo español y la .com es venta final. Se escribe
-  // igual, porque el día que la .mx publique inglés la alternativa sería una
-  // llave sin traducir a la vista del cliente. {dias} lo rellena
-  // PDPTrustBlock con DIAS_AVISO_CAMBIO: la cifra se escribe en exchange.ts.
+  // Cambio de talla y devolución. DOS REDACCIONES, UNA POR MERCADO, con la
+  // misma convención que promesa.envioMx / promesa.envioUs: no son traducción
+  // una de la otra porque no prometen lo mismo.
   //
-  // QUIÉN PAGA EL ENVÍO DE REGRESO YA NO SALE AQUÍ. Estuvo en esta nota y el
-  // dueño lo quitó el 2026-11-12: "no hay que ser agresivos, que lo descubran
-  // cuando nos contacten". Sigue publicado en /devoluciones §7 y en la
-  // respuesta del FAQ, que son la política; lo que se quitó es repetirlo en
-  // el momento de la venta. Si alguien lo vuelve a poner aquí, que sea una
-  // decisión, no un descuido.
+  // MÉXICO lleva las dos cosas, y el reembolso va en el titular y no en la
+  // letra chica: es lo que de verdad quita el miedo a comprar una bota que no
+  // te puedes probar, y desde el 2026-11-24 es además lo que manda el
+  // artículo 56 de la LFPC. Esconderlo sería desperdiciar una obligación que
+  // ya se tiene.
   //
-  // Lo que SÍ se queda es el PLAZO: dos días es cortísimo, y un cliente que
-  // no lo sabe antes de comprar lo descubre cuando ya no puede usarlo.
-  "promesa.cambio": {
+  // ESTADOS UNIDOS lleva solo el cambio, y la nota SÍ dice quién paga el
+  // regreso. Es la excepción deliberada a lo que pidió el dueño el 2026-11-12
+  // ("no hay que ser agresivos, que lo descubran cuando nos contacten"): allá
+  // el regreso es un envío internacional de más de cien dólares, no unos
+  // pesos de paquetería nacional. Una sorpresa de ese tamaño después de pagar
+  // no es discreción, es una devolución de cargo. En México la nota sigue sin
+  // decirlo, como él pidió.
+  //
+  // {dias} lo rellena el componente con DIAS_AVISO_CAMBIO y {habiles} con
+  // DIAS_RETRACTO: las dos cifras se escriben UNA vez, en lib/exchange.ts.
+  // Ojo con las unidades: {dias} son naturales y {habiles} son hábiles,
+  // porque así los cuenta la ley.
+  "promesa.cambioMx": {
+    es: "Cambio de talla o devolución si no te queda",
+    en: "Size exchange or refund if it doesn't fit",
+  },
+  "promesa.cambioNotaMx": {
+    es: "{dias} días para avisar del cambio · {habiles} días hábiles para devolver y recuperar tu dinero",
+    en: "{dias} days to request an exchange · {habiles} business days to return it for a refund",
+  },
+  "promesa.cambioUs": {
     es: "Cambio de talla si no te queda",
     en: "Size exchange if it doesn't fit",
   },
-  "promesa.cambioNota": {
-    es: "Avísanos dentro de {dias} días · sin estrenar · en su empaque",
-    en: "Tell us within {dias} days · unworn · in its original box",
+  "promesa.cambioNotaUs": {
+    es: "{dias} días para avisar · sin estrenar · el envío de regreso a México lo pagas tú",
+    en: "{dias} days to tell us · unworn · you cover return shipping to Mexico",
   },
 
   // ── Ficha: complemento con cinto ─────────────────────────────────────

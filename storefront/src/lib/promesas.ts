@@ -1,6 +1,6 @@
 import { isMX } from "@/lib/market"
 import { ENVIO_GRATIS_SIEMPRE } from "@/lib/shipping-policy"
-import { admiteCambioDeTalla } from "@/lib/exchange"
+import { admiteCambioDeTalla, HAY_REEMBOLSO } from "@/lib/exchange"
 import type { Product } from "@/lib/shopify/types"
 
 /**
@@ -142,20 +142,30 @@ export function promesasDeFicha(product?: Pick<Product, "cambioTalla"> | null): 
     })
   }
 
-  // Cambio de talla: solo en México y solo donde esté prendido en Shopify.
-  // La NOTA dice quién paga el regreso, y no es letra chica por casualidad:
-  // es el término que convierte una sorpresa desagradable en una condición
-  // que el cliente aceptó antes de pagar.
+  // Cambio de talla: desde el 2026-11-24, en los DOS mercados y en TODOS los
+  // modelos salvo los que alguien apague a mano en Shopify. Antes eran 38
+  // botas y solo México.
+  //
+  // Dos redacciones, una por mercado: en México el titular dice además
+  // "o devolución" porque allá sí se devuelve el dinero, y la nota lleva los
+  // dos plazos. En Estados Unidos solo hay cambio, y la nota avisa de quién
+  // paga el regreso internacional — ese dato sí va antes de pagar: son más de
+  // cien dólares, y descubrirlo después es una devolución de cargo.
   if (admiteCambioDeTalla(product?.cambioTalla)) {
     lista.push({
-      llave: "promesa.cambio",
-      nota: "promesa.cambioNota",
+      llave: HAY_REEMBOLSO ? "promesa.cambioMx" : "promesa.cambioUs",
+      nota: HAY_REEMBOLSO ? "promesa.cambioNotaMx" : "promesa.cambioNotaUs",
       icono: "cambio",
-      // La única en negritas de las cuatro, por encargo del dueño
-      // (2026-11-12): es la que quita el miedo a equivocarse de talla
-      // comprando una bota que no te puedes probar, y es lo más nuevo que
-      // tiene la tienda que decir.
-      destacada: true,
+      // En negritas, por encargo del dueño (2026-11-12): es la que quita el
+      // miedo a equivocarse de talla comprando una bota que no te puedes
+      // probar.
+      //
+      // EN ESTADOS UNIDOS NO, porque ahí la destacada son los aranceles y no
+      // puede haber dos: cuatro renglones en negritas se leen igual que
+      // cuatro en redonda. Hasta el 2026-11-24 esto no podía chocar —el
+      // cambio era solo de México— y desde que existe en los dos mercados sí,
+      // así que la regla se escribe aquí en vez de confiarse.
+      destacada: HAY_REEMBOLSO,
     })
   }
 

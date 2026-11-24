@@ -6,7 +6,7 @@ import { useLocale } from "@/lib/i18n/context"
 import { facetLabel } from "@/lib/facets-i18n"
 import { primerValor } from "@/lib/shopify/facets"
 import { ENVIO_GRATIS_SIEMPRE } from "@/lib/shipping-policy"
-import { admiteCambioDeTalla, DIAS_AVISO_CAMBIO } from "@/lib/exchange"
+import { admiteCambioDeTalla, DIAS_AVISO_CAMBIO, DIAS_RETRACTO, HAY_REEMBOLSO } from "@/lib/exchange"
 import { SIN_ARANCELES_TMEC } from "@/lib/promesas"
 import { ProductDescriptionBody } from "./LocalizedProductContent"
 import type { Brand, Product } from "@/lib/shopify/types"
@@ -174,12 +174,13 @@ export function PDPAcordeones({
               que arriba. */}
           {admiteCambioDeTalla(product.cambioTalla) && (
             <li className="pt-1">
-              <span className="font-bold text-text">{t("promesa.cambio")}</span>
+              <span className="font-bold text-text">
+                {t(HAY_REEMBOLSO ? "promesa.cambioMx" : "promesa.cambioUs")}
+              </span>
               <span className="nota block">
-                {t("promesa.cambioNota").replace(
-                  "{dias}",
-                  String(DIAS_AVISO_CAMBIO)
-                )}
+                {t(HAY_REEMBOLSO ? "promesa.cambioNotaMx" : "promesa.cambioNotaUs")
+                  .replace("{dias}", String(DIAS_AVISO_CAMBIO))
+                  .replace("{habiles}", String(DIAS_RETRACTO))}
               </span>
             </li>
           )}

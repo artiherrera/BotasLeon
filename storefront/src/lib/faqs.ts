@@ -12,7 +12,7 @@
 
 import { isMX } from "@/lib/market"
 import { PLAZO_ENTREGA } from "@/lib/entrega"
-import { DIAS_AVISO_CAMBIO } from "@/lib/exchange"
+import { DIAS_AVISO_CAMBIO, DIAS_RETRACTO, HAY_REEMBOLSO } from "@/lib/exchange"
 
 /**
  * BILINGÜE (aditivo): question/answer se mantienen EN ESPAÑOL — los consume
@@ -68,7 +68,7 @@ export const FAQS: FAQ[] = [
       : `Orders to the United States arrive in ${PLAZO_ENTREGA.en} once dispatched. Transit time starts when the package leaves, not when you place the order. Some made-to-order pieces can take an additional 2-3 weeks, which we note clearly on the product page.`,
   },
   {
-    question: "¿Aceptan cambios o devoluciones?",
+    question: "¿Aceptan cambios de talla o devoluciones?",
     // POR MERCADO, NO POR IDIOMA, y aquí importa más que en ninguna otra
     // pregunta. El cambio de talla volvió el 2026-11-12 pero SOLO en México:
     // publicar la respuesta mexicana en el español de botasleon.com le
@@ -81,13 +81,13 @@ export const FAQS: FAQ[] = [
     // español y /en redirige con 308— y se escribe de todos modos, para que
     // la regla sea una sola y no haya que acordarse de esta el día que la
     // .mx publique inglés.
-    answer: isMX
-      ? `Aceptamos cambio de talla en los modelos que lo indican en su página, además de los cambios por defecto de fabricación o error en el envío. Avísanos dentro de ${DIAS_AVISO_CAMBIO} días naturales desde que te entregan el paquete: lo que vence en ese plazo es el aviso, no el cambio. Va 1 cambio por pedido, con la bota sin estrenar y en su empaque original; el envío de regreso lo paga el cliente y nosotros pagamos el de la talla nueva. No hacemos reembolsos de dinero por talla, color o modelo mal elegidos. Contamos con garantía de 15 días por defecto de fabricación confirmado.`
-      : `Los pedidos con envío a Estados Unidos son venta final: no aceptamos devoluciones ni cambios de talla, porque el paquete tendría que cruzar la aduana dos veces y el envío internacional de regreso cuesta más de lo que vale el cambio. Revisa la guía de tallas (mexicana en cm, estadounidense y europea) antes de comprar y escríbenos a contacto@botasleon.com si tienes dudas con tu talla. Si algo llega defectuoso o equivocado, escríbenos dentro de los 7 días siguientes a la entrega con fotos.`,
+    answer: HAY_REEMBOLSO
+      ? `Sí, en todos nuestros modelos. Tienes ${DIAS_RETRACTO} días hábiles desde la entrega para cancelar la compra y recuperar tu dinero, sin darnos ningún motivo: es tu derecho por el artículo 56 de la Ley Federal de Protección al Consumidor y lo respetamos aunque hayas comprado en oferta. Y tienes ${DIAS_AVISO_CAMBIO} días naturales para pedir un cambio de talla, que aplica en el catálogo entero y ya no modelo por modelo. En los dos casos la bota vuelve sin estrenar y en su empaque, y el envío de regreso corre por tu cuenta; en el cambio, nosotros pagamos el envío de la talla nueva. Además hay garantía de 15 días por defecto de fabricación confirmado, y ahí los envíos los pagamos nosotros.`
+      : `Sí, cambio de talla en todos nuestros modelos: avísanos dentro de ${DIAS_AVISO_CAMBIO} días naturales desde la entrega. Lo que vence en ese plazo es el aviso, no el cambio. Va 1 cambio por pedido, con la bota sin estrenar y en su empaque original; nosotros pagamos el envío de la talla nueva, pero el regreso desde Estados Unidos es un envío internacional de más de 100 dólares y lo paga el cliente, así que conviene escribirnos por WhatsApp antes de comprar. Lo que no hacemos en pedidos a Estados Unidos es devolver el dinero: el paquete cruzaría la aduana dos veces. Si algo llega defectuoso o equivocado, escríbenos dentro de los 7 días siguientes a la entrega con fotos.`,
     questionEn: "Can I return or exchange my order?",
-    answerEn: isMX
-      ? `We accept size exchanges on the models that say so on their page, plus exchanges for manufacturing defects or a wrong item shipped. Tell us within ${DIAS_AVISO_CAMBIO} calendar days of delivery: what expires in that window is the notice, not the exchange. One exchange per order, unworn and in its original box; you cover return shipping and we cover shipping the new size. We don't refund money for the wrong size, color or model. Manufacturing defects are covered for 15 days.`
-      : `Orders shipped to the United States are final sale — we don't offer returns or size exchanges, because the parcel would have to clear customs twice and the international return shipping costs more than the exchange is worth. Please check our size guide (Mexican cm, U.S., and EU) before ordering, and message us at contacto@botasleon.com if you're unsure about your size. If something arrives defective or incorrect, email us within 7 days of delivery with photos.`,
+    answerEn: HAY_REEMBOLSO
+      ? `Yes, on every model we sell. You have ${DIAS_RETRACTO} business days from delivery to cancel the purchase and get your money back, with no reason needed: that is your right under article 56 of Mexico's consumer protection law and it applies even if you bought on sale. You also have ${DIAS_AVISO_CAMBIO} calendar days to request a size exchange, which now covers the whole catalog rather than model by model. Either way the boots come back unworn and in their box, and return shipping is on you; on an exchange we pay to ship the new size. Confirmed manufacturing defects are covered for 15 days, and there we pay the shipping both ways.`
+      : `Yes — size exchanges on every model we sell. Tell us within ${DIAS_AVISO_CAMBIO} calendar days of delivery; what expires in that window is the notice, not the exchange. One exchange per order, unworn and in its original box. We pay to ship the new size, but the return from the United States is an international shipment costing over $100 and the customer covers it, so it is worth messaging us on WhatsApp before you order. What we don't do on U.S. orders is refund money: the parcel would have to clear customs twice. If something arrives defective or incorrect, email us within 7 days of delivery with photos.`,
   },
   // ARANCELES — SOLO EN EL MERCADO AMERICANO. Se mete con un spread
   // condicional en vez de un `isMX` dentro de la respuesta porque en México

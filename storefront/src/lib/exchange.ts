@@ -1,50 +1,49 @@
 /**
- * Cambio de talla en modelos seleccionados.
+ * CAMBIOS, DEVOLUCIONES Y EL DERECHO DE RETRACTO.
  *
- * LA REGLA (encargo del 2026-11-12). En MÉXICO, los modelos marcados admiten
- * cambio por otra talla del mismo modelo. El cliente paga el envío de regreso
- * y BotasLeón manda la talla nueva. Para pedirlo hay que AVISAR dentro de los
- * dos días naturales siguientes a la entrega.
+ * Reescrito el 2026-11-24 por decisión del dueño, a raíz de una reseña que le
+ * pasaron: "su política de devoluciones es bastante restrictiva... no ofrecen
+ * reembolsos... algunos modelos permiten cambio de talla, pero debes
+ * verificarlo individualmente". Era exacta, y ese era el problema.
  *
- * LO QUE VENCE A LOS DOS DÍAS ES EL AVISO, NO EL CAMBIO. Es la diferencia
- * entre una política que se puede cumplir y una que no: el paquete tarda días
- * en volver a León, así que exigir que el cambio esté HECHO en dos días sería
- * prometer algo imposible. El cliente avisa; el cambio ocurre cuando ocurra.
+ * LO QUE CAMBIÓ, para quien venga después:
+ *   · El cambio de talla pasó de 38 botas marcadas a TODAS, en los DOS
+ *     mercados. Antes solo México y solo los modelos con el metacampo puesto.
+ *   · El aviso pasó de 2 días naturales a 15. Dos días es un plazo que una
+ *     persona real no cumple: un paquete entregado el viernes se encuentra el
+ *     lunes y ya venció.
+ *   · México acepta REEMBOLSO de dinero dentro de 5 días hábiles. Antes el
+ *     sitio decía "no se realizan reembolsos" y eso, además de espantar,
+ *     probablemente no era oponible.
  *
- * EN ESTADOS UNIDOS NO APLICA y el pedido sigue siendo venta final: cruzaría
- * la aduana dos veces y el comprador ya pagó aranceles a la entrada, que no se
- * recuperan.
+ * POR QUÉ EL REEMBOLSO NO ERA OPCIONAL. El artículo 56 de la LFPC da al
+ * comprador cinco días hábiles para revocar su consentimiento sin
+ * responsabilidad, y obliga al proveedor a "reintegrar al consumidor el precio
+ * pagado"; los costos de flete y seguro corren por cuenta del consumidor. Rige
+ * tenga el sitio la política que tenga. Mientras tanto /terminos prometía
+ * "Cumplimos con la PROFECO y normativa mexicana aplicable" y /devoluciones
+ * decía "No se realizan reembolsos": el sitio se contradecía a sí mismo.
  *
  * SE DECIDE POR MERCADO, NUNCA POR IDIOMA. botasleon.com también se lee en
- * español —la diáspora— y ahí el pedido es estadounidense: anunciarle un
- * cambio por leer en español sería prometer algo que no se cumple. Por eso
- * manda `isMX` y no el locale.
- *
- * Hoy botasleon.mx publica SOLO español (lib/i18n/config.ts: LOCALES) y /en
- * redirige con 308 a /es, así que el inglés mexicano no se pinta en ninguna
- * parte. Las ramas en inglés de la política existen igual, por si ese día
- * llega: lo que NO puede pasar es que la regla se escriba por locale y luego
- * alguien publique inglés en la .mx y se apague el cambio sin que nadie lo
- * note.
- *
- * EL INTERRUPTOR VIVE EN SHOPIFY, no en el código, para poder prenderlo y
- * apagarlo modelo por modelo —o marca por marca— desde el admin sin desplegar.
- *
- * Antes era una ETIQUETA de producto y ahora es un METACAMPO, por encargo del
- * dueño: el catálogo no usa etiquetas para nada más y una etiqueta suelta no
- * se ve en la ficha del admin a menos que la busques, mientras que el
- * metacampo sale como una casilla con su nombre y su explicación. La etiqueta
- * nunca llegó a usarse en ningún producto, así que no hay nada que migrar.
+ * español —la diáspora— y ahí el pedido es estadounidense. El derecho de
+ * retracto es de la ley mexicana y de una venta mexicana; anunciárselo a un
+ * comprador de Texas por leer en español sería prometer algo que no se cumple.
+ * Por eso manda `isMX` y no el locale.
  */
 import { isMX } from "@/lib/market"
 
 /**
- * Metacampo de producto que lo prende. Hay que crearlo en Shopify →
- * Configuración → Datos personalizados → Productos, de tipo verdadero/falso y
- * con acceso de lectura para el Storefront, o el sitio no lo verá nunca.
+ * Metacampo de producto, hoy un INTERRUPTOR DE APAGADO y ya no de encendido.
  *
- * Para prenderlo en una marca entera: Productos → filtrar por proveedor →
- * seleccionar todos → editar en bloque.
+ * Hasta el 2026-11-24 era al revés: sin metacampo no había cambio, y por eso
+ * solo 38 botas lo ofrecían. Ahora el cambio es de todos los modelos y este
+ * metacampo sirve para QUITARLO de uno concreto —una bota hecha a la medida,
+ * una pieza única— poniéndolo explícitamente en falso desde el admin, sin
+ * desplegar.
+ *
+ * Invertirlo es seguro: los 38 productos que lo tenían en verdadero siguen
+ * admitiendo cambio, y los que lo tienen vacío pasan a admitirlo, que es
+ * justo lo que se pidió. Solo se apaga donde alguien escriba `false` a mano.
  */
 export const METACAMPO_CAMBIO_TALLA = {
   namespace: "custom",
@@ -52,26 +51,64 @@ export const METACAMPO_CAMBIO_TALLA = {
 } as const
 
 /**
- * Días NATURALES, contados desde la entrega, para AVISAR que se quiere el
- * cambio. Esta cifra se pinta en la ficha, en /devoluciones, en /faq y en el
- * JSON-LD de preguntas frecuentes: se escribe UNA vez y aquí.
+ * Días NATURALES, desde la entrega, para AVISAR que se quiere el cambio.
+ *
+ * LO QUE VENCE EN ESTE PLAZO ES EL AVISO, NO EL CAMBIO. Es la diferencia
+ * entre una política que se puede cumplir y una que no: el paquete tarda días
+ * en volver a León, así que exigir el cambio HECHO en el plazo sería prometer
+ * algo imposible. El cliente avisa; el cambio ocurre cuando ocurra.
+ *
+ * Esta cifra se pinta en la ficha, en /devoluciones, en /faq y en el JSON-LD:
+ * se escribe UNA vez y aquí.
  */
-export const DIAS_AVISO_CAMBIO = 2
+export const DIAS_AVISO_CAMBIO = 15
 
-/** ¿Este despliegue ofrece cambio de talla? Decide qué política se publica. */
-export const HAY_CAMBIO_DE_TALLA = isMX
+/**
+ * Días HÁBILES para cancelar la compra y recuperar el dinero. OJO: hábiles,
+ * no naturales — es el plazo del artículo 56 de la LFPC, y la ley los cuenta
+ * así. No mezclar con DIAS_AVISO_CAMBIO, que son naturales.
+ */
+export const DIAS_RETRACTO = 5
+
+/**
+ * ¿Este despliegue ofrece cambio de talla? En los dos, desde el 2026-11-24.
+ *
+ * Se conserva la constante aunque hoy sea `true` en todas partes: el día que
+ * alguien quiera retirarlo de un mercado, este es el interruptor, y la
+ * alternativa —borrarla y escribir el texto de una sola política— es cómo se
+ * acaba teniendo dos redacciones que se separan.
+ */
+export const HAY_CAMBIO_DE_TALLA = true
+
+/**
+ * ¿Se devuelve el dinero? SOLO EN MÉXICO, porque es donde rige la LFPC y
+ * donde el paquete no cruza una aduana.
+ *
+ * En Estados Unidos no: una devolución es un envío internacional de ida y
+ * vuelta que cuesta más de 100 dólares y que haría cruzar la aduana dos
+ * veces. Allá hay cambio de talla —el cliente paga el regreso— pero no
+ * reembolso, y eso tiene que decirse ANTES de pagar, no después.
+ */
+export const HAY_REEMBOLSO = isMX
 
 /**
  * Forma en que la Storefront API devuelve un metacampo booleano: el valor
  * viaja como la CADENA "true" o "false", no como booleano. Si el metacampo no
- * existe todavía —o no se le dio acceso de lectura al Storefront— llega
- * `null`, y entonces no se promete nada. Ese es el lado seguro del fallo:
- * callar de más, nunca prometer de más.
+ * existe llega `null`.
  */
 export type MetacampoCambio = { value: string } | null | undefined
 
-/** ¿Este producto en concreto admite cambio de talla? */
+/**
+ * ¿Este producto admite cambio de talla? Todos, salvo que alguien lo haya
+ * apagado a mano en Shopify.
+ *
+ * El fallo seguro cambió de lado a propósito. Antes era callar: sin metacampo
+ * no se prometía nada. Ahora la promesa es general y lo excepcional es la
+ * negativa, así que un metacampo ausente o ilegible significa que SÍ hay
+ * cambio. Es coherente con lo que se publica: si la política dice "todos los
+ * modelos", un producto mudo no puede ser la excepción silenciosa.
+ */
 export function admiteCambioDeTalla(metacampo: MetacampoCambio): boolean {
   if (!HAY_CAMBIO_DE_TALLA) return false
-  return metacampo?.value === "true"
+  return metacampo?.value !== "false"
 }

@@ -3,7 +3,7 @@
 import type { Product } from "@/lib/shopify/types"
 import { useLocale, useT } from "@/lib/i18n/context"
 import { promesasDeFicha, type Promesa } from "@/lib/promesas"
-import { DIAS_AVISO_CAMBIO } from "@/lib/exchange"
+import { DIAS_AVISO_CAMBIO, DIAS_RETRACTO } from "@/lib/exchange"
 import { whatsappHref } from "@/lib/whatsapp"
 
 /**
@@ -65,7 +65,8 @@ export function PDPTrustBlock({ product }: Props) {
               <span className="nota block">
                 {t(p.nota)
                   .replace("{plazo}", t("envio.plazoCorto"))
-                  .replace("{dias}", String(DIAS_AVISO_CAMBIO))}
+                  .replace("{dias}", String(DIAS_AVISO_CAMBIO))
+                  .replace("{habiles}", String(DIAS_RETRACTO))}
               </span>
             )}
           </span>

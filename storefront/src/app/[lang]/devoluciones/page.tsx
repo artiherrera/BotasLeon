@@ -2,7 +2,7 @@ import { ContentPage } from "@/components/ContentPage"
 import { LocalizedLink as Link } from "@/components/LocalizedLink"
 import { Localized } from "@/components/Localized"
 import { pageMetadata } from "@/lib/seo"
-import { DIAS_AVISO_CAMBIO, HAY_CAMBIO_DE_TALLA } from "@/lib/exchange"
+import { DIAS_AVISO_CAMBIO, DIAS_RETRACTO, HAY_REEMBOLSO } from "@/lib/exchange"
 
 export default function DevolucionesPage() {
   return (
@@ -78,49 +78,91 @@ export default function DevolucionesPage() {
             <ul>
               <li>Defecto de fabricación.</li>
               <li>Error en el producto enviado.</li>
-              {HAY_CAMBIO_DE_TALLA && (
-                <li>
-                  <strong>Que la talla no te quede</strong>, en los modelos que
-                  admiten cambio de talla. Lo dice la página de cada bota, antes
-                  de pagar: si no lo dice ahí, ese modelo no admite cambio por
-                  talla.
-                </li>
-              )}
-            </ul>
-            <p><strong>No se realizan reembolsos por:</strong></p>
-            <ul>
               <li>
-                Talla incorrecta elegida por el cliente.
-                {HAY_CAMBIO_DE_TALLA
-                  ? " En los modelos que lo admiten se cambia por otra talla; no se devuelve el dinero."
-                  : " Los pedidos con envío a Estados Unidos son venta final: el paquete tendría que cruzar la aduana dos veces y el envío internacional de regreso cuesta más de lo que vale el cambio."}
+                <strong>Que la talla no te quede</strong>, en{" "}
+                <strong>todos nuestros modelos</strong>. Desde el 24 de
+                noviembre de 2026 ya no hay que revisar bota por bota: el
+                cambio de talla aplica en el catálogo entero.
               </li>
-              <li>Color o modelo seleccionado por el cliente.</li>
-              <li>Preferencias personales.</li>
             </ul>
+            {HAY_REEMBOLSO ? (
+              <>
+                <h2>6 bis. Devolución del dinero: tus 5 días hábiles</h2>
+                <p>
+                  <strong>
+                    Tienes {DIAS_RETRACTO} días hábiles desde que recibes el
+                    paquete para cancelar la compra y recuperar tu dinero.
+                  </strong>{" "}
+                  No tienes que darnos un motivo: si no te convenció, basta con
+                  que nos avises dentro de ese plazo.
+                </p>
+                <p>
+                  No es una cortesía nuestra, es tu derecho. Lo da el artículo
+                  56 de la Ley Federal de Protección al Consumidor, y lo
+                  respetamos aunque hayas comprado en oferta.
+                </p>
+                <ul>
+                  <li>La bota tiene que volver sin estrenar y en su empaque.</li>
+                  <li>
+                    El envío de regreso corre por tu cuenta, que es lo que marca
+                    la misma ley.
+                  </li>
+                  <li>
+                    Te reembolsamos el precio que pagaste al método de pago
+                    original.
+                  </li>
+                </ul>
+                <p>
+                  Pasados esos {DIAS_RETRACTO} días hábiles sigue habiendo{" "}
+                  <strong>cambio de talla</strong> durante{" "}
+                  {DIAS_AVISO_CAMBIO} días naturales — lo que no hay es
+                  devolución de dinero por haber elegido mal el color o el
+                  modelo.
+                </p>
+              </>
+            ) : (
+              <>
+                <h2>6 bis. Devoluciones de dinero</h2>
+                <p>
+                  Los pedidos con envío a Estados Unidos{" "}
+                  <strong>no admiten devolución de dinero</strong>: el paquete
+                  tendría que cruzar la aduana dos veces y el envío
+                  internacional de regreso cuesta más de lo que vale el pedido.
+                  Lo que sí admiten es <strong>cambio de talla</strong>, con las
+                  condiciones de abajo.
+                </p>
+              </>
+            )}
 
             <h2>7. Condiciones de cambio</h2>
             <ul>
               <li>1 cambio por pedido.</li>
-              {HAY_CAMBIO_DE_TALLA && (
-                <li>
-                  <strong>
-                    Avísanos dentro de {DIAS_AVISO_CAMBIO} días naturales
-                  </strong>{" "}
+              <li>
+                <strong>
+                  Avísanos dentro de {DIAS_AVISO_CAMBIO} días naturales
+                </strong>{" "}
                 contados desde que la paquetería marca el paquete como
-                  entregado. Lo que vence en ese plazo es el <em>aviso</em>,
-                  no el cambio: una vez que nos escribiste, lo que tarde el
-                  paquete en volver a León no corre en tu contra.
-                </li>
-              )}
+                entregado. Lo que vence en ese plazo es el <em>aviso</em>, no el
+                cambio: una vez que nos escribiste, lo que tarde el paquete en
+                volver a León no corre en tu contra.
+              </li>
               <li>Producto sin estrenar y sin uso exterior.</li>
               <li>En su empaque original, con todo lo que venía dentro.</li>
-              {HAY_CAMBIO_DE_TALLA && (
-                <li>
-                  El envío de regreso corre por cuenta del cliente. Nosotros
-                  pagamos el envío de la talla nueva.
-                </li>
-              )}
+              <li>
+                El envío de regreso corre por cuenta del cliente. Nosotros
+                pagamos el envío de la talla nueva.
+                {!HAY_REEMBOLSO && (
+                  <>
+                    {" "}
+                    <strong>
+                      Desde Estados Unidos ese regreso es un envío internacional
+                      y cuesta más de 100 dólares,
+                    </strong>{" "}
+                    así que conviene escribirnos por WhatsApp antes de comprar
+                    y asegurar la talla a la primera.
+                  </>
+                )}
+              </li>
               <li>
                 Sujeto a que haya existencia de la talla que pides. Si no la
                 hay, te ofrecemos otro modelo o un saldo a favor para una
@@ -129,26 +171,29 @@ export default function DevolucionesPage() {
             </ul>
 
             <h2>8. Restricciones</h2>
-            <p>No hay cambio de talla en:</p>
+            <p>
+              <strong>
+                El cambio de talla aplica en todos nuestros modelos.
+              </strong>{" "}
+              Ya no hay que revisar bota por bota: si está en el catálogo,
+              admite cambio. Las únicas excepciones son:
+            </p>
             <ul>
               <li>Productos personalizados o hechos a la medida.</li>
-              {HAY_CAMBIO_DE_TALLA ? (
-                <li>
-                  Modelos cuya página no indique que admiten cambio de talla.
-                </li>
-              ) : (
-                <li>Pedidos con envío a Estados Unidos, que son venta final.</li>
-              )}
+              <li>
+                Los modelos que lo indiquen expresamente en su página, si
+                alguna vez tuviéramos que excluir alguno.
+              </li>
             </ul>
-            {HAY_CAMBIO_DE_TALLA && (
-              <p>
-                <strong>
-                  Las botas en oferta, liquidación, Hot Sale y Buen Fin sí
-                  admiten cambio de talla
-                </strong>{" "}
-                si su página lo indica. La rebaja no quita el derecho al cambio.
-              </p>
-            )}
+            <p>
+              <strong>
+                Las botas en oferta, liquidación, Hot Sale, Buen Fin y Black
+                Friday también admiten cambio de talla.
+              </strong>{" "}
+              La rebaja no quita el derecho al cambio
+              {HAY_REEMBOLSO ? ", ni el de devolver dentro de tus " : ""}
+              {HAY_REEMBOLSO ? `${DIAS_RETRACTO} días hábiles` : ""}.
+            </p>
 
             <h2>9. Proceso</h2>
             <p>
@@ -175,10 +220,21 @@ export default function DevolucionesPage() {
             </ul>
 
             <h2>11. Devoluciones de dinero</h2>
-            <p>
-              Solo en casos autorizados. El reembolso se regresa al método de pago
-              original o a la cuenta indicada.
-            </p>
+            {HAY_REEMBOLSO ? (
+              <p>
+                Dentro de tus {DIAS_RETRACTO} días hábiles (punto 6 bis), sin
+                necesidad de motivo. Fuera de ese plazo, en los casos de
+                defecto de fabricación o error en el envío. El reembolso se
+                regresa al método de pago original o a la cuenta que nos
+                indiques.
+              </p>
+            ) : (
+              <p>
+                En los casos de defecto de fabricación confirmado o error en el
+                envío. El reembolso se regresa al método de pago original o a la
+                cuenta indicada.
+              </p>
+            )}
 
             <h2>12. Aceptación</h2>
             <p>Toda compra implica la aceptación total de esta política.</p>
@@ -192,28 +248,96 @@ export default function DevolucionesPage() {
         }
         en={
           <>
-            <h2>All U.S. orders are final sale</h2>
+            <h2>Size exchanges, on every model</h2>
             <p>
-              Orders shipped to the United States are <strong>final sale</strong>.
-              We do not offer returns or exchanges on U.S. orders, so please make
-              sure of your size before you order.
+              <strong>
+                If your boots don&apos;t fit, you can exchange them for another
+                size — on any model in our catalog.
+              </strong>{" "}
+              No checking pair by pair: if we sell it, it can be exchanged. The
+              only exceptions are custom or made-to-measure orders.
             </p>
+            <ul>
+              <li>
+                <strong>
+                  Tell us within {DIAS_AVISO_CAMBIO} calendar days
+                </strong>{" "}
+                of the carrier marking your parcel as delivered. What expires in
+                that window is the <em>notice</em>, not the exchange — once
+                you&apos;ve written to us, however long the parcel takes to get
+                back to León doesn&apos;t count against you.
+              </li>
+              <li>One exchange per order, unworn and in its original box.</li>
+              <li>
+                You cover return shipping and we cover shipping the new size.
+                {!HAY_REEMBOLSO && (
+                  <>
+                    {" "}
+                    <strong>
+                      From the United States that return is an international
+                      shipment and costs over $100,
+                    </strong>{" "}
+                    so it&apos;s worth messaging us on WhatsApp before you order
+                    and getting the size right the first time.
+                  </>
+                )}
+              </li>
+              <li>
+                Subject to the size being in stock. If it isn&apos;t, we&apos;ll
+                offer another model or store credit.
+              </li>
+            </ul>
+            <p>
+              Boots bought on sale, clearance, Hot Sale or Black Friday can be
+              exchanged too. A discount doesn&apos;t cost you the right to an
+              exchange.
+            </p>
+
+            {HAY_REEMBOLSO ? (
+              <>
+                <h2>Your {DIAS_RETRACTO} business days to change your mind</h2>
+                <p>
+                  <strong>
+                    You have {DIAS_RETRACTO} business days from delivery to
+                    cancel the purchase and get your money back
+                  </strong>
+                  , with no reason needed. This isn&apos;t a courtesy — it is
+                  your right under article 56 of Mexico&apos;s consumer
+                  protection law, and it applies even if you bought on sale. The
+                  boots must come back unworn and in their box, and return
+                  shipping is on you, which is what that same law provides.
+                </p>
+              </>
+            ) : (
+              <>
+                <h2>Refunds on U.S. orders</h2>
+                <p>
+                  Orders shipped to the United States{" "}
+                  <strong>are not eligible for a money refund</strong>: the
+                  parcel would have to clear customs twice and the international
+                  return costs more than the order is worth. Size exchanges, as
+                  above, are available.
+                </p>
+              </>
+            )}
 
             <h2>Get your size right the first time</h2>
             <p>
-              Because U.S. orders can&apos;t be exchanged, review our{" "}
-              <Link href="/guia-tallas">size guide</Link> before ordering. Our sizes run
-              in Mexican (cm), U.S., and EU scales. If you have any doubt about
-              sizing or a specific pair, message us first at{" "}
-              <strong>contacto@botasleon.com</strong> and we&apos;ll help you choose
-              the right fit.
+              Review our <Link href="/guia-tallas">size guide</Link> before
+              ordering — our sizes run in Mexican (cm), U.S. and EU scales. If
+              you have any doubt about sizing or a specific pair, message us
+              first at <strong>contacto@botasleon.com</strong> and we&apos;ll
+              help you choose the right fit. It&apos;s free, and it beats paying
+              for a return.
             </p>
 
             <h2>A problem with your order?</h2>
             <p>
               If something arrives incorrect or damaged, email us at{" "}
               <strong>contacto@botasleon.com</strong> within 7 days of delivery with
-              photos, and we&apos;ll do our best to make it right.
+              photos, and we&apos;ll do our best to make it right. Confirmed
+              manufacturing defects are covered for 15 days, and on a validated
+              warranty claim we pay the shipping both ways.
             </p>
           </>
         }
@@ -229,6 +353,8 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
   path: "/devoluciones",
   title: "Cambios, devoluciones y garantías",
   description:
-    "Política de envíos, cambios, devoluciones y garantías de Botas León. Cambio de talla en los modelos que lo indican, avisando dentro de 2 días naturales tras la entrega.",
+    HAY_REEMBOLSO
+      ? `Cambio de talla en todos los modelos, avisando dentro de ${DIAS_AVISO_CAMBIO} días naturales, y ${DIAS_RETRACTO} días hábiles para devolver y recuperar tu dinero.`
+      : `Cambio de talla en todos los modelos, avisando dentro de ${DIAS_AVISO_CAMBIO} días naturales tras la entrega. Política de envíos, cambios y garantías de Botas León.`,
   })
 }
