@@ -7,6 +7,7 @@
  */
 
 import type { Oferta } from "@/lib/ofertas/datos"
+import type { VideoHero } from "@/lib/hero-video"
 
 export type Money = {
   amount: string // GraphQL Decimal como string — convertir a number con cuidado
@@ -151,6 +152,13 @@ export type HeroSlide = {
   title: string
   href: string
   image: Image | null
+  /**
+   * Video del hero, cuando el campo `image` del metaobjeto trae un archivo de
+   * video en vez de una foto (el campo es file_reference y acepta los dos).
+   * Opcional a propósito: así los slides de foto y el de respaldo siguen
+   * construyéndose sin tocar nada. Ver lib/hero-video.ts.
+   */
+  video?: VideoHero | null
   // El componente usa una clase Tailwind para el gradient cuando no hay
   // imagen. Si en el futuro queremos overridear desde el admin, agregar
   // un field más en el metaobject (ej. `accent_color`).

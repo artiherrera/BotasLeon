@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { LocalizedLink as Link } from "@/components/LocalizedLink"
 import Image from "next/image"
 import type { HeroSlide } from "@/lib/shopify/types"
@@ -95,6 +95,7 @@ const HERO_FALLBACK: HeroSlide = {
   title: "hero.title",
   href: "/products",
   image: null,
+  video: null,
 }
 
 /**
@@ -168,6 +169,70 @@ export function HeroPortada({ slides }: Props) {
         title: t(HERO_FALLBACK.title),
       }
 
+  // ── EL HERO EN VIDEO ───────────────────────────────────────────────────
+  // Encargo del dueño (2026-11-26) a partir del hero de apple.com/mx: video en
+  // bucle, sin sonido, que arranca al entrar en pantalla y con botón de pausa.
+  // El video sale del MISMO campo `image` del metaobjeto, que en el admin es
+  // file_reference y acepta las dos cosas (ver lib/hero-video.ts). Mientras
+  // nadie suba un video, `slide.video` es null y esto no pinta nada: el hero
+  // sigue siendo la foto de siempre, byte por byte.
+  const video = slide.video ?? null
+
+  // La foto de debajo: la del slide si es un hero de foto, o el fotograma de
+  // arranque que Shopify genera si es un hero de video.
+  const foto = slide.image ?? video?.poster ?? null
+
+  const videoRef = useRef<HTMLVideoElement | null>(null)
+  // Si el visitante le dio pausa, no se le vuelve a arrancar al hacer scroll.
+  // Sin esto, el observador de abajo le gana la discusión a quien lo pausó.
+  const pausadoAMano = useRef(false)
+  const [corriendo, setCorriendo] = useState(false)
+  const [listo, setListo] = useState(false)
+
+  // ARRANCA AL ENTRAR EN PANTALLA Y SE DETIENE AL SALIR, en vez de un `autoPlay`
+  // y a otra cosa. Tres razones: un video corriendo fuera de pantalla gasta
+  // batería y datos de alguien que ya no lo está viendo; con `preload="none"`
+  // no se baja un solo byte hasta que de verdad se va a ver; y quien pidió
+  // menos movimiento en su sistema (prefers-reduced-motion) no debe toparse con
+  // algo que se mueve solo — ahí ni se instala el observador y el botón queda
+  // como la única forma de reproducirlo.
+  useEffect(() => {
+    const el = videoRef.current
+    if (!el) return
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return
+    const io = new IntersectionObserver(
+      (entradas) => {
+        for (const e of entradas) {
+          if (e.isIntersecting) {
+            // .play() devuelve una promesa que el navegador rechaza si la
+            // política de autoreproducción no lo deja; no es un error nuestro
+            // y el hero se queda en el fotograma de arranque.
+            if (!pausadoAMano.current) void el.play().catch(() => {})
+          } else if (!el.paused) {
+            el.pause()
+          }
+        }
+      },
+      { threshold: 0.25 }
+    )
+    io.observe(el)
+    return () => io.disconnect()
+  }, [video?.escritorio.url])
+
+  const alternarVideo = () => {
+    const el = videoRef.current
+    if (!el) return
+    if (el.paused) {
+      pausadoAMano.current = false
+      void el.play().catch(() => {})
+    } else {
+      pausadoAMano.current = true
+      el.pause()
+    }
+  }
+
+  const etiquetaBoton = t(corriendo ? "hero.pausarVideo" : "hero.reproducirVideo")
+
   // LA CAJA CRECE HASTA EL TEXTO. En móvil el hero es una caja 16:10 (257px
   // en un teléfono de 412), y el bloque de texto —rótulo, titular de tres
   // renglones y botón— mide más que eso. Iba en posición absoluta pegado al
@@ -185,15 +250,66 @@ export function HeroPortada({ slides }: Props) {
       className="relative flex w-full min-h-[62.5vw] flex-col justify-end md:h-[70vh] md:min-h-[520px] md:max-h-[680px] overflow-hidden bg-text"
       aria-label={slide.title}
     >
-      {slide.image ? (
+      {/* CAPA 1 · LA FOTO, SIEMPRE. En un hero de foto es el hero; en uno de
+          video es el fotograma de arranque, y se queda debajo. Así el primer
+          pantallazo lo pinta una imagen que pasó por next/image —y no el
+          poster sin optimizar del <video>—, y si el video no carga nunca,
+          nadie nota nada. */}
+      {foto ? (
         <Image
-          src={slide.image.url}
-          alt={slide.image.altText || slide.title}
+          src={foto.url}
+          alt={foto.altText || slide.title}
           fill
           preload
           sizes="100vw"
           className="object-cover"
         />
+      ) : null}
+
+      {/* CAPA 2 · EL VIDEO, encima de la foto, y se funde cuando ya puede
+          reproducirse. Sin JavaScript se queda en opacity-0 y manda la foto,
+          que es justo lo que se quiere.
+
+          role="img" con el alt del archivo y el <video> en aria-hidden: para
+          un lector de pantalla esto es una ilustración, no un reproductor.
+          tabIndex={-1} porque sin controles nativos no hay nada que teclear;
+          el único control es el botón de abajo. */}
+      {video ? (
+        <div
+          className="absolute inset-0"
+          role="img"
+          aria-label={video.alt || slide.title}
+        >
+          <video
+            ref={videoRef}
+            muted
+            loop
+            playsInline
+            preload="none"
+            poster={video.poster?.url}
+            aria-hidden
+            tabIndex={-1}
+            onCanPlay={() => setListo(true)}
+            onPlaying={() => setCorriendo(true)}
+            onPause={() => setCorriendo(false)}
+            className={`h-full w-full object-cover transition-opacity duration-700 ${
+              listo ? "opacity-100" : "opacity-0"
+            }`}
+          >
+            {/* DOS COPIAS, UNA SOLA DESCARGA. El navegador se queda con la
+                primera <source> cuyo `media` le cuadre, así que la de teléfono
+                va primero. Si un navegador ignorara `media`, todos verían la
+                copia chica: menos nítido, nunca roto. */}
+            {video.movil ? (
+              <source
+                src={video.movil.url}
+                type={video.movil.mimeType}
+                media="(max-width: 767px)"
+              />
+            ) : null}
+            <source src={video.escritorio.url} type={video.escritorio.mimeType} />
+          </video>
+        </div>
       ) : null}
 
       {/* Velo inferior para que el texto crema se lea también sobre las zonas
@@ -223,6 +339,31 @@ export function HeroPortada({ slides }: Props) {
           </Link>
         </div>
       </div>
+
+      {/* EL BOTÓN DE PAUSA va al final del DOM, después del velo: el velo es
+          absoluto y llega a negro/70 justo en esta esquina, así que pintado
+          antes se lo tragaba. Solo existe cuando el hero ES un video.
+          46px de lado, el mismo objetivo táctil que el resto del sitio. */}
+      {video ? (
+        <button
+          type="button"
+          onClick={alternarVideo}
+          title={etiquetaBoton}
+          aria-label={etiquetaBoton}
+          className="absolute bottom-4 right-4 z-10 grid h-11 w-11 place-items-center rounded-full border border-bg/50 bg-black/30 text-bg backdrop-blur-sm transition-colors duration-[180ms] hover:bg-black/60 md:bottom-8 md:right-8"
+        >
+          {corriendo ? (
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="currentColor" aria-hidden>
+              <rect x="2" y="1.5" width="3.5" height="11" rx="0.5" />
+              <rect x="8.5" y="1.5" width="3.5" height="11" rx="0.5" />
+            </svg>
+          ) : (
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="currentColor" aria-hidden>
+              <path d="M3.5 1.8a.6.6 0 0 1 .92-.5l7 5.2a.6.6 0 0 1 0 1l-7 5.2a.6.6 0 0 1-.92-.5V1.8Z" />
+            </svg>
+          )}
+        </button>
+      ) : null}
     </section>
   )
 }

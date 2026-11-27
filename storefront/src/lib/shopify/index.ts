@@ -1,4 +1,5 @@
 import { ofertaDe, type Oferta } from "@/lib/ofertas/datos"
+import { eligeFuentes, type FuenteVideo, type VideoHero } from "@/lib/hero-video"
 /**
  * Capa de acceso a datos sobre Shopify Storefront API.
  *
@@ -545,7 +546,16 @@ function parseHrefFromLinkField(value: string): string {
 type MetaobjectField = {
   key: string
   value: string | null
-  reference: { image: Image | null } | null
+  // Todo opcional porque cada query pide lo suyo: la del hero pide además los
+  // campos de Video (ver GET_HERO_SLIDES_QUERY) y las demás solo la imagen.
+  reference:
+    | {
+        image?: Image | null
+        alt?: string | null
+        previewImage?: Image | null
+        sources?: FuenteVideo[] | null
+      }
+    | null
   // Campos de LISTA (ej. lista de imágenes en store_photo). Opcional: las
   // queries que no lo piden lo dejan undefined.
   references?: { edges: Array<{ node: { image: Image | null } | null }> } | null
@@ -580,7 +590,16 @@ export async function getHeroSlides(): Promise<HeroSlide[]> {
   const slides = nodes.map((node, idx) => {
     const fieldMap = new Map(node.fields.map((f) => [f.key, f] as const))
     const get = (key: string) => fieldMap.get(key)?.value ?? ""
-    const image = fieldMap.get("image")?.reference?.image ?? null
+
+    // EL MISMO CAMPO SIRVE PARA FOTO Y PARA VIDEO: `image` es file_reference
+    // en el admin. Si el archivo elegido es un video, llega `sources` y no
+    // `image`; el poster lo genera Shopify solo (previewImage).
+    const ref = fieldMap.get("image")?.reference ?? null
+    const image = ref?.image ?? null
+    const fuentes = ref?.sources?.length ? eligeFuentes(ref.sources) : null
+    const video: VideoHero | null = fuentes
+      ? { ...fuentes, poster: ref?.previewImage ?? null, alt: ref?.alt ?? "" }
+      : null
 
     const slide: HeroSlide = {
       id: node.id,
@@ -589,6 +608,7 @@ export async function getHeroSlides(): Promise<HeroSlide[]> {
       title: get("title"),
       href: parseHrefFromLinkField(get("link_url")) || "/products",
       image,
+      video,
       bgClass: HERO_FALLBACK_GRADIENTS[idx % HERO_FALLBACK_GRADIENTS.length],
     }
 

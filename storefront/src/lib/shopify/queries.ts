@@ -433,6 +433,17 @@ export const GET_HERO_SLIDES_QUERY = /* GraphQL */ `
               ... on MediaImage {
                 image { ...ImageFields }
               }
+              # EL CAMPO image PUEDE TRAER UN VIDEO. En el admin está definido
+              # como file_reference, no image_reference, así que acepta
+              # cualquier archivo de la biblioteca. Probado contra la API
+              # 2025-01: el fragmento es válido y no rompe los slides de foto.
+              # El campo sources llega con varias copias (480p/720p/1080p) y
+              # además un m3u8; quién elige cuál se sirve es lib/hero-video.ts.
+              ... on Video {
+                alt
+                previewImage { ...ImageFields }
+                sources { url mimeType format width height }
+              }
             }
           }
         }

@@ -214,6 +214,11 @@ export const DICTIONARY: Record<string, Entry> = {
   "hero.slide3.eyebrow": { es: "Mujer · Nueva colección", en: "Women · New collection" },
   "hero.slide3.title": { es: "Cuero auténtico.", en: "Genuine leather." },
   "hero.goToSlide": { es: "Ir al slide {n}", en: "Go to slide {n}" },
+  // Botón de pausa del hero en video (HeroPortada). Solo se pinta cuando el
+  // hero ES un video; con foto no existe. Va en el aria-label y en el title,
+  // porque el botón es un icono sin texto.
+  "hero.pausarVideo": { es: "Pausar el video", en: "Pause the video" },
+  "hero.reproducirVideo": { es: "Reproducir el video", en: "Play the video" },
 
   // ── Plazo de entrega ─────────────────────────────────────────────────
   // UNA sola cifra para todo el sitio, definida en lib/entrega.ts y elegida
